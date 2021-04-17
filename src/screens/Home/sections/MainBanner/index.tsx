@@ -1,7 +1,7 @@
-import { Flex } from '@chakra-ui/react';
+import NyanCat from 'src/assets/graphics/nyan-cat.gif';
 
 const MainBanner = () => {
-    return <Flex align="center" justify="center" w="100%" minH="100vh"></Flex>;
+    return <div></div>;
 };
 
 export { MainBanner };
