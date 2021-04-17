@@ -25,7 +25,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "format": "prettier './**/*.{ts,tsx,js}' --loglevel silent --write"
+    "format": "prettier './**/*.{ts,tsx,js}' --loglevel silent --write",
+    "validate": "yarn format"
   },
   "eslintConfig": {
     "extends": [
@@ -47,6 +48,7 @@
   },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^2.0.2",
+    "husky": "^6.0.0",
     "prettier": "^2.2.1"
   }
 }
