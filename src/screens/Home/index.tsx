@@ -1,7 +1,11 @@
-import React from 'react';
+import { MainBanner } from './sections/MainBanner';
 
 const HomeScreen = () => {
-    return <div></div>;
+    return (
+        <>
+            <MainBanner />
+        </>
+    );
 };
 
 export { HomeScreen };
