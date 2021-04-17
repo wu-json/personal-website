@@ -1,9 +1,7 @@
-function App() {
-    return (
-        <div>
-            <p>Hi</p>
-        </div>
-    );
-}
+import { ChakraProvider } from '@chakra-ui/react';
+import '@fontsource/poppins/200.css';
+import { theme } from 'src/styles/theme';
 
-export default App;
+const App = () => <ChakraProvider theme={theme}></ChakraProvider>;
+
+export { App };
