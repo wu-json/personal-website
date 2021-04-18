@@ -1,3 +1,5 @@
+import { Footer } from 'src/components/Footer';
+
 import { AboutMe } from './sections/AboutMe';
 import { Jobs } from './sections/Jobs';
 import { MainBanner } from './sections/MainBanner';
@@ -12,6 +14,7 @@ const HomeScreen = () => {
             <Jobs />
             <Projects />
             <Stack />
+            <Footer />
         </>
     );
 };
