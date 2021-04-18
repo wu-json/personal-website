@@ -47,6 +47,7 @@ h2 {
 
 .socials-container a {
   margin-right: 20px;
+  text-decoration: none;
 }
 
 .socials-container img {
@@ -60,6 +61,8 @@ h2 {
   cursor: pointer;
 }
 
-button {
+.button-wrapper {
   margin-top: 30px;
+  display: inline-block;
+  text-decoration: none;
 }

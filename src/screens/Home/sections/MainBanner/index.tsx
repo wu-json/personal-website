@@ -25,7 +25,12 @@ const MainBanner = () => {
                             </a>
                         ))}
                     </div>
-                    <button>resume</button>
+                    <a
+                        className={styles['button-wrapper']}
+                        href="/jasonwu-resume.pdf"
+                    >
+                        <button>resume</button>
+                    </a>
                 </div>
             </div>
         </div>
