@@ -43,17 +43,17 @@
 .socials-container a {
   margin-right: 20px;
   text-decoration: none;
+  transition: all 0.3s ease-in-out;
+}
+
+.socials-container a:hover {
+  transform: translate(0px, -5px);
+  filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.3));
+  cursor: pointer;
 }
 
 .socials-container img {
   width: 40px;
-  transition: all 0.3s ease-in-out;
-}
-
-.socials-container img:hover {
-  transform: translate(0px, -5px);
-  filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.3));
-  cursor: pointer;
 }
 
 .button-wrapper {
