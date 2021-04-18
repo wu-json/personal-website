@@ -73,16 +73,29 @@ h2 {
     padding: 30px;
     flex-direction: column;
   }
+
   .nyan-cat {
     margin-bottom: 30px;
   }
+
   .text-container {
     text-align: center;
   }
+
   .socials-container {
     justify-content: center;
   }
+
   .socials-container a {
     margin: 10px;
+  }
+
+  h1 {
+    font-size: 40px;
+  }
+
+  h2 {
+    font-size: 26px;
+    margin-bottom: 30px;
   }
 }
