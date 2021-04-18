@@ -25,7 +25,7 @@ const SOCIALS: Social[] = [
             src: GitHubIcon,
             alt: 'github'
         },
-        href: 'https://github.com/jasonwu2153'
+        href: 'https://github.com/wu-json'
     },
     {
         icon: {
