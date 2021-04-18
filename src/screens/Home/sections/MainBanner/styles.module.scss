@@ -37,3 +37,26 @@ h2 {
   font-weight: 400;
   font-size: 30px;
 }
+
+.socials-container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.socials-container a {
+  margin-right: 20px;
+}
+
+.socials-container img {
+  width: 40px;
+}
+
+.socials-container img:hover {
+  filter: brightness(200%);
+  cursor: pointer;
+}
+
+button {
+  margin-top: 30px;
+}
