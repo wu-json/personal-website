@@ -10,7 +10,7 @@ const PROJECTS: Project[] = [
         },
         projectName: 'vailable',
         desc: 'fast scheduling tool for meetings',
-        href: 'https://www.vailable.io/'
+        href: 'https://vailable.io'
     }
 ];
 

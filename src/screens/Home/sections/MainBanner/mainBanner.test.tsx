@@ -11,7 +11,7 @@ describe('Main Banner Tests', () => {
             },
             {
                 alt: 'linkedin',
-                expectedLink: 'https://www.linkedin.com/in/jwu215/'
+                expectedLink: 'https://linkedin.com/in/wu-json'
             },
             {
                 alt: 'github',

@@ -18,7 +18,7 @@ const SOCIALS: Social[] = [
             src: LinkedInIcon,
             alt: 'linkedin'
         },
-        href: 'https://www.linkedin.com/in/jwu215/'
+        href: 'https://linkedin.com/in/wu-json'
     },
     {
         icon: {
