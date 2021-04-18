@@ -16,8 +16,8 @@ const MainBanner = () => {
                     <h1>jason wu</h1>
                     <h2>swe @snackpass</h2>
                     <div className={styles['socials-container']}>
-                        {SOCIALS.map(social => (
-                            <a href={social.href}>
+                        {SOCIALS.map((social, i) => (
+                            <a href={social.href} key={i}>
                                 <img
                                     src={social.icon.src}
                                     alt={social.icon.alt}
