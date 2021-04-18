@@ -1,4 +1,5 @@
-import { STACK_LOGOS } from './constants';
+import { StackTool } from './components/StackTool';
+import { STACK } from './constants';
 import styles from './styles.module.scss';
 
 const Stack = () => (
@@ -6,8 +7,8 @@ const Stack = () => (
         <div className={styles['container']}>
             <h1>what i've been using lately</h1>
             <div className={styles['stack-container']}>
-                {STACK_LOGOS.map((logo, i) => (
-                    <img key={i} src={logo.src} alt={logo.alt} />
+                {STACK.map((stackTool, i) => (
+                    <StackTool stackTool={stackTool} key={i} />
                 ))}
             </div>
         </div>
