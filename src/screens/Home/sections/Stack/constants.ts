@@ -13,35 +13,35 @@ const STACK: StackTool[] = [
             src: TypeScriptLogo,
             alt: 'typescript-logo'
         },
-        href: 'https://www.typescriptlang.org/'
+        href: 'https://typescriptlang.org'
     },
     {
         logo: {
             src: ReactLogo,
             alt: 'react-logo'
         },
-        href: 'https://reactjs.org/'
+        href: 'https://reactjs.org'
     },
     {
         logo: {
             src: GraphQLLogo,
             alt: 'graphql-logo'
         },
-        href: 'https://graphql.org/'
+        href: 'https://graphql.org'
     },
     {
         logo: {
             src: ApolloLogo,
             alt: 'apollo-logo'
         },
-        href: 'https://www.apollographql.com/'
+        href: 'https://apollographql.com'
     },
     {
         logo: {
             src: PostgresLogo,
             alt: 'postgres-logo'
         },
-        href: 'https://www.postgresql.org/'
+        href: 'https://postgresql.org'
     },
     {
         logo: {
