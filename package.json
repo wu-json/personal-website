@@ -4,8 +4,8 @@
   "private": true,
   "dependencies": {
     "@fontsource/poppins": "^4.2.2",
-    "@testing-library/jest-dom": "^5.11.4",
-    "@testing-library/react": "^11.1.0",
+    "@testing-library/jest-dom": "^5.11.10",
+    "@testing-library/react": "^11.2.6",
     "@testing-library/user-event": "^12.1.10",
     "@types/jest": "^26.0.15",
     "@types/node": "^12.0.0",
@@ -23,10 +23,10 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
+    "test": "react-scripts test --watchAll=false",
     "eject": "react-scripts eject",
     "format": "prettier './**/*.{ts,tsx,js}' --loglevel silent --write",
-    "validate": "yarn format"
+    "validate": "yarn format && yarn test"
   },
   "eslintConfig": {
     "extends": [
@@ -51,6 +51,7 @@
     "@types/history": "^4.7.8",
     "@types/react-router-dom": "^5.1.7",
     "husky": "^6.0.0",
-    "prettier": "^2.2.1"
+    "prettier": "^2.2.1",
+    "ts-jest": "^26.5.5"
   }
 }
