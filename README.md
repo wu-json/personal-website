@@ -1,10 +1,6 @@
 ## Overview
 
-This is the repo for my [tech website](https://jasonwu.io). It is written in TypeScript using React + Chakra.
-
-## Deployment
-
-This GitHub repo is linked to Netlify, which will automatically push out changes to production when main branch receives new commits.
+This is the repo for my [tech website](https://jasonwu.io).
 
 ## Run This Repo Locally
 
