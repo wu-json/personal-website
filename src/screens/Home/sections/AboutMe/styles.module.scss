@@ -1,0 +1,22 @@
+.wrapper {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  justify-content: center;
+  max-width: 600px;
+}
+
+.container h1 {
+  margin-bottom: 0px;
+}
+
+.text-wrapper {
+  text-align: left;
+}

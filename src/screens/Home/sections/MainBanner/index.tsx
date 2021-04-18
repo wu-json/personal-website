@@ -4,7 +4,7 @@ import { SOCIALS } from './constants';
 import styles from './styles.module.scss';
 
 const MainBanner = () => (
-    <div className={styles['page']}>
+    <div className={styles['wrapper']}>
         <div className={styles['container']}>
             <img className={styles['nyan-cat']} src={NyanCat} alt="nyan-cat" />
             <div className={styles['text-container']}>
