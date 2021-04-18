@@ -10,7 +10,7 @@
   flex-direction: column;
   text-align: center;
   justify-content: center;
-  width: 500px;
+  max-width: 500px;
 }
 
 .container h1 {
@@ -31,9 +31,11 @@
 
   .container {
     padding: 0px 60px;
+    width: 100%;
   }
 
   .stack-container {
     align-items: center;
+    flex-wrap: wrap;
   }
 }
