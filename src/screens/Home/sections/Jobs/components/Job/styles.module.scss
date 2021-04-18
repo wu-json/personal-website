@@ -1,14 +1,33 @@
+@use 'src/styles/colors.scss';
+
 .container {
   display: flex;
   align-items: center;
   justify-content: flex-start;
+  margin-bottom: 30px;
 }
 
 .container img {
   width: 80px;
   border-radius: 50%;
+  margin-right: 30px;
 }
 
 .text-container {
   text-align: left;
+  line-height: 2em;
+}
+
+.text-container h2 {
+  font-size: 26px;
+  font-weight: 600;
+  color: colors.$mineshaft;
+  margin: 0px;
+}
+
+.text-container h3 {
+  font-size: 18px;
+  font-weight: 300;
+  color: colors.$mineshaft;
+  margin: 0px;
 }
