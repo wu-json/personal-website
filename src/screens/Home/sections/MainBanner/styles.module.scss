@@ -69,6 +69,8 @@ h2 {
 
 @media only screen and (max-width: 800px) {
   .container {
+    width: 100%;
+    padding: 30px;
     flex-direction: column;
   }
   .nyan-cat {
