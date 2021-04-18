@@ -1,4 +1,5 @@
 import { AboutMe } from './sections/AboutMe';
+import { Jobs } from './sections/Jobs';
 import { MainBanner } from './sections/MainBanner';
 
 const HomeScreen = () => {
@@ -6,6 +7,7 @@ const HomeScreen = () => {
         <>
             <MainBanner />
             <AboutMe />
+            <Jobs />
         </>
     );
 };
