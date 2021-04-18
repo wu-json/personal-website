@@ -1,6 +1,7 @@
 import { AboutMe } from './sections/AboutMe';
 import { Jobs } from './sections/Jobs';
 import { MainBanner } from './sections/MainBanner';
+import { Projects } from './sections/Projects';
 
 const HomeScreen = () => {
     return (
@@ -8,6 +9,7 @@ const HomeScreen = () => {
             <MainBanner />
             <AboutMe />
             <Jobs />
+            <Projects />
         </>
     );
 };

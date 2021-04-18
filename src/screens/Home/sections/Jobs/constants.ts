@@ -1,12 +1,12 @@
-import AmazonIcon from 'src/assets/logos/amazon.jpeg';
-import SnackpassIcon from 'src/assets/logos/snackpass.png';
+import AmazonLogo from 'src/assets/logos/amazon.jpeg';
+import SnackpassLogo from 'src/assets/logos/snackpass.png';
 
 import { Job } from './types';
 
 const JOBS: Job[] = [
     {
         logo: {
-            src: AmazonIcon,
+            src: AmazonLogo,
             alt: 'amazon-logo'
         },
         companyName: 'amazon',
@@ -16,7 +16,7 @@ const JOBS: Job[] = [
     },
     {
         logo: {
-            src: SnackpassIcon,
+            src: SnackpassLogo,
             alt: 'snackpass-logo'
         },
         companyName: 'snackpass',
