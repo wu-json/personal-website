@@ -17,3 +17,9 @@
 .container h1 {
   margin-bottom: 0px;
 }
+
+@media only screen and (max-width: 800px) {
+  .container {
+    padding: 30px;
+  }
+}
