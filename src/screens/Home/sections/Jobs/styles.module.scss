@@ -26,9 +26,14 @@
 }
 
 @media only screen and (max-width: 800px) {
+  .wrapper {
+    margin-top: 0px;
+  }
+
   .container {
     padding: 60px;
   }
+
   .jobs-container {
     align-items: center;
   }
