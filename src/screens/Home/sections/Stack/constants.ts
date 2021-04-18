@@ -13,7 +13,7 @@ const STACK: StackTool[] = [
             src: TypeScriptLogo,
             alt: 'typescript-logo'
         },
-        href: 'https://typescriptlang.org'
+        href: 'https://www.typescriptlang.org/'
     },
     {
         logo: {

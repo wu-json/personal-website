@@ -7,7 +7,7 @@ describe('Stack Tests', () => {
         const testCases = [
             {
                 alt: 'typescript',
-                expectedLink: 'https://typescriptlang.org'
+                expectedLink: 'https://www.typescriptlang.org/'
             },
             {
                 alt: 'react',
