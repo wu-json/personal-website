@@ -1,3 +1,4 @@
+@use 'src/styles/colors.scss';
 @import '@fontsource/poppins/100.css';
 @import '@fontsource/poppins/200.css';
 @import '@fontsource/poppins/300.css';
@@ -12,10 +13,12 @@ h1 {
   font-family: Poppins;
   font-weight: 700;
   font-size: 40px;
+  color: colors.$not-quite-black;
 }
 
 p {
   font-family: Poppins;
   font-weight: 300;
   font-size: 16px;
+  color: colors.$not-quite-black;
 }
