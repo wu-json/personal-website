@@ -1,0 +1,42 @@
+.wrapper {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 120px;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  justify-content: center;
+  max-width: 500px;
+}
+
+.container h1 {
+  margin-bottom: 0px;
+}
+
+.stack-container {
+  padding: 60px 0px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media only screen and (max-width: 800px) {
+  .wrapper {
+    margin-top: -10px;
+  }
+
+  .container {
+    padding: 0px 60px;
+    width: 100%;
+  }
+
+  .stack-container {
+    align-items: center;
+    flex-wrap: wrap;
+  }
+}

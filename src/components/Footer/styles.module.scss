@@ -1,0 +1,17 @@
+.container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 30px 60px;
+}
+
+.container h3 {
+  font-size: 14px;
+}
+
+@media only screen and (max-width: 800px) {
+  .container {
+    flex-direction: column;
+    justify-content: center;
+  }
+}
