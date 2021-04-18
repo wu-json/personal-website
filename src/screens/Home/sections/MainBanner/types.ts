@@ -1,7 +1,6 @@
+import { Image } from 'src/lib/types';
+
 export type Social = {
-    icon: {
-        src: string;
-        alt: string;
-    };
+    icon: Image;
     href: string;
 };
