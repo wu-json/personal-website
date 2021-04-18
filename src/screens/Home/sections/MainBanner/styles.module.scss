@@ -66,3 +66,21 @@ h2 {
   display: inline-block;
   text-decoration: none;
 }
+
+@media only screen and (max-width: 800px) {
+  .container {
+    flex-direction: column;
+  }
+  .nyan-cat {
+    margin-bottom: 30px;
+  }
+  .text-container {
+    text-align: center;
+  }
+  .socials-container {
+    justify-content: center;
+  }
+  .socials-container a {
+    margin: 10px;
+  }
+}
