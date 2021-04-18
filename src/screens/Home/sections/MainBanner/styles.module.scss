@@ -39,6 +39,7 @@ h2 {
 }
 
 .socials-container {
+  margin-top: 20px;
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -50,10 +51,12 @@ h2 {
 
 .socials-container img {
   width: 40px;
+  transition: all 0.3s ease-in-out;
 }
 
 .socials-container img:hover {
-  filter: brightness(200%);
+  transform: translate(0px, -5px);
+  filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.3));
   cursor: pointer;
 }
 
