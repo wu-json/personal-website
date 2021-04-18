@@ -4,33 +4,52 @@ import NodeLogo from 'src/assets/logos/node.png';
 import PostgresLogo from 'src/assets/logos/postgres.png';
 import ReactLogo from 'src/assets/logos/react.png';
 import TypeScriptLogo from 'src/assets/logos/typescript.png';
-import { Image } from 'src/lib/types';
 
-const STACK_LOGOS: Image[] = [
+import { StackTool } from './types';
+
+const STACK: StackTool[] = [
     {
-        src: TypeScriptLogo,
-        alt: 'typescript-logo'
+        logo: {
+            src: TypeScriptLogo,
+            alt: 'typescript-logo'
+        },
+        href: 'https://www.typescriptlang.org/'
     },
     {
-        src: ReactLogo,
-        alt: 'react-logo'
+        logo: {
+            src: ReactLogo,
+            alt: 'react-logo'
+        },
+        href: 'https://reactjs.org/'
     },
     {
-        src: GraphQLLogo,
-        alt: 'graphql-logo'
+        logo: {
+            src: GraphQLLogo,
+            alt: 'graphql-logo'
+        },
+        href: 'https://graphql.org/'
     },
     {
-        src: ApolloLogo,
-        alt: 'apollo-logo'
+        logo: {
+            src: ApolloLogo,
+            alt: 'apollo-logo'
+        },
+        href: 'https://www.apollographql.com/'
     },
     {
-        src: PostgresLogo,
-        alt: 'postgres-logo'
+        logo: {
+            src: PostgresLogo,
+            alt: 'postgres-logo'
+        },
+        href: 'https://www.postgresql.org/'
     },
     {
-        src: NodeLogo,
-        alt: 'node-logo'
+        logo: {
+            src: NodeLogo,
+            alt: 'node-logo'
+        },
+        href: 'https://nodejs.org'
     }
 ];
 
-export { STACK_LOGOS };
+export { STACK };
