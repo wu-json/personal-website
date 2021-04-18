@@ -11,7 +11,7 @@
   flex-direction: column;
   text-align: center;
   justify-content: center;
-  max-width: 600px;
+  width: 500px;
 }
 
 .container h1 {
@@ -20,10 +20,16 @@
 
 .jobs-container {
   padding: 60px 0px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 @media only screen and (max-width: 800px) {
   .container {
     padding: 60px;
+  }
+  .jobs-container {
+    align-items: center;
   }
 }
