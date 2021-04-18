@@ -12,7 +12,7 @@ const MainBanner = () => {
                     src={NyanCat}
                     alt="nyan-cat"
                 />
-                <div>
+                <div className={styles['text-container']}>
                     <h1>jason wu</h1>
                     <h2>swe @snackpass</h2>
                     <div>
@@ -25,6 +25,7 @@ const MainBanner = () => {
                             </a>
                         ))}
                     </div>
+                    <button>resume</button>
                 </div>
             </div>
         </div>
