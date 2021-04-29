@@ -1,16 +1,16 @@
-import VailableLogo from 'src/assets/logos/vailable.png';
+import PokeEthLogo from 'src/assets/logos/poke-eth.png';
 
 import { Project } from './types';
 
 const PROJECTS: Project[] = [
     {
         logo: {
-            src: VailableLogo,
-            alt: 'vailable-logo'
+            src: PokeEthLogo,
+            alt: 'poke-eth-logo'
         },
-        projectName: 'vailable',
-        desc: 'fast scheduling tool for meetings',
-        href: 'https://vailable.io'
+        projectName: 'poké-eth',
+        desc: 'pokemon on the ethereum blockchain',
+        href: 'https://github.com/poke-eth'
     }
 ];
 
