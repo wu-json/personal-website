@@ -1,4 +1,4 @@
-import { Project as ProjectType } from 'src/screens/Home/sections/Projects/types';
+import { Project as ProjectType } from 'src/screens/Home/sections/CurrentlyBuilding/types';
 
 import styles from './styles.module.scss';
 
