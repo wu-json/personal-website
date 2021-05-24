@@ -25,8 +25,9 @@
     "build": "react-scripts build",
     "test": "react-scripts test --watchAll=false",
     "eject": "react-scripts eject",
-    "format": "prettier './**/*.{ts,tsx,js}' --loglevel silent --write",
-    "validate": "yarn format && yarn test"
+    "postinstall": "husky install",
+    "prettier:format": "prettier './**/*.{ts,tsx,js}' --loglevel silent --write",
+    "validate": "yarn prettier:format && yarn test"
   },
   "eslintConfig": {
     "extends": [
