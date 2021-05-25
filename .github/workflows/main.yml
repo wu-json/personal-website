@@ -26,8 +26,8 @@ jobs:
 
   release:
     name: Create Release
-    if: ${{ github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
+    if: ${{ github.ref == 'refs/heads/main' }}
     steps:
       - name: Semantic Release
         run: npx semantic-release
