@@ -1,7 +1,7 @@
 {
   "name": "wu-json-personal-site",
   "version": "0.0.0-semantically-released",
-  "private": true,
+  "private": false,
   "dependencies": {
     "@fontsource/poppins": "^4.2.2",
     "@testing-library/jest-dom": "^5.11.10",
