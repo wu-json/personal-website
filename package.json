@@ -1,6 +1,6 @@
 {
   "name": "wu-json-personal-site",
-  "version": "1.0.0",
+  "version": "0.0.0-semantically-released",
   "private": true,
   "dependencies": {
     "@fontsource/poppins": "^4.2.2",
@@ -27,7 +27,8 @@
     "eject": "react-scripts eject",
     "postinstall": "husky install",
     "prettier:format": "prettier './**/*.{ts,tsx,js}' --loglevel silent --write",
-    "validate": "yarn prettier:format && yarn test"
+    "validate": "yarn prettier:format && yarn test",
+    "semantic-release": "semantic-release"
   },
   "eslintConfig": {
     "extends": [
@@ -55,11 +56,17 @@
     "cz-conventional-changelog": "3.3.0",
     "husky": "^6.0.0",
     "prettier": "^2.2.1",
-    "ts-jest": "^26.5.5"
+    "semantic-release-cli": "^5.4.3",
+    "ts-jest": "^26.5.5",
+    "semantic-release": "^17.4.3"
   },
   "config": {
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
     }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wu-json/personal-website.git"
   }
 }
