@@ -8,7 +8,7 @@ const AboutMe = () => (
                 <p>
                     I'm a rising senior at Yale University pursuing a B.S. in
                     Computer Science, and Software Engineer at Amazon. I'm super
-                    interested in GraphQL and Solidity. In my free time, I like
+                    interested in GraphQL and Finance. In my free time, I like
                     making LoFi music.
                 </p>
             </div>
