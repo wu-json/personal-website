@@ -28,6 +28,7 @@ jobs:
     name: Create Release
     runs-on: ubuntu-latest
     if: ${{ github.ref == 'refs/heads/main' }}
+    needs: test-and-build
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
