@@ -68,5 +68,10 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/wu-json/personal-website.git"
+  },
+  "release": {
+    "branches": [
+      "main"
+    ]
   }
 }
