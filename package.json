@@ -4,7 +4,7 @@
   "private": false,
   "license": "MIT",
   "dependencies": {
-    "@fontsource/poppins": "^4.2.2",
+    "@fontsource/poppins": "^4.5.0",
     "@testing-library/jest-dom": "^5.11.10",
     "@testing-library/react": "^11.2.6",
     "@testing-library/user-event": "^12.1.10",
@@ -57,9 +57,9 @@
     "cz-conventional-changelog": "3.3.0",
     "husky": "^6.0.0",
     "prettier": "^2.2.1",
+    "semantic-release": "^17.4.3",
     "semantic-release-cli": "^5.4.3",
-    "ts-jest": "^26.5.5",
-    "semantic-release": "^17.4.3"
+    "ts-jest": "^26.5.5"
   },
   "config": {
     "commitizen": {
