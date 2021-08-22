@@ -6,6 +6,10 @@ describe('Jobs Tests', () => {
     it('should link to correct company sites', () => {
         const testCases = [
             {
+                alt: 'atom-finance',
+                expectedLink: 'https://atom.finance/'
+            },
+            {
                 alt: 'amazon',
                 expectedLink: 'https://aws.amazon.com/'
             },

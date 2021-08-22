@@ -1,9 +1,20 @@
 import AmazonLogo from 'src/assets/logos/amazon.jpeg';
+import AtomFinanceLogo from 'src/assets/logos/atomFinance.png';
 import SnackpassLogo from 'src/assets/logos/snackpass.png';
 
 import { Job } from './types';
 
 const JOBS: Job[] = [
+    {
+        logo: {
+            src: AtomFinanceLogo,
+            alt: 'atom-finance-logo'
+        },
+        companyName: 'atom finance',
+        title: 'software engineer',
+        duration: 'fall 2021 - present',
+        href: 'https://atom.finance/'
+    },
     {
         logo: {
             src: AmazonLogo,
