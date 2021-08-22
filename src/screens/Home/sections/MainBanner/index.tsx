@@ -9,7 +9,7 @@ const MainBanner = () => (
             <img className={styles['nyan-cat']} src={NyanCat} alt="nyan-cat" />
             <div className={styles['text-container']}>
                 <h1>jason wu</h1>
-                <h2>swe @amazon</h2>
+                <h2>swe @atom finance</h2>
                 <div className={styles['socials-container']}>
                     {SOCIALS.map((social, i) => (
                         <a href={social.href} key={i}>
