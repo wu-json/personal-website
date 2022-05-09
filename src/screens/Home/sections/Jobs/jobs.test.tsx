@@ -10,6 +10,10 @@ describe('Jobs Tests', () => {
                 expectedLink: 'https://atom.finance/'
             },
             {
+                alt: 'rutter',
+                expectedLink: 'https://www.rutterapi.com/'
+            },
+            {
                 alt: 'amazon',
                 expectedLink: 'https://aws.amazon.com/'
             },
