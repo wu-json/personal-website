@@ -3,7 +3,7 @@
   "version": "0.0.0-semantically-released",
   "private": false,
   "license": "MIT",
-  "engine": {
+  "engines": {
     "node": "16.15.0"
   },
   "dependencies": {
