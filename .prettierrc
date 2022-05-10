@@ -1,16 +1,15 @@
 {
-  "trailingComma": "none",
-  "arrowParens": "avoid",
   "tabWidth": 2,
-  "overrides": [
-    {
-      "files": ["*.ts", "*.tsx"],
-      "options": {
-        "tabWidth": 4
-      }
-    }
-  ],
+  "useTabs": false,
+  "semi": true,
   "singleQuote": true,
-  "importOrder": ["^[./]"],
-  "importOrderSeparation": true
+  "quoteProps": "preserve",
+  "jsxSingleQuote": true,
+  "trailingComma": "all",
+  "bracketSpacing": true,
+  "jsxBracketSameLine": false,
+  "arrowParens": "avoid",
+  "importOrder": ["^@core/(.*)$", "^@server/(.*)$", "^@ui/(.*)$", "^[./]"],
+  "importOrderSeparation": true,
+  "importOrderSortSpecifiers": true
 }
