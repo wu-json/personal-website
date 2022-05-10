@@ -3,6 +3,9 @@
   "version": "0.0.0-semantically-released",
   "private": false,
   "license": "MIT",
+  "engine": {
+    "node": "16.15.0"
+  },
   "dependencies": {
     "@fontsource/poppins": "^4.5.0",
     "@testing-library/jest-dom": "^5.11.10",
