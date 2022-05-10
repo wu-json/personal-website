@@ -1,6 +1,6 @@
 ## Overview
 
-This is the repo for my [tech website](https://jasonwu.io).
+This is the repo for my [personal website](https://jasonwu.io).
 
 [![ci](https://github.com/wu-json/personal-website/actions/workflows/main.yml/badge.svg)](https://github.com/wu-json/personal-website/) [![commitizen](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/) [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
 
