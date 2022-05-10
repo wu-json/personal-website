@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 
-import { Stack } from './index';
+import { Stack } from '../../../screens/Home/sections/Stack';
 
 describe('Stack Tests', () => {
   it('shoudl link to correct lib/framework/language sites', () => {

@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 
-import { Projects } from './index';
+import { Projects } from '../../../screens/Home/sections/Projects';
 
 describe('Project Tests', () => {
   it('should link to correct project sites', () => {

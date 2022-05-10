@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 
-import { Jobs } from './index';
+import { Jobs } from '../../../screens/Home/sections/Jobs/index';
 
 describe('Jobs Tests', () => {
   it('should link to correct company sites', () => {

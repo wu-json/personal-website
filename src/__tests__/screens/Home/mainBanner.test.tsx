@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 
-import { MainBanner } from './index';
+import { MainBanner } from '../../../screens/Home/sections/MainBanner/index';
 
 describe('Main Banner Tests', () => {
   it('should link to correct socials', () => {
