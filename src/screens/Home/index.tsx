@@ -7,16 +7,16 @@ import { Projects } from './sections/Projects';
 import { Stack } from './sections/Stack';
 
 const HomeScreen = () => {
-    return (
-        <>
-            <MainBanner />
-            <AboutMe />
-            <Jobs />
-            <Projects />
-            <Stack />
-            <Footer />
-        </>
-    );
+  return (
+    <>
+      <MainBanner />
+      <AboutMe />
+      <Jobs />
+      <Projects />
+      <Stack />
+      <Footer />
+    </>
+  );
 };
 
 export { HomeScreen };

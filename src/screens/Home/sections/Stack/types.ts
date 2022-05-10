@@ -1,6 +1,6 @@
 import { Image } from 'src/lib/types';
 
 export type StackTool = {
-    logo: Image;
-    href: string;
+  logo: Image;
+  href: string;
 };

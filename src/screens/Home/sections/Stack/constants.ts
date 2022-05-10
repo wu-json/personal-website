@@ -8,48 +8,48 @@ import TypeScriptLogo from 'src/assets/logos/typescript.png';
 import { StackTool } from './types';
 
 const STACK: StackTool[] = [
-    {
-        logo: {
-            src: TypeScriptLogo,
-            alt: 'typescript-logo'
-        },
-        href: 'https://www.typescriptlang.org/'
+  {
+    logo: {
+      src: TypeScriptLogo,
+      alt: 'typescript-logo',
     },
-    {
-        logo: {
-            src: ReactLogo,
-            alt: 'react-logo'
-        },
-        href: 'https://reactjs.org'
+    href: 'https://www.typescriptlang.org/',
+  },
+  {
+    logo: {
+      src: ReactLogo,
+      alt: 'react-logo',
     },
-    {
-        logo: {
-            src: GraphQLLogo,
-            alt: 'graphql-logo'
-        },
-        href: 'https://graphql.org'
+    href: 'https://reactjs.org',
+  },
+  {
+    logo: {
+      src: GraphQLLogo,
+      alt: 'graphql-logo',
     },
-    {
-        logo: {
-            src: ApolloLogo,
-            alt: 'apollo-logo'
-        },
-        href: 'https://apollographql.com'
+    href: 'https://graphql.org',
+  },
+  {
+    logo: {
+      src: ApolloLogo,
+      alt: 'apollo-logo',
     },
-    {
-        logo: {
-            src: PostgresLogo,
-            alt: 'postgres-logo'
-        },
-        href: 'https://postgresql.org'
+    href: 'https://apollographql.com',
+  },
+  {
+    logo: {
+      src: PostgresLogo,
+      alt: 'postgres-logo',
     },
-    {
-        logo: {
-            src: NodeLogo,
-            alt: 'node-logo'
-        },
-        href: 'https://nodejs.org'
-    }
+    href: 'https://postgresql.org',
+  },
+  {
+    logo: {
+      src: NodeLogo,
+      alt: 'node-logo',
+    },
+    href: 'https://nodejs.org',
+  },
 ];
 
 export { STACK };
