@@ -1,6 +1,12 @@
-import { Navigation } from './Navigation';
-import { history } from './lib/history';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { HomeScreen } from 'src/screens/Home';
 
-const App = () => <Navigation history={history} />;
+const App = () => (
+  <BrowserRouter>
+    <Routes>
+      <Route path='/' element={<HomeScreen />} />
+    </Routes>
+  </BrowserRouter>
+);
 
 export { App };
