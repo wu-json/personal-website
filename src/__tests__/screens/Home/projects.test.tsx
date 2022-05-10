@@ -9,6 +9,10 @@ describe('Project Tests', () => {
         alt: 'vailable',
         expectedLink: 'https://vailable.io',
       },
+      {
+        alt: 'pathogen',
+        expectedLink: 'https://pathogen.jasonwu.io',
+      },
     ];
     render(<Projects />);
     testCases.map(testCase => {
