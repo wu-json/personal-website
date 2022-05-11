@@ -26,8 +26,7 @@
     "test": "react-scripts test --watchAll=false",
     "eject": "react-scripts eject",
     "postinstall": "husky install",
-    "format": "prettier './**/*.{js,jsx,ts,tsx,json}' --loglevel silent --write",
-    "semantic-release": "semantic-release"
+    "format": "prettier './**/*.{js,jsx,ts,tsx,json}' --loglevel silent --write"
   },
   "eslintConfig": {
     "extends": [
