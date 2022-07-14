@@ -4,7 +4,8 @@
   "private": false,
   "license": "MIT",
   "engines": {
-    "node": "16.x"
+    "node": "16.x",
+    "pnpm": "7.5.x"
   },
   "dependencies": {
     "@fontsource/poppins": "^4.5.0",
