@@ -1,5 +1,7 @@
+[build.environment]
+    NPM_FLAGS = "--version"
 [build]
-    command = "./scripts/netlify.sh"
+    command = "npx pnpm install --store=node_modules/.pnpm-store && pnpm build"
 [[redirects]]
     from = "/*"
     to = "/index.html"
