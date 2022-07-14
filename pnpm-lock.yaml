@@ -12,6 +12,7 @@ specifiers:
   '@types/react-dom': ^18.0.3
   '@types/react-router-dom': ^5.3.3
   husky: ^6.0.0
+  identity-obj-proxy: ^3.0.0
   lint-staged: ^12.4.1
   prettier: ^2.2.1
   pretty-quick: ^3.1.3
@@ -44,6 +45,7 @@ devDependencies:
   '@types/react-dom': 18.0.6
   '@types/react-router-dom': 5.3.3
   husky: 6.0.0
+  identity-obj-proxy: 3.0.0
   lint-staged: 12.5.0
   prettier: 2.7.1
   pretty-quick: 3.1.3_prettier@2.7.1
@@ -7194,7 +7196,6 @@ packages:
       {
         integrity: sha512-HIp/n38R9kQjDEziXyDTuW3vvoxxyxjxFzXLrBr18uB47GnSt+G9D29fqrpM5ZkspMcPICud3XsBJQ4Y2URg8g==,
       }
-    dev: false
 
   /has-bigints/1.0.2:
     resolution:
@@ -7535,7 +7536,6 @@ packages:
     engines: { node: '>=4' }
     dependencies:
       harmony-reflect: 1.6.2
-    dev: false
 
   /ignore/5.2.0:
     resolution:
