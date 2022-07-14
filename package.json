@@ -1,10 +1,11 @@
 {
   "name": "@wu-json/personal-website",
-  "version": "0.0.0-semantically-released",
+  "version": "1.0.0",
   "private": false,
   "license": "MIT",
   "engines": {
-    "node": "16.15.0"
+    "node": "16.x",
+    "pnpm": "7.5.x"
   },
   "dependencies": {
     "@fontsource/poppins": "^4.5.0",
@@ -22,6 +23,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
+    "prebuild": "test \"$CI\" = true && npx pnpm install -r --store=node_modules/.pnpm-store || echo skipping pnpm install",
     "build": "react-scripts build",
     "test": "react-scripts test --watchAll=false",
     "eject": "react-scripts eject",
@@ -52,6 +54,7 @@
     "@types/react-dom": "^18.0.3",
     "@types/react-router-dom": "^5.3.3",
     "husky": "^6.0.0",
+    "identity-obj-proxy": "^3.0.0",
     "lint-staged": "^12.4.1",
     "prettier": "^2.2.1",
     "pretty-quick": "^3.1.3",
