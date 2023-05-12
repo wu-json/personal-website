@@ -9,7 +9,7 @@ const MainBanner = () => (
       <img className={styles['profile']} src={Me} alt='profile' />
       <div className={styles['text-container']}>
         <h1>jason wu</h1>
-        <h2>swe @snackpass</h2>
+        <h2>software @snackpass</h2>
         <div className={styles['socials-container']}>
           {SOCIALS.map((social, i) => (
             <a href={social.href} key={i}>
