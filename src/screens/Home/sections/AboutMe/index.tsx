@@ -8,7 +8,7 @@ const AboutMe = () => (
         <p>
           I'm a senior platform engineer at Snackpass, and recent Yale
           University graduate (2022). While I mainly work with TypeScript, I'm
-          currently learning Rust and LOVING it 🦀.
+          currently learning Rust and loving it 🦀.
         </p>
       </div>
     </div>
