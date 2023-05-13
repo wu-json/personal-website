@@ -6,9 +6,9 @@ const AboutMe = () => (
       <h1>about me</h1>
       <div className={styles['text-wrapper']}>
         <p>
-          I'm a Yale grad with a B.S. in Computer Science. I'm super interested
-          in GraphQL and Finance. In my free time, I like breakdancing and
-          playing Valorant (I'm not good though).
+          I'm a senior platform engineer at Snackpass, and recent Yale
+          University graduate (2022). While I mainly work with TypeScript, I'm
+          currently learning Rust and loving it 🦀.
         </p>
       </div>
     </div>
