@@ -12,7 +12,7 @@ const PROJECTS: Project[] = [
       alt: 'oshi-chan-logo',
     },
     projectName: 'oshi-chan',
-    desc: 'discord bot for new 9anime release notifications in rust',
+    desc: 'discord bot for new 9anime release notifications with rust',
     href: 'https://github.com/wu-json/oshi-chan',
   },
   {
@@ -21,7 +21,7 @@ const PROJECTS: Project[] = [
       alt: 'm1-finance-data-viz-logo',
     },
     projectName: 'm1 finance data viz',
-    desc: 'm1 finance data visualizer in grafana + go',
+    desc: 'm1 finance data visualizer with grafana + go',
     href: 'https://github.com/wu-json/m1-finance-grafana',
   },
   {
