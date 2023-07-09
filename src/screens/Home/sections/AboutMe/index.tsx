@@ -6,9 +6,11 @@ const AboutMe = () => (
       <h1>about me</h1>
       <div className={styles['text-wrapper']}>
         <p>
-          I'm a senior platform engineer at Snackpass, and recent Yale
-          University graduate (2022). While I mainly work with TypeScript, I'm
-          currently learning Rust and loving it 🦀.
+          I'm a senior engineer on the platform team at Snackpass, and recent
+          Yale University graduate (2022). These days I work on both
+          infrastructure and backend software. For work, I use TypeScript,
+          Kubernetes (AWS EKS), and Terraform. For my own projects, I use Rust,
+          Go, Temporal, and Fly.io.
         </p>
       </div>
     </div>
