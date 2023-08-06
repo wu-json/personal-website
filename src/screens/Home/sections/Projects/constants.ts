@@ -12,7 +12,7 @@ const PROJECTS: Project[] = [
       alt: 'oshi-chan-logo',
     },
     projectName: 'oshi-chan',
-    desc: 'discord bot for new 9anime release notifications with rust',
+    desc: 'discord bot for new aniwave release notifications with rust',
     href: 'https://github.com/wu-json/oshi-chan',
   },
   {
