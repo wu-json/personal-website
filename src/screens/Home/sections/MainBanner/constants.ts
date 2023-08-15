@@ -32,7 +32,7 @@ const SOCIALS: Social[] = [
       src: EmailIcon,
       alt: 'email',
     },
-    href: 'mailto:jason.c.wu@yale.edu',
+    href: 'mailto:thedarkpear@proton.me',
   },
 ];
 

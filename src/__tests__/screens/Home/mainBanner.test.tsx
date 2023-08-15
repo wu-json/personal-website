@@ -19,7 +19,7 @@ describe('Main Banner Tests', () => {
       },
       {
         alt: 'email',
-        expectedLink: 'mailto:jason.c.wu@yale.edu',
+        expectedLink: 'mailto:thedarkpear@proton.me',
       },
     ];
     render(<MainBanner />);
