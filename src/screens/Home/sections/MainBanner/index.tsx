@@ -1,4 +1,4 @@
-import Me from 'src/assets/graphics/me.jpg';
+import Me from 'src/assets/graphics/me.png';
 
 import { SOCIALS } from './constants';
 import styles from './styles.module.scss';
