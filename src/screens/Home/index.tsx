@@ -47,8 +47,8 @@ useGLTF.preload('/darkpear.gltf');
 const HomeScreen = () => {
   return (
     <>
-      <Canvas style={{ height: 300 }}>
-        <directionalLight position={[10, 10, 5]} intensity={9} />
+      <Canvas style={{ height: 400 }}>
+        <directionalLight position={[1, 3, 5]} intensity={3} />
         <Model />
       </Canvas>
       <MainBanner />
