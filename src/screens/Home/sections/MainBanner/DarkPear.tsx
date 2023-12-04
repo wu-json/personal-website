@@ -1,7 +1,11 @@
 import { Canvas, useFrame } from '@react-three/fiber';
-import { useRef } from 'react';
+import { useCallback, useRef } from 'react';
 import { DirectionalLight } from 'three';
-import { useGLTF, OrbitControls } from '@react-three/drei';
+import {
+  useGLTF,
+  OrbitControls,
+  OrbitControlsChangeEvent,
+} from '@react-three/drei';
 
 const Model = (props: any) => {
   const groupRef = useRef();
@@ -38,6 +42,20 @@ const Model = (props: any) => {
 
 export const DarkPear = () => {
   const directionalLightRef = useRef<DirectionalLight>(null);
+  const onOrbitControlsChanged = useCallback(
+    (e: OrbitControlsChangeEvent | undefined) => {
+      if (!e) return;
+      const camera = e.target.object;
+      if (directionalLightRef.current) {
+        // This keeps the directional light in the same position with respect
+        // to the camera.
+        directionalLightRef.current.position.set(0, 1, 0);
+        directionalLightRef.current.position.add(camera.position);
+      }
+    },
+    [],
+  );
+
   return (
     <Canvas style={{ height: 400 }}>
       <directionalLight
@@ -47,21 +65,7 @@ export const DarkPear = () => {
       />
       <ambientLight intensity={0.4} />
       <Model />
-      <OrbitControls
-        enableZoom={false}
-        onChange={e => {
-          if (!e) return;
-          const camera = e.target.object;
-
-          if (directionalLightRef.current) {
-            // This sets the point light to a location above your camera
-            // Note that this position is in world space, not relative to
-            // the camera
-            directionalLightRef.current.position.set(0, 1, 0);
-            directionalLightRef.current.position.add(camera.position);
-          }
-        }}
-      />
+      <OrbitControls enableZoom={false} onChange={onOrbitControlsChanged} />
     </Canvas>
   );
 };
