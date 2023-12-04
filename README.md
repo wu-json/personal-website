@@ -4,7 +4,8 @@ This is the repo for my [personal website](https://jasonwu.io).
 
 [![ci](https://github.com/wu-json/personal-website/actions/workflows/main.yml/badge.svg)](https://github.com/wu-json/personal-website/)
 
-<img width="600" alt="Screen Shot 2021-04-18 at 11 41 48 AM" src="https://user-images.githubusercontent.com/45532884/115151550-5258d480-a03b-11eb-93f1-b7645e74d7f2.png">
+![Screenshot 2023-12-03 at 9 22 22 PM](https://github.com/wu-json/personal-website/assets/45532884/0b3749b8-c63f-4645-afc2-82821ec6afea)
+
 
 ## Run This Repo Locally
 
