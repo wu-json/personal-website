@@ -13,9 +13,8 @@ function Model(props: any) {
   const groupRef = useRef();
   const { nodes, materials } = useGLTF('/darkpear.gltf');
   useFrame((state, delta) => ((groupRef as any).current.rotation.y += delta));
-  console.log(nodes.Body);
   return (
-    <group ref={groupRef} {...props} dispose={null}>
+    <group ref={groupRef} {...props} dispose={null} scale={1}>
       <mesh
         castShadow
         receiveShadow
@@ -48,7 +47,7 @@ useGLTF.preload('/darkpear.gltf');
 const HomeScreen = () => {
   return (
     <>
-      <Canvas>
+      <Canvas style={{ height: 300 }}>
         <directionalLight position={[10, 10, 5]} intensity={9} />
         <Model />
       </Canvas>
