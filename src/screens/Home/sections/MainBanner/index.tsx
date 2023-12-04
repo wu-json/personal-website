@@ -1,12 +1,13 @@
-import Me from 'src/assets/graphics/me.png';
-
+import { DarkPear } from './DarkPear';
 import { SOCIALS } from './constants';
 import styles from './styles.module.scss';
 
 const MainBanner = () => (
   <div className={styles['wrapper']}>
     <div className={styles['container']}>
-      <img className={styles['profile']} src={Me} alt='profile' />
+      <div className={styles['profile']}>
+        <DarkPear />
+      </div>
       <div className={styles['text-container']}>
         <h1>jason wu</h1>
         <h2>software @snackpass</h2>

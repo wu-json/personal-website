@@ -6,11 +6,15 @@ const AboutMe = () => (
       <h1>about me</h1>
       <div className={styles['text-wrapper']}>
         <p>
-          I'm a senior engineer on the platform team at Snackpass, and recent
-          Yale University graduate (2022). These days I work on both
-          infrastructure and backend software. For work, I use TypeScript,
-          Kubernetes (AWS EKS), and Terraform. For my own projects, I use Rust,
-          Go, Temporal, and Fly.io.
+          I'm a senior software engineer at Snackpass, and Yale University
+          graduate (2022). At work, I primarily work on cloud infrastructure
+          (Kubernetes and AWS), but I also have a strong full stack background.
+        </p>
+        <p>
+          I also run a YouTube channel called{' '}
+          <a href='https://www.youtube.com/@darkpear_'>The Dark Pear</a>, where
+          I make videos on game development and various personal technical
+          projects.
         </p>
       </div>
     </div>
