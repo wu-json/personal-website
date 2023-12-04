@@ -7,7 +7,7 @@ import {
   OrbitControlsChangeEvent,
 } from '@react-three/drei';
 
-const Model = (props: any) => {
+const Model = () => {
   const groupRef = useRef<Group>(null);
   const { nodes, materials } = useGLTF('/darkpear.gltf');
 
@@ -18,7 +18,7 @@ const Model = (props: any) => {
   });
 
   return (
-    <group ref={groupRef} {...props} dispose={null} scale={1}>
+    <group ref={groupRef} dispose={null} scale={1}>
       <mesh
         castShadow
         receiveShadow
