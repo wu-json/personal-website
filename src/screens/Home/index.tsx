@@ -49,8 +49,8 @@ const HomeScreen = () => {
   return (
     <>
       <Canvas>
+        <directionalLight position={[10, 10, 5]} intensity={9} />
         <Model />
-        <Environment preset='studio' background />
       </Canvas>
       <MainBanner />
       <AboutMe />
