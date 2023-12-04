@@ -13,7 +13,7 @@ import {
   PerspectiveCamera,
   OrbitControls,
 } from '@react-three/drei';
-import { PointLight } from 'three';
+import { DirectionalLight, PointLight } from 'three';
 
 function Model(props: any) {
   const groupRef = useRef();
@@ -51,13 +51,28 @@ function Model(props: any) {
 useGLTF.preload('/darkpear.gltf');
 
 const HomeScreen = () => {
+  const lightRef = useRef<DirectionalLight>(null);
   return (
     <>
       <Canvas style={{ height: 400 }}>
-        <directionalLight position={[0, 0, 2]} intensity={2} />
+        <directionalLight position={[0, 0, 2]} intensity={2} ref={lightRef} />
         <ambientLight intensity={0.4} />
         <Model />
-        <OrbitControls enableZoom={false} />
+        <OrbitControls
+          enableZoom={false}
+          onChange={e => {
+            if (!e) return;
+            const camera = e.target.object;
+
+            if (lightRef.current) {
+              // This sets the point light to a location above your camera
+              // Note that this position is in world space, not relative to
+              // the camera
+              lightRef.current.position.set(0, 1, 0);
+              lightRef.current.position.add(camera.position);
+            }
+          }}
+        />
       </Canvas>
       <MainBanner />
       <AboutMe />
