@@ -6,6 +6,14 @@ import {
   OrbitControls,
   OrbitControlsChangeEvent,
 } from '@react-three/drei';
+import { Mesh } from 'three';
+
+const getGeometry = (model: unknown) => {
+  if (model instanceof Mesh) {
+    return model.geometry;
+  }
+  return undefined;
+};
 
 const Model = () => {
   const groupRef = useRef<Group>(null);
@@ -22,7 +30,7 @@ const Model = () => {
       <mesh
         castShadow
         receiveShadow
-        geometry={(nodes.Body as any).geometry}
+        geometry={getGeometry(nodes.Body)}
         material={materials['Pear Body Material']}
         position={[0.058, -0.951, -0.282]}
         scale={1.247}
@@ -30,14 +38,14 @@ const Model = () => {
       <mesh
         castShadow
         receiveShadow
-        geometry={(nodes.Leaf as any).geometry}
+        geometry={getGeometry(nodes.Leaf)}
         material={materials['Material.002']}
         position={[0, 0, 3.229]}
       />
       <mesh
         castShadow
         receiveShadow
-        geometry={(nodes.Stem as any).geometry}
+        geometry={getGeometry(nodes.Stem)}
         material={materials['Material.002']}
         position={[0.058, -0.951, -0.282]}
         scale={1.247}
