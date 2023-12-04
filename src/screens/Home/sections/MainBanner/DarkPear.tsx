@@ -54,7 +54,8 @@ export const DarkPear = () => {
       const camera = e.target.object;
       if (directionalLightRef.current) {
         // This keeps the directional light in the same position with respect
-        // to the camera.
+        // to the camera. This is necessary otherwise rotating the pear ends up
+        // making the model super dark.
         directionalLightRef.current.position.set(0, 1, 0);
         directionalLightRef.current.position.add(camera.position);
       }
