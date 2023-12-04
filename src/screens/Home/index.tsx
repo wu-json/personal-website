@@ -5,46 +5,53 @@ import { Jobs } from './sections/Jobs';
 import { MainBanner } from './sections/MainBanner';
 import { Projects } from './sections/Projects';
 import { Stack } from './sections/Stack';
-import { createRoot } from 'react-dom/client';
-import { useEffect, useRef, useState } from 'react';
-import { Canvas, useFrame, ThreeElements } from '@react-three/fiber';
-import { useLoader } from '@react-three/fiber';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import { useRef } from 'react';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { useGLTF, Environment, PerspectiveCamera } from '@react-three/drei';
 
-function Box(props: ThreeElements['mesh']) {
-  const ref = useRef<THREE.Mesh>(null!);
-  const [hovered, hover] = useState(false);
-  const [clicked, click] = useState(false);
-  useFrame((state, delta) => (ref.current.rotation.x += delta));
+function Model(props: any) {
+  const groupRef = useRef();
+  const { nodes, materials } = useGLTF('/darkpear.gltf');
+  useFrame((state, delta) => ((groupRef as any).current.rotation.y += delta));
+  console.log(nodes.Body);
   return (
-    <mesh
-      {...props}
-      ref={ref}
-      scale={clicked ? 1.5 : 1}
-      onClick={event => click(!clicked)}
-      onPointerOver={event => hover(true)}
-      onPointerOut={event => hover(false)}
-    >
-      <boxGeometry args={[1, 1, 1]} />
-      <meshStandardMaterial color={hovered ? 'hotpink' : 'orange'} />
-    </mesh>
+    <group ref={groupRef} {...props} dispose={null}>
+      <mesh
+        castShadow
+        receiveShadow
+        geometry={(nodes.Body as any).geometry}
+        material={materials['Pear Body Material']}
+        position={[0.058, -0.951, -0.282]}
+        scale={1.247}
+      />
+      <mesh
+        castShadow
+        receiveShadow
+        geometry={(nodes.Leaf as any).geometry}
+        material={materials['Material.002']}
+        position={[0, 0, 3.229]}
+      />
+      <mesh
+        castShadow
+        receiveShadow
+        geometry={(nodes.Stem as any).geometry}
+        material={materials['Material.002']}
+        position={[0.058, -0.951, -0.282]}
+        scale={1.247}
+      />
+    </group>
   );
 }
 
-function Jason(props: ThreeElements['mesh']) {
-  const gltf = useLoader(GLTFLoader, './darkpear.gltf');
-  return <primitive object={gltf.scene} {...props} />;
-}
+useGLTF.preload('/darkpear.gltf');
 
 const HomeScreen = () => {
   return (
     <>
-      <div>
-        <Canvas>
-          <ambientLight intensity={0.1} />
-          <Jason />
-        </Canvas>
-      </div>
+      <Canvas>
+        <Model />
+        <Environment preset='studio' background />
+      </Canvas>
       <MainBanner />
       <AboutMe />
       <Jobs />
