@@ -2,10 +2,20 @@ import ArimaLogo from 'src/assets/logos/arima.gif';
 import M1Logo from 'src/assets/logos/m1.png';
 import PathogenLogo from 'src/assets/logos/pathogen.png';
 import VailableLogo from 'src/assets/logos/vailable.png';
+import TouchingGrassLogo from 'src/assets/logos/touching-grass.png';
 
 import { Project } from './types';
 
 const PROJECTS: Project[] = [
+  {
+    logo: {
+      src: TouchingGrassLogo,
+      alt: 'touching-grass-logo',
+    },
+    projectName: 'touching grass',
+    desc: 'godot4 game about touching grass',
+    href: 'https://github.com/wu-json/touch-grass-official',
+  },
   {
     logo: {
       src: ArimaLogo,
