@@ -1,6 +1,6 @@
 import { Canvas, useFrame } from '@react-three/fiber';
 import { useCallback, useRef } from 'react';
-import { DirectionalLight } from 'three';
+import { DirectionalLight, Group } from 'three';
 import {
   useGLTF,
   OrbitControls,
@@ -8,9 +8,15 @@ import {
 } from '@react-three/drei';
 
 const Model = (props: any) => {
-  const groupRef = useRef();
+  const groupRef = useRef<Group>(null);
   const { nodes, materials } = useGLTF('/darkpear.gltf');
-  useFrame((state, delta) => ((groupRef as any).current.rotation.y += delta));
+
+  useFrame((_state, delta) => {
+    if (groupRef?.current) {
+      groupRef.current.rotation.y += delta;
+    }
+  });
+
   return (
     <group ref={groupRef} {...props} dispose={null} scale={1}>
       <mesh
