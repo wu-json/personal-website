@@ -7,7 +7,13 @@ import { Projects } from './sections/Projects';
 import { Stack } from './sections/Stack';
 import { useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { useGLTF, Environment, PerspectiveCamera } from '@react-three/drei';
+import {
+  useGLTF,
+  Environment,
+  PerspectiveCamera,
+  OrbitControls,
+} from '@react-three/drei';
+import { PointLight } from 'three';
 
 function Model(props: any) {
   const groupRef = useRef();
@@ -48,8 +54,10 @@ const HomeScreen = () => {
   return (
     <>
       <Canvas style={{ height: 400 }}>
-        <directionalLight position={[1, 3, 5]} intensity={3} />
+        <directionalLight position={[0, 0, 2]} intensity={2} />
+        <ambientLight intensity={0.4} />
         <Model />
+        <OrbitControls enableZoom={false} />
       </Canvas>
       <MainBanner />
       <AboutMe />
