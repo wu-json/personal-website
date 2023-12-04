@@ -26,7 +26,7 @@ const Model = () => {
   });
 
   return (
-    <group ref={groupRef} dispose={null} scale={1}>
+    <group ref={groupRef} dispose={null} scale={1.2}>
       <mesh
         castShadow
         receiveShadow
@@ -72,7 +72,7 @@ export const DarkPear = () => {
   );
 
   return (
-    <Canvas style={{ height: 400 }}>
+    <Canvas style={{ width: '100%', height: '100%' }}>
       <directionalLight
         position={[0, 0, 2]}
         intensity={2}

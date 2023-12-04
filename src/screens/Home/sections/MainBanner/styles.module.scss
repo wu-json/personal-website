@@ -7,15 +7,14 @@
 }
 
 .container {
-  width: 550px;
+  width: 600px;
   display: flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: space-between;
 }
 
 .profile {
-  width: 200px;
-  border-radius: 50%;
+  width: 230px;
 }
 
 .text-container {
@@ -66,11 +65,12 @@
     width: 100%;
     padding: 30px;
     flex-direction: column;
+    align-items: center;
     justify-content: center;
   }
 
   .profile {
-    margin-bottom: 30px;
+    margin-bottom: 0px;
   }
 
   .text-container {
