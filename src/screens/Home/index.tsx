@@ -8,6 +8,8 @@ import { Stack } from './sections/Stack';
 import { createRoot } from 'react-dom/client';
 import { useEffect, useRef, useState } from 'react';
 import { Canvas, useFrame, ThreeElements } from '@react-three/fiber';
+import { useLoader } from '@react-three/fiber';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
 function Box(props: ThreeElements['mesh']) {
   const ref = useRef<THREE.Mesh>(null!);
@@ -29,23 +31,20 @@ function Box(props: ThreeElements['mesh']) {
   );
 }
 
+function Jason(props: ThreeElements['mesh']) {
+  const gltf = useLoader(GLTFLoader, './darkpear.gltf');
+  return <primitive object={gltf.scene} {...props} />;
+}
+
 const HomeScreen = () => {
-  useEffect(() => {
-    const element = document.getElementById('yoyo') as HTMLElement;
-    if (element) {
-      createRoot(document.getElementById('yoyo') as HTMLElement).render(
-        <Canvas>
-          <ambientLight />
-          <pointLight position={[10, 10, 10]} />
-          <Box position={[-1.2, 0, 0]} />
-          <Box position={[1.2, 0, 0]} />
-        </Canvas>,
-      );
-    }
-  }, []);
   return (
     <>
-      <div id='yoyo'></div>
+      <div>
+        <Canvas>
+          <ambientLight intensity={0.1} />
+          <Jason />
+        </Canvas>
+      </div>
       <MainBanner />
       <AboutMe />
       <Jobs />
