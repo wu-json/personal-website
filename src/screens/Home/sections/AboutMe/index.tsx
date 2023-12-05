@@ -7,8 +7,9 @@ const AboutMe = () => (
       <div className={styles['text-wrapper']}>
         <p>
           I'm a senior software engineer at Snackpass, and Yale University
-          graduate (2022). At work, I primarily work on cloud infrastructure
-          (Kubernetes and AWS), but I also have a strong full stack background.
+          graduate (2022). These days, I primarily work on cloud infrastructure
+          (Kubernetes and AWS), but my background is primarily in full stack
+          development.
         </p>
         <p>
           I also run a YouTube channel called{' '}
