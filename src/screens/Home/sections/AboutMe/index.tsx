@@ -8,8 +8,12 @@ const AboutMe = () => (
         <p>
           I'm a senior software engineer at Snackpass, and Yale University
           graduate (2022). These days, I primarily work on cloud infrastructure
-          (Kubernetes and AWS), but my background is primarily in full stack
+          (Kubernetes on AWS EKS), but my background is primarily in full stack
           development.
+        </p>
+        <p>
+          Other tools I'm really enjoying right now are Temporal, Fly.io,
+          Turborepo, and Neovim.
         </p>
         <p>
           I also run a YouTube channel called{' '}
