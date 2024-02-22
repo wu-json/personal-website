@@ -6,15 +6,11 @@ const AboutMe = () => (
       <h1>about me</h1>
       <div className={styles['text-wrapper']}>
         <p>
-          I'm a senior software engineer at Snackpass, and Yale University
-          graduate (2022). These days, I primarily work on cloud infrastructure
-          (Kubernetes on AWS EKS), but my background is primarily in full stack
-          development.
+          I'm a senior software engineer at Fizz, and Yale University graduate
+          (2022). These days, I primarily work on our backend APIs and durable
+          execution workflows with Temporal using TypeScript (I use Neovim btw).
         </p>
-        <p>
-          Other tools I'm really enjoying right now are Temporal, Fly.io,
-          Turborepo, and Neovim.
-        </p>
+        <p>Outside of work, I like working with Rust and Terminal UI's.</p>
         <p>
           I also run a YouTube channel called{' '}
           <a href='https://www.youtube.com/@darkpear_'>The Dark Pear</a>, where

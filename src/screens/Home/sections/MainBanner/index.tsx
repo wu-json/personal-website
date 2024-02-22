@@ -10,7 +10,7 @@ const MainBanner = () => (
       </div>
       <div className={styles['text-container']}>
         <h1>jason wu</h1>
-        <h2>software @snackpass</h2>
+        <h2>software @fizz</h2>
         <div className={styles['socials-container']}>
           {SOCIALS.map((social, i) => (
             <a href={social.href} key={i}>
