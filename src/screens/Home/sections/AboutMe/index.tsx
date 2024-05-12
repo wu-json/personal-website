@@ -10,13 +10,6 @@ const AboutMe = () => (
           (2022). These days, I primarily work on our backend APIs and durable
           execution workflows with Temporal using TypeScript (I use Neovim btw).
         </p>
-        <p>Outside of work, I like working with Rust and Terminal UI's.</p>
-        <p>
-          I also run a YouTube channel called{' '}
-          <a href='https://www.youtube.com/@darkpear_'>The Dark Pear</a>, where
-          I make videos on game development and various personal technical
-          projects.
-        </p>
       </div>
     </div>
   </div>
