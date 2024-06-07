@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": false,
   "license": "MIT",
+  "packageManager": "pnpm@9.1.4",
   "engines": {
     "node": "18.x",
     "pnpm": "9.x"
