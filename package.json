@@ -1,6 +1,6 @@
 {
   "name": "@wu-json/personal-website",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": false,
   "license": "MIT",
   "packageManager": "pnpm@9.1.4",
