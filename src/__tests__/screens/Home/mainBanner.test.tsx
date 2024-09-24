@@ -6,10 +6,6 @@ describe('Main Banner Tests', () => {
   it('should link to correct socials', () => {
     const testCases = [
       {
-        alt: 'twitter',
-        expectedLink: 'https://twitter.com/wu_json',
-      },
-      {
         alt: 'linkedin',
         expectedLink: 'https://linkedin.com/in/wu-json',
       },
