@@ -19,7 +19,7 @@
     "three": "^0.159.0"
   },
   "scripts": {
-    "start": "vite dev",
+    "dev": "vite dev",
     "build": "vite build",
     "preview": "vite preview",
     "postinstall": "husky install",
