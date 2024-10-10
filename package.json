@@ -19,9 +19,9 @@
     "three": "^0.159.0"
   },
   "scripts": {
-    "start": "GENERATE_SOURCEMAP=false react-scripts start",
-    "build": "GENERATE_SOURCEMAP=false react-scripts build",
-    "eject": "react-scripts eject",
+    "start": "vite dev",
+    "build": "vite build",
+    "preview": "vite preview",
     "postinstall": "husky install",
     "format": "prettier './**/*.{js,jsx,ts,tsx,json}' --loglevel silent --write"
   },
