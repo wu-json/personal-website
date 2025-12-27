@@ -7,9 +7,9 @@ const MainBanner = () => (
       <div className="w-[230px] max-[800px]:mb-0">
         <DarkPear />
       </div>
-      <div className="leading-[1em] max-[800px]:text-center">
-        <h1 className="font-bold text-[60px] max-[800px]:text-[40px]">jason wu</h1>
-        <h2 className="font-normal text-[30px] max-[800px]:text-[26px] max-[800px]:mb-[30px]">
+      <div className="max-[800px]:text-center">
+        <h1 className="font-bold text-[60px] leading-[1em] mb-2 max-[800px]:text-[40px]">jason wu</h1>
+        <h2 className="font-normal text-[30px] leading-[1em] mb-0 max-[800px]:text-[26px] max-[800px]:mb-[30px]">
           software @forge
         </h2>
         <div className="mt-5 flex items-center justify-start max-[800px]:justify-center">
