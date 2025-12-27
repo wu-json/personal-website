@@ -1,8 +1,6 @@
-import styles from './styles.module.scss';
-
 const Footer = () => (
-  <div className={styles['container']}>
-    <h3>jason wu</h3>
+  <div className="flex justify-end items-center px-[60px] py-2.5 max-[800px]:flex-col max-[800px]:justify-center">
+    <h3 className="text-sm">jason wu</h3>
   </div>
 );
 
