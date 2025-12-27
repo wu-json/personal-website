@@ -1,0 +1,15 @@
+repos:
+  - repo: local
+    hooks:
+      - id: oxfmt
+        name: Format with oxfmt
+        entry: npx oxfmt
+        language: system
+        types: [javascript, jsx, ts, tsx]
+        pass_filenames: true
+      - id: oxlint
+        name: Lint with oxlint
+        entry: npx oxlint --fix
+        language: system
+        types: [javascript, jsx, ts, tsx]
+        pass_filenames: true
