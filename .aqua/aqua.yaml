@@ -8,8 +8,7 @@
 #   supported_envs:
 #   - all
 registries:
-- type: standard
-  ref: v4.448.0 # renovate: depName=aquaproj/aqua-registry
+  - type: standard
+    ref: v4.448.0 # renovate: depName=aquaproj/aqua-registry
 packages:
-- name: j178/prek@v0.2.25
-- name: casey/just@1.45.0
+  - name: j178/prek@v0.2.25
