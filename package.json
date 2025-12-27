@@ -22,10 +22,11 @@
     "@fontsource/poppins": "^4.5.0",
     "@react-three/drei": "^9.89.3",
     "@react-three/fiber": "^8.15.12",
+    "@tailwindcss/vite": "^4.1.18",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
     "react-router-dom": "^6.3.0",
-    "sass": "^1.32.10",
+    "tailwindcss": "^4.1.18",
     "three": "^0.159.0"
   },
   "devDependencies": {

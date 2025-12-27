@@ -1,0 +1,79 @@
+@import "tailwindcss";
+@import "@fontsource/poppins/300.css";
+@import "@fontsource/poppins/400.css";
+@import "@fontsource/poppins/500.css";
+@import "@fontsource/poppins/600.css";
+@import "@fontsource/poppins/700.css";
+
+@theme {
+  /* Custom Colors */
+  --color-not-quite-black: #151414;
+  --color-mineshaft: #303030;
+
+  /* Custom Font */
+  --font-poppins: Poppins, Arial, sans-serif;
+}
+
+/* Global Base Styles */
+@layer base {
+  html,
+  body {
+    @apply h-full w-full m-0 p-0 relative;
+  }
+
+  h1,
+  h2,
+  h3,
+  p {
+    @apply font-poppins text-not-quite-black;
+  }
+
+  h1 {
+    @apply text-[40px] font-bold;
+  }
+
+  h2 {
+    @apply text-[30px] font-normal;
+  }
+
+  h3 {
+    @apply text-2xl font-light;
+  }
+
+  p {
+    @apply text-base font-light;
+  }
+}
+
+/* Reusable Component Classes */
+@layer components {
+  .btn-primary {
+    @apply bg-not-quite-black text-white px-[30px] py-2.5
+           font-poppins font-normal text-xl
+           transition-all duration-300 ease-in-out
+           border-none cursor-pointer;
+  }
+
+  .btn-primary:hover {
+    @apply text-not-quite-black bg-white -translate-y-[5px]
+           [filter:drop-shadow(0_5px_15px_rgba(0,0,0,0.3))];
+  }
+
+  .hover-lift {
+    @apply transition-all duration-300 ease-in-out;
+  }
+
+  .hover-lift:hover {
+    @apply -translate-y-[5px] cursor-pointer
+           [filter:drop-shadow(0_5px_15px_rgba(0,0,0,0.3))];
+  }
+
+  .hover-lift-scale {
+    @apply transition-all duration-300 ease-in-out;
+  }
+
+  .hover-lift-scale:hover {
+    @apply -translate-y-[5px] scale-110 cursor-pointer
+           [filter:drop-shadow(0_5px_15px_rgba(0,0,0,0.3))];
+  }
+}
