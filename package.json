@@ -3,10 +3,19 @@
   "version": "1.0.1",
   "private": false,
   "license": "MIT",
-  "packageManager": "pnpm@9.11.0",
-  "engines": {
-    "node": "22.x",
-    "pnpm": "9.x"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wu-json/personal-website.git"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "preview": "vite preview",
+    "postinstall": "husky install",
+    "format": "oxfmt ."
   },
   "dependencies": {
     "@fontsource/poppins": "^4.5.0",
@@ -18,27 +27,7 @@
     "sass": "^1.32.10",
     "three": "^0.159.0"
   },
-  "scripts": {
-    "dev": "vite dev",
-    "build": "vite build",
-    "preview": "vite preview",
-    "postinstall": "husky install",
-    "format": "prettier './**/*.{js,jsx,ts,tsx,json}' --loglevel silent --write"
-  },
-  "eslintConfig": {
-    "extends": ["react-app"]
-  },
-  "browserslist": {
-    "production": [">0.2%", "not dead", "not op_mini all"],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
   "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
-    "@trivago/prettier-plugin-sort-imports": "^3.2.0",
     "@types/react": "^18.0.9",
     "@types/react-dom": "^18.0.3",
     "@types/react-router-dom": "^5.3.3",
@@ -46,24 +35,42 @@
     "@vitejs/plugin-react": "^4.3.2",
     "husky": "^6.0.0",
     "lint-staged": "^12.4.1",
+    "oxfmt": "^0.20.0",
+    "oxlint": "^1.35.0",
     "typescript": "^5.6.3",
     "vite": "^5.4.8"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
-      "biome format --write --no-errors-on-unmatched",
-      "biome lint --write --no-errors-on-unmatched",
-      "biome check --formatter-enabled=false --linter-enabled=false --organize-imports-enabled=true --write --no-errors-on-unmatched"
+      "oxfmt",
+      "oxlint --fix"
     ]
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/wu-json/personal-website.git"
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app"
+    ]
   },
   "release": {
-    "branches": ["main"]
+    "branches": [
+      "main"
+    ]
   },
-  "publishConfig": {
-    "access": "public"
-  }
+  "engines": {
+    "node": "22.x",
+    "pnpm": "9.x"
+  },
+  "packageManager": "pnpm@9.11.0"
 }

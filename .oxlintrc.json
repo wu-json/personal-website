@@ -1,0 +1,15 @@
+{
+  "plugins": ["react", "typescript", "jsx-a11y"],
+  "env": {
+    "browser": true,
+    "es2021": true,
+    "node": true
+  },
+  "settings": {
+    "react": {
+      "version": "18.0"
+    }
+  },
+  "rules": {},
+  "ignorePatterns": ["build/**/*", "node_modules/**/*"]
+}
