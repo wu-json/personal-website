@@ -8,4 +8,4 @@ This is the repo for my [personal website](https://jasonwu.io).
 
 ## Run This Repo Locally
 
-To use this repo locally, all you have to do is run `pnpm i` to install the necessary packages, and then run the start script `pnpm dev`.
+To use this repo locally, all you have to do is run `bun install` to install the necessary packages, and then run the start script `bun dev`.
