@@ -1,7 +1,5 @@
-[build.environment]
-NPM_FLAGS = "--version"
 [build]
-command = "pnpm build"
+command = "bun run build"
 [[redirects]]
 from = "/*"
 to = "/index.html"
