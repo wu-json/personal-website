@@ -15,7 +15,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "postinstall": "husky install",
-    "format": "oxfmt ."
+    "format": "oxfmt .",
+    "lint": "oxlint ."
   },
   "dependencies": {
     "@fontsource/poppins": "^4.5.0",
