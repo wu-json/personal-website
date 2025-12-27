@@ -14,7 +14,7 @@
     "dev": "vite dev",
     "build": "vite build",
     "preview": "vite preview",
-    "postinstall": "prek install",
+    "postinstall": "test \"$CI\" = true || prek install",
     "format": "oxfmt .",
     "lint": "oxlint ."
   },
