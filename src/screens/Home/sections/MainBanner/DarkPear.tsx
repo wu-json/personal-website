@@ -1,11 +1,11 @@
-import { Canvas, useFrame } from '@react-three/fiber';
-import { useCallback, useRef } from 'react';
-import { DirectionalLight, Group } from 'three';
 import {
   useGLTF,
   OrbitControls,
   OrbitControlsChangeEvent,
 } from '@react-three/drei';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { useCallback, useRef } from 'react';
+import { DirectionalLight, Group } from 'three';
 import { Mesh } from 'three';
 
 const getGeometry = (model: unknown) => {

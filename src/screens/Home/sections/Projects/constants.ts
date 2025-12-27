@@ -1,8 +1,8 @@
 import ArimaLogo from 'src/assets/logos/arima.gif';
 import M1Logo from 'src/assets/logos/m1.png';
 import PathogenLogo from 'src/assets/logos/pathogen.png';
-import VailableLogo from 'src/assets/logos/vailable.png';
 import TouchingGrassLogo from 'src/assets/logos/touching-grass.png';
+import VailableLogo from 'src/assets/logos/vailable.png';
 
 import { Project } from './types';
 

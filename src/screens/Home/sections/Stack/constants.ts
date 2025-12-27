@@ -1,7 +1,7 @@
-import ReactLogo from 'src/assets/logos/react.png';
-import TypeScriptLogo from 'src/assets/logos/typescript.png';
-import RustLogo from 'src/assets/logos/rust.png';
 import FlyIoLogo from 'src/assets/logos/flyio.png';
+import ReactLogo from 'src/assets/logos/react.png';
+import RustLogo from 'src/assets/logos/rust.png';
+import TypeScriptLogo from 'src/assets/logos/typescript.png';
 
 import { StackTool } from './types';
 
