@@ -1,7 +1,7 @@
 {
   "name": "@wu-json/personal-website",
+  "type": "module",
   "version": "1.0.1",
-  "private": false,
   "license": "MIT",
   "repository": {
     "type": "git",
