@@ -5,7 +5,15 @@ import ForgeLogo from 'src/assets/logos/forge.png';
 import RutterLogo from 'src/assets/logos/rutter.jpeg';
 import SnackpassLogo from 'src/assets/logos/snackpass.jpeg';
 
-import type { Job } from './types';
+import type { Image } from 'src/lib/types';
+
+export type Job = {
+  logo: Image;
+  companyName: string;
+  title: string;
+  duration: string;
+  href: string;
+};
 
 const JOBS: Job[] = [
   {

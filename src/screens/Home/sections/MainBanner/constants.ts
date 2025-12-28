@@ -2,7 +2,12 @@ import EmailIcon from 'src/assets/icons/socials/email.png';
 import GitHubIcon from 'src/assets/icons/socials/github.png';
 import LinkedInIcon from 'src/assets/icons/socials/linkedin.png';
 
-import { Social } from './types';
+import type { Image } from 'src/lib/types';
+
+export type Social = {
+  icon: Image;
+  href: string;
+};
 
 const SOCIALS: Social[] = [
   {

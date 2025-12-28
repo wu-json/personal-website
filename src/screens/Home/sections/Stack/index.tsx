@@ -1,5 +1,12 @@
-import { StackTool } from './components/StackTool';
-import { STACK } from './constants';
+import { STACK, type StackTool } from './constants';
+
+const StackToolCard = ({ stackTool }: { stackTool: StackTool }) => (
+  <div>
+    <a href={stackTool.href} className="inline-block no-underline m-[15px] h-[60px] hover-lift-scale">
+      <img src={stackTool.logo.src} alt={stackTool.logo.alt} className="h-full" />
+    </a>
+  </div>
+);
 
 const Stack = () => (
   <div className="w-full flex items-center justify-center mb-[120px] max-[800px]:-mt-[10px]">
@@ -7,7 +14,7 @@ const Stack = () => (
       <h1 className="mb-0">what i've been using lately</h1>
       <div className="py-[60px] px-0 flex items-center justify-center max-[800px]:flex-wrap">
         {STACK.map((stackTool, i) => (
-          <StackTool stackTool={stackTool} key={i} />
+          <StackToolCard stackTool={stackTool} key={i} />
         ))}
       </div>
     </div>

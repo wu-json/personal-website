@@ -4,7 +4,14 @@ import PathogenLogo from 'src/assets/logos/pathogen.png';
 import TouchingGrassLogo from 'src/assets/logos/touching-grass.png';
 import VailableLogo from 'src/assets/logos/vailable.png';
 
-import { Project } from './types';
+import type { Image } from 'src/lib/types';
+
+export type Project = {
+  logo: Image;
+  projectName: string;
+  desc: string;
+  href: string;
+};
 
 const PROJECTS: Project[] = [
   {

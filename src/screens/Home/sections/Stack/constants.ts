@@ -3,7 +3,12 @@ import ReactLogo from 'src/assets/logos/react.png';
 import RustLogo from 'src/assets/logos/rust.png';
 import TypeScriptLogo from 'src/assets/logos/typescript.png';
 
-import { StackTool } from './types';
+import type { Image } from 'src/lib/types';
+
+export type StackTool = {
+  logo: Image;
+  href: string;
+};
 
 const STACK: StackTool[] = [
   {
