@@ -4,14 +4,13 @@ This file provides context and guidelines for AI assistants working on this proj
 
 ## Project Overview
 
-This is a personal website for Jason Wu (jasonwu.io), built as a modern React application with 3D graphics capabilities.
+This is a personal website for Jason Wu (jasonwu.io), built as a modern React application.
 
 ## Tech Stack
 
 - **Framework**: React 18 with TypeScript
 - **Build Tool**: Vite 5
 - **Styling**: Tailwind CSS v4
-- **3D Graphics**: React Three Fiber + Three.js
 - **Package Manager**: Bun (>=1.3.4)
 - **Node Version**: 22.x
 - **Linting**: Oxlint
@@ -36,7 +35,6 @@ This is a personal website for Jason Wu (jasonwu.io), built as a modern React ap
 
 ## Key Dependencies
 
-- **@react-three/fiber** & **@react-three/drei**: For 3D scene management
 - **react-router-dom**: For routing
 - **@fontsource/poppins**: Typography
 
@@ -44,7 +42,6 @@ This is a personal website for Jason Wu (jasonwu.io), built as a modern React ap
 
 - Source code is organized following standard Vite conventions
 - Components use TypeScript for type safety
-- 3D elements are handled through React Three Fiber
 
 ## Important Notes
 
@@ -57,7 +54,5 @@ This is a personal website for Jason Wu (jasonwu.io), built as a modern React ap
 ## When Making Changes
 
 1. Always run `bun run lint` and `bun run format` before committing
-2. Test 3D graphics functionality if modifying Three.js components
-3. Ensure TypeScript types are properly defined
-4. Follow existing code patterns and component structure
-5. Keep performance in mind, especially for 3D rendering
+2. Ensure TypeScript types are properly defined
+3. Follow existing code patterns and component structure
