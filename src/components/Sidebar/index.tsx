@@ -93,6 +93,9 @@ const Sidebar = ({
       >
         Transmissions
       </NavLink>
+      <NavLink to='/heroes' active={pathname === '/heroes'} onClick={onClick}>
+        Heroes
+      </NavLink>
       <NavLink to='/garden' active={pathname === '/garden'} onClick={onClick}>
         Garden
       </NavLink>

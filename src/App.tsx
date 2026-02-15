@@ -1,6 +1,7 @@
 import { RootLayout } from 'src/layouts/RootLayout';
 import { ConstructsScreen } from 'src/screens/Constructs';
 import { GardenScreen } from 'src/screens/Garden';
+import { HeroesScreen } from 'src/screens/Heroes';
 import { HomeScreen } from 'src/screens/Home';
 import { MemoriesScreen } from 'src/screens/Memories';
 import { TransmissionsScreen } from 'src/screens/Transmissions';
@@ -13,6 +14,7 @@ const App = () => (
       <Route path='/memories' component={MemoriesScreen} />
       <Route path='/transmissions' component={TransmissionsScreen} />
       <Route path='/constructs' component={ConstructsScreen} />
+      <Route path='/heroes' component={HeroesScreen} />
       <Route path='/garden' component={GardenScreen} />
     </Switch>
   </RootLayout>

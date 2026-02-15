@@ -12,7 +12,8 @@ const MainBanner = () => (
       <img
         src='/images/mirror.png'
         alt=''
-        className='w-52 sm:w-52 md:w-64 lg:w-80 opacity-80 grayscale rotate-25'
+        className='bio-glitch w-52 sm:w-52 md:w-64 lg:w-80 opacity-80 grayscale rotate-25'
+        style={jitter()}
       />
       <div className='flex flex-col gap-4'>
         <p
@@ -43,7 +44,7 @@ const MainBanner = () => (
           </p>
         </div>
       </div>
-      <div className='flex items-center gap-3'>
+      <div className='bio-glitch flex items-center gap-3' style={jitter()}>
         <a
           href='https://github.com/wu-json'
           target='_blank'
