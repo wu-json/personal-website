@@ -1,4 +1,4 @@
-export type Grouping = { layout: string };
+export type Grouping = { layout: string; caption?: string };
 
 export type PhotoMeta = {
   file: string;

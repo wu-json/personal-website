@@ -1,34 +1,33 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import Markdown from 'react-markdown';
 
 import type { PhotoMeta } from '../types';
 
 import { photoUrl } from '../data';
 
-const Lightbox = ({
-  photo,
+const GroupLightbox = ({
+  photos,
   fragmentId,
+  layout,
+  caption,
   counter,
   onClose,
   onPrev,
   onNext,
-  preloadFiles,
+  onPhotoClick,
 }: {
-  photo: PhotoMeta;
+  photos: PhotoMeta[];
   fragmentId: string;
+  layout: string;
+  caption?: string;
   counter: string;
   onClose: () => void;
   onPrev: (() => void) | null;
   onNext: (() => void) | null;
-  preloadFiles: string[];
+  onPhotoClick: (photo: PhotoMeta) => void;
 }) => {
-  const [loaded, setLoaded] = useState(false);
   const callbacksRef = useRef({ onClose, onPrev, onNext });
   callbacksRef.current = { onClose, onPrev, onNext };
-
-  useEffect(() => {
-    setLoaded(false);
-  }, [photo.file]);
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
@@ -47,12 +46,16 @@ const Lightbox = ({
     };
   }, []);
 
-  useEffect(() => {
-    for (const file of preloadFiles) {
-      const img = new Image();
-      img.src = photoUrl(fragmentId, file, 'full');
-    }
-  }, [preloadFiles, fragmentId]);
+  const isAlwaysColumn = layout === 'column';
+  const combinedAR = photos.reduce((sum, p) => sum + p.width / p.height, 0);
+  const shouldStack = !isAlwaysColumn && combinedAR > 2;
+  const isAlwaysRow = !isAlwaysColumn && !shouldStack;
+
+  const containerCls = isAlwaysColumn
+    ? 'flex flex-col'
+    : shouldStack
+      ? 'flex flex-col sm:flex-row'
+      : 'flex';
 
   return (
     <div
@@ -85,45 +88,40 @@ const Lightbox = ({
           </button>
         )}
 
-        <div className='flex flex-col items-center gap-3 max-w-full max-h-full'>
+        <div className='flex flex-col items-center gap-4 max-w-full max-h-full'>
           <div
-            className='relative overflow-hidden'
-            style={{
-              aspectRatio: `${photo.width} / ${photo.height}`,
-              maxHeight: 'calc(100vh - 8rem)',
-              maxWidth: '100%',
-            }}
+            className={`${containerCls} gap-2 items-center justify-center`}
+            style={{ maxHeight: 'calc(100vh - 8rem)', maxWidth: '90vw' }}
           >
-            <img
-              src={photoUrl(fragmentId, photo.file, 'placeholder')}
-              alt=''
-              aria-hidden
-              className={`absolute inset-0 w-full h-full object-contain scale-110 blur-md transition-opacity duration-500 ${loaded ? 'opacity-0' : 'opacity-100'}`}
-            />
-            <img
-              src={photoUrl(fragmentId, photo.file, 'full')}
-              alt={photo.alt ?? photo.caption ?? ''}
-              decoding='async'
-              className={`w-full h-full object-contain transition-opacity duration-500 ${loaded ? 'opacity-100' : 'opacity-0'}`}
-              onLoad={() => setLoaded(true)}
-            />
+            {photos.map(p => (
+              <button
+                key={p.file}
+                type='button'
+                className={`cursor-pointer min-h-0 max-h-full ${isAlwaysRow ? 'min-w-0' : shouldStack ? 'w-full sm:min-w-0 sm:w-auto' : ''}`}
+                style={
+                  isAlwaysRow
+                    ? { flex: `${p.width / p.height} 1 0%` }
+                    : shouldStack
+                      ? { flex: '1 1 0%' }
+                      : undefined
+                }
+                onClick={() => onPhotoClick(p)}
+              >
+                <img
+                  src={photoUrl(fragmentId, p.file, 'full')}
+                  alt={p.alt ?? p.caption ?? ''}
+                  decoding='async'
+                  className='object-contain w-full h-full'
+                />
+              </button>
+            ))}
           </div>
 
           <div className='flex items-center gap-4 text-[10px] font-mono'>
             <span className='text-white/30'>{counter}</span>
-            {photo.caption && (
+            {caption && (
               <span className='text-white/50 transmission-prose'>
-                <Markdown
-                  components={{
-                    a: ({ children, href }) => (
-                      <a href={href} target='_blank' rel='noopener noreferrer'>
-                        {children}
-                      </a>
-                    ),
-                  }}
-                >
-                  {photo.caption}
-                </Markdown>
+                <Markdown>{caption}</Markdown>
               </span>
             )}
           </div>
@@ -143,4 +141,4 @@ const Lightbox = ({
   );
 };
 
-export { Lightbox };
+export { GroupLightbox };
