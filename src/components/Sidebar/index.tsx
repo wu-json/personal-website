@@ -64,23 +64,6 @@ const Sidebar = () => {
       <NavLink to='/blog' active={pathname === '/blog'}>
         Blog
       </NavLink>
-      <div className='mt-auto' />
-      <a
-        href='https://github.com/wu-json'
-        target='_blank'
-        rel='noopener noreferrer'
-        className='font-pixel text-sm uppercase text-white/80 hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)] transition-all duration-300'
-      >
-        GitHub
-      </a>
-      <a
-        href='https://linkedin.com/in/jasonwu'
-        target='_blank'
-        rel='noopener noreferrer'
-        className='font-pixel text-sm uppercase text-white/80 hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)] transition-all duration-300'
-      >
-        LinkedIn
-      </a>
     </nav>
   );
 };
