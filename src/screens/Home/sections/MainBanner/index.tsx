@@ -30,7 +30,7 @@ const MainBanner = () => (
           and ended up in San Francisco.
         </p>
         <p className='text-white text-xs sm:text-sm font-pixel text-left leading-relaxed'>
-          I've been breakdancing for years, and spend my free time hiding in the streets of San Francisco with a camera.
+          I've been breakdancing for years, and spend my free time hiding in the streets with a camera.
         </p>
       </div>
       <div className='flex items-center gap-3'>
