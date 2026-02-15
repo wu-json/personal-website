@@ -17,8 +17,9 @@ const modules = import.meta.glob('./fragments/*.md', {
   eager: true,
 }) as Record<string, string>;
 
-export const fragments: Fragment[] = Object.values(modules)
-  .map(raw => {
+export const fragments: Fragment[] = Object.entries(modules)
+  .sort(([pathA], [pathB]) => pathB.localeCompare(pathA))
+  .map(([, raw]) => {
     const { data, content } = parseFrontmatter(raw);
     return {
       id: String(data.id ?? ''),
@@ -29,8 +30,7 @@ export const fragments: Fragment[] = Object.values(modules)
       description: content.trim(),
       photos: (data.photos ?? []) as PhotoMeta[],
     };
-  })
-  .sort((a, b) => b.id.localeCompare(a.id));
+  });
 
 export function photoUrl(
   fragmentId: string,
