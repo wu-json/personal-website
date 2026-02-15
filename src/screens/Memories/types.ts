@@ -1,9 +1,12 @@
+export type Grouping = { layout: string };
+
 export type PhotoMeta = {
   file: string;
   width: number;
   height: number;
   caption?: string;
   alt?: string;
+  group?: string;
 };
 
 export type Fragment = {
@@ -14,4 +17,5 @@ export type Fragment = {
   cover: string;
   description: string;
   photos: PhotoMeta[];
+  groupings?: Record<string, Grouping>;
 };

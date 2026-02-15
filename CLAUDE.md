@@ -51,6 +51,55 @@ This is a personal website for Jason Wu (jasonwu.io), built as a modern React ap
 - Uses prek instead of husky/lint-staged for git hooks
 - Main branch is `main`
 
+## Fragment Format Reference
+
+Each fragment markdown file in `src/screens/Memories/fragments/` has YAML frontmatter with a `photos` array and an optional `groupings` map.
+
+### Photo fields
+
+| Field     | Type     | Required | Description                                    |
+| --------- | -------- | -------- | ---------------------------------------------- |
+| `file`    | `string` | yes      | Filename without extension                     |
+| `width`   | `number` | yes      | Original image width in px                     |
+| `height`  | `number` | yes      | Original image height in px                    |
+| `caption` | `string` | no       | Caption displayed in lightbox                  |
+| `alt`     | `string` | no       | Alt text for accessibility                     |
+| `group`   | `string` | no       | ID referencing an entry in the `groupings` map |
+
+### Groupings
+
+The top-level `groupings` map defines how grouped photos are laid out. Each key is an arbitrary group ID; the value has a `layout` field.
+
+| Layout   | Effect              |
+| -------- | ------------------- |
+| `row`    | Side-by-side (flex) |
+| `column` | Vertically stacked  |
+
+### Example usage
+
+```yaml
+---
+groupings:
+  a:
+    layout: row
+
+photos:
+  - file: DSCF0839
+    width: 3328
+    height: 4992
+    group: a
+  - file: DSCF0859
+    width: 3328
+    height: 4992
+    group: a
+  - file: DSCF0860
+    width: 2956
+    height: 1971
+---
+```
+
+`DSCF0839` + `DSCF0859` = horizontal row. `DSCF0860` = solo. Groups can contain any number of photos.
+
 ## When Making Changes
 
 1. Always run `bun run lint` and `bun run format` before committing

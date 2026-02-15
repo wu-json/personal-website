@@ -1,6 +1,6 @@
 import { parse as parseYaml } from 'yaml';
 
-import type { Fragment, PhotoMeta } from './types';
+import type { Fragment, Grouping, PhotoMeta } from './types';
 
 function parseFrontmatter(raw: string) {
   const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/);
@@ -29,6 +29,7 @@ export const fragments: Fragment[] = Object.entries(modules)
       cover: String(data.cover ?? ''),
       description: content.trim(),
       photos: (data.photos ?? []) as PhotoMeta[],
+      groupings: data.groupings as Record<string, Grouping> | undefined,
     };
   });
 

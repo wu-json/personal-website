@@ -2,9 +2,55 @@ import { useState } from 'react';
 import Markdown from 'react-markdown';
 import { Link, useLocation } from 'wouter';
 
+import type { Grouping, PhotoMeta } from './types';
+
 import { Lightbox } from './components/Lightbox';
 import { ProgressiveImage } from './components/ProgressiveImage';
 import { fragments, photoUrl } from './data';
+
+const layoutClasses: Record<string, { wrapper: string; item: string }> = {
+  row: { wrapper: 'flex gap-1', item: 'flex-1 min-w-0' },
+  column: { wrapper: 'flex flex-col gap-1', item: '' },
+};
+
+type GridItem =
+  | { kind: 'solo'; photo: PhotoMeta; index: number }
+  | { kind: 'group'; layout: string; photos: PhotoMeta[]; indices: number[] };
+
+function groupPhotos(
+  photos: PhotoMeta[],
+  groupings?: Record<string, Grouping>,
+): GridItem[] {
+  const items: GridItem[] = [];
+  const consumed = new Set<number>();
+
+  for (let i = 0; i < photos.length; i++) {
+    if (consumed.has(i)) continue;
+    const p = photos[i];
+    if (!p.group) {
+      items.push({ kind: 'solo', photo: p, index: i });
+      continue;
+    }
+    const groupId = p.group;
+    const groupPhotos: PhotoMeta[] = [];
+    const groupIndices: number[] = [];
+    for (let j = i; j < photos.length; j++) {
+      if (photos[j].group === groupId) {
+        groupPhotos.push(photos[j]);
+        groupIndices.push(j);
+        consumed.add(j);
+      }
+    }
+    const layout = groupings?.[groupId]?.layout ?? 'row';
+    items.push({
+      kind: 'group',
+      layout,
+      photos: groupPhotos,
+      indices: groupIndices,
+    });
+  }
+  return items;
+}
 
 const jitter = () => ({ animationDelay: `${Math.random() * 120}ms` });
 
@@ -83,29 +129,73 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
         )}
 
         <div className='columns-1 sm:columns-2 lg:columns-3 gap-3'>
-          {fragment.photos.map((photo, i) => (
-            <div
-              key={photo.file}
-              className='cursor-pointer mb-3 break-inside-avoid'
-            >
-              <ProgressiveImage
-                placeholderSrc={photoUrl(
-                  fragment.id,
-                  photo.file,
-                  'placeholder',
-                )}
-                src={photoUrl(fragment.id, photo.file, 'thumb')}
-                width={photo.width}
-                height={photo.height}
-                loading={i < 6 ? 'eager' : 'lazy'}
-                className='rounded-sm'
-                onClick={() => {
-                  setLightboxIndex(i);
-                  navigate(`/memories/${id}/${photo.file}`, { replace: true });
-                }}
-              />
-            </div>
-          ))}
+          {groupPhotos(fragment.photos, fragment.groupings).map(item => {
+            if (item.kind === 'solo') {
+              const { photo, index: i } = item;
+              return (
+                <div
+                  key={photo.file}
+                  className='cursor-pointer mb-3 break-inside-avoid'
+                >
+                  <ProgressiveImage
+                    placeholderSrc={photoUrl(
+                      fragment.id,
+                      photo.file,
+                      'placeholder',
+                    )}
+                    src={photoUrl(fragment.id, photo.file, 'thumb')}
+                    width={photo.width}
+                    height={photo.height}
+                    loading={i < 6 ? 'eager' : 'lazy'}
+                    className='rounded-sm'
+                    onClick={() => {
+                      setLightboxIndex(i);
+                      navigate(`/memories/${id}/${photo.file}`, {
+                        replace: true,
+                      });
+                    }}
+                  />
+                </div>
+              );
+            }
+
+            const classes = layoutClasses[item.layout] ?? layoutClasses.row;
+            return (
+              <div
+                key={item.photos.map(p => p.file).join('-')}
+                className={`mb-3 break-inside-avoid ${classes.wrapper}`}
+              >
+                {item.photos.map((p, j) => {
+                  const idx = item.indices[j];
+                  return (
+                    <div
+                      key={p.file}
+                      className={`cursor-pointer ${classes.item}`}
+                    >
+                      <ProgressiveImage
+                        placeholderSrc={photoUrl(
+                          fragment.id,
+                          p.file,
+                          'placeholder',
+                        )}
+                        src={photoUrl(fragment.id, p.file, 'thumb')}
+                        width={p.width}
+                        height={p.height}
+                        loading={idx < 6 ? 'eager' : 'lazy'}
+                        className='rounded-sm'
+                        onClick={() => {
+                          setLightboxIndex(idx);
+                          navigate(`/memories/${id}/${p.file}`, {
+                            replace: true,
+                          });
+                        }}
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })}
         </div>
 
         <footer className='mt-12 pt-6 border-t border-white/5'>
