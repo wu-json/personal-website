@@ -71,7 +71,7 @@ const Lightbox = ({
 
   return (
     <div
-      className='fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/95'
+      className='fixed inset-0 z-[70] flex flex-col items-center justify-center bg-black/95'
       onClick={onClose}
       onKeyDown={e => e.key === 'Escape' && onClose()}
       role='dialog'
