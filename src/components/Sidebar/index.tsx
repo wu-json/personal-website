@@ -54,7 +54,7 @@ const Sidebar = () => {
   const [pathname] = useLocation();
 
   return (
-    <nav className='flex flex-col items-start gap-5 w-40 px-4 h-full bg-black border-r border-white/10 py-6'>
+    <nav className='flex flex-col items-start gap-5 w-40 px-4 h-full bg-black py-6'>
       <NavLink to='/' active={pathname === '/'}>
         Jason Wu
       </NavLink>
