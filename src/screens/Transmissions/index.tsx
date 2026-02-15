@@ -19,7 +19,7 @@ const TransmissionsScreen = () => (
           className='bio-glitch text-white/30 text-xs font-mono uppercase tracking-widest'
           style={jitter()}
         >
-          {'// relay active — broadcasting on open frequency'}
+          {'// stream open'}
         </p>
       </header>
 
@@ -30,13 +30,18 @@ const TransmissionsScreen = () => (
             className='bio-glitch group border-t border-white/5 py-6'
             style={{ animationDelay: `${i * 40}ms` }}
           >
-            <div className='flex items-baseline gap-3 mb-2'>
+            <div className='flex items-baseline gap-3 mb-2 flex-wrap'>
               <span className='text-white/20 text-[10px] font-mono shrink-0'>
                 [{t.id}]
               </span>
               <span className='text-white/30 text-[10px] font-mono shrink-0'>
                 {t.timestamp}
               </span>
+              {t.location && (
+                <span className='text-white/20 text-[10px] font-mono shrink-0'>
+                  — {t.location}
+                </span>
+              )}
             </div>
 
             <h2 className='text-white text-xs sm:text-sm font-pixel uppercase tracking-wide mb-2'>
@@ -58,12 +63,6 @@ const TransmissionsScreen = () => (
           </article>
         ))}
       </div>
-
-      <footer className='mt-12 pt-6 border-t border-white/5'>
-        <p className='text-white/20 text-[10px] font-mono uppercase tracking-widest'>
-          {'// end of log — no further transmissions'}
-        </p>
-      </footer>
     </div>
   </div>
 );

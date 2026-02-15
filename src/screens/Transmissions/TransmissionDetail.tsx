@@ -41,7 +41,7 @@ const TransmissionDetail = ({ id }: { id: string }) => {
         </Link>
 
         <header className='mb-8 border-b border-white/5 pb-6'>
-          <div className='flex items-baseline gap-3 mb-3'>
+          <div className='flex items-baseline gap-3 mb-3 flex-wrap'>
             <span
               className='bio-glitch text-white/20 text-[10px] font-mono'
               style={jitter()}
@@ -54,6 +54,14 @@ const TransmissionDetail = ({ id }: { id: string }) => {
             >
               {t.timestamp}
             </span>
+            {t.location && (
+              <span
+                className='bio-glitch text-white/20 text-[10px] font-mono'
+                style={jitter()}
+              >
+                — {t.location}
+              </span>
+            )}
           </div>
           <h1
             className='bio-glitch text-white text-xl sm:text-3xl font-pixel uppercase tracking-wide'

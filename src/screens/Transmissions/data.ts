@@ -4,6 +4,7 @@ export type Transmission = {
   title: string;
   body: string;
   expanded: boolean;
+  location: string;
 };
 
 function parseFrontmatter(raw: string): {
@@ -43,6 +44,7 @@ export const transmissions: Transmission[] = Object.values(modules)
       title: attrs.title ?? '',
       body,
       expanded: attrs.expanded === 'true',
+      location: attrs.location ?? '',
     };
   })
   .sort((a, b) => b.id.localeCompare(a.id));
