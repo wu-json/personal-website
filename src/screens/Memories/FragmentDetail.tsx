@@ -104,11 +104,6 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
                   navigate(`/memories/${id}/${photo.file}`, { replace: true });
                 }}
               />
-              {photo.caption && (
-                <p className='text-white/30 text-[10px] font-mono mt-1'>
-                  {photo.caption}
-                </p>
-              )}
             </div>
           ))}
         </div>
