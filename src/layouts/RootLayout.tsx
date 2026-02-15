@@ -16,13 +16,13 @@ const OPEN_TRANSFORMS: { transform: string; opacity: number; delay: number }[] =
       delay: 40,
     },
     {
-      transform: 'rotate(45deg) scaleX(0.4) scaleY(1.27)',
+      transform: 'rotate(225deg) scaleX(0.4) scaleY(1.27)',
       opacity: 0.9,
       delay: 80,
     },
     { transform: 'scale(0)', opacity: 0, delay: 0 },
     {
-      transform: 'rotate(135deg) scaleX(0.4) scaleY(1.27)',
+      transform: 'rotate(315deg) scaleX(0.4) scaleY(1.27)',
       opacity: 0.9,
       delay: 40,
     },
