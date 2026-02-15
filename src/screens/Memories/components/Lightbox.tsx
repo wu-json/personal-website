@@ -109,10 +109,10 @@ const Lightbox = ({
             />
           </div>
 
-          <div className='flex items-center gap-4 text-[10px] font-mono'>
-            <span className='text-white/30'>{counter}</span>
+          <div className='flex items-baseline gap-4 text-[10px] font-mono max-w-full'>
+            <span className='text-white/30 shrink-0'>{counter}</span>
             {photo.caption && (
-              <span className='text-white/50 transmission-prose'>
+              <span className='text-white/50 transmission-prose min-w-0'>
                 <Markdown
                   components={{
                     a: ({ children, href }) => (
