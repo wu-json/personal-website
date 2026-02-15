@@ -43,7 +43,7 @@ const NavLink = ({
 }) => (
   <Link
     to={to}
-    className={`group flex items-center gap-1.5 font-pixel text-sm transition-all duration-300 ${active ? 'text-white [text-shadow:0_0_8px_rgba(255,255,255,0.6)]' : 'text-white/80 hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)]'}`}
+    className={`group flex items-center gap-1.5 font-pixel text-sm uppercase transition-all duration-300 ${active ? 'text-white [text-shadow:0_0_8px_rgba(255,255,255,0.6)]' : 'text-white/80 hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)]'}`}
   >
     <LunarTear active={active} />
     {children}
@@ -54,7 +54,10 @@ const Sidebar = () => {
   const { pathname } = useLocation();
 
   return (
-    <nav className='flex flex-col items-start gap-5 w-28 px-4 h-full bg-black border-r border-white/10 py-6'>
+    <nav className='flex flex-col items-start gap-5 w-40 px-4 h-full bg-black border-r border-white/10 py-6'>
+      <NavLink to='/' active={pathname === '/'}>
+        Jason Wu
+      </NavLink>
       <NavLink to='/gallery' active={pathname === '/gallery'}>
         Gallery
       </NavLink>
@@ -66,7 +69,7 @@ const Sidebar = () => {
         href='https://github.com/wu-json'
         target='_blank'
         rel='noopener noreferrer'
-        className='font-pixel text-sm text-white/80 hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)] transition-all duration-300'
+        className='font-pixel text-sm uppercase text-white/80 hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)] transition-all duration-300'
       >
         GitHub
       </a>
@@ -74,7 +77,7 @@ const Sidebar = () => {
         href='https://linkedin.com/in/jasonwu'
         target='_blank'
         rel='noopener noreferrer'
-        className='font-pixel text-sm text-white/80 hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)] transition-all duration-300'
+        className='font-pixel text-sm uppercase text-white/80 hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)] transition-all duration-300'
       >
         LinkedIn
       </a>
