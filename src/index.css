@@ -17,6 +17,20 @@
   --font-pixel: 'Geist Pixel Circle';
 }
 
+@keyframes lunar-tear-glow {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.4));
+  }
+  50% {
+    filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.8));
+  }
+}
+
+.lunar-tear-active {
+  animation: lunar-tear-glow 3s ease-in-out infinite;
+}
+
 @layer base {
   html,
   body {

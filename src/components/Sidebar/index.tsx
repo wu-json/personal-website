@@ -1,12 +1,12 @@
 import { Link, useLocation } from 'react-router';
 
-const LunarTear = () => (
+const LunarTear = ({ active }: { active: boolean }) => (
   <svg
     width='10'
     height='10'
     viewBox='0 0 10 10'
     fill='none'
-    className='shrink-0'
+    className={`shrink-0 transition-all duration-500 ${active ? 'opacity-100 scale-100 rotate-0 lunar-tear-active' : 'opacity-0 scale-0 rotate-180'}`}
   >
     <circle cx='5' cy='5' r='1.2' fill='white' />
     <ellipse cx='5' cy='2' rx='1' ry='2' fill='white' opacity='0.9' />
@@ -52,29 +52,41 @@ const LunarTear = () => (
   </svg>
 );
 
-const linkClass =
-  'font-pixel text-sm text-white/80 hover:text-white transition-colors';
-
-const activeLinkClass = 'font-pixel text-sm text-white transition-colors';
+const NavLink = ({
+  to,
+  active,
+  children,
+}: {
+  to: string;
+  active: boolean;
+  children: React.ReactNode;
+}) => (
+  <Link
+    to={to}
+    className={`group flex items-center gap-1.5 font-pixel text-sm transition-all duration-300 ${active ? 'text-white [text-shadow:0_0_8px_rgba(255,255,255,0.6)]' : 'text-white/80 hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)]'}`}
+  >
+    <LunarTear active={active} />
+    {children}
+  </Link>
+);
 
 const Sidebar = () => {
   const { pathname } = useLocation();
 
   return (
     <nav className='flex flex-col items-start gap-5 w-28 px-4 h-full bg-black border-r border-white/10 py-6'>
-      <Link
-        to='/gallery'
-        className={`flex items-center gap-1.5 ${pathname === '/gallery' ? activeLinkClass : linkClass}`}
-      >
-        {pathname === '/gallery' && <LunarTear />}
+      <NavLink to='/gallery' active={pathname === '/gallery'}>
         Gallery
-      </Link>
+      </NavLink>
+      <NavLink to='/blog' active={pathname === '/blog'}>
+        Blog
+      </NavLink>
       <div className='mt-auto' />
       <a
         href='https://github.com/wu-json'
         target='_blank'
         rel='noopener noreferrer'
-        className={linkClass}
+        className='font-pixel text-sm text-white/80 hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)] transition-all duration-300'
       >
         GitHub
       </a>
@@ -82,7 +94,7 @@ const Sidebar = () => {
         href='https://linkedin.com/in/jasonwu'
         target='_blank'
         rel='noopener noreferrer'
-        className={linkClass}
+        className='font-pixel text-sm text-white/80 hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)] transition-all duration-300'
       >
         LinkedIn
       </a>
