@@ -1,7 +1,8 @@
 import { BrowserRouter, Route, Routes } from 'react-router';
 import { RootLayout } from 'src/layouts/RootLayout';
-import { BlogScreen } from 'src/screens/Blog';
-import { GalleryScreen } from 'src/screens/Gallery';
+import { TransmissionsScreen } from 'src/screens/Transmissions';
+import { ConstructsScreen } from 'src/screens/Constructs';
+import { MemoriesScreen } from 'src/screens/Memories';
 import { HomeScreen } from 'src/screens/Home';
 
 const App = () => (
@@ -9,8 +10,9 @@ const App = () => (
     <Routes>
       <Route element={<RootLayout />}>
         <Route path='/' element={<HomeScreen />} />
-        <Route path='/gallery' element={<GalleryScreen />} />
-        <Route path='/blog' element={<BlogScreen />} />
+        <Route path='/memories' element={<MemoriesScreen />} />
+        <Route path='/transmissions' element={<TransmissionsScreen />} />
+        <Route path='/constructs' element={<ConstructsScreen />} />
       </Route>
     </Routes>
   </BrowserRouter>

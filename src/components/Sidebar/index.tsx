@@ -58,11 +58,14 @@ const Sidebar = () => {
       <NavLink to='/' active={pathname === '/'}>
         Jason Wu
       </NavLink>
-      <NavLink to='/gallery' active={pathname === '/gallery'}>
-        Gallery
+      <NavLink to='/memories' active={pathname === '/memories'}>
+        Memories
       </NavLink>
-      <NavLink to='/blog' active={pathname === '/blog'}>
-        Blog
+      <NavLink to='/constructs' active={pathname === '/constructs'}>
+        Constructs
+      </NavLink>
+      <NavLink to='/transmissions' active={pathname === '/transmissions'}>
+        Transmissions
       </NavLink>
     </nav>
   );
