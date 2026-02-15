@@ -2,53 +2,25 @@ import { Link, useLocation } from 'react-router';
 
 const LunarTear = ({ active }: { active: boolean }) => (
   <svg
-    width='10'
-    height='10'
-    viewBox='0 0 10 10'
+    width='14'
+    height='14'
+    viewBox='0 0 100 100'
     fill='none'
     className={`shrink-0 transition-all duration-500 ${active ? 'opacity-100 scale-100 rotate-0 lunar-tear-active' : 'opacity-0 scale-0 rotate-180'}`}
   >
-    <circle cx='5' cy='5' r='1.2' fill='white' />
-    <ellipse cx='5' cy='2' rx='1' ry='2' fill='white' opacity='0.9' />
-    <ellipse cx='5' cy='8' rx='1' ry='2' fill='white' opacity='0.9' />
-    <ellipse cx='2' cy='5' rx='2' ry='1' fill='white' opacity='0.9' />
-    <ellipse cx='8' cy='5' rx='2' ry='1' fill='white' opacity='0.9' />
-    <ellipse
-      cx='3'
-      cy='3'
-      rx='1'
-      ry='1.8'
-      fill='white'
-      opacity='0.7'
-      transform='rotate(45 3 3)'
-    />
-    <ellipse
-      cx='7'
-      cy='3'
-      rx='1'
-      ry='1.8'
-      fill='white'
-      opacity='0.7'
-      transform='rotate(-45 7 3)'
-    />
-    <ellipse
-      cx='3'
-      cy='7'
-      rx='1'
-      ry='1.8'
-      fill='white'
-      opacity='0.7'
-      transform='rotate(-45 3 7)'
-    />
-    <ellipse
-      cx='7'
-      cy='7'
-      rx='1'
-      ry='1.8'
-      fill='white'
-      opacity='0.7'
-      transform='rotate(45 7 7)'
-    />
+    {[0, 72, 144, 216, 288].map((angle) => (
+      <ellipse
+        key={angle}
+        cx='50'
+        cy='22'
+        rx='10'
+        ry='22'
+        fill='white'
+        opacity='0.85'
+        transform={`rotate(${angle} 50 50)`}
+      />
+    ))}
+    <circle cx='50' cy='50' r='8' fill='white' />
   </svg>
 );
 
