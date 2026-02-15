@@ -31,6 +31,48 @@
   animation: lunar-tear-glow 3s ease-in-out infinite;
 }
 
+@keyframes petal-unfurl {
+  0% {
+    opacity: 0;
+    transform: var(--petal-rotate) scale(0);
+  }
+  100% {
+    opacity: 0.85;
+    transform: var(--petal-rotate) scale(1);
+  }
+}
+
+@keyframes center-bloom {
+  0% {
+    opacity: 0;
+    r: 0;
+  }
+  100% {
+    opacity: 1;
+    r: 8;
+  }
+}
+
+.petal {
+  opacity: 0;
+  transform-origin: 50px 50px;
+}
+
+.petal-active {
+  animation: petal-unfurl 400ms ease-out forwards;
+}
+
+.petal-0 { --petal-rotate: rotate(0deg); animation-delay: 0ms; }
+.petal-1 { --petal-rotate: rotate(72deg); animation-delay: 80ms; }
+.petal-2 { --petal-rotate: rotate(144deg); animation-delay: 160ms; }
+.petal-3 { --petal-rotate: rotate(216deg); animation-delay: 240ms; }
+.petal-4 { --petal-rotate: rotate(288deg); animation-delay: 320ms; }
+
+.center-active {
+  animation: center-bloom 300ms ease-out 400ms forwards;
+  opacity: 0;
+}
+
 @layer base {
   html,
   body {

@@ -1,14 +1,16 @@
 import { Link, useLocation } from 'react-router';
 
+const PETAL_ANGLES = [0, 72, 144, 216, 288];
+
 const LunarTear = ({ active }: { active: boolean }) => (
   <svg
     width='14'
     height='14'
     viewBox='0 0 100 100'
     fill='none'
-    className={`shrink-0 transition-all duration-500 ${active ? 'opacity-100 scale-100 rotate-0 lunar-tear-active' : 'opacity-0 scale-0 rotate-180'}`}
+    className={`shrink-0 transition-opacity duration-300 ${active ? 'opacity-100 lunar-tear-active' : 'opacity-0'}`}
   >
-    {[0, 72, 144, 216, 288].map((angle) => (
+    {PETAL_ANGLES.map((angle, i) => (
       <ellipse
         key={angle}
         cx='50'
@@ -16,11 +18,17 @@ const LunarTear = ({ active }: { active: boolean }) => (
         rx='10'
         ry='22'
         fill='white'
-        opacity='0.85'
+        className={`petal petal-${i} ${active ? 'petal-active' : ''}`}
         transform={`rotate(${angle} 50 50)`}
       />
     ))}
-    <circle cx='50' cy='50' r='8' fill='white' />
+    <circle
+      cx='50'
+      cy='50'
+      r='8'
+      fill='white'
+      className={active ? 'center-active' : 'opacity-0'}
+    />
   </svg>
 );
 
