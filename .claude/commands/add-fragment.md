@@ -19,6 +19,7 @@ Determine the next fragment number by looking at existing files in `src/screens/
 Create a new markdown file (e.g. `0002.md`) in `src/screens/Memories/fragments/`. Use the YAML output from the optimize script as the `photos` field in the frontmatter.
 
 Ask the user for:
+
 - `title`
 - `date` (format: `YYYY.MM.DD`)
 - `location`
@@ -41,7 +42,6 @@ photos:
     height: <height>
     caption: <optional caption>
 ---
-
 <optional description>
 ```
 

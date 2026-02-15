@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import Markdown from 'react-markdown';
 
 import type { PhotoMeta } from '../types';
 
@@ -127,7 +128,19 @@ const Lightbox = ({
               {index + 1} / {total}
             </span>
             {photo.caption && (
-              <span className='text-white/50'>{photo.caption}</span>
+              <span className='text-white/50 transmission-prose'>
+                <Markdown
+                  components={{
+                    a: ({ children, href }) => (
+                      <a href={href} target='_blank' rel='noopener noreferrer'>
+                        {children}
+                      </a>
+                    ),
+                  }}
+                >
+                  {photo.caption}
+                </Markdown>
+              </span>
             )}
           </div>
         </div>
