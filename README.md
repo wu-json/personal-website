@@ -1,11 +1,22 @@
-## Overview
+## jasonwu.io
 
-This is the repo for my [personal website](https://jasonwu.io).
+A working directory of myself.
 
-[![ci](https://github.com/wu-json/personal-website/actions/workflows/main.yml/badge.svg)](https://github.com/wu-json/personal-website/)
+```
+├── Memories       — photo albums (fragments)
+├── Transmissions  — writing and thoughts
+├── Constructs     — coming soon
+├── Heroes         — coming soon
+└── Garden         — coming soon
+```
 
-![Screenshot 2023-12-03 at 9 22 22 PM](https://github.com/wu-json/personal-website/assets/45532884/0b3749b8-c63f-4645-afc2-82821ec6afea)
+## Local Development
 
-## Run This Repo Locally
+```sh
+bun install
+bun dev
+```
 
-To use this repo locally, all you have to do is run `bun install` to install the necessary packages, and then run the start script `bun dev`.
+## Adding a Fragment
+
+Use the `/add-fragment` slash command in Claude Code to add a new photo album.
