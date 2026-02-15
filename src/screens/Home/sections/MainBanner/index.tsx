@@ -15,7 +15,7 @@ const MainBanner = () => {
     <div className='w-full h-screen bg-black flex items-center justify-center md:pr-40'>
       <div className='flex flex-col items-start gap-6 md:gap-8 max-w-md lg:max-w-lg px-6'>
         <div
-          className='bio-glitch relative w-52 sm:w-52 md:w-64 lg:w-80 opacity-80 grayscale rotate-25'
+          className='bio-glitch relative w-52 sm:w-52 md:w-64 lg:w-80 aspect-square opacity-80 grayscale rotate-25'
           style={jitter()}
         >
           <img
