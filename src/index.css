@@ -70,6 +70,10 @@
   animation: nav-glitch 350ms steps(1, end) forwards;
 }
 
+.bio-glitch {
+  animation: nav-glitch 350ms steps(1, end) forwards;
+}
+
 .lunar-tear-active {
   animation: lunar-tear-glow 3s ease-in-out infinite;
 }
