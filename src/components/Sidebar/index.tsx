@@ -1,4 +1,4 @@
-import { Link, useLocation } from 'react-router';
+import { Link, useLocation } from 'wouter';
 
 const PETAL_ANGLES = [0, 72, 144, 216, 288];
 
@@ -51,7 +51,7 @@ const NavLink = ({
 );
 
 const Sidebar = () => {
-  const { pathname } = useLocation();
+  const [pathname] = useLocation();
 
   return (
     <nav className='flex flex-col items-start gap-5 w-40 px-4 h-full bg-black border-r border-white/10 py-6'>

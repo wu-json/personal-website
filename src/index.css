@@ -62,11 +62,26 @@
   animation: petal-unfurl 400ms ease-out forwards;
 }
 
-.petal-0 { --petal-rotate: rotate(0deg); animation-delay: 0ms; }
-.petal-1 { --petal-rotate: rotate(72deg); animation-delay: 80ms; }
-.petal-2 { --petal-rotate: rotate(144deg); animation-delay: 160ms; }
-.petal-3 { --petal-rotate: rotate(216deg); animation-delay: 240ms; }
-.petal-4 { --petal-rotate: rotate(288deg); animation-delay: 320ms; }
+.petal-0 {
+  --petal-rotate: rotate(0deg);
+  animation-delay: 0ms;
+}
+.petal-1 {
+  --petal-rotate: rotate(72deg);
+  animation-delay: 80ms;
+}
+.petal-2 {
+  --petal-rotate: rotate(144deg);
+  animation-delay: 160ms;
+}
+.petal-3 {
+  --petal-rotate: rotate(216deg);
+  animation-delay: 240ms;
+}
+.petal-4 {
+  --petal-rotate: rotate(288deg);
+  animation-delay: 320ms;
+}
 
 .center-active {
   animation: center-bloom 300ms ease-out 400ms forwards;
