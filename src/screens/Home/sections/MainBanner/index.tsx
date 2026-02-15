@@ -51,8 +51,7 @@ const MainBanner = () => {
               .
             </p>
             <p className={bioClass} style={jitter()}>
-              Yale Undergrad, grew up in Princeton, lived in Atlanta,
-              then dragged to San Francisco.
+              Yale Undergrad, grew up in Princeton, lived in Atlanta, dragged to San Francisco.
             </p>
             <p className={bioClass} style={jitter()}>
               Breakdance + capture humans and landscapes in monochrome
