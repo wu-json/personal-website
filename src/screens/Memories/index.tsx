@@ -1,5 +1,5 @@
 const MemoriesScreen = () => (
-  <div className='w-full h-screen bg-black flex items-center justify-center'>
+  <div className='w-full h-screen bg-black flex items-center justify-center md:pr-40'>
     <h1 className='text-white text-2xl sm:text-4xl font-pixel'>Memories</h1>
   </div>
 );
