@@ -13,7 +13,8 @@
     "preview": "vite preview",
     "postinstall": "test \"$CI\" = true || prek install",
     "format": "oxfmt .",
-    "lint": "oxlint ."
+    "lint": "oxlint .",
+    "optimize-photos": "bun scripts/optimize-photos.ts"
   },
   "dependencies": {
     "@fontsource-variable/geist": "^5.2.8",
@@ -24,7 +25,8 @@
     "react-dom": "^19.2.4",
     "react-markdown": "^10.1.0",
     "tailwindcss": "^4.1.18",
-    "wouter": "^3.9.0"
+    "wouter": "^3.9.0",
+    "yaml": "^2.7.1"
   },
   "devDependencies": {
     "@j178/prek": "^0.3.2",
@@ -33,6 +35,7 @@
     "@vitejs/plugin-react": "^5.1.4",
     "oxfmt": "^0.32.0",
     "oxlint": "^1.35.0",
+    "sharp": "^0.34.5",
     "typescript": "^5.9.3",
     "vite": "^7.3.1"
   },

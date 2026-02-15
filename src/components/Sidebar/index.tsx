@@ -74,14 +74,14 @@ const Sidebar = ({
       </NavLink>
       <NavLink
         to='/memories'
-        active={pathname === '/memories'}
+        active={pathname.startsWith('/memories')}
         onClick={onClick}
       >
         Memories
       </NavLink>
       <NavLink
         to='/transmissions'
-        active={pathname === '/transmissions'}
+        active={pathname.startsWith('/transmissions')}
         onClick={onClick}
       >
         Transmissions
