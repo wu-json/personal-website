@@ -2,12 +2,12 @@ const linkClass =
   'font-mono text-xs uppercase tracking-widest text-white/50 hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)] transition-all duration-300';
 
 const MainBanner = () => (
-  <div className='w-full h-screen bg-black flex items-center justify-center'>
-    <div className='flex flex-col items-start gap-6 md:gap-8 max-w-md px-6'>
+  <div className='w-full h-screen bg-black flex items-center justify-center md:pr-40'>
+    <div className='flex flex-col items-start gap-6 md:gap-8 max-w-md lg:max-w-lg px-6'>
       <img
         src='/images/mirror.png'
         alt=''
-        className='w-40 sm:w-52 md:w-64 opacity-80 grayscale rotate-[25deg]'
+        className='w-40 sm:w-52 md:w-64 lg:w-80 opacity-80 grayscale rotate-[25deg]'
       />
       <p className='text-white/60 text-xs sm:text-sm font-pixel text-left leading-relaxed'>
         Software engineer building things for the web. Currently interested in
