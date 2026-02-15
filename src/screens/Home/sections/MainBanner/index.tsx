@@ -14,29 +14,34 @@ const MainBanner = () => (
         alt=''
         className='w-52 sm:w-52 md:w-64 lg:w-80 opacity-80 grayscale rotate-25'
       />
-      <div className='flex flex-col gap-2.5'>
-        <p className={bioClass} style={jitter()}>
-          I MAKE THINGS THAT BLOOM AND WILT
+      <div className='flex flex-col gap-4'>
+        <p
+          className='bio-glitch text-white text-sm sm:text-base font-pixel text-left leading-relaxed [text-shadow:0_0_8px_rgba(255,255,255,0.4)]'
+          style={jitter()}
+        >
+          {'<MAKE THINGS THAT BLOOM AND WILT />'}
         </p>
-        <p className={bioClass} style={jitter()}>
-          My latest arc has been working on coding agents at{' '}
-          <a
-            href='https://withforge.com/'
-            target='_blank'
-            rel='noopener noreferrer'
-            className='underline decoration-white/30 hover:decoration-white transition-all duration-300'
-          >
-            Forge
-          </a>
-          .
-        </p>
-        <p className={bioClass} style={jitter()}>
-          I did my undergrad at Yale, grew up in Princeton, lived in Atlanta,
-          and got dragged to San Francisco.
-        </p>
-        <p className={bioClass} style={jitter()}>
-          Also breakdance + capture humans and landscapes in monochrome
-        </p>
+        <div className='flex flex-col gap-2.5'>
+          <p className={bioClass} style={jitter()}>
+            My latest arc has been working on coding agents at{' '}
+            <a
+              href='https://withforge.com/'
+              target='_blank'
+              rel='noopener noreferrer'
+              className='underline decoration-white/30 hover:decoration-white transition-all duration-300'
+            >
+              Forge
+            </a>
+            .
+          </p>
+          <p className={bioClass} style={jitter()}>
+            I did my undergrad at Yale, grew up in Princeton, lived in Atlanta,
+            and got dragged to San Francisco.
+          </p>
+          <p className={bioClass} style={jitter()}>
+            Also breakdance + capture humans and landscapes in monochrome
+          </p>
+        </div>
       </div>
       <div className='flex items-center gap-3'>
         <a
