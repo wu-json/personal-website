@@ -43,7 +43,7 @@ const NavLink = ({
 }) => (
   <Link
     to={to}
-    className={`group flex items-center gap-1.5 font-pixel text-xs uppercase transition-all duration-300 ${active ? 'text-white [text-shadow:0_0_8px_rgba(255,255,255,0.6)]' : 'text-white/80 hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)]'}`}
+    className={`group flex items-center gap-1.5 font-pixel text-xs uppercase transition-all duration-300 ${active ? 'nav-glitch-active text-white [text-shadow:0_0_8px_rgba(255,255,255,0.6)]' : 'text-white/80 hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)]'}`}
   >
     <LunarTear active={active} />
     {children}
