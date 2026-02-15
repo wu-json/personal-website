@@ -4,6 +4,11 @@ const linkClass =
 const MainBanner = () => (
   <div className='w-full h-screen bg-black flex items-center justify-center'>
     <div className='flex flex-col items-start gap-8 max-w-md px-6'>
+      <img
+        src='/images/mirror.png'
+        alt=''
+        className='w-64 opacity-80 grayscale rotate-3'
+      />
       <p className='text-white/60 text-sm font-pixel text-left leading-relaxed'>
         Software engineer building things for the web. Currently interested in
         design systems, creative tools, and whatever comes next.
