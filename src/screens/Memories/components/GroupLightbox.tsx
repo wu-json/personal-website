@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Markdown from 'react-markdown';
 
 import type { PhotoMeta } from '../types';
@@ -26,6 +26,13 @@ const GroupLightbox = ({
   onNext: (() => void) | null;
   onPhotoClick: (photo: PhotoMeta) => void;
 }) => {
+  const [loadedSet, setLoadedSet] = useState<Set<string>>(() => new Set());
+  const photoKey = useMemo(() => photos.map(p => p.file).join(','), [photos]);
+
+  useEffect(() => {
+    setLoadedSet(new Set());
+  }, [photoKey]);
+
   const callbacksRef = useRef({ onClose, onPrev, onNext });
   callbacksRef.current = { onClose, onPrev, onNext };
 
@@ -93,28 +100,40 @@ const GroupLightbox = ({
             className={`${containerCls} gap-2 items-center justify-center`}
             style={{ maxHeight: 'calc(100vh - 8rem)', maxWidth: '90vw' }}
           >
-            {photos.map(p => (
-              <button
-                key={p.file}
-                type='button'
-                className={`cursor-pointer min-h-0 max-h-full ${isAlwaysRow ? 'min-w-0' : shouldStack ? 'w-full sm:min-w-0 sm:w-auto' : ''}`}
-                style={
-                  isAlwaysRow
-                    ? { flex: `${p.width / p.height} 1 0%` }
-                    : shouldStack
-                      ? { flex: '1 1 0%' }
-                      : undefined
-                }
-                onClick={() => onPhotoClick(p)}
-              >
-                <img
-                  src={photoUrl(fragmentId, p.file, 'full')}
-                  alt={p.alt ?? p.caption ?? ''}
-                  decoding='async'
-                  className='object-contain w-full h-full'
-                />
-              </button>
-            ))}
+            {photos.map(p => {
+              const loaded = loadedSet.has(p.file);
+              return (
+                <button
+                  key={p.file}
+                  type='button'
+                  className={`relative overflow-hidden cursor-pointer min-h-0 max-h-full ${isAlwaysRow ? 'min-w-0' : shouldStack ? 'w-full sm:min-w-0 sm:w-auto' : ''}`}
+                  style={
+                    isAlwaysRow
+                      ? { flex: `${p.width / p.height} 1 0%` }
+                      : shouldStack
+                        ? { flex: '1 1 0%' }
+                        : undefined
+                  }
+                  onClick={() => onPhotoClick(p)}
+                >
+                  <img
+                    src={photoUrl(fragmentId, p.file, 'placeholder')}
+                    alt=''
+                    aria-hidden
+                    className={`absolute inset-0 w-full h-full object-contain scale-110 blur-md transition-opacity duration-500 ${loaded ? 'opacity-0' : 'opacity-100'}`}
+                  />
+                  <img
+                    src={photoUrl(fragmentId, p.file, 'full')}
+                    alt={p.alt ?? p.caption ?? ''}
+                    decoding='async'
+                    className={`object-contain w-full h-full transition-opacity duration-500 ${loaded ? 'opacity-100' : 'opacity-0'}`}
+                    onLoad={() =>
+                      setLoadedSet(prev => new Set(prev).add(p.file))
+                    }
+                  />
+                </button>
+              );
+            })}
           </div>
 
           <div className='flex items-center gap-4 text-[10px] font-mono'>
