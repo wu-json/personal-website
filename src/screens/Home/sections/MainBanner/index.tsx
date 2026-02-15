@@ -7,7 +7,7 @@ const MainBanner = () => (
       <img
         src='/images/mirror.png'
         alt=''
-        className='w-40 sm:w-52 md:w-64 lg:w-80 opacity-80 grayscale rotate-[25deg]'
+        className='w-52 sm:w-52 md:w-64 lg:w-80 opacity-80 grayscale rotate-[25deg]'
       />
       <p className='text-white/60 text-xs sm:text-sm font-pixel text-left leading-relaxed'>
         Software engineer building things for the web. Currently interested in
