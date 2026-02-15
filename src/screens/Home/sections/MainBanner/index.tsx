@@ -24,7 +24,7 @@ const MainBanner = () => (
         </a>
         <span className='text-white/20 text-xs'>/</span>
         <a
-          href='https://linkedin.com/in/jasonwu'
+          href='https://www.linkedin.com/in/wu-json/'
           target='_blank'
           rel='noopener noreferrer'
           className={linkClass}
