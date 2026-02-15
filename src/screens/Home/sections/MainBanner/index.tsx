@@ -39,7 +39,7 @@ const MainBanner = () => {
         </p>
         <div className='flex flex-col gap-2.5'>
           <p className={bioClass} style={jitter()}>
-            My latest arc has been working on coding agents at{' '}
+            Currently working on coding agents at{' '}
             <a
               href='https://withforge.com/'
               target='_blank'
@@ -51,11 +51,11 @@ const MainBanner = () => {
             .
           </p>
           <p className={bioClass} style={jitter()}>
-            I did my undergrad at Yale, grew up in Princeton, lived in Atlanta,
+            Did my undergrad at Yale, grew up in Princeton, lived in Atlanta,
             and got dragged to San Francisco.
           </p>
           <p className={bioClass} style={jitter()}>
-            I also breakdance + capture humans and landscapes in monochrome
+            Breakdance + capture humans and landscapes in monochrome
           </p>
         </div>
       </div>
