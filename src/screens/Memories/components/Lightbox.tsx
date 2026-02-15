@@ -8,11 +8,13 @@ const Lightbox = ({
   photos,
   fragmentId,
   initialIndex,
+  onIndexChange,
   onClose,
 }: {
   photos: PhotoMeta[];
   fragmentId: string;
   initialIndex: number;
+  onIndexChange: (index: number) => void;
   onClose: () => void;
 }) => {
   const [index, setIndex] = useState(initialIndex);
@@ -21,14 +23,20 @@ const Lightbox = ({
   const photo = photos[index];
   const total = photos.length;
 
-  const prev = useCallback(
-    () => setIndex(i => (i > 0 ? i - 1 : total - 1)),
-    [total],
-  );
-  const next = useCallback(
-    () => setIndex(i => (i < total - 1 ? i + 1 : 0)),
-    [total],
-  );
+  const prev = useCallback(() => {
+    setIndex(i => {
+      const next = i > 0 ? i - 1 : total - 1;
+      onIndexChange(next);
+      return next;
+    });
+  }, [total, onIndexChange]);
+  const next = useCallback(() => {
+    setIndex(i => {
+      const next = i < total - 1 ? i + 1 : 0;
+      onIndexChange(next);
+      return next;
+    });
+  }, [total, onIndexChange]);
 
   useEffect(() => {
     setLoaded(false);

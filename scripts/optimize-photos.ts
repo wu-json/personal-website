@@ -10,6 +10,15 @@ const SIZES = [
 
 const SUPPORTED_EXTS = new Set(['.jpg', '.jpeg', '.png', '.tiff', '.webp']);
 
+function rotatedDimensions(
+  w: number,
+  h: number,
+  orientation?: number,
+): [number, number] {
+  // Orientations 5-8 swap width/height
+  return orientation && orientation >= 5 ? [h, w] : [w, h];
+}
+
 async function main() {
   const [sourceDir, slug] = process.argv.slice(2);
 
@@ -54,25 +63,29 @@ async function main() {
       o => existsSync(o.path) && statSync(o.path).mtimeMs > sourceMtime,
     );
 
+    const meta = await sharp(sourcePath).metadata();
+    const [w, h] = rotatedDimensions(
+      meta.width!,
+      meta.height!,
+      meta.orientation,
+    );
+
     if (allExist) {
-      const meta = await sharp(sourcePath).metadata();
       console.log(
-        `  - file: ${baseName}\n    width: ${meta.width}\n    height: ${meta.height}`,
+        `  - file: ${baseName}\n    width: ${w}\n    height: ${h}`,
       );
       console.log(`  [skip] ${baseName} — already up to date`);
       continue;
     }
 
-    const image = sharp(sourcePath);
-    const meta = await image.metadata();
-
     console.log(
-      `  - file: ${baseName}\n    width: ${meta.width}\n    height: ${meta.height}`,
+      `  - file: ${baseName}\n    width: ${w}\n    height: ${h}`,
     );
 
     for (const size of SIZES) {
       const outPath = join(outDir, `${baseName}-${size.name}.webp`);
       await sharp(sourcePath)
+        .rotate()
         .resize(size.width, undefined, { withoutEnlargement: true })
         .webp({ quality: size.quality })
         .toFile(outPath);

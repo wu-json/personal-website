@@ -17,6 +17,9 @@ const App = () => (
       <Route path='/memories/:id'>
         {params => <FragmentDetail id={params.id} />}
       </Route>
+      <Route path='/memories/:id/:photo'>
+        {params => <FragmentDetail id={params.id} photo={params.photo} />}
+      </Route>
       <Route path='/transmissions' component={TransmissionsScreen} />
       <Route path='/transmissions/:id'>
         {params => <TransmissionDetail id={params.id} />}

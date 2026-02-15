@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import Markdown from 'react-markdown';
-import { Link } from 'wouter';
+import { Link, useLocation } from 'wouter';
 
 import { Lightbox } from './components/Lightbox';
 import { ProgressiveImage } from './components/ProgressiveImage';
@@ -8,10 +8,15 @@ import { fragments, photoUrl } from './data';
 
 const jitter = () => ({ animationDelay: `${Math.random() * 120}ms` });
 
-const FragmentDetail = ({ id }: { id: string }) => {
-  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
-
+const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
+  const [, navigate] = useLocation();
   const fragment = fragments.find(f => f.id === id);
+  const initialIndex = photo
+    ? (fragment?.photos.findIndex(p => p.file === photo) ?? null)
+    : null;
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(
+    initialIndex !== null && initialIndex >= 0 ? initialIndex : null,
+  );
 
   if (!fragment) {
     return (
@@ -91,7 +96,10 @@ const FragmentDetail = ({ id }: { id: string }) => {
                 height={photo.height}
                 loading={i < 6 ? 'eager' : 'lazy'}
                 className='rounded-sm'
-                onClick={() => setLightboxIndex(i)}
+                onClick={() => {
+                  setLightboxIndex(i);
+                  navigate(`/memories/${id}/${photo.file}`, { replace: true });
+                }}
               />
               {photo.caption && (
                 <p className='text-white/30 text-[10px] font-mono mt-1'>
@@ -114,7 +122,15 @@ const FragmentDetail = ({ id }: { id: string }) => {
           photos={fragment.photos}
           fragmentId={fragment.id}
           initialIndex={lightboxIndex}
-          onClose={() => setLightboxIndex(null)}
+          onIndexChange={i =>
+            navigate(`/memories/${id}/${fragment.photos[i].file}`, {
+              replace: true,
+            })
+          }
+          onClose={() => {
+            setLightboxIndex(null);
+            navigate(`/memories/${id}`, { replace: true });
+          }}
         />
       )}
     </div>
