@@ -1,5 +1,12 @@
 @import 'tailwindcss';
 
+@font-face {
+  font-family: 'Geist Pixel Circle';
+  src: url('/node_modules/geist/dist/fonts/geist-pixel/GeistPixel-Circle.woff2')
+    format('woff2');
+  font-display: swap;
+}
+
 @theme {
   --font-sans:
     'Geist Variable', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
@@ -7,6 +14,7 @@
   --font-mono:
     'Geist Mono Variable', ui-monospace, SFMono-Regular, Menlo, Monaco,
     Consolas, 'Liberation Mono', 'Courier New', monospace;
+  --font-pixel: 'Geist Pixel Circle';
 }
 
 @layer base {
