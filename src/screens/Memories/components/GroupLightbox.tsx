@@ -136,7 +136,9 @@ const GroupLightbox = ({
             })}
           </div>
 
-          <div className='flex items-center gap-4 text-[10px] font-mono'>
+          <div
+            className={`flex items-center gap-4 text-[10px] font-mono transition-opacity duration-500 ${photos.every(p => loadedSet.has(p.file)) ? 'opacity-100' : 'opacity-0'}`}
+          >
             <span className='text-white/30'>{counter}</span>
             {caption && (
               <span className='text-white/50 transmission-prose'>

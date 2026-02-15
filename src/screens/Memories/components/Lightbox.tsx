@@ -91,7 +91,7 @@ const Lightbox = ({
             style={{
               aspectRatio: `${photo.width} / ${photo.height}`,
               maxHeight: 'calc(100vh - 8rem)',
-              maxWidth: '100%',
+              width: `min(calc(100vw - 4rem), calc((100vh - 8rem) * ${photo.width / photo.height}))`,
             }}
           >
             <img
@@ -104,12 +104,14 @@ const Lightbox = ({
               src={photoUrl(fragmentId, photo.file, 'full')}
               alt={photo.alt ?? photo.caption ?? ''}
               decoding='async'
-              className={`w-full h-full object-contain transition-opacity duration-500 ${loaded ? 'opacity-100' : 'opacity-0'}`}
+              className={`absolute inset-0 w-full h-full object-contain transition-opacity duration-500 ${loaded ? 'opacity-100' : 'opacity-0'}`}
               onLoad={() => setLoaded(true)}
             />
           </div>
 
-          <div className='flex items-baseline gap-4 text-[10px] font-mono max-w-full'>
+          <div
+            className={`flex items-baseline gap-4 text-[10px] font-mono max-w-full transition-opacity duration-500 ${loaded ? 'opacity-100' : 'opacity-0'}`}
+          >
             <span className='text-white/30 shrink-0'>{counter}</span>
             {photo.caption && (
               <span className='text-white/50 transmission-prose min-w-0'>
