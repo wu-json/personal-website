@@ -56,7 +56,7 @@ const TransmissionsScreen = () => (
               to={`/transmissions/${t.id}`}
               className='inline-block mt-3 text-white/30 text-[10px] font-mono uppercase tracking-widest hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)] transition-all duration-300'
             >
-              {'> permalink'}
+              {'> open'}
             </Link>
           </article>
         ))}
