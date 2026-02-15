@@ -67,6 +67,9 @@ const Sidebar = () => {
       <NavLink to='/transmissions' active={pathname === '/transmissions'}>
         Transmissions
       </NavLink>
+      <NavLink to='/garden' active={pathname === '/garden'}>
+        Garden
+      </NavLink>
     </nav>
   );
 };
