@@ -82,9 +82,12 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
           </div>
         )}
 
-        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3'>
+        <div className='columns-1 sm:columns-2 lg:columns-3 gap-3'>
           {fragment.photos.map((photo, i) => (
-            <div key={photo.file} className='cursor-pointer'>
+            <div
+              key={photo.file}
+              className='cursor-pointer mb-3 break-inside-avoid'
+            >
               <ProgressiveImage
                 placeholderSrc={photoUrl(
                   fragment.id,

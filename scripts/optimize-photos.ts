@@ -71,16 +71,12 @@ async function main() {
     );
 
     if (allExist) {
-      console.log(
-        `  - file: ${baseName}\n    width: ${w}\n    height: ${h}`,
-      );
+      console.log(`  - file: ${baseName}\n    width: ${w}\n    height: ${h}`);
       console.log(`  [skip] ${baseName} — already up to date`);
       continue;
     }
 
-    console.log(
-      `  - file: ${baseName}\n    width: ${w}\n    height: ${h}`,
-    );
+    console.log(`  - file: ${baseName}\n    width: ${w}\n    height: ${h}`);
 
     for (const size of SIZES) {
       const outPath = join(outDir, `${baseName}-${size.name}.webp`);
