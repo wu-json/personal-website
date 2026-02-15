@@ -7,12 +7,33 @@ const MainBanner = () => (
       <img
         src='/images/mirror.png'
         alt=''
-        className='w-52 sm:w-52 md:w-64 lg:w-80 opacity-80 grayscale rotate-[25deg]'
+        className='w-52 sm:w-52 md:w-64 lg:w-80 opacity-80 grayscale rotate-25'
       />
-      <p className='text-white/60 text-xs sm:text-sm font-pixel text-left leading-relaxed'>
-        Software engineer building things for the web. Currently interested in
-        design systems, creative tools, and whatever comes next.
-      </p>
+      <div className='flex flex-col gap-2.5'>
+        <p className='text-white text-xs sm:text-sm font-pixel text-left leading-relaxed'>
+          I make things that bloom and wilt.
+        </p>
+        <p className='text-white text-xs sm:text-sm font-pixel text-left leading-relaxed'>
+          My latest arc has been working on coding agents at{' '}
+          <a
+            href='https://withforge.com/'
+            target='_blank'
+            rel='noopener noreferrer'
+            className='underline decoration-white/30 hover:decoration-white transition-all duration-300'
+          >
+            Forge
+          </a>
+          .
+        </p>
+        <p className='text-white text-xs sm:text-sm font-pixel text-left leading-relaxed'>
+          I did my undergrad at Yale, grew up in Princeton, lived in Atlanta,
+          and ended up in San Francisco.
+        </p>
+        <p className='text-white text-xs sm:text-sm font-pixel text-left leading-relaxed'>
+          I breakdance and dwell on the streets watching you through black and
+          white.
+        </p>
+      </div>
       <div className='flex items-center gap-3'>
         <a
           href='https://github.com/wu-json'
