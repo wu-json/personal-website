@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { ScrollToTop } from 'src/components/ScrollToTop';
 import { Sidebar } from 'src/components/Sidebar';
 
 const PETAL_ANGLES = [0, 72, 144, 216, 288];
@@ -83,6 +84,7 @@ const MenuToggle = ({
 );
 
 const RootLayout = ({ children }: { children: React.ReactNode }) => {
+  const mainRef = useRef<HTMLElement>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const closeMobileMenu = useCallback(() => setIsMobileMenuOpen(false), []);
@@ -102,7 +104,10 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
     <div className='flex h-full w-full overflow-hidden'>
       <Sidebar isMobileOpen={isMobileMenuOpen} onClose={closeMobileMenu} />
       <MenuToggle open={isMobileMenuOpen} onClick={toggleMobileMenu} />
-      <main className='flex-1 min-w-0 overflow-y-auto'>{children}</main>
+      <main ref={mainRef} className='flex-1 min-w-0 overflow-y-auto'>
+        {children}
+      </main>
+      <ScrollToTop scrollRef={mainRef} />
     </div>
   );
 };
