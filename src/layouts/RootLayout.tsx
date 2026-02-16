@@ -99,10 +99,10 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
   }, [isMobileMenuOpen]);
 
   return (
-    <div className='flex h-full w-full'>
+    <div className='flex h-full w-full overflow-hidden'>
       <Sidebar isMobileOpen={isMobileMenuOpen} onClose={closeMobileMenu} />
       <MenuToggle open={isMobileMenuOpen} onClick={toggleMobileMenu} />
-      <main className='flex-1 min-w-0'>{children}</main>
+      <main className='flex-1 min-w-0 overflow-y-auto'>{children}</main>
     </div>
   );
 };
