@@ -28,7 +28,7 @@ I actually built and deployed this to my homelab in a few hours after a drunk Ch
 
 Dovetail sits next to your Docker containers and watches the Docker socket for container events. When a container comes up with the right labels, Dovetail spins up a dedicated Tailscale node for it and starts proxying HTTPS traffic to the container's port. When the container goes down, the node gets cleaned up automatically. No port forwarding, no DNS fiddling, no nginx configs — just slap a label on your container and it's reachable by name on your tailnet.
 
-The whole thing runs as a single Docker container itself. You give it a Tailscale auth key and mount the Docker socket, and it handles the rest. Each service gets its own Tailscale identity, so `webapp.your-tailnet.ts.net` just works. It's the kind of thing that sounds like it should already exist, and it sort of does, but the existing options were either abandoned or didn't quite fit what I wanted.
+The whole thing runs as a single Docker container itself. You give it a Tailscale auth key and mount the Docker socket, and it handles the rest. Each service gets its own Tailscale identity, so `webapp.your-tailnet.ts.net` just works.
 
 ![Dovetail architecture diagram](/images/constructs/diagram/diagram-full.webp)
 
