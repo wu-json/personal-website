@@ -12,9 +12,14 @@ A working directory of myself.
 
 ## Local Development
 
+This project uses [curse](https://github.com/wu-json/curse) for running local development processes.
+
 ```sh
+# install deps
 bun install
-bun dev
+
+# run dev server
+curse
 ```
 
 ## Adding a Fragment

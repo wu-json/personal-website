@@ -1,0 +1,5 @@
+version = 0
+
+[[process]]
+name = "dev"
+command = "bun dev"
