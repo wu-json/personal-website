@@ -4,7 +4,7 @@ import * as path from 'path';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-  base: './',
+  base: '/',
   build: { outDir: 'build' },
   plugins: [react(), tailwindcss()],
   server: {
