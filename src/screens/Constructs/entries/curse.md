@@ -9,6 +9,8 @@ coverHeight: 1770
 repo: https://github.com/wu-json/curse
 ---
 
+![Curse terminal UI](/images/constructs/curse/cover-full.webp)
+
 A terminal UI for running and managing multiple processes in parallel. Built with Go and BubbleTea.
 
 Curse reads a simple YAML config and spins up each process in its own pane — scrollable, color-coded, and easy to monitor. When one crashes, you see it immediately. When you're done, `Ctrl+C` tears everything down cleanly.

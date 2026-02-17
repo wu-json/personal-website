@@ -34,8 +34,8 @@ const ConstructsScreen = () => (
             <ProgressiveImage
               placeholderSrc={constructImageUrl(c.id, c.cover, 'placeholder')}
               src={constructImageUrl(c.id, c.cover, 'thumb')}
-              width={c.coverWidth}
-              height={c.coverHeight}
+              width={3}
+              height={2}
               loading={i < 4 ? 'eager' : 'lazy'}
               className='rounded-sm'
             />

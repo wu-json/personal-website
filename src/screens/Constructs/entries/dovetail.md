@@ -4,10 +4,12 @@ title: Dovetail
 subtitle: Docker-to-Tailscale reverse proxy
 date: '2025.12'
 cover: cover
-coverWidth: 1196
-coverHeight: 1196
+coverWidth: 1096
+coverHeight: 1046
 repo: https://github.com/wu-json/dovetail
 ---
+
+![Dovetail architecture](/images/constructs/dovetail/cover-full.webp)
 
 A reverse proxy that automatically connects Docker containers to your Tailscale network. Run a container with a label, and Dovetail handles the rest — provisioning a Tailscale node and proxying traffic to the right port.
 
