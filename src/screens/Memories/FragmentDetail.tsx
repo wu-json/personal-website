@@ -74,6 +74,12 @@ type LightboxView =
     }
   | null;
 
+function filesFromGridItem(item: GridItem): string[] {
+  return item.kind === 'solo'
+    ? [item.photo.file]
+    : item.photos.map(p => p.file);
+}
+
 const jitter = () => ({ animationDelay: `${Math.random() * 120}ms` });
 
 const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
@@ -159,6 +165,20 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
     );
   }
 
+  const gridPreloadFiles = useMemo(() => {
+    if (!lightboxView) return [];
+    const gi = lightboxView.gridIndex;
+    const files: string[] = [];
+    for (let dist = 1; dist <= 3; dist++) {
+      const next = (gi + dist) % gridItems.length;
+      const prev = (gi - dist + gridItems.length) % gridItems.length;
+      if (next !== gi) files.push(...filesFromGridItem(gridItems[next]));
+      if (prev !== gi && prev !== next)
+        files.push(...filesFromGridItem(gridItems[prev]));
+    }
+    return files;
+  }, [lightboxView, gridItems]);
+
   let lightboxElement: React.ReactNode = null;
 
   if (lightboxView?.kind === 'group') {
@@ -189,6 +209,7 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
           onPhotoClick={p =>
             navigate(`/memories/${id}/${p.file}`, { replace: true })
           }
+          preloadFiles={gridPreloadFiles}
         />
       );
     }
@@ -229,7 +250,7 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
               ? () => navigate(`/memories/${id}/${nextFile}`, { replace: true })
               : null
           }
-          preloadFiles={preload}
+          preloadFiles={[...preload, ...gridPreloadFiles]}
         />
       );
     } else {
@@ -252,7 +273,7 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
               ? () => navigateToGridItem((gridIndex + 1) % gridItems.length)
               : null
           }
-          preloadFiles={[]}
+          preloadFiles={gridPreloadFiles}
         />
       );
     }

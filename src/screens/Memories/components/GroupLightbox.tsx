@@ -16,6 +16,7 @@ const GroupLightbox = ({
   onPrev,
   onNext,
   onPhotoClick,
+  preloadFiles,
 }: {
   photos: PhotoMeta[];
   fragmentId: string;
@@ -26,6 +27,7 @@ const GroupLightbox = ({
   onPrev: (() => void) | null;
   onNext: (() => void) | null;
   onPhotoClick: (photo: PhotoMeta) => void;
+  preloadFiles: string[];
 }) => {
   const [loadedSet, setLoadedSet] = useState<Set<string>>(() => new Set());
   const swipe = useSwipe({ onSwipeLeft: onNext, onSwipeRight: onPrev });
@@ -54,6 +56,13 @@ const GroupLightbox = ({
       document.body.style.overflow = '';
     };
   }, []);
+
+  useEffect(() => {
+    for (const file of preloadFiles) {
+      const img = new Image();
+      img.src = photoUrl(fragmentId, file, 'full');
+    }
+  }, [preloadFiles, fragmentId]);
 
   const isAlwaysColumn = layout === 'column';
   const combinedAR = photos.reduce((sum, p) => sum + p.width / p.height, 0);
