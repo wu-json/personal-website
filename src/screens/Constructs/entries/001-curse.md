@@ -12,7 +12,7 @@ link: https://github.com/wu-json/curse
 
 ![Curse terminal UI](/images/constructs/curse/cover-full.webp)
 
-Curse is a dead simple Terminal UI for running processes, configured through a single `curse.toml` file. You define your processes, their dependencies, and optional health checks — and curse handles the rest. It shows each process in a table with live status, memory, and CPU usage, and lets you drill into scrollable logs for any of them.
+A dead simple Terminal UI for running processes, configured through a single `curse.toml` file. You define your processes, their dependencies, and optional health checks — and curse handles the rest. It shows each process in a table with live status, memory, and CPU usage, and lets you drill into scrollable logs for any of them.
 
 Built with TypeScript, [React Ink](https://github.com/vadimdemedes/ink), and [Bun](https://bun.sh/).
 

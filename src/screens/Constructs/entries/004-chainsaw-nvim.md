@@ -12,7 +12,7 @@ link: https://github.com/wu-json/chainsaw.nvim
 
 ![Reze theme for Neovim](/images/constructs/chainsaw-nvim/cover-full.webp)
 
-chainsaw.nvim is a collection of Neovim color themes based on characters from [Chainsaw Man](https://en.wikipedia.org/wiki/Chainsaw_Man), built with [Lush](https://github.com/rktjmp/lush.nvim).
+A collection of Neovim color themes based on characters from [Chainsaw Man](https://en.wikipedia.org/wiki/Chainsaw_Man), built with [Lush](https://github.com/rktjmp/lush.nvim).
 
 ## Reze レゼ — The Bomb Devil
 
