@@ -18,7 +18,7 @@ const modules = import.meta.glob('./entries/*.md', {
 }) as Record<string, string>;
 
 export const constructs: Construct[] = Object.entries(modules)
-  .sort(([pathA], [pathB]) => pathA.localeCompare(pathB))
+  .sort(([pathA], [pathB]) => pathB.localeCompare(pathA))
   .map(([, raw]) => {
     const { data, content } = parseFrontmatter(raw);
     return {
