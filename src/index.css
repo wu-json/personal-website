@@ -221,8 +221,11 @@
 .transmission-prose h1,
 .transmission-prose h2,
 .transmission-prose h3 {
-  color: white;
+  color: rgba(255, 255, 255, 0.85);
+  font-family: var(--font-pixel);
   font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   margin: 1em 0 0.5em;
 }
 .transmission-prose h1 {
