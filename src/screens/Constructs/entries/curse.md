@@ -55,4 +55,3 @@ I wanted curse to feel like a tool that gets out of the way. A few things guided
 **Make interacting with logs delightful.** Local logs are really useful, and are often the reason we want to run things locally in the first place. Navigating and interacting with logs should feel like a first-class experience.
 
 **Familiarity.** Coming from `k9s`, constantly having to context switch shortcuts between `k9s` and `process-compose` was unpleasant, especially given that they look so similar. The key-binds in curse are meant to feel warm and familiar so that anyone using vim motions should feel right at home.
-

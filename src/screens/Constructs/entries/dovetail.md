@@ -12,7 +12,7 @@ link: https://github.com/wu-json/dovetail
 
 ![Dovetail](/images/constructs/dovetail/cover-full.webp)
 
-*Art by [temo.scribbles](https://www.instagram.com/p/DRRi4_OEsLo/) on Instagram*
+_Art by [temo.scribbles](https://www.instagram.com/p/DRRi4_OEsLo/) on Instagram_
 
 Dovetail is a lightweight reverse proxy that automatically exposes Docker containers to your [Tailnet](https://tailscale.com/) over HTTPS. Add labels to your containers and they become accessible as secure endpoints on your private network.
 
