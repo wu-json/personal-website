@@ -14,7 +14,7 @@ link: https://github.com/wu-json/dovetail
 
 *Art by [temo.scribbles](https://www.instagram.com/p/DRRi4_OEsLo/) on Instagram*
 
-Dovetail is a lightweight reverse proxy that automatically exposes Docker containers to your Tailscale tailnet over HTTPS. Add labels to your containers and they become accessible as secure endpoints on your private network.
+Dovetail is a lightweight reverse proxy that automatically exposes Docker containers to your [Tailnet](https://tailscale.com/) over HTTPS. Add labels to your containers and they become accessible as secure endpoints on your private network.
 
 ## From The (Home) Lab
 
@@ -26,9 +26,9 @@ I actually built and deployed this to my homelab in a few hours after a drunk Ch
 
 ## How It Works
 
-Dovetail sits next to your Docker containers and watches the Docker socket for container events. When a container comes up with the right labels, Dovetail spins up a dedicated Tailscale node for it and starts proxying HTTPS traffic to the container's port. When the container goes down, the node gets cleaned up automatically. No port forwarding, no DNS fiddling, no nginx configs — just slap a label on your container and it's reachable by name on your tailnet.
+Dovetail sits next to your Docker containers and watches the Docker socket for container events. When a container comes up with the right labels, Dovetail spins up a dedicated Tailscale node for it and starts proxying HTTPS traffic to the container's port.
 
-The whole thing runs as a single Docker container itself. You give it a Tailscale auth key and mount the Docker socket, and it handles the rest. Each service gets its own Tailscale identity, so `webapp.your-tailnet.ts.net` just works.
+The whole thing runs as a single Docker container. You give it a Tailscale auth key and mount the Docker socket, and it handles the rest. Each service gets its own subdomain (e.g. `webapp.your-tailnet.ts.net`).
 
 ![Dovetail architecture diagram](/images/constructs/diagram/diagram-full.webp)
 
