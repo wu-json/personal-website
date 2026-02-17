@@ -1,5 +1,5 @@
 ---
-id: '0001'
+id: '001'
 timestamp: '2026.02.14 // 21:00:00'
 title: 'INITIAL BOOT SEQ'
 expanded: false
