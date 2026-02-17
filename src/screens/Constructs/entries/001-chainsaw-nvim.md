@@ -3,10 +3,9 @@ id: chainsaw-nvim
 title: chainsaw.nvim
 subtitle: Neovim color themes from Chainsaw Man
 date: '2025.10'
-cover: cover
-coverWidth: 2290
-coverHeight: 782
-coverPosition: left center
+cover: reze-art-1
+coverWidth: 1024
+coverHeight: 576
 linkLabel: source code
 link: https://github.com/wu-json/chainsaw.nvim
 ---
