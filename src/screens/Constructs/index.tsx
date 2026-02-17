@@ -44,10 +44,10 @@ const ConstructsScreen = () => (
                 {c.title}
               </h2>
               <div className='flex items-baseline gap-2 mt-1'>
-                <span className='text-white/30 text-[10px] font-mono'>
+                <span className='text-white/50 text-xs font-mono'>
                   {c.date}
                 </span>
-                <span className='text-white/20 text-[10px] font-mono'>
+                <span className='text-white/50 text-xs font-mono'>
                   — {c.subtitle}
                 </span>
               </div>
