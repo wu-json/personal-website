@@ -6,6 +6,7 @@ date: '2025.10'
 cover: cover
 coverWidth: 2290
 coverHeight: 782
+coverPosition: left center
 linkLabel: source code
 link: https://github.com/wu-json/chainsaw.nvim
 ---

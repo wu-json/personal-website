@@ -6,6 +6,7 @@ date: '2025.12'
 cover: cover
 coverWidth: 2238
 coverHeight: 2794
+coverPosition: center top
 linkLabel: source code
 link: https://github.com/wu-json/blossom
 ---

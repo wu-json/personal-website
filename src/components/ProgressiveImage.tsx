@@ -7,6 +7,7 @@ const ProgressiveImage = ({
   width,
   height,
   loading = 'lazy',
+  objectPosition,
   className = '',
   onClick,
 }: {
@@ -16,6 +17,7 @@ const ProgressiveImage = ({
   width: number;
   height: number;
   loading?: 'lazy' | 'eager';
+  objectPosition?: string;
   className?: string;
   onClick?: () => void;
 }) => {
@@ -35,6 +37,7 @@ const ProgressiveImage = ({
         alt=''
         aria-hidden
         className={`absolute inset-0 w-full h-full object-cover scale-110 blur-md transition-opacity duration-500 ${loaded ? 'opacity-0' : 'opacity-100'}`}
+        style={objectPosition ? { objectPosition } : undefined}
       />
       <img
         src={src}
@@ -42,6 +45,7 @@ const ProgressiveImage = ({
         loading={loading}
         decoding='async'
         className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${loaded ? 'opacity-100' : 'opacity-0'}`}
+        style={objectPosition ? { objectPosition } : undefined}
         onLoad={() => setLoaded(true)}
       />
     </div>

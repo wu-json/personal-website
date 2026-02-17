@@ -37,6 +37,7 @@ const ConstructsScreen = () => (
               width={3}
               height={2}
               loading={i < 4 ? 'eager' : 'lazy'}
+              objectPosition={c.coverPosition}
               className='rounded-sm grayscale'
             />
             <div className='mt-3'>

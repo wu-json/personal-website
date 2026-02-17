@@ -7,6 +7,7 @@ export type Construct = {
   coverWidth: number;
   coverHeight: number;
   body: string;
+  coverPosition?: string;
   linkLabel?: string;
   link?: string;
 };
