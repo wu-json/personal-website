@@ -1,5 +1,6 @@
 import { RootLayout } from 'src/layouts/RootLayout';
 import { ConstructsScreen } from 'src/screens/Constructs';
+import { ConstructDetail } from 'src/screens/Constructs/ConstructDetail';
 import { GardenScreen } from 'src/screens/Garden';
 import { HeroesScreen } from 'src/screens/Heroes';
 import { HomeScreen } from 'src/screens/Home';
@@ -25,6 +26,9 @@ const App = () => (
         {params => <TransmissionDetail id={params.id} />}
       </Route>
       <Route path='/constructs' component={ConstructsScreen} />
+      <Route path='/constructs/:id'>
+        {params => <ConstructDetail id={params.id} />}
+      </Route>
       <Route path='/heroes' component={HeroesScreen} />
       <Route path='/garden' component={GardenScreen} />
     </Switch>

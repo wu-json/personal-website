@@ -20,10 +20,12 @@ function rotatedDimensions(
 }
 
 async function main() {
-  const [sourceDir, slug] = process.argv.slice(2);
+  const [sourceDir, slug, category = 'fragments'] = process.argv.slice(2);
 
   if (!sourceDir || !slug) {
-    console.error('Usage: bun scripts/optimize-photos.ts <source-dir> <slug>');
+    console.error(
+      'Usage: bun scripts/optimize-photos.ts <source-dir> <slug> [category]',
+    );
     process.exit(1);
   }
 
@@ -32,7 +34,7 @@ async function main() {
     process.exit(1);
   }
 
-  const outDir = join('public', 'images', 'fragments', slug);
+  const outDir = join('public', 'images', category, slug);
   mkdirSync(outDir, { recursive: true });
 
   const files = readdirSync(sourceDir).filter(f => {

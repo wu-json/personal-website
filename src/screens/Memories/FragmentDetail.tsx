@@ -1,12 +1,12 @@
 import { useMemo } from 'react';
 import Markdown from 'react-markdown';
+import { ProgressiveImage } from 'src/components/ProgressiveImage';
 import { Link, useLocation } from 'wouter';
 
 import type { Grouping, PhotoMeta } from './types';
 
 import { GroupLightbox } from './components/GroupLightbox';
 import { Lightbox } from './components/Lightbox';
-import { ProgressiveImage } from './components/ProgressiveImage';
 import { fragments, photoUrl } from './data';
 
 const layoutClasses: Record<string, { wrapper: string; item: string }> = {

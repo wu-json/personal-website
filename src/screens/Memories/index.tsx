@@ -1,6 +1,6 @@
+import { ProgressiveImage } from 'src/components/ProgressiveImage';
 import { Link } from 'wouter';
 
-import { ProgressiveImage } from './components/ProgressiveImage';
 import { fragments, photoUrl } from './data';
 
 const jitter = () => ({ animationDelay: `${Math.random() * 120}ms` });

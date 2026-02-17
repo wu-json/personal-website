@@ -81,7 +81,7 @@ const Sidebar = ({
       </NavLink>
       <NavLink
         to='/constructs'
-        active={pathname === '/constructs'}
+        active={pathname.startsWith('/constructs')}
         onClick={onClick}
       >
         Constructs
