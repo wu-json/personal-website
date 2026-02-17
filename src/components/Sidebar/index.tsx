@@ -80,18 +80,18 @@ const Sidebar = ({
         Memories
       </NavLink>
       <NavLink
-        to='/transmissions'
-        active={pathname.startsWith('/transmissions')}
-        onClick={onClick}
-      >
-        Transmissions
-      </NavLink>
-      <NavLink
         to='/constructs'
         active={pathname === '/constructs'}
         onClick={onClick}
       >
         Constructs
+      </NavLink>
+      <NavLink
+        to='/transmissions'
+        active={pathname.startsWith('/transmissions')}
+        onClick={onClick}
+      >
+        Transmissions
       </NavLink>
       <NavLink to='/heroes' active={pathname === '/heroes'} onClick={onClick}>
         Heroes
