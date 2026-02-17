@@ -6,7 +6,7 @@ date: '2025.12'
 cover: cover
 coverWidth: 1096
 coverHeight: 1046
-linkLabel: GitHub
+linkLabel: source code
 link: https://github.com/wu-json/dovetail
 ---
 
