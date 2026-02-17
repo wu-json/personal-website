@@ -16,15 +16,11 @@ Curse is a dead simple Terminal UI for running processes, configured through a s
 
 Built with TypeScript, [React Ink](https://github.com/vadimdemedes/ink), and [Bun](https://bun.sh/).
 
-## The Origin Story
+## Local Development Setups Are Cursed
 
-*Local development feels like a very special curse at times.*
-
-If you've been writing code for a while, you're likely no stranger to the sacred art that is reading unmaintained instructions in the company `README.md`.
+If you've been writing code for a while, you're no stranger to the sacred art that is reading unmaintained instructions in READMEs.
 
 ```
-## Starting Application Locally
-
 # start local pg and redis
 docker compose up
 
@@ -46,7 +42,7 @@ Existing solutions to this problem have come in various forms.
 
 Out of all of the options above, `process-compose` got the closest to the experience I wanted but was still far from it. It felt quite slow, had limited tooling around logging, and resulted in composed configuration files that were unpleasant to maintain.
 
-So I built curse. A TOML file defines your processes, you run `curse`, and everything spins up in a single terminal window.
+So I built curse. A TOML file defines your processes, you run curse, and everything spins up in a single terminal window.
 
 > Building curse exposed a flickering problem in React Ink's renderer — it repaints the entire terminal on every state change, which doesn't hold up when a dozen processes are all streaming output at once. So I [fixed it at the source](https://github.com/vadimdemedes/ink/pull/781), adding incremental rendering that diffs the previous and current output and only rewrites the lines that actually changed.
 
