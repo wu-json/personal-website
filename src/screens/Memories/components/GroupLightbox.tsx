@@ -4,6 +4,7 @@ import Markdown from 'react-markdown';
 import type { PhotoMeta } from '../types';
 
 import { photoUrl } from '../data';
+import { useSwipe } from './useSwipe';
 
 const GroupLightbox = ({
   photos,
@@ -27,6 +28,7 @@ const GroupLightbox = ({
   onPhotoClick: (photo: PhotoMeta) => void;
 }) => {
   const [loadedSet, setLoadedSet] = useState<Set<string>>(() => new Set());
+  const swipe = useSwipe({ onSwipeLeft: onNext, onSwipeRight: onPrev });
   const photoKey = useMemo(() => photos.map(p => p.file).join(','), [photos]);
 
   useEffect(() => {
@@ -74,6 +76,7 @@ const GroupLightbox = ({
     >
       {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
       <div
+        ref={swipe.ref}
         className='relative flex items-center justify-center w-full h-full p-4 sm:p-8'
         onClick={e => e.stopPropagation()}
       >
@@ -95,7 +98,10 @@ const GroupLightbox = ({
           </button>
         )}
 
-        <div className='flex flex-col items-center gap-4 max-w-full max-h-full'>
+        <div
+          className='flex flex-col items-center gap-4 max-w-full max-h-full'
+          style={swipe.style}
+        >
           <div
             className={`${containerCls} gap-2 items-center justify-center`}
             style={{ maxHeight: 'calc(100vh - 8rem)', maxWidth: '90vw' }}

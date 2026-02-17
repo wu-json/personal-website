@@ -4,6 +4,7 @@ import Markdown from 'react-markdown';
 import type { PhotoMeta } from '../types';
 
 import { photoUrl } from '../data';
+import { useSwipe } from './useSwipe';
 
 const Lightbox = ({
   photo,
@@ -23,6 +24,7 @@ const Lightbox = ({
   preloadFiles: string[];
 }) => {
   const [loaded, setLoaded] = useState(false);
+  const swipe = useSwipe({ onSwipeLeft: onNext, onSwipeRight: onPrev });
   const callbacksRef = useRef({ onClose, onPrev, onNext });
   callbacksRef.current = { onClose, onPrev, onNext };
 
@@ -64,6 +66,7 @@ const Lightbox = ({
     >
       {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
       <div
+        ref={swipe.ref}
         className='relative flex items-center justify-center w-full h-full p-4 sm:p-8'
         onClick={e => e.stopPropagation()}
       >
@@ -85,7 +88,10 @@ const Lightbox = ({
           </button>
         )}
 
-        <div className='flex flex-col items-center gap-3 max-w-full max-h-full'>
+        <div
+          className='flex flex-col items-center gap-3 max-w-full max-h-full'
+          style={swipe.style}
+        >
           <div
             className='relative overflow-hidden'
             style={{
