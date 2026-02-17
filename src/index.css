@@ -249,6 +249,18 @@
   opacity: 0.85;
   filter: grayscale(0.2);
 }
+.transmission-prose .img-row {
+  display: flex;
+  gap: 0.5em;
+  margin: 1em 0;
+}
+.transmission-prose .img-row img {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  height: 300px;
+  object-fit: cover;
+}
 
 @layer base {
   html,

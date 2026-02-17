@@ -1,4 +1,5 @@
 import Markdown from 'react-markdown';
+import rehypeRaw from 'rehype-raw';
 import { Link } from 'wouter';
 
 import { constructs } from './data';
@@ -78,7 +79,7 @@ const ConstructDetail = ({ id }: { id: string }) => {
           className='bio-glitch transmission-prose text-white/70 text-xs sm:text-sm font-mono leading-loose'
           style={jitter()}
         >
-          <Markdown>{c.body}</Markdown>
+          <Markdown rehypePlugins={[rehypeRaw]}>{c.body}</Markdown>
         </div>
 
         <footer className='mt-12 pt-6 border-t border-white/5'>

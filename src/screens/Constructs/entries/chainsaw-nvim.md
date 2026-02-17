@@ -18,24 +18,27 @@ These themes don't define background colors, so they inherit transparency and co
 
 ## Reze レゼ — The Bomb Devil
 
-![Reze character art](/images/constructs/chainsaw-nvim/reze-art-1-full.webp)
-
-![Reze character art](/images/constructs/chainsaw-nvim/reze-art-2-full.webp)
+<div class="img-row">
+  <img src="/images/constructs/chainsaw-nvim/reze-art-1-full.webp" alt="Reze character art" />
+  <img src="/images/constructs/chainsaw-nvim/reze-art-2-full.webp" alt="Reze character art" />
+</div>
 
 ![Reze theme screenshot](/images/constructs/chainsaw-nvim/reze-screenshot-full.webp)
 
 ## Aki アキ — The Gun Fiend
 
-![Aki character art](/images/constructs/chainsaw-nvim/aki-art-1-full.webp)
-
-![Aki character art](/images/constructs/chainsaw-nvim/aki-art-2-full.webp)
+<div class="img-row">
+  <img src="/images/constructs/chainsaw-nvim/aki-art-1-full.webp" alt="Aki character art" />
+  <img src="/images/constructs/chainsaw-nvim/aki-art-2-full.webp" alt="Aki character art" />
+</div>
 
 ![Aki theme screenshot](/images/constructs/chainsaw-nvim/aki-screenshot-full.webp)
 
 ## Makima マキマ — The Control Devil
 
-![Makima character art](/images/constructs/chainsaw-nvim/makima-art-1-full.webp)
-
-![Makima character art](/images/constructs/chainsaw-nvim/makima-art-2-full.webp)
+<div class="img-row">
+  <img src="/images/constructs/chainsaw-nvim/makima-art-1-full.webp" alt="Makima character art" />
+  <img src="/images/constructs/chainsaw-nvim/makima-art-2-full.webp" alt="Makima character art" />
+</div>
 
 ![Makima theme screenshot](/images/constructs/chainsaw-nvim/makima-screenshot-full.webp)
