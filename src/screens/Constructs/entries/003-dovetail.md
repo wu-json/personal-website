@@ -10,7 +10,7 @@ linkLabel: source code
 link: https://github.com/wu-json/dovetail
 ---
 
-![Dovetail](/images/constructs/dovetail/cover-full.webp)
+<img src="/images/constructs/dovetail/cover-full.webp" alt="Dovetail" width="1096" height="1046">
 
 _Art by [temo.scribbles](https://www.instagram.com/p/DRRi4_OEsLo/) on Instagram_
 
@@ -30,7 +30,7 @@ Dovetail sits next to your Docker containers and watches the Docker socket for c
 
 The whole thing runs as a single Docker container. You give it a Tailscale auth key and mount the Docker socket, and it handles the rest. Each service gets its own subdomain (e.g. `webapp.your-tailnet.ts.net`).
 
-![Dovetail architecture diagram](/images/constructs/diagram/diagram-full.webp)
+<img src="/images/constructs/diagram/diagram-full.webp" alt="Dovetail architecture diagram" width="2400" height="2487">
 
 ## Cursed Thought
 
