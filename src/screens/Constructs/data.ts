@@ -30,7 +30,8 @@ export const constructs: Construct[] = Object.entries(modules)
       coverWidth: Number(data.coverWidth ?? 0),
       coverHeight: Number(data.coverHeight ?? 0),
       body: content.trim(),
-      repo: data.repo ? String(data.repo) : undefined,
+      linkLabel: data.linkLabel ? String(data.linkLabel) : undefined,
+      link: data.link ? String(data.link) : undefined,
     };
   });
 

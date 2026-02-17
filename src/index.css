@@ -225,6 +225,15 @@
   font-weight: 600;
   margin: 1em 0 0.5em;
 }
+.transmission-prose h1 {
+  font-size: 1.5em;
+}
+.transmission-prose h2 {
+  font-size: 1.25em;
+}
+.transmission-prose h3 {
+  font-size: 1.1em;
+}
 .transmission-prose hr {
   border: none;
   border-top: 1px solid rgba(255, 255, 255, 0.05);

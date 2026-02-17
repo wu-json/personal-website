@@ -22,7 +22,8 @@ Ask the user for:
 - `subtitle` (short description)
 - `date` (format: `YYYY.MM`)
 - `cover` (which photo file to use as the cover — use the filename without extension)
-- `repo` URL (optional — GitHub link)
+- `linkLabel` (optional — display text for the link, e.g. "GitHub")
+- `link` (optional — URL for the link)
 - Markdown body content (project description)
 
 Use the width/height from the optimize script output for `coverWidth` and `coverHeight`.
@@ -38,7 +39,8 @@ date: '<date>'
 cover: <cover-file>
 coverWidth: <width>
 coverHeight: <height>
-repo: <optional repo URL>
+linkLabel: <optional link label>
+link: <optional URL>
 ---
 <markdown body content>
 ```

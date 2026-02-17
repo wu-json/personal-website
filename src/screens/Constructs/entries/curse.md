@@ -6,7 +6,8 @@ date: '2025.09'
 cover: cover
 coverWidth: 2292
 coverHeight: 1770
-repo: https://github.com/wu-json/curse
+linkLabel: GitHub
+link: https://github.com/wu-json/curse
 ---
 
 ![Curse terminal UI](/images/constructs/curse/cover-full.webp)

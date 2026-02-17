@@ -49,26 +49,26 @@ const ConstructDetail = ({ id }: { id: string }) => {
           </h1>
           <div className='flex items-baseline gap-3 flex-wrap'>
             <span
-              className='bio-glitch text-white/30 text-[10px] font-mono'
+              className='bio-glitch text-white/50 text-xs font-mono'
               style={jitter()}
             >
               {c.date}
             </span>
             <span
-              className='bio-glitch text-white/20 text-[10px] font-mono'
+              className='bio-glitch text-white/50 text-xs font-mono'
               style={jitter()}
             >
               — {c.subtitle}
             </span>
-            {c.repo && (
+            {c.link && (
               <a
-                href={c.repo}
+                href={c.link}
                 target='_blank'
                 rel='noopener noreferrer'
-                className='bio-glitch text-white/30 text-[10px] font-mono hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)] transition-all duration-300'
+                className='bio-glitch text-white/50 text-xs font-mono hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)] transition-all duration-300'
                 style={jitter()}
               >
-                [source]
+                [{c.linkLabel}]
               </a>
             )}
           </div>
