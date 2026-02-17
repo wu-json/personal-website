@@ -35,7 +35,7 @@ const MainBanner = () => {
             className='bio-glitch text-white text-sm sm:text-base font-pixel text-left leading-relaxed [text-shadow:0_0_8px_rgba(255,255,255,0.4)]'
             style={jitter()}
           >
-            {'<BLOOM AND WILT />'}
+            {'[BLOOM AND WILT]'}
           </p>
           <div className='flex flex-col gap-2.5'>
             <p className={bioClass} style={jitter()}>
