@@ -14,8 +14,6 @@ link: https://github.com/wu-json/chainsaw.nvim
 
 chainsaw.nvim is a collection of Neovim color themes based on characters from [Chainsaw Man](https://en.wikipedia.org/wiki/Chainsaw_Man), built with [Lush](https://github.com/rktjmp/lush.nvim).
 
-These themes don't define background colors, so they inherit transparency and color from whatever terminal theme you're running. I'd recommend [carbonfox](https://github.com/EdenEast/nightfox.nvim) — it complements the palette nicely.
-
 ## Reze レゼ — The Bomb Devil
 
 <div class="img-row">
