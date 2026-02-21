@@ -15,6 +15,7 @@ export type Fragment = {
   date: string;
   location: string;
   cover: string;
+  coverClassName?: string;
   description: string;
   photos: PhotoMeta[];
   groupings?: Record<string, Grouping>;

@@ -27,6 +27,7 @@ export const fragments: Fragment[] = Object.entries(modules)
       date: String(data.date ?? ''),
       location: String(data.location ?? ''),
       cover: String(data.cover ?? ''),
+      coverClassName: data.coverClassName as string | undefined,
       description: content.trim(),
       photos: (data.photos ?? []) as PhotoMeta[],
       groupings: data.groupings as Record<string, Grouping> | undefined,

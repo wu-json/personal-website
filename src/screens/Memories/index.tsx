@@ -37,7 +37,7 @@ const MemoriesScreen = () => (
               width={3}
               height={2}
               loading={i < 4 ? 'eager' : 'lazy'}
-              className='rounded-sm'
+              className={`rounded-sm ${f.coverClassName ?? ''}`}
             />
             <div className='mt-3'>
               <h2 className='text-white text-xs sm:text-sm font-pixel uppercase tracking-wide group-hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)] transition-all duration-300'>
