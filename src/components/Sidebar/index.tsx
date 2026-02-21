@@ -93,7 +93,11 @@ const Sidebar = ({
       >
         Transmissions
       </NavLink>
-      <NavLink to='/heroes' active={pathname === '/heroes'} onClick={onClick}>
+      <NavLink
+        to='/heroes'
+        active={pathname.startsWith('/heroes')}
+        onClick={onClick}
+      >
         Heroes
       </NavLink>
       <NavLink to='/garden' active={pathname === '/garden'} onClick={onClick}>
