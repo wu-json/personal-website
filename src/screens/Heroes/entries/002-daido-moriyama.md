@@ -2,7 +2,7 @@
 id: daido-moriyama
 title: 森山大道 (Daido Moriyama)
 subtitle: Street photographer
-location: Osaka, Japan
+location: 大阪、日本
 cover: DaidoMoriyamaBySebastianMayer
 coverWidth: 1600
 coverHeight: 1067
@@ -17,4 +17,3 @@ The photographer who inspired me to embrace monochrome.
 <img src="/images/heroes/daido-moriyama/streetlamps-full.webp" alt="Streetlamps" width="1510" height="1012">
 
 <img src="/images/heroes/daido-moriyama/dancers-full.webp" alt="Dancers" width="1360" height="890">
-
