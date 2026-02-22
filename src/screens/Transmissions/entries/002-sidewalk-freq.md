@@ -1,7 +1,7 @@
 ---
 id: '002'
 timestamp: '2026.02.21 // 15:30:00'
-title: 'Hyde Chameleon'
+title: 'Chameleon'
 expanded: false
 location: 'San Francisco, US'
 ---
