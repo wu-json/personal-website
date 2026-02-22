@@ -111,4 +111,3 @@ photos:
     width: 3648
     height: 2736
 ---
-
