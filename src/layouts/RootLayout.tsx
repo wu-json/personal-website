@@ -1,6 +1,25 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  type RefObject,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { ScrollToTop } from 'src/components/ScrollToTop';
 import { Sidebar } from 'src/components/Sidebar';
+import { useLocation } from 'wouter';
+
+const ScrollReset = ({
+  scrollRef,
+}: {
+  scrollRef: RefObject<HTMLElement | null>;
+}) => {
+  const [pathname] = useLocation();
+  useEffect(() => {
+    scrollRef.current?.scrollTo(0, 0);
+  }, [pathname, scrollRef]);
+  return null;
+};
 
 const PETAL_ANGLES = [0, 72, 144, 216, 288];
 
@@ -107,6 +126,7 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
       <main ref={mainRef} className='flex-1 min-w-0 overflow-y-auto'>
         {children}
       </main>
+      <ScrollReset scrollRef={mainRef} />
       <ScrollToTop scrollRef={mainRef} />
     </div>
   );
