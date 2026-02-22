@@ -1,6 +1,8 @@
 import Markdown from 'react-markdown';
+import rehypeRaw from 'rehype-raw';
 import { Link } from 'wouter';
 
+import { ProgressiveImage } from '../../components/ProgressiveImage';
 import { transmissions } from './data';
 
 const jitter = () => ({ animationDelay: `${Math.random() * 120}ms` });
@@ -49,7 +51,40 @@ const TransmissionsScreen = () => (
             </h2>
 
             <div className='transmission-prose text-white/60 text-xs sm:text-sm font-mono leading-relaxed'>
-              <Markdown>{t.body}</Markdown>
+              <Markdown
+                rehypePlugins={[rehypeRaw]}
+                components={{
+                  img: ({
+                    src,
+                    alt,
+                    width,
+                    height,
+                  }: {
+                    src?: string;
+                    alt?: string;
+                    width?: string | number;
+                    height?: string | number;
+                  }) => {
+                    if (!src || !width || !height)
+                      return <img src={src} alt={alt} />;
+                    return (
+                      <ProgressiveImage
+                        placeholderSrc={src.replace(
+                          /-full\.webp$/,
+                          '-placeholder.webp',
+                        )}
+                        src={src}
+                        alt={alt ?? ''}
+                        width={Number(width)}
+                        height={Number(height)}
+                        className='construct-body-img'
+                      />
+                    );
+                  },
+                }}
+              >
+                {t.body}
+              </Markdown>
             </div>
 
             <Link

@@ -103,6 +103,7 @@ const TransmissionDetail = ({ id }: { id: string }) => {
                     alt={alt ?? ''}
                     width={Number(width)}
                     height={Number(height)}
+                    className='construct-body-img'
                   />
                 );
               },
