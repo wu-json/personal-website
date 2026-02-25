@@ -17,8 +17,8 @@ const createWoodTexture = () => {
   canvas.height = 1024;
   const ctx = canvas.getContext('2d')!;
 
-  // Warm oak base
-  ctx.fillStyle = '#bfa37c';
+  // Dark gray wood base
+  ctx.fillStyle = '#2a2a2a';
   ctx.fillRect(0, 0, 1024, 1024);
 
   const plankH = 80;
@@ -36,9 +36,9 @@ const createWoodTexture = () => {
   // Per-plank color — subtle variation
   const plankColor = (row: number, col: number) => {
     seed(row * 7 + col * 13 + 3);
-    const l = 63 + next() * 3;
-    const s = 23 + next() * 3;
-    return `hsl(30, ${s}%, ${l}%)`;
+    const l = 15 + next() * 4;
+    const s = 2 + next() * 2;
+    return `hsl(0, ${s}%, ${l}%)`;
   };
 
   // Variable plank lengths per row (3–5 planks across 1024px)
@@ -85,8 +85,8 @@ const createWoodTexture = () => {
       const alpha = 0.04 + next() * 0.06;
       const darker = next() > 0.4;
       ctx.strokeStyle = darker
-        ? `rgba(60, 40, 20, ${alpha})`
-        : `rgba(160, 130, 90, ${alpha * 0.6})`;
+        ? `rgba(20, 20, 20, ${alpha})`
+        : `rgba(60, 60, 60, ${alpha * 0.6})`;
       ctx.lineWidth = grainSpread + next() * 0.5;
       ctx.beginPath();
       ctx.moveTo(x, gy);
@@ -109,19 +109,19 @@ const createWoodTexture = () => {
     if (next() > 0.6) {
       const bandY = y + plankH * (0.2 + next() * 0.6);
       const bandH = 3 + next() * 8;
-      ctx.fillStyle = `rgba(90, 65, 40, ${0.03 + next() * 0.04})`;
+      ctx.fillStyle = `rgba(15, 15, 15, ${0.03 + next() * 0.04})`;
       ctx.fillRect(x, bandY, w, bandH);
     }
 
     // Vertical end-seam — visible gap between planks
-    ctx.strokeStyle = 'rgba(50, 35, 20, 0.12)';
+    ctx.strokeStyle = 'rgba(10, 10, 10, 0.12)';
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(x + w, y);
     ctx.lineTo(x + w, y + plankH);
     ctx.stroke();
     // Highlight edge (light catches the bevel)
-    ctx.strokeStyle = 'rgba(200, 180, 150, 0.06)';
+    ctx.strokeStyle = 'rgba(60, 60, 60, 0.06)';
     ctx.lineWidth = 0.5;
     ctx.beginPath();
     ctx.moveTo(x + w + 1, y);
@@ -153,13 +153,13 @@ const createWoodTexture = () => {
     }
 
     // Horizontal seam between rows
-    ctx.strokeStyle = 'rgba(50, 35, 20, 0.08)';
+    ctx.strokeStyle = 'rgba(10, 10, 10, 0.08)';
     ctx.lineWidth = 0.8;
     ctx.beginPath();
     ctx.moveTo(0, y);
     ctx.lineTo(1024, y);
     ctx.stroke();
-    ctx.strokeStyle = 'rgba(200, 180, 150, 0.04)';
+    ctx.strokeStyle = 'rgba(60, 60, 60, 0.04)';
     ctx.lineWidth = 0.5;
     ctx.beginPath();
     ctx.moveTo(0, y + 1);
@@ -181,17 +181,17 @@ const createWallTexture = () => {
   canvas.height = 512;
   const ctx = canvas.getContext('2d')!;
 
-  // Warm white plaster base
-  ctx.fillStyle = '#f0ece6';
+  // Dark charcoal base
+  ctx.fillStyle = '#0a0a0a';
   ctx.fillRect(0, 0, 512, 512);
 
-  // Fine stipple noise — simulates matte paint on plaster
+  // Subtle noise
   const imageData = ctx.getImageData(0, 0, 512, 512);
   const data = imageData.data;
   let s = 42;
   for (let i = 0; i < data.length; i += 4) {
     s = ((s * 1103515245 + 12345) & 0x7fffffff) >>> 0;
-    const noise = (s / 0x7fffffff - 0.5) * 8;
+    const noise = (s / 0x7fffffff - 0.5) * 6;
     data[i] = Math.min(255, Math.max(0, data[i]! + noise));
     data[i + 1] = Math.min(255, Math.max(0, data[i + 1]! + noise));
     data[i + 2] = Math.min(255, Math.max(0, data[i + 2]! + noise));
@@ -212,49 +212,17 @@ const createCeilingTexture = () => {
   canvas.height = 512;
   const ctx = canvas.getContext('2d')!;
 
-  // Slightly brighter than walls
-  ctx.fillStyle = '#f4f1ec';
+  // Flat dark ceiling
+  ctx.fillStyle = '#080808';
   ctx.fillRect(0, 0, 512, 512);
 
-  // Panel grid — thin reveal lines every ~128px (4x4 panels per tile)
-  const panelSize = 128;
-  ctx.strokeStyle = 'rgba(0, 0, 0, 0.06)';
-  ctx.lineWidth = 1;
-  for (let x = panelSize; x < 512; x += panelSize) {
-    ctx.beginPath();
-    ctx.moveTo(x, 0);
-    ctx.lineTo(x, 512);
-    ctx.stroke();
-  }
-  for (let y = panelSize; y < 512; y += panelSize) {
-    ctx.beginPath();
-    ctx.moveTo(0, y);
-    ctx.lineTo(512, y);
-    ctx.stroke();
-  }
-  // Light edge highlights next to reveals
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
-  ctx.lineWidth = 0.5;
-  for (let x = panelSize; x < 512; x += panelSize) {
-    ctx.beginPath();
-    ctx.moveTo(x + 1.5, 0);
-    ctx.lineTo(x + 1.5, 512);
-    ctx.stroke();
-  }
-  for (let y = panelSize; y < 512; y += panelSize) {
-    ctx.beginPath();
-    ctx.moveTo(0, y + 1.5);
-    ctx.lineTo(512, y + 1.5);
-    ctx.stroke();
-  }
-
-  // Subtle noise over panels
+  // Subtle noise
   const imageData = ctx.getImageData(0, 0, 512, 512);
   const data = imageData.data;
   let s = 77;
   for (let i = 0; i < data.length; i += 4) {
     s = ((s * 1103515245 + 12345) & 0x7fffffff) >>> 0;
-    const noise = (s / 0x7fffffff - 0.5) * 5;
+    const noise = (s / 0x7fffffff - 0.5) * 4;
     data[i] = Math.min(255, Math.max(0, data[i]! + noise));
     data[i + 1] = Math.min(255, Math.max(0, data[i + 1]! + noise));
     data[i + 2] = Math.min(255, Math.max(0, data[i + 2]! + noise));
@@ -264,7 +232,7 @@ const createCeilingTexture = () => {
   const texture = new THREE.CanvasTexture(canvas);
   texture.wrapS = THREE.RepeatWrapping;
   texture.wrapT = THREE.RepeatWrapping;
-  texture.repeat.set(8, 8);
+  texture.repeat.set(4, 4);
   texture.colorSpace = THREE.SRGBColorSpace;
   return texture;
 };
@@ -279,7 +247,7 @@ const createWelcomeTexture = () => {
   ctx.imageSmoothingEnabled = false;
 
   // Match gallery wall color
-  ctx.fillStyle = '#f0ece6';
+  ctx.fillStyle = '#0a0a0a';
   ctx.fillRect(0, 0, 1024, 640);
 
   const font = "'Geist Pixel Circle'";
@@ -288,17 +256,17 @@ const createWelcomeTexture = () => {
   ctx.textAlign = 'left';
 
   // Title
-  ctx.fillStyle = '#1a1a1a';
+  ctx.fillStyle = '#ffffff';
   ctx.font = `64px ${font}`;
   ctx.fillText('GALLERY', pad, 150);
 
   // Subtitle
-  ctx.fillStyle = '#555';
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
   ctx.font = `28px ${font}`;
   ctx.fillText('A COLLECTION BY JASON WU', pad, 210);
 
   // Divider
-  ctx.strokeStyle = '#ccc';
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
   ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.moveTo(pad, 255);
@@ -306,7 +274,7 @@ const createWelcomeTexture = () => {
   ctx.stroke();
 
   // Controls
-  ctx.fillStyle = '#999';
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
   ctx.font = `20px ${font}`;
   const controls = [
     'WASD — MOVE',
@@ -428,7 +396,7 @@ const GalleryBench = ({ position }: { position: [number, number, number] }) => {
       {/* Seat */}
       <mesh position={[0, seatY, 0]}>
         <boxGeometry args={[seatW, seatThickness, seatD]} />
-        <meshStandardMaterial color='#2c2520' roughness={0.8} />
+        <meshStandardMaterial color='#1a1a1a' roughness={0.8} />
       </mesh>
       {/* Legs */}
       {[
@@ -667,26 +635,22 @@ const ArtPlaceholder = ({
       {/* Frame */}
       <mesh position={[0, 0, -0.02]}>
         <boxGeometry args={[w + 0.16, h + 0.16, 0.04]} />
-        <meshStandardMaterial color='#2a2420' roughness={0.8} />
+        <meshStandardMaterial color='#e0e0e0' roughness={0.3} metalness={0.1} />
       </mesh>
       {/* Canvas */}
       <mesh>
         <planeGeometry args={[w, h]} />
-        <meshStandardMaterial color='#e8e4de' />
+        <meshStandardMaterial color='#1a1a1a' />
       </mesh>
       {/* Wall label */}
       <group position={[label[0], label[1], 0]}>
         <mesh position={[0, 0, -0.003]}>
           <boxGeometry args={[PLACARD_W + 0.03, PLACARD_H + 0.03, 0.006]} />
-          <meshStandardMaterial
-            color='#c8c4bc'
-            roughness={0.5}
-            metalness={0.15}
-          />
+          <meshStandardMaterial color='#333' roughness={0.5} metalness={0.15} />
         </mesh>
         <mesh>
           <planeGeometry args={[PLACARD_W, PLACARD_H]} />
-          <meshStandardMaterial color='#fafafa' />
+          <meshStandardMaterial color='#111' />
         </mesh>
       </group>
     </group>
@@ -743,7 +707,7 @@ const ArtSpotlight = ({
         intensity={4}
         distance={25}
         decay={1.2}
-        color='#fff8f0'
+        color='#ffffff'
       />
       <object3D ref={targetRef} position={artPosition} />
     </group>
@@ -908,8 +872,8 @@ const GalleryScreen = () => {
   return (
     <div className={`fixed inset-0 z-50${!locked ? ' cursor-pointer' : ''}`}>
       <Canvas camera={{ position: SPAWN_POSITION, fov: 75 }}>
-        <ambientLight intensity={0.6} />
-        <hemisphereLight args={['#faf6f0', '#c4a882', 0.7]} />
+        <ambientLight intensity={1.2} />
+        <hemisphereLight args={['#ffffff', '#333333', 0.8]} />
         <Room />
         <SpawnPoint />
         <Movement />
@@ -924,7 +888,7 @@ const GalleryScreen = () => {
       )}
       {!locked && hasEntered && (
         <div className='absolute inset-x-0 bottom-8 flex justify-center pointer-events-none'>
-          <p className='font-pixel text-black/25 text-xs tracking-[0.2em] select-none'>
+          <p className='font-pixel text-white/25 text-xs tracking-[0.2em] select-none'>
             CLICK ANYWHERE TO CONTROL CAMERA
           </p>
         </div>
