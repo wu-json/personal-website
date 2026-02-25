@@ -808,6 +808,7 @@ const Movement = ({
 
 const GalleryScreen = () => {
   const [locked, setLocked] = useState(false);
+  const [ready, setReady] = useState(false);
   const layout = useMemo(() => {
     const params = new URLSearchParams(window.location.search);
     const count = Number(params.get('count')) || DEFAULT_COUNT;
@@ -816,24 +817,38 @@ const GalleryScreen = () => {
 
   const onLock = useCallback(() => setLocked(true), []);
   const onUnlock = useCallback(() => setLocked(false), []);
+  const onCreated = useCallback(() => {
+    // Small delay to let the first frame render fully
+    requestAnimationFrame(() => setReady(true));
+  }, []);
 
   return (
-    <div className={`fixed inset-0 z-50${!locked ? ' cursor-pointer' : ''}`}>
-      <Canvas camera={{ position: layout.spawnPosition, fov: 75 }}>
-        <ambientLight intensity={1.2} />
-        <hemisphereLight args={['#ffffff', '#333333', 0.8]} />
-        <Room layout={layout} />
-        <SpawnPoint
-          position={layout.spawnPosition}
-          lookAt={layout.spawnLookAt}
-        />
-        <Movement
-          roomWidth={layout.roomWidth}
-          roomDepth={layout.roomDepth}
-          colliders={layout.colliders}
-        />
-        <PointerLockControls onLock={onLock} onUnlock={onUnlock} />
-      </Canvas>
+    <div
+      className={`fixed inset-0 z-50 bg-black${!locked ? ' cursor-pointer' : ''}`}
+    >
+      <div
+        className='absolute inset-0 transition-opacity duration-500'
+        style={{ opacity: ready ? 1 : 0 }}
+      >
+        <Canvas
+          camera={{ position: layout.spawnPosition, fov: 75 }}
+          onCreated={onCreated}
+        >
+          <ambientLight intensity={1.2} />
+          <hemisphereLight args={['#ffffff', '#333333', 0.8]} />
+          <Room layout={layout} />
+          <SpawnPoint
+            position={layout.spawnPosition}
+            lookAt={layout.spawnLookAt}
+          />
+          <Movement
+            roomWidth={layout.roomWidth}
+            roomDepth={layout.roomDepth}
+            colliders={layout.colliders}
+          />
+          <PointerLockControls onLock={onLock} onUnlock={onUnlock} />
+        </Canvas>
+      </div>
       {!locked && (
         <div className='absolute inset-x-0 bottom-8 flex justify-center pointer-events-none'>
           <p className='font-pixel text-white/25 text-xs tracking-[0.2em] select-none'>
