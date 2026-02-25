@@ -1,6 +1,6 @@
 import { PointerLockControls } from '@react-three/drei';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
 
 import {
@@ -505,59 +505,67 @@ const createLabelTexture = (title: string) => {
   return texture;
 };
 
-const ArtPlaceholder = ({
-  position,
-  size,
-  rotation,
-  title,
-}: {
-  position: [number, number, number];
-  size: [number, number];
-  rotation: [number, number, number];
-  title: string;
-}) => {
-  const [w, h] = size;
-  const [labelTex, setLabelTex] = useState<THREE.Texture | null>(null);
+// Shared materials — created once, reused across all art pieces
+const frameMaterial = new THREE.MeshStandardMaterial({
+  color: '#e0e0e0',
+  roughness: 0.3,
+  metalness: 0.1,
+});
+const canvasMaterial = new THREE.MeshStandardMaterial({ color: '#1a1a1a' });
 
-  useEffect(() => {
-    document.fonts.ready.then(() => {
-      setLabelTex(createLabelTexture(title));
-    });
-  }, [title]);
+const ArtPlaceholder = memo(
+  ({
+    position,
+    size,
+    rotation,
+    title,
+  }: {
+    position: [number, number, number];
+    size: [number, number];
+    rotation: [number, number, number];
+    title: string;
+  }) => {
+    const [w, h] = size;
+    const [labelTex, setLabelTex] = useState<THREE.Texture | null>(null);
 
-  // Position label just below bottom-right of frame, right-aligned
-  const frameRight = w / 2 + 0.08;
-  const frameBottom = -(h / 2 + 0.08);
-  const labelX = frameRight - LABEL_W / 2;
-  const labelY = frameBottom - 0.15 - LABEL_H / 2;
+    useEffect(() => {
+      document.fonts.ready.then(() => {
+        setLabelTex(createLabelTexture(title));
+      });
+    }, [title]);
 
-  return (
-    <group position={position} rotation={rotation}>
-      {/* Frame */}
-      <mesh position={[0, 0, -0.02]}>
-        <boxGeometry args={[w + 0.16, h + 0.16, 0.04]} />
-        <meshStandardMaterial color='#e0e0e0' roughness={0.3} metalness={0.1} />
-      </mesh>
-      {/* Canvas */}
-      <mesh>
-        <planeGeometry args={[w, h]} />
-        <meshStandardMaterial color='#1a1a1a' />
-      </mesh>
-      {/* Title text on wall */}
-      {labelTex && (
-        <mesh position={[labelX, labelY, 0]}>
-          <planeGeometry args={[LABEL_W, LABEL_H]} />
-          <meshStandardMaterial
-            map={labelTex}
-            polygonOffset
-            polygonOffsetFactor={-1}
-            polygonOffsetUnits={-1}
-          />
+    // Position label just below bottom-right of frame, right-aligned
+    const frameRight = w / 2 + 0.08;
+    const frameBottom = -(h / 2 + 0.08);
+    const labelX = frameRight - LABEL_W / 2;
+    const labelY = frameBottom - 0.15 - LABEL_H / 2;
+
+    return (
+      <group position={position} rotation={rotation}>
+        {/* Frame */}
+        <mesh position={[0, 0, -0.02]} material={frameMaterial}>
+          <boxGeometry args={[w + 0.16, h + 0.16, 0.04]} />
         </mesh>
-      )}
-    </group>
-  );
-};
+        {/* Canvas */}
+        <mesh material={canvasMaterial}>
+          <planeGeometry args={[w, h]} />
+        </mesh>
+        {/* Title text on wall */}
+        {labelTex && (
+          <mesh position={[labelX, labelY, 0]}>
+            <planeGeometry args={[LABEL_W, LABEL_H]} />
+            <meshStandardMaterial
+              map={labelTex}
+              polygonOffset
+              polygonOffsetFactor={-1}
+              polygonOffsetUnits={-1}
+            />
+          </mesh>
+        )}
+      </group>
+    );
+  },
+);
 
 const Artworks = ({ pieces }: { pieces: ArtPiece[] }) => (
   <group>
@@ -566,6 +574,11 @@ const Artworks = ({ pieces }: { pieces: ArtPiece[] }) => (
     ))}
   </group>
 );
+
+// Maximum number of spotlights to keep rendering performant.
+// When there are more art pieces than this limit, we select an evenly-spaced
+// subset so the gallery still feels well-lit without tanking framerate.
+const MAX_SPOTLIGHTS = 16;
 
 const ArtSpotlight = ({
   artPosition,
@@ -616,17 +629,29 @@ const ArtSpotlight = ({
   );
 };
 
-const ArtLighting = ({ pieces }: { pieces: ArtPiece[] }) => (
-  <group>
-    {pieces.map((piece, i) => (
-      <ArtSpotlight
-        key={i}
-        artPosition={piece.position}
-        artRotation={piece.rotation}
-      />
-    ))}
-  </group>
-);
+const ArtLighting = ({ pieces }: { pieces: ArtPiece[] }) => {
+  // Select an evenly-distributed subset when over the spotlight limit
+  const selected = useMemo(() => {
+    if (pieces.length <= MAX_SPOTLIGHTS) return pieces;
+    const step = pieces.length / MAX_SPOTLIGHTS;
+    return Array.from(
+      { length: MAX_SPOTLIGHTS },
+      (_, i) => pieces[Math.floor(i * step)]!,
+    );
+  }, [pieces]);
+
+  return (
+    <group>
+      {selected.map((piece, i) => (
+        <ArtSpotlight
+          key={i}
+          artPosition={piece.position}
+          artRotation={piece.rotation}
+        />
+      ))}
+    </group>
+  );
+};
 
 const Room = ({ layout }: { layout: GalleryLayout }) => {
   const {
