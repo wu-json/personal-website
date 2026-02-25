@@ -22,9 +22,9 @@ const createWoodTexture = () => {
   const plankHeight = 96;
 
   // Half-bond pattern: uniform planks, each row offset by half a plank
-  // 1024 / 512 = 2 planks per row, tiles seamlessly
-  const plankLen = 512;
-  const halfPlank = plankLen / 2;
+  // 1024 / 682 ≈ 1.5 planks per row — longer boards with stagger
+  const plankLen = 682;
+  const halfPlank = 341;
 
   // Simple hash for deterministic per-plank color
   const plankColor = (row: number, col: number) => {
