@@ -869,12 +869,8 @@ const Movement = () => {
 
 const GalleryScreen = () => {
   const [locked, setLocked] = useState(false);
-  const [hasEntered, setHasEntered] = useState(false);
 
-  const onLock = useCallback(() => {
-    setLocked(true);
-    setHasEntered(true);
-  }, []);
+  const onLock = useCallback(() => setLocked(true), []);
   const onUnlock = useCallback(() => setLocked(false), []);
 
   return (
@@ -887,17 +883,10 @@ const GalleryScreen = () => {
         <Movement />
         <PointerLockControls onLock={onLock} onUnlock={onUnlock} />
       </Canvas>
-      {!locked && !hasEntered && (
-        <div className='absolute inset-0 flex items-center justify-center bg-black/40 pointer-events-none'>
-          <p className='font-pixel text-white text-sm tracking-[0.25em] uppercase select-none'>
-            CLICK TO ENTER
-          </p>
-        </div>
-      )}
-      {!locked && hasEntered && (
+      {!locked && (
         <div className='absolute inset-x-0 bottom-8 flex justify-center pointer-events-none'>
           <p className='font-pixel text-white/25 text-xs tracking-[0.2em] select-none'>
-            CLICK TO RESUME
+            CLICK TO LOOK
           </p>
         </div>
       )}
