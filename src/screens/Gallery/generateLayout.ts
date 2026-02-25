@@ -70,8 +70,6 @@ const PARTITION_HEIGHT = 15.6;
 const CORNER_MARGIN = 2;
 const ART_PADDING = 2.5;
 const WELCOME_CENTER_X = 3;
-const WELCOME_WIDTH = 7;
-const WELCOME_PAD = 1.5; // clearance each side
 
 // ---------------------------------------------------------------------------
 // 1. Compute art sizes from orientation + deterministic hash
@@ -130,9 +128,8 @@ const computeRoomSize = (
   if (roomSize % 2 !== 0) roomSize++;
   roomSize = Math.min(120, roomSize);
 
-  const welcomeReserve = WELCOME_WIDTH + 2 * WELCOME_PAD;
-  const perimeterSupply =
-    2 * (roomSize + roomSize) - 4 * CORNER_MARGIN - welcomeReserve;
+  // Front wall is entirely reserved for welcome text — only 3 walls contribute
+  const perimeterSupply = 2 * roomSize + roomSize - 3 * CORNER_MARGIN * 2;
   const deficit = targetSupply - perimeterSupply;
   // Each partition provides roughly roomSize * 0.4 usable wall surface (both faces)
   const surfacePerPartition = roomSize * 0.4;
@@ -159,6 +156,10 @@ const generatePartitions = (
   const halfD = roomD / 2;
   const partitions: Partition[] = [];
 
+  // Overlap constant: perpendicular walls extend into connecting walls
+  // so there's no visible seam at junctions.
+  const J = WALL_THICKNESS;
+
   // Tier 1 (1–2): Long horizontal divider in back half, optional perpendicular wing
   // Creates a distinct "back gallery" zone
   const backWallZ = -halfD * 0.35;
@@ -170,21 +171,21 @@ const generatePartitions = (
   if (count === 1) return partitions;
 
   // Add a perpendicular wing from the right end → L-shape, creating an alcove
+  // Extends J/2 into the back wall to eliminate the junction gap
   const wingX = halfW * 0.5;
   const wingD = roomD * 0.3;
   partitions.push({
-    position: [wingX, 0, backWallZ + wingD / 2],
-    size: [WALL_THICKNESS, PARTITION_HEIGHT, wingD],
+    position: [wingX, 0, backWallZ + (wingD + J) / 2 - J / 2],
+    size: [WALL_THICKNESS, PARTITION_HEIGHT, wingD + J],
   });
   if (count === 2) return partitions;
 
   // Tier 2 (3–4): Add a second perpendicular wing on the left → T-shape
-  // Creates two alcoves behind the back wall
   const wing2X = -halfW * 0.45;
   const wing2D = roomD * 0.25;
   partitions.push({
-    position: [wing2X, 0, backWallZ - wing2D / 2],
-    size: [WALL_THICKNESS, PARTITION_HEIGHT, wing2D],
+    position: [wing2X, 0, backWallZ - (wing2D + J) / 2 + J / 2],
+    size: [WALL_THICKNESS, PARTITION_HEIGHT, wing2D + J],
   });
   if (count === 3) return partitions;
 
@@ -197,7 +198,6 @@ const generatePartitions = (
 
   // Tier 3 (5–6): Archway pair + side alcove (inspired by original gallery)
   // Split the back wall into two halves with a passage between
-  // Replace the single back wall with a pair
   partitions[0] = {
     position: [-halfW * 0.25, 0, backWallZ],
     size: [roomW * 0.25, PARTITION_HEIGHT, WALL_THICKNESS],
@@ -216,7 +216,6 @@ const generatePartitions = (
   if (count <= 7) return partitions;
 
   // Tier 4 (7+): Additional alcove walls for very large galleries
-  // Left-side corridor wall
   partitions.push({
     position: [-halfW * 0.55, 0, halfD * 0.15],
     size: [WALL_THICKNESS, PARTITION_HEIGHT, roomD * 0.3],
@@ -276,40 +275,8 @@ const buildPerimeterSegments = (
       reserved: 0,
       used: 0,
     },
-    // Front wall — split into two segments around the welcome text zone
-    // Welcome text occupies X ≈ [WELCOME_CENTER_X - WELCOME_WIDTH/2 - PAD, WELCOME_CENTER_X + WELCOME_WIDTH/2 + PAD]
-    // Right vector is (-1,0,0): sweep from high-X origin toward low-X
-    // Right segment: from halfW - CORNER_MARGIN down to welcomeZoneRight
-    // Left segment:  from welcomeZoneLeft down to -halfW + CORNER_MARGIN
-    (() => {
-      const zoneRight = WELCOME_CENTER_X + WELCOME_WIDTH / 2 + WELCOME_PAD;
-      const zoneLeft = WELCOME_CENTER_X - WELCOME_WIDTH / 2 - WELCOME_PAD;
-      const rightW = halfW - CORNER_MARGIN - zoneRight;
-      const leftW = zoneLeft - (-halfW + CORNER_MARGIN);
-      const segs: WallSegment[] = [];
-      if (rightW > 3) {
-        segs.push({
-          origin: [halfW - CORNER_MARGIN, 0, halfD - 0.1],
-          normal: [0, 0, -1],
-          rotation: [0, Math.PI, 0],
-          width: rightW,
-          reserved: 0,
-          used: 0,
-        });
-      }
-      if (leftW > 3) {
-        segs.push({
-          origin: [zoneLeft, 0, halfD - 0.1],
-          normal: [0, 0, -1],
-          rotation: [0, Math.PI, 0],
-          width: leftW,
-          reserved: 0,
-          used: 0,
-        });
-      }
-      return segs;
-    })(),
-  ].flat();
+    // Front wall: no art segments — reserved entirely for welcome text
+  ];
 };
 
 const buildPartitionSegments = (partitions: Partition[]): WallSegment[] => {
