@@ -175,7 +175,100 @@ const createWoodTexture = () => {
   return texture;
 };
 
-const WALL_COLOR = '#f0ece6';
+const createWallTexture = () => {
+  const canvas = document.createElement('canvas');
+  canvas.width = 512;
+  canvas.height = 512;
+  const ctx = canvas.getContext('2d')!;
+
+  // Warm white plaster base
+  ctx.fillStyle = '#f0ece6';
+  ctx.fillRect(0, 0, 512, 512);
+
+  // Fine stipple noise — simulates matte paint on plaster
+  const imageData = ctx.getImageData(0, 0, 512, 512);
+  const data = imageData.data;
+  let s = 42;
+  for (let i = 0; i < data.length; i += 4) {
+    s = ((s * 1103515245 + 12345) & 0x7fffffff) >>> 0;
+    const noise = (s / 0x7fffffff - 0.5) * 8;
+    data[i] = Math.min(255, Math.max(0, data[i]! + noise));
+    data[i + 1] = Math.min(255, Math.max(0, data[i + 1]! + noise));
+    data[i + 2] = Math.min(255, Math.max(0, data[i + 2]! + noise));
+  }
+  ctx.putImageData(imageData, 0, 0);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.repeat.set(6, 6);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  return texture;
+};
+
+const createCeilingTexture = () => {
+  const canvas = document.createElement('canvas');
+  canvas.width = 512;
+  canvas.height = 512;
+  const ctx = canvas.getContext('2d')!;
+
+  // Slightly brighter than walls
+  ctx.fillStyle = '#f4f1ec';
+  ctx.fillRect(0, 0, 512, 512);
+
+  // Panel grid — thin reveal lines every ~128px (4x4 panels per tile)
+  const panelSize = 128;
+  ctx.strokeStyle = 'rgba(0, 0, 0, 0.06)';
+  ctx.lineWidth = 1;
+  for (let x = panelSize; x < 512; x += panelSize) {
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, 512);
+    ctx.stroke();
+  }
+  for (let y = panelSize; y < 512; y += panelSize) {
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(512, y);
+    ctx.stroke();
+  }
+  // Light edge highlights next to reveals
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+  ctx.lineWidth = 0.5;
+  for (let x = panelSize; x < 512; x += panelSize) {
+    ctx.beginPath();
+    ctx.moveTo(x + 1.5, 0);
+    ctx.lineTo(x + 1.5, 512);
+    ctx.stroke();
+  }
+  for (let y = panelSize; y < 512; y += panelSize) {
+    ctx.beginPath();
+    ctx.moveTo(0, y + 1.5);
+    ctx.lineTo(512, y + 1.5);
+    ctx.stroke();
+  }
+
+  // Subtle noise over panels
+  const imageData = ctx.getImageData(0, 0, 512, 512);
+  const data = imageData.data;
+  let s = 77;
+  for (let i = 0; i < data.length; i += 4) {
+    s = ((s * 1103515245 + 12345) & 0x7fffffff) >>> 0;
+    const noise = (s / 0x7fffffff - 0.5) * 5;
+    data[i] = Math.min(255, Math.max(0, data[i]! + noise));
+    data[i + 1] = Math.min(255, Math.max(0, data[i + 1]! + noise));
+    data[i + 2] = Math.min(255, Math.max(0, data[i + 2]! + noise));
+  }
+  ctx.putImageData(imageData, 0, 0);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.repeat.set(8, 8);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  return texture;
+};
+
 const WALL_THICKNESS = 0.8;
 const PARTITION_HEIGHT = 15.6;
 
@@ -201,9 +294,6 @@ const COLLIDERS: AABB[] = [
   // Bench: center [-11, y, -22], seat size [6, 0.35, 1.8]
   { minX: -14, maxX: -8, minZ: -22.9, maxZ: -21.1 },
 ];
-const BASEBOARD_HEIGHT = 0.3;
-const BASEBOARD_COLOR = '#e0dbd3';
-const CROWN_HEIGHT = 0.15;
 
 const Floor = () => {
   const texture = useMemo(createWoodTexture, []);
@@ -215,48 +305,21 @@ const Floor = () => {
   );
 };
 
-const Baseboard = ({
-  position,
-  rotation,
-  width,
-}: {
-  position: [number, number, number];
-  rotation: [number, number, number];
-  width: number;
-}) => (
-  <mesh position={position} rotation={rotation}>
-    <boxGeometry args={[width, BASEBOARD_HEIGHT, 0.05]} />
-    <meshStandardMaterial color={BASEBOARD_COLOR} />
-  </mesh>
-);
-
-const CrownMolding = ({
-  position,
-  rotation,
-  width,
-}: {
-  position: [number, number, number];
-  rotation: [number, number, number];
-  width: number;
-}) => (
-  <mesh position={position} rotation={rotation}>
-    <boxGeometry args={[width, CROWN_HEIGHT, 0.04]} />
-    <meshStandardMaterial color={BASEBOARD_COLOR} />
-  </mesh>
-);
-
 const PartitionWall = ({
   position,
   size,
 }: {
   position: [number, number, number];
   size: [number, number, number];
-}) => (
-  <mesh position={position}>
-    <boxGeometry args={size} />
-    <meshStandardMaterial color={WALL_COLOR} roughness={0.9} />
-  </mesh>
-);
+}) => {
+  const wallTex = useMemo(createWallTexture, []);
+  return (
+    <mesh position={position}>
+      <boxGeometry args={size} />
+      <meshStandardMaterial map={wallTex} roughness={0.92} />
+    </mesh>
+  );
+};
 
 const Partitions = () => (
   <group>
@@ -604,8 +667,8 @@ const Room = () => {
   const halfW = ROOM_WIDTH / 2;
   const halfH = ROOM_HEIGHT / 2;
   const halfD = ROOM_DEPTH / 2;
-  const baseY = -halfH + BASEBOARD_HEIGHT / 2;
-  const crownY = halfH - CROWN_HEIGHT / 2;
+  const wallTex = useMemo(createWallTexture, []);
+  const ceilingTex = useMemo(createCeilingTexture, []);
 
   return (
     <group>
@@ -613,70 +676,28 @@ const Room = () => {
       {/* Ceiling */}
       <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, halfH, 0]}>
         <planeGeometry args={[ROOM_WIDTH, ROOM_DEPTH]} />
-        <meshStandardMaterial color={WALL_COLOR} />
+        <meshStandardMaterial map={ceilingTex} roughness={0.95} />
       </mesh>
       {/* Back wall */}
       <mesh position={[0, 0, -halfD]}>
         <planeGeometry args={[ROOM_WIDTH, ROOM_HEIGHT]} />
-        <meshStandardMaterial color={WALL_COLOR} roughness={0.9} />
+        <meshStandardMaterial map={wallTex} roughness={0.92} />
       </mesh>
       {/* Front wall */}
       <mesh rotation={[0, Math.PI, 0]} position={[0, 0, halfD]}>
         <planeGeometry args={[ROOM_WIDTH, ROOM_HEIGHT]} />
-        <meshStandardMaterial color={WALL_COLOR} roughness={0.9} />
+        <meshStandardMaterial map={wallTex} roughness={0.92} />
       </mesh>
       {/* Left wall */}
       <mesh rotation={[0, Math.PI / 2, 0]} position={[-halfW, 0, 0]}>
         <planeGeometry args={[ROOM_DEPTH, ROOM_HEIGHT]} />
-        <meshStandardMaterial color={WALL_COLOR} roughness={0.9} />
+        <meshStandardMaterial map={wallTex} roughness={0.92} />
       </mesh>
       {/* Right wall */}
       <mesh rotation={[0, -Math.PI / 2, 0]} position={[halfW, 0, 0]}>
         <planeGeometry args={[ROOM_DEPTH, ROOM_HEIGHT]} />
-        <meshStandardMaterial color={WALL_COLOR} roughness={0.9} />
+        <meshStandardMaterial map={wallTex} roughness={0.92} />
       </mesh>
-      {/* Baseboards */}
-      <Baseboard
-        position={[0, baseY, -halfD + 0.025]}
-        rotation={[0, 0, 0]}
-        width={ROOM_WIDTH}
-      />
-      <Baseboard
-        position={[0, baseY, halfD - 0.025]}
-        rotation={[0, Math.PI, 0]}
-        width={ROOM_WIDTH}
-      />
-      <Baseboard
-        position={[-halfW + 0.025, baseY, 0]}
-        rotation={[0, Math.PI / 2, 0]}
-        width={ROOM_DEPTH}
-      />
-      <Baseboard
-        position={[halfW - 0.025, baseY, 0]}
-        rotation={[0, -Math.PI / 2, 0]}
-        width={ROOM_DEPTH}
-      />
-      {/* Crown molding */}
-      <CrownMolding
-        position={[0, crownY, -halfD + 0.02]}
-        rotation={[0, 0, 0]}
-        width={ROOM_WIDTH}
-      />
-      <CrownMolding
-        position={[0, crownY, halfD - 0.02]}
-        rotation={[0, Math.PI, 0]}
-        width={ROOM_WIDTH}
-      />
-      <CrownMolding
-        position={[-halfW + 0.02, crownY, 0]}
-        rotation={[0, Math.PI / 2, 0]}
-        width={ROOM_DEPTH}
-      />
-      <CrownMolding
-        position={[halfW - 0.02, crownY, 0]}
-        rotation={[0, -Math.PI / 2, 0]}
-        width={ROOM_DEPTH}
-      />
       {/* Interior partition walls */}
       <Partitions />
       {/* Art placeholders and per-piece spotlights */}
