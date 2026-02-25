@@ -316,11 +316,125 @@ const generatePartitions = (
     },
   ];
 
-  return mergeClosePartitions(p.slice(0, count));
+  return mergeClosePartitions(snapJunctions(p.slice(0, count), roomW, roomD));
 };
 
 // ---------------------------------------------------------------------------
-// 3b. Clean up partition placement
+// 3b-i. Snap partition junctions — extend walls to close small gaps
+//
+// Two kinds of gap:
+//  • Partition-to-partition: a wing's position is just beyond a wall's edge.
+//  • Partition-to-perimeter: a partition end is close to a room wall.
+// In both cases, extend the partition to close the gap.
+// ---------------------------------------------------------------------------
+const snapJunctions = (
+  partitions: Partition[],
+  roomW: number,
+  roomD: number,
+): Partition[] => {
+  const SNAP = 5; // snap threshold (units)
+  const halfW = roomW / 2;
+  const halfD = roomD / 2;
+  const out = partitions.map(p => ({
+    ...p,
+    position: [...p.position] as [number, number, number],
+    size: [...p.size] as [number, number, number],
+  }));
+
+  // --- Partition-to-partition snapping ---
+
+  // Extend horizontal walls to meet nearby vertical walls
+  for (const v of out) {
+    if (v.size[0] > v.size[2]) continue;
+    for (const h of out) {
+      if (h === v || h.size[0] <= h.size[2]) continue;
+      const vMinZ = v.position[2] - v.size[2] / 2;
+      const vMaxZ = v.position[2] + v.size[2] / 2;
+      if (h.position[2] < vMinZ - SNAP || h.position[2] > vMaxZ + SNAP)
+        continue;
+
+      const hRight = h.position[0] + h.size[0] / 2;
+      const hLeft = h.position[0] - h.size[0] / 2;
+
+      const gapR = v.position[0] - hRight;
+      if (gapR > 0.01 && gapR < SNAP) {
+        h.size[0] += gapR;
+        h.position[0] += gapR / 2;
+      }
+      const gapL = hLeft - v.position[0];
+      if (gapL > 0.01 && gapL < SNAP) {
+        h.size[0] += gapL;
+        h.position[0] -= gapL / 2;
+      }
+    }
+  }
+
+  // Extend vertical walls to meet nearby horizontal walls
+  for (const h of out) {
+    if (h.size[0] <= h.size[2]) continue;
+    for (const v of out) {
+      if (v === h || v.size[0] > v.size[2]) continue;
+      const hMinX = h.position[0] - h.size[0] / 2;
+      const hMaxX = h.position[0] + h.size[0] / 2;
+      if (v.position[0] < hMinX - SNAP || v.position[0] > hMaxX + SNAP)
+        continue;
+
+      const vMaxZ = v.position[2] + v.size[2] / 2;
+      const vMinZ = v.position[2] - v.size[2] / 2;
+
+      const gapFwd = h.position[2] - vMaxZ;
+      if (gapFwd > 0.01 && gapFwd < SNAP) {
+        v.size[2] += gapFwd;
+        v.position[2] += gapFwd / 2;
+      }
+      const gapBack = vMinZ - h.position[2];
+      if (gapBack > 0.01 && gapBack < SNAP) {
+        v.size[2] += gapBack;
+        v.position[2] -= gapBack / 2;
+      }
+    }
+  }
+
+  // --- Partition-to-perimeter snapping ---
+  // Extend partitions whose ends are close to a room wall to meet it.
+  for (const p of out) {
+    const isH = p.size[0] > p.size[2];
+    if (isH) {
+      // Horizontal wall — check if left/right ends are near room side walls
+      const left = p.position[0] - p.size[0] / 2;
+      const right = p.position[0] + p.size[0] / 2;
+      const gapL = left - -halfW;
+      if (gapL > 0.01 && gapL < SNAP) {
+        p.size[0] += gapL;
+        p.position[0] -= gapL / 2;
+      }
+      const gapR = halfW - right;
+      if (gapR > 0.01 && gapR < SNAP) {
+        p.size[0] += gapR;
+        p.position[0] += gapR / 2;
+      }
+    } else {
+      // Vertical wall — check if top/bottom ends are near room front/back walls
+      const minZ = p.position[2] - p.size[2] / 2;
+      const maxZ = p.position[2] + p.size[2] / 2;
+      const gapBack = minZ - -halfD;
+      if (gapBack > 0.01 && gapBack < SNAP) {
+        p.size[2] += gapBack;
+        p.position[2] -= gapBack / 2;
+      }
+      const gapFront = halfD - maxZ;
+      if (gapFront > 0.01 && gapFront < SNAP) {
+        p.size[2] += gapFront;
+        p.position[2] += gapFront / 2;
+      }
+    }
+  }
+
+  return out;
+};
+
+// ---------------------------------------------------------------------------
+// 3b-ii. Clean up partition placement
 //
 // Two passes for same-orientation wall pairs:
 //  1. Collinear (nearly same line, small gap) → merge into one wider wall.
