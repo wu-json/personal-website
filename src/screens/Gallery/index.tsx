@@ -1001,6 +1001,14 @@ const GalleryScreen = ({ fragmentId }: { fragmentId?: string }) => {
           )}
         </Canvas>
       </div>
+      {!locked && (
+        <a
+          href={fragment ? `/memories/${fragment.id}` : '/'}
+          className='absolute top-6 left-6 z-10 font-pixel text-white/25 text-xs tracking-[0.2em] pointer-events-auto hover:text-white/50 transition-colors'
+        >
+          ← EXIT GALLERY
+        </a>
+      )}
       {!isMobile && !locked && (
         <div className='absolute inset-x-0 bottom-8 flex justify-center pointer-events-none'>
           <p className='font-pixel text-white/25 text-xs tracking-[0.2em] select-none'>
