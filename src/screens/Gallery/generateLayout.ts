@@ -799,8 +799,8 @@ type PlacementItem = {
 // fragments page: row groups share height (widths ∝ aspect-ratio),
 // column groups share width (heights ∝ 1/aspect-ratio).
 //
-// A combined aspect-ratio is fed through computeArtSize so the composite
-// lands in the same size tier range as solo pieces.
+// The shared dimension is picked directly from a generous range (5–8)
+// so grouped pieces have strong visual presence on the wall.
 // ---------------------------------------------------------------------------
 const computeGroupSizes = (
   groupId: string,
@@ -812,25 +812,12 @@ const computeGroupSizes = (
   memberSizes: GroupMemberSize[];
 } => {
   const ars = members.map(m => m.aspectRatio ?? 1);
-
-  // Combined AR mirrors the fragments page flex sizing:
-  //   row  → each photo gets flex-grow = AR, so they share height
-  //   column → each photo fills full width, so they share width
-  const combinedAR =
-    layout === 'row'
-      ? ars.reduce((a, b) => a + b, 0)
-      : 1 / ars.reduce((sum, ar) => sum + 1 / ar, 0);
-
-  const composite = computeArtSize({
-    id: groupId,
-    orientation: combinedAR > 1 ? 'landscape' : 'portrait',
-    aspectRatio: combinedAR,
-  });
-
+  const h = deterministicHash(groupId);
   const memberSizes: GroupMemberSize[] = [];
 
   if (layout === 'row') {
-    const sharedH = composite.height;
+    // Shared height — generous range so the group reads well on the wall
+    const sharedH = hashFloat(h, 5, 8);
     let totalW = 0;
     for (const ar of ars) {
       const w = sharedH * ar;
@@ -844,13 +831,13 @@ const computeGroupSizes = (
     };
   }
 
-  // column
-  const sharedW = composite.width;
+  // column — shared width, each height derived from AR
+  const sharedW = hashFloat(h, 5, 8);
   let totalH = 0;
   for (const ar of ars) {
-    const h = sharedW / ar;
-    memberSizes.push({ width: sharedW, height: h });
-    totalH += h;
+    const height = sharedW / ar;
+    memberSizes.push({ width: sharedW, height });
+    totalH += height;
   }
   return {
     compositeWidth: sharedW,
