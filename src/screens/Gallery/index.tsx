@@ -460,177 +460,196 @@ type ArtPiece = {
   position: [number, number, number];
   size: [number, number];
   rotation: [number, number, number];
-  label: [number, number]; // local [x, y] offset from art center
+  title: string;
 };
 
 const ART_PIECES: ArtPiece[] = [
   // === Back wall (z=-30, faces +Z) ===
-  // Hero piece — label below-right
   {
     position: [-11, 1, -29.9],
     size: [8, 5],
     rotation: [0, 0, 0],
-    label: [4.8, -3.2],
+    title: 'UNTITLED I',
   },
-  // Tall portrait — label to the right, mid-height
   {
     position: [20, 0.5, -29.9],
     size: [3.5, 5],
     rotation: [0, 0, 0],
-    label: [2.4, -1.8],
+    title: 'UNTITLED II',
   },
 
   // === Left wall (x=-30, faces +X) ===
-  // Large landscape — label lower-right
   {
     position: [-29.9, 1, -22],
     size: [7, 4.5],
     rotation: [0, Math.PI / 2, 0],
-    label: [4.2, -2.8],
+    title: 'UNTITLED III',
   },
-  // Small portrait — label to the right, centered
   {
     position: [-29.9, 0, -2],
     size: [2, 3],
     rotation: [0, Math.PI / 2, 0],
-    label: [1.6, -0.4],
+    title: 'UNTITLED IV',
   },
-  // Medium landscape — label below, slightly right of center
   {
     position: [-29.9, 0.5, 18],
     size: [4, 3],
     rotation: [0, Math.PI / 2, 0],
-    label: [0.8, -2.2],
+    title: 'UNTITLED V',
   },
 
   // === Right wall (x=+30, faces -X) ===
-  // Dramatic tall piece — label lower-right
   {
     position: [29.9, 0.5, -20],
     size: [3.5, 6],
     rotation: [0, -Math.PI / 2, 0],
-    label: [2.4, -2.4],
+    title: 'UNTITLED VI',
   },
-  // Large landscape — label below-right
   {
     position: [29.9, 1, 8],
     size: [8, 5],
     rotation: [0, -Math.PI / 2, 0],
-    label: [4.8, -3.5],
+    title: 'UNTITLED VII',
   },
 
   // === Partition A-Left (X: -18 to -6) ===
-  // South face — label to the right
   {
     position: [-12, 0.5, -11.5],
     size: [6, 4],
     rotation: [0, 0, 0],
-    label: [3.8, -1.2],
+    title: 'UNTITLED VIII',
   },
-  // North face — label lower-left (tight wall, label on left side)
   {
     position: [-12, 0.5, -12.5],
     size: [5, 3.5],
     rotation: [0, Math.PI, 0],
-    label: [-3.2, -1.0],
+    title: 'UNTITLED IX',
   },
 
   // === Partition A-Right (X: 5 to 19) ===
-  // South face — label to the right
   {
     position: [12, 0.5, -11.5],
     size: [6, 4.5],
     rotation: [0, 0, 0],
-    label: [3.8, -1.6],
+    title: 'UNTITLED X',
   },
-  // North face — label to the right
   {
     position: [14, 0.5, -12.5],
     size: [5, 3.5],
     rotation: [0, Math.PI, 0],
-    label: [3.2, -0.8],
+    title: 'UNTITLED XI',
   },
 
   // === Wall B (Z: -30 to -12, vertical) ===
-  // West face — portrait, label lower-right
   {
     position: [7.5, 0, -22],
     size: [3, 4],
     rotation: [0, -Math.PI / 2, 0],
-    label: [2.2, -1.4],
+    title: 'UNTITLED XII',
   },
-  // East face — landscape, label below centered
   {
     position: [8.5, 0.5, -20],
     size: [5, 3.5],
     rotation: [0, Math.PI / 2, 0],
-    label: [1.0, -2.4],
+    title: 'UNTITLED XIII',
   },
 
   // === Wall C (X: -21 to -11) ===
-  // North face — label to the right
   {
     position: [-16, 0.5, 14.5],
     size: [5, 3],
     rotation: [0, Math.PI, 0],
-    label: [3.2, -0.6],
+    title: 'UNTITLED XIV',
   },
-  // South face — label lower-right
   {
     position: [-16, 0, 15.5],
     size: [4, 3],
     rotation: [0, 0, 0],
-    label: [2.6, -1.8],
+    title: 'UNTITLED XV',
   },
 
   // === Wall D (Z: 15 to 30, vertical) ===
-  // West face — tall portrait, label mid-right
   {
     position: [17.5, 0.5, 22.5],
     size: [4, 5],
     rotation: [0, -Math.PI / 2, 0],
-    label: [2.8, -1.6],
+    title: 'UNTITLED XVI',
   },
-  // East face — label to the right
   {
     position: [18.5, 0, 22.5],
     size: [4, 3],
     rotation: [0, Math.PI / 2, 0],
-    label: [2.6, -0.6],
+    title: 'UNTITLED XVII',
   },
 
   // === Front wall (z=+30, faces -Z) ===
-  // Large statement piece — label below-right
   {
     position: [-10, 1, 29.9],
     size: [7, 5],
     rotation: [0, Math.PI, 0],
-    label: [4.2, -3.5],
+    title: 'UNTITLED XVIII',
   },
-  // Tall portrait — label to the right, mid-height
   {
     position: [15, 0.5, 29.9],
     size: [3.5, 5],
     rotation: [0, Math.PI, 0],
-    label: [2.4, -1.0],
+    title: 'UNTITLED XIX',
   },
 ];
 
-const PLACARD_W = 0.8;
-const PLACARD_H = 0.5;
+const LABEL_W = 1.6;
+const LABEL_H = 0.4;
+
+const createLabelTexture = (title: string) => {
+  const canvas = document.createElement('canvas');
+  canvas.width = 256;
+  canvas.height = 64;
+  const ctx = canvas.getContext('2d')!;
+  ctx.imageSmoothingEnabled = false;
+
+  // Match wall color so it blends seamlessly
+  ctx.fillStyle = '#0a0a0a';
+  ctx.fillRect(0, 0, 256, 64);
+
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+  ctx.font = "16px 'Geist Pixel Circle'";
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(title, 8, 32);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.minFilter = THREE.NearestFilter;
+  texture.magFilter = THREE.NearestFilter;
+  return texture;
+};
 
 const ArtPlaceholder = ({
   position,
   size,
   rotation,
-  label,
+  title,
 }: {
   position: [number, number, number];
   size: [number, number];
   rotation: [number, number, number];
-  label: [number, number];
+  title: string;
 }) => {
   const [w, h] = size;
+  const [labelTex, setLabelTex] = useState<THREE.Texture | null>(null);
+
+  useEffect(() => {
+    document.fonts.ready.then(() => {
+      setLabelTex(createLabelTexture(title));
+    });
+  }, [title]);
+
+  // Position label just below bottom-right of frame, right-aligned
+  const frameRight = w / 2 + 0.08;
+  const frameBottom = -(h / 2 + 0.08);
+  const labelX = frameRight - LABEL_W / 2;
+  const labelY = frameBottom - 0.15 - LABEL_H / 2;
+
   return (
     <group position={position} rotation={rotation}>
       {/* Frame */}
@@ -643,17 +662,18 @@ const ArtPlaceholder = ({
         <planeGeometry args={[w, h]} />
         <meshStandardMaterial color='#1a1a1a' />
       </mesh>
-      {/* Wall label */}
-      <group position={[label[0], label[1], 0]}>
-        <mesh position={[0, 0, -0.003]}>
-          <boxGeometry args={[PLACARD_W + 0.03, PLACARD_H + 0.03, 0.006]} />
-          <meshStandardMaterial color='#333' roughness={0.5} metalness={0.15} />
+      {/* Title text on wall */}
+      {labelTex && (
+        <mesh position={[labelX, labelY, 0]}>
+          <planeGeometry args={[LABEL_W, LABEL_H]} />
+          <meshStandardMaterial
+            map={labelTex}
+            polygonOffset
+            polygonOffsetFactor={-1}
+            polygonOffsetUnits={-1}
+          />
         </mesh>
-        <mesh>
-          <planeGeometry args={[PLACARD_W, PLACARD_H]} />
-          <meshStandardMaterial color='#111' />
-        </mesh>
-      </group>
+      )}
     </group>
   );
 };
@@ -763,11 +783,41 @@ const Room = () => {
         <meshStandardMaterial map={wallTex} roughness={0.92} />
       </mesh>
       {/* Overhead fill lights */}
-      <pointLight position={[0, halfH - 1, 0]} intensity={3} distance={50} decay={1} color='#ffffff' />
-      <pointLight position={[-15, halfH - 1, -15]} intensity={2} distance={40} decay={1} color='#ffffff' />
-      <pointLight position={[15, halfH - 1, -15]} intensity={2} distance={40} decay={1} color='#ffffff' />
-      <pointLight position={[-15, halfH - 1, 15]} intensity={2} distance={40} decay={1} color='#ffffff' />
-      <pointLight position={[15, halfH - 1, 15]} intensity={2} distance={40} decay={1} color='#ffffff' />
+      <pointLight
+        position={[0, halfH - 1, 0]}
+        intensity={3}
+        distance={50}
+        decay={1}
+        color='#ffffff'
+      />
+      <pointLight
+        position={[-15, halfH - 1, -15]}
+        intensity={2}
+        distance={40}
+        decay={1}
+        color='#ffffff'
+      />
+      <pointLight
+        position={[15, halfH - 1, -15]}
+        intensity={2}
+        distance={40}
+        decay={1}
+        color='#ffffff'
+      />
+      <pointLight
+        position={[-15, halfH - 1, 15]}
+        intensity={2}
+        distance={40}
+        decay={1}
+        color='#ffffff'
+      />
+      <pointLight
+        position={[15, halfH - 1, 15]}
+        intensity={2}
+        distance={40}
+        decay={1}
+        color='#ffffff'
+      />
       {/* Interior partition walls */}
       <Partitions />
       {/* Art placeholders and per-piece spotlights */}
@@ -820,7 +870,10 @@ const Movement = () => {
 
     if (direction.lengthSq() > 0) {
       direction.normalize();
-      const speed = pressed.has('ShiftLeft') || pressed.has('ShiftRight') ? RUN_SPEED : MOVE_SPEED;
+      const speed =
+        pressed.has('ShiftLeft') || pressed.has('ShiftRight')
+          ? RUN_SPEED
+          : MOVE_SPEED;
       camera.position.addScaledVector(direction, speed * delta);
     }
 
