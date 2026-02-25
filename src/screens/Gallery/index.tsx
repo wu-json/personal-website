@@ -242,55 +242,92 @@ const createCeilingTexture = () => {
   return texture;
 };
 
+const drawBlossom = (
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  scale: number,
+  alpha: number,
+) => {
+  const angles = [0, 72, 144, 216, 288];
+  const petalRx = 10 * scale;
+  const petalRy = 22 * scale;
+  const petalOffset = 28 * scale;
+
+  ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+  for (const angle of angles) {
+    const rad = (angle * Math.PI) / 180;
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(rad);
+    ctx.beginPath();
+    ctx.ellipse(0, -petalOffset, petalRx, petalRy, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+  // Center circle
+  ctx.beginPath();
+  ctx.arc(cx, cy, 8 * scale, 0, Math.PI * 2);
+  ctx.fill();
+};
+
 const createWelcomeTexture = () => {
   const canvas = document.createElement('canvas');
-  canvas.width = 1024;
-  canvas.height = 640;
+  canvas.width = 2048;
+  canvas.height = 1280;
   const ctx = canvas.getContext('2d')!;
 
-  // Disable smoothing for crisp pixel font rendering
-  ctx.imageSmoothingEnabled = false;
+  const s = 2; // scale factor for hi-res
 
   // Match gallery wall color
   ctx.fillStyle = '#0a0a0a';
-  ctx.fillRect(0, 0, 1024, 640);
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Blossom emblem on the left
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+  drawBlossom(ctx, 150 * s, 180 * s, 2.2 * s, 1);
+
+  // Switch to pixel font rendering
+  ctx.imageSmoothingEnabled = false;
 
   const font = "'Geist Pixel Circle'";
-  const pad = 80;
+  const textLeft = 310 * s;
 
   ctx.textAlign = 'left';
 
   // Title
   ctx.fillStyle = '#ffffff';
-  ctx.font = `64px ${font}`;
-  ctx.fillText('GALLERY', pad, 150);
+  ctx.font = `${64 * s}px ${font}`;
+  ctx.fillText('GALLERY', textLeft, 150 * s);
 
   // Subtitle
   ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
-  ctx.font = `28px ${font}`;
-  ctx.fillText('A COLLECTION BY JASON WU', pad, 210);
+  ctx.font = `${28 * s}px ${font}`;
+  ctx.fillText('A COLLECTION BY JASON WU', textLeft, 210 * s);
 
   // Divider
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
-  ctx.lineWidth = 2;
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+  ctx.lineWidth = 1 * s;
+  const divY = 255 * s;
   ctx.beginPath();
-  ctx.moveTo(pad, 255);
-  ctx.lineTo(1024 - pad, 255);
+  ctx.moveTo(textLeft, divY);
+  ctx.lineTo(canvas.width - 80 * s, divY);
   ctx.stroke();
 
   // Controls
   ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-  ctx.font = `20px ${font}`;
+  ctx.font = `${20 * s}px ${font}`;
   const controls = [
     'WASD — MOVE / SHIFT — RUN',
     'MOUSE — LOOK / CTRL — CROUCH',
     'SPACE — JUMP',
     'ESC — RELEASE CAMERA',
   ];
-  let y = 305;
+  let y = 305 * s;
   for (const line of controls) {
-    ctx.fillText(line, pad, y);
-    y += 40;
+    ctx.fillText(line, textLeft, y);
+    y += 40 * s;
   }
 
   const texture = new THREE.CanvasTexture(canvas);
