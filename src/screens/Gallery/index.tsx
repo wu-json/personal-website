@@ -535,7 +535,7 @@ const createLabelTexture = (title: string) => {
 
 // Shared materials — created once, reused across all art pieces
 const frameMaterial = new THREE.MeshStandardMaterial({
-  color: '#e0e0e0',
+  color: '#1a1a1e',
   roughness: 0.3,
   metalness: 0.1,
 });
