@@ -275,28 +275,31 @@ const createWelcomeTexture = () => {
   canvas.height = 640;
   const ctx = canvas.getContext('2d')!;
 
-  // White background matching gallery walls
+  // Disable smoothing for crisp pixel font rendering
+  ctx.imageSmoothingEnabled = false;
+
+  // Match gallery wall color
   ctx.fillStyle = '#f0ece6';
   ctx.fillRect(0, 0, 1024, 640);
 
-  const fontFamily = 'Geist Variable, ui-sans-serif, system-ui, sans-serif';
+  const font = "'Geist Pixel Circle'";
   const pad = 80;
 
   ctx.textAlign = 'left';
 
   // Title
   ctx.fillStyle = '#1a1a1a';
-  ctx.font = `600 72px ${fontFamily}`;
+  ctx.font = `64px ${font}`;
   ctx.fillText('Gallery', pad, 150);
 
   // Subtitle
   ctx.fillStyle = '#555';
-  ctx.font = `300 30px ${fontFamily}`;
+  ctx.font = `28px ${font}`;
   ctx.fillText('A Collection by Jason Wu', pad, 210);
 
   // Divider
   ctx.strokeStyle = '#ccc';
-  ctx.lineWidth = 1;
+  ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.moveTo(pad, 255);
   ctx.lineTo(1024 - pad, 255);
@@ -304,7 +307,7 @@ const createWelcomeTexture = () => {
 
   // Controls
   ctx.fillStyle = '#999';
-  ctx.font = `400 22px ${fontFamily}`;
+  ctx.font = `20px ${font}`;
   const controls = [
     'WASD — Move',
     'Mouse — Look around',
@@ -319,6 +322,8 @@ const createWelcomeTexture = () => {
 
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
+  texture.minFilter = THREE.NearestFilter;
+  texture.magFilter = THREE.NearestFilter;
   return texture;
 };
 
@@ -441,7 +446,7 @@ const GalleryBench = ({ position }: { position: [number, number, number] }) => {
   );
 };
 
-const SPAWN_POSITION: [number, number, number] = [0, 0, -20];
+const SPAWN_POSITION: [number, number, number] = [3, 0, 20];
 
 const SpawnPoint = () => {
   const { camera } = useThree();
@@ -450,7 +455,7 @@ const SpawnPoint = () => {
   useEffect(() => {
     if (!initialized.current) {
       camera.position.set(...SPAWN_POSITION);
-      camera.lookAt(SPAWN_POSITION[0], SPAWN_POSITION[1], -30);
+      camera.lookAt(SPAWN_POSITION[0], SPAWN_POSITION[1], 30);
       initialized.current = true;
     }
   }, [camera]);
@@ -470,7 +475,7 @@ const WelcomeWallText = () => {
   if (!texture) return null;
 
   return (
-    <mesh position={[0, 0, -29.99]}>
+    <mesh position={[3, 0, 29.99]} rotation={[0, Math.PI, 0]}>
       <planeGeometry args={[4, 2.5]} />
       <meshStandardMaterial
         map={texture}
