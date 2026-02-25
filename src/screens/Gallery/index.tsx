@@ -17,7 +17,7 @@ const createWoodTexture = () => {
   canvas.height = 1024;
   const ctx = canvas.getContext('2d')!;
 
-  // Dark gray wood base
+  // Ashy gray wood base
   ctx.fillStyle = '#2a2a2a';
   ctx.fillRect(0, 0, 1024, 1024);
 
@@ -407,7 +407,7 @@ const GalleryBench = ({ position }: { position: [number, number, number] }) => {
       ].map((pos, i) => (
         <mesh key={i} position={pos as [number, number, number]}>
           <boxGeometry args={[legW, legHeight, legW]} />
-          <meshStandardMaterial color='#1a1a1a' roughness={0.9} />
+          <meshStandardMaterial color='#111' roughness={0.9} />
         </mesh>
       ))}
     </group>
@@ -704,9 +704,9 @@ const ArtSpotlight = ({
         position={lightPos}
         angle={0.5}
         penumbra={0.7}
-        intensity={4}
-        distance={25}
-        decay={1.2}
+        intensity={12}
+        distance={35}
+        decay={1}
         color='#ffffff'
       />
       <object3D ref={targetRef} position={artPosition} />
@@ -761,6 +761,12 @@ const Room = () => {
         <planeGeometry args={[ROOM_DEPTH, ROOM_HEIGHT]} />
         <meshStandardMaterial map={wallTex} roughness={0.92} />
       </mesh>
+      {/* Overhead fill lights */}
+      <pointLight position={[0, halfH - 1, 0]} intensity={3} distance={50} decay={1} color='#ffffff' />
+      <pointLight position={[-15, halfH - 1, -15]} intensity={2} distance={40} decay={1} color='#ffffff' />
+      <pointLight position={[15, halfH - 1, -15]} intensity={2} distance={40} decay={1} color='#ffffff' />
+      <pointLight position={[-15, halfH - 1, 15]} intensity={2} distance={40} decay={1} color='#ffffff' />
+      <pointLight position={[15, halfH - 1, 15]} intensity={2} distance={40} decay={1} color='#ffffff' />
       {/* Interior partition walls */}
       <Partitions />
       {/* Art placeholders and per-piece spotlights */}
