@@ -269,6 +269,59 @@ const createCeilingTexture = () => {
   return texture;
 };
 
+const createWelcomeTexture = () => {
+  const canvas = document.createElement('canvas');
+  canvas.width = 1024;
+  canvas.height = 640;
+  const ctx = canvas.getContext('2d')!;
+
+  // White background matching gallery walls
+  ctx.fillStyle = '#f0ece6';
+  ctx.fillRect(0, 0, 1024, 640);
+
+  const fontFamily = 'Geist Variable, ui-sans-serif, system-ui, sans-serif';
+  const pad = 80;
+
+  ctx.textAlign = 'left';
+
+  // Title
+  ctx.fillStyle = '#1a1a1a';
+  ctx.font = `600 72px ${fontFamily}`;
+  ctx.fillText('Gallery', pad, 150);
+
+  // Subtitle
+  ctx.fillStyle = '#555';
+  ctx.font = `300 30px ${fontFamily}`;
+  ctx.fillText('A Collection by Jason Wu', pad, 210);
+
+  // Divider
+  ctx.strokeStyle = '#ccc';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(pad, 255);
+  ctx.lineTo(1024 - pad, 255);
+  ctx.stroke();
+
+  // Controls
+  ctx.fillStyle = '#999';
+  ctx.font = `400 22px ${fontFamily}`;
+  const controls = [
+    'WASD — Move',
+    'Mouse — Look around',
+    'Space — Jump',
+    'ESC — Pause',
+  ];
+  let y = 305;
+  for (const line of controls) {
+    ctx.fillText(line, pad, y);
+    y += 40;
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  return texture;
+};
+
 const WALL_THICKNESS = 0.8;
 const PARTITION_HEIGHT = 15.6;
 
@@ -385,6 +438,47 @@ const GalleryBench = ({ position }: { position: [number, number, number] }) => {
         </mesh>
       ))}
     </group>
+  );
+};
+
+const SPAWN_POSITION: [number, number, number] = [0, 0, -20];
+
+const SpawnPoint = () => {
+  const { camera } = useThree();
+  const initialized = useRef(false);
+
+  useEffect(() => {
+    if (!initialized.current) {
+      camera.position.set(...SPAWN_POSITION);
+      camera.lookAt(SPAWN_POSITION[0], SPAWN_POSITION[1], -30);
+      initialized.current = true;
+    }
+  }, [camera]);
+
+  return null;
+};
+
+const WelcomeWallText = () => {
+  const [texture, setTexture] = useState<THREE.Texture | null>(null);
+
+  useEffect(() => {
+    document.fonts.ready.then(() => {
+      setTexture(createWelcomeTexture());
+    });
+  }, []);
+
+  if (!texture) return null;
+
+  return (
+    <mesh position={[0, 0, -29.99]}>
+      <planeGeometry args={[4, 2.5]} />
+      <meshStandardMaterial
+        map={texture}
+        polygonOffset
+        polygonOffsetFactor={-1}
+        polygonOffsetUnits={-1}
+      />
+    </mesh>
   );
 };
 
@@ -705,6 +799,8 @@ const Room = () => {
       <ArtLighting />
       {/* Benches */}
       <GalleryBench position={[-11, 0, -22]} />
+      {/* Welcome wall text */}
+      <WelcomeWallText />
     </group>
   );
 };
@@ -796,24 +892,35 @@ const Movement = () => {
 
 const GalleryScreen = () => {
   const [locked, setLocked] = useState(false);
+  const [hasEntered, setHasEntered] = useState(false);
 
-  const onLock = useCallback(() => setLocked(true), []);
+  const onLock = useCallback(() => {
+    setLocked(true);
+    setHasEntered(true);
+  }, []);
   const onUnlock = useCallback(() => setLocked(false), []);
 
   return (
-    <div className='fixed inset-0 z-50'>
-      <Canvas camera={{ position: [0, 0, 0], fov: 75 }}>
+    <div className={`fixed inset-0 z-50${!locked ? ' cursor-pointer' : ''}`}>
+      <Canvas camera={{ position: SPAWN_POSITION, fov: 75 }}>
         <ambientLight intensity={0.6} />
         <hemisphereLight args={['#faf6f0', '#c4a882', 0.7]} />
         <Room />
+        <SpawnPoint />
         <Movement />
         <PointerLockControls onLock={onLock} onUnlock={onUnlock} />
       </Canvas>
-      {!locked && (
-        <div className='absolute inset-0 flex items-center justify-center pointer-events-none'>
-          <p className='text-black/40 text-sm font-medium select-none'>
-            Click to look around &middot; WASD to move &middot; Space to jump
-            &middot; ESC to exit
+      {!locked && !hasEntered && (
+        <div className='absolute inset-0 flex items-center justify-center bg-black/40 pointer-events-none'>
+          <p className='font-sans text-white text-sm font-light tracking-[0.25em] uppercase select-none'>
+            Click to Enter
+          </p>
+        </div>
+      )}
+      {!locked && hasEntered && (
+        <div className='absolute inset-x-0 bottom-8 flex justify-center pointer-events-none'>
+          <p className='font-sans text-black/25 text-xs font-light tracking-[0.2em] select-none'>
+            Click anywhere to continue
           </p>
         </div>
       )}
