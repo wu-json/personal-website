@@ -181,13 +181,22 @@ const TrackRail = ({
   const halfD = ROOM_DEPTH / 2;
   const railY = halfH - 0.02; // flush to ceiling
 
-  useEffect(() => {
+  const connectedRef = useRef(false);
+
+  useFrame(() => {
+    if (connectedRef.current) return;
+    let allConnected = true;
     for (let i = 0; i < FIXTURE_POSITIONS.length; i++) {
       const l = lightsRef.current[i];
       const t = targetsRef.current[i];
-      if (l && t) l.target = t;
+      if (l && t) {
+        l.target = t;
+      } else {
+        allConnected = false;
+      }
     }
-  }, []);
+    connectedRef.current = allConnected;
+  });
 
   // Rail and fixture positions depend on which wall
   const isZ = wallAxis === 'z'; // wall runs along Z (left/right walls)
@@ -218,9 +227,10 @@ const TrackRail = ({
           ? [0, 0, wallSign * FIXTURE_TILT]
           : [wallSign * -FIXTURE_TILT, 0, 0];
 
+        const targetY = 0;
         const targetPos: [number, number, number] = isZ
-          ? [wallEdge, 0, offset]
-          : [offset, 0, wallEdge];
+          ? [wallEdge, targetY, offset]
+          : [offset, targetY, wallEdge];
 
         return (
           <group key={offset}>
@@ -230,11 +240,11 @@ const TrackRail = ({
                 lightsRef.current[i] = el;
               }}
               position={fixturePos}
-              angle={0.3}
-              penumbra={0.6}
-              intensity={2}
-              distance={20}
-              decay={1.5}
+              angle={0.4}
+              penumbra={0.8}
+              intensity={2.5}
+              distance={25}
+              decay={1.2}
               color='#fff8f0'
             />
             <object3D
@@ -404,7 +414,8 @@ const GalleryScreen = () => {
   return (
     <div className='fixed inset-0 z-50'>
       <Canvas camera={{ position: [0, 0, 0], fov: 75 }}>
-        <ambientLight intensity={0.6} />
+        <ambientLight intensity={0.3} />
+        <hemisphereLight args={['#f0ece6', '#b5b0a9', 0.4]} />
         <Room />
         <Movement />
         <PointerLockControls onLock={onLock} onUnlock={onUnlock} />
