@@ -65,7 +65,9 @@ const ROOM_HEIGHT = 16;
 const PARTITION_HEIGHT = 15.6;
 const CORNER_MARGIN = 2;
 const ART_PADDING = 2.5;
-const WELCOME_RESERVE = 12;
+const WELCOME_CENTER_X = 3;
+const WELCOME_WIDTH = 7;
+const WELCOME_PAD = 1.5; // clearance each side
 
 // ---------------------------------------------------------------------------
 // 1. Compute art sizes from orientation + deterministic hash
@@ -99,8 +101,9 @@ const computeRoomSize = (
   if (roomSize % 2 !== 0) roomSize++;
   roomSize = Math.min(120, roomSize);
 
+  const welcomeReserve = WELCOME_WIDTH + 2 * WELCOME_PAD;
   const perimeterSupply =
-    2 * (roomSize + roomSize) - 4 * CORNER_MARGIN - WELCOME_RESERVE;
+    2 * (roomSize + roomSize) - 4 * CORNER_MARGIN - welcomeReserve;
   const deficit = targetSupply - perimeterSupply;
   // Each partition provides roughly roomSize * 0.4 usable wall surface (both faces)
   const surfacePerPartition = roomSize * 0.4;
@@ -244,16 +247,40 @@ const buildPerimeterSegments = (
       reserved: 0,
       used: 0,
     },
-    // Front wall (z = +halfD, faces -Z) — has welcome reserve
-    {
-      origin: [halfW - CORNER_MARGIN, 0, halfD - 0.1],
-      normal: [0, 0, -1],
-      rotation: [0, Math.PI, 0],
-      width: usableW,
-      reserved: WELCOME_RESERVE,
-      used: 0,
-    },
-  ];
+    // Front wall — split into two segments around the welcome text zone
+    // Welcome text occupies X ≈ [WELCOME_CENTER_X - WELCOME_WIDTH/2 - PAD, WELCOME_CENTER_X + WELCOME_WIDTH/2 + PAD]
+    // Right vector is (-1,0,0): sweep from high-X origin toward low-X
+    // Right segment: from halfW - CORNER_MARGIN down to welcomeZoneRight
+    // Left segment:  from welcomeZoneLeft down to -halfW + CORNER_MARGIN
+    (() => {
+      const zoneRight = WELCOME_CENTER_X + WELCOME_WIDTH / 2 + WELCOME_PAD;
+      const zoneLeft = WELCOME_CENTER_X - WELCOME_WIDTH / 2 - WELCOME_PAD;
+      const rightW = halfW - CORNER_MARGIN - zoneRight;
+      const leftW = zoneLeft - (-halfW + CORNER_MARGIN);
+      const segs: WallSegment[] = [];
+      if (rightW > 3) {
+        segs.push({
+          origin: [halfW - CORNER_MARGIN, 0, halfD - 0.1],
+          normal: [0, 0, -1],
+          rotation: [0, Math.PI, 0],
+          width: rightW,
+          reserved: 0,
+          used: 0,
+        });
+      }
+      if (leftW > 3) {
+        segs.push({
+          origin: [zoneLeft, 0, halfD - 0.1],
+          normal: [0, 0, -1],
+          rotation: [0, Math.PI, 0],
+          width: leftW,
+          reserved: 0,
+          used: 0,
+        });
+      }
+      return segs;
+    })(),
+  ].flat();
 };
 
 const buildPartitionSegments = (partitions: Partition[]): WallSegment[] => {
@@ -446,13 +473,17 @@ export const generateGalleryLayout = (images: ImageSpec[]): GalleryLayout => {
     colliders.push({ minX: -3, maxX: 3, minZ: -0.9, maxZ: 0.9 });
   }
 
-  // Spawn: near front wall, facing welcome text
+  // Spawn: directly in front of welcome text, facing it
   const spawnZ = halfD - 10;
-  const spawnPosition: [number, number, number] = [3, 0, spawnZ];
-  const spawnLookAt: [number, number, number] = [3, 0, halfD];
+  const spawnPosition: [number, number, number] = [WELCOME_CENTER_X, 0, spawnZ];
+  const spawnLookAt: [number, number, number] = [WELCOME_CENTER_X, 0, halfD];
 
-  // Welcome text: front wall, slightly right of center
-  const welcomePosition: [number, number, number] = [3, 0, halfD - 0.01];
+  // Welcome text: front wall, anchored to WELCOME_CENTER_X
+  const welcomePosition: [number, number, number] = [
+    WELCOME_CENTER_X,
+    0,
+    halfD - 0.01,
+  ];
   const welcomeRotation: [number, number, number] = [0, Math.PI, 0];
 
   // Fill lights: center + 4 quarter points
