@@ -154,85 +154,169 @@ const generatePartitions = (
 
   const halfW = roomW / 2;
   const halfD = roomD / 2;
-  const partitions: Partition[] = [];
 
-  // Overlap constant: perpendicular walls extend into connecting walls
-  // so there's no visible seam at junctions.
+  // Junction overlap so perpendicular walls have no gap at connections
   const J = WALL_THICKNESS;
 
-  // Tier 1 (1–2): Long horizontal divider in back half, optional perpendicular wing
-  // Creates a distinct "back gallery" zone
-  const backWallZ = -halfD * 0.35;
-  const backWallW = roomW * 0.45;
-  partitions.push({
-    position: [0, 0, backWallZ],
-    size: [backWallW, PARTITION_HEIGHT, WALL_THICKNESS],
-  });
-  if (count === 1) return partitions;
+  // Each count range is a standalone pattern — no incremental mutation.
+  // All parallel walls are kept >= 12 units apart.
 
-  // Add a perpendicular wing from the right end → L-shape, creating an alcove
-  // Extends J/2 into the back wall to eliminate the junction gap
-  const wingX = halfW * 0.5;
-  const wingD = roomD * 0.3;
-  partitions.push({
-    position: [wingX, 0, backWallZ + (wingD + J) / 2 - J / 2],
-    size: [WALL_THICKNESS, PARTITION_HEIGHT, wingD + J],
-  });
-  if (count === 2) return partitions;
-
-  // Tier 2 (3–4): Add a second perpendicular wing on the left → T-shape
-  const wing2X = -halfW * 0.45;
-  const wing2D = roomD * 0.25;
-  partitions.push({
-    position: [wing2X, 0, backWallZ - (wing2D + J) / 2 + J / 2],
-    size: [WALL_THICKNESS, PARTITION_HEIGHT, wing2D + J],
-  });
-  if (count === 3) return partitions;
-
-  // Add a front-area divider → separate front gallery zone
-  partitions.push({
-    position: [-halfW * 0.15, 0, halfD * 0.35],
-    size: [roomW * 0.35, PARTITION_HEIGHT, WALL_THICKNESS],
-  });
-  if (count === 4) return partitions;
-
-  // Tier 3 (5–6): Archway pair + side alcove (inspired by original gallery)
-  // Split the back wall into two halves with a passage between
-  partitions[0] = {
-    position: [-halfW * 0.25, 0, backWallZ],
-    size: [roomW * 0.25, PARTITION_HEIGHT, WALL_THICKNESS],
-  };
-  partitions.push({
-    position: [halfW * 0.25, 0, backWallZ],
-    size: [roomW * 0.25, PARTITION_HEIGHT, WALL_THICKNESS],
-  });
-  if (count === 5) return partitions;
-
-  // A long wall on the right side creating a corridor
-  partitions.push({
-    position: [halfW * 0.55, 0, 0],
-    size: [WALL_THICKNESS, PARTITION_HEIGHT, roomD * 0.4],
-  });
-  if (count <= 7) return partitions;
-
-  // Tier 4 (7+): Additional alcove walls for very large galleries
-  partitions.push({
-    position: [-halfW * 0.55, 0, halfD * 0.15],
-    size: [WALL_THICKNESS, PARTITION_HEIGHT, roomD * 0.3],
-  });
-  if (count === 8) return partitions;
-
-  // Additional short cross-walls for remaining count
-  for (let i = partitions.length; i < count; i++) {
-    const side = i % 2 === 0 ? 1 : -1;
-    const zPos = halfD * (0.1 * (i - 7) - 0.2) * side;
-    partitions.push({
-      position: [side * halfW * 0.3, 0, zPos],
-      size: [roomW * 0.15, PARTITION_HEIGHT, WALL_THICKNESS],
-    });
+  if (count <= 2) {
+    // L-shape: horizontal back divider + perpendicular wing
+    const backZ = -halfD * 0.35;
+    const p: Partition[] = [
+      {
+        position: [0, 0, backZ],
+        size: [roomW * 0.45, PARTITION_HEIGHT, WALL_THICKNESS],
+      },
+    ];
+    if (count >= 2) {
+      const wingD = roomD * 0.3;
+      p.push({
+        position: [halfW * 0.5, 0, backZ + (wingD + J) / 2 - J / 2],
+        size: [WALL_THICKNESS, PARTITION_HEIGHT, wingD + J],
+      });
+    }
+    return p;
   }
 
-  return partitions;
+  if (count <= 4) {
+    // T-shape + front divider
+    const backZ = -halfD * 0.35;
+    const wingD = roomD * 0.3;
+    const wing2D = roomD * 0.25;
+    const p: Partition[] = [
+      // Horizontal back wall
+      {
+        position: [0, 0, backZ],
+        size: [roomW * 0.45, PARTITION_HEIGHT, WALL_THICKNESS],
+      },
+      // Right wing extending forward from back wall
+      {
+        position: [halfW * 0.5, 0, backZ + (wingD + J) / 2 - J / 2],
+        size: [WALL_THICKNESS, PARTITION_HEIGHT, wingD + J],
+      },
+      // Left wing extending backward from back wall
+      {
+        position: [-halfW * 0.45, 0, backZ - (wing2D + J) / 2 + J / 2],
+        size: [WALL_THICKNESS, PARTITION_HEIGHT, wing2D + J],
+      },
+    ];
+    if (count >= 4) {
+      // Front horizontal divider (well separated — at least halfD*0.7 from back wall)
+      p.push({
+        position: [-halfW * 0.15, 0, halfD * 0.35],
+        size: [roomW * 0.35, PARTITION_HEIGHT, WALL_THICKNESS],
+      });
+    }
+    return p;
+  }
+
+  if (count <= 7) {
+    // Archway pair in back half + well-spaced walls.
+    // Wings are perpendicular to archway; extra walls are horizontal
+    // (perpendicular to wings) so no two parallel walls are close.
+    const backZ = -halfD * 0.35;
+    const archGap = roomW * 0.12;
+    const archW = roomW * 0.22;
+    const p: Partition[] = [
+      // Left archway half
+      {
+        position: [-(archGap / 2 + archW / 2), 0, backZ],
+        size: [archW, PARTITION_HEIGHT, WALL_THICKNESS],
+      },
+      // Right archway half
+      {
+        position: [archGap / 2 + archW / 2, 0, backZ],
+        size: [archW, PARTITION_HEIGHT, WALL_THICKNESS],
+      },
+      // Left wing extending backward (vertical)
+      {
+        position: [
+          -(archGap / 2 + archW),
+          0,
+          backZ - (roomD * 0.2 + J) / 2 + J / 2,
+        ],
+        size: [WALL_THICKNESS, PARTITION_HEIGHT, roomD * 0.2 + J],
+      },
+      // Right wing extending forward (vertical)
+      {
+        position: [
+          archGap / 2 + archW,
+          0,
+          backZ + (roomD * 0.25 + J) / 2 - J / 2,
+        ],
+        size: [WALL_THICKNESS, PARTITION_HEIGHT, roomD * 0.25 + J],
+      },
+      // Front horizontal divider (well separated from archway)
+      {
+        position: [halfW * 0.1, 0, halfD * 0.35],
+        size: [roomW * 0.35, PARTITION_HEIGHT, WALL_THICKNESS],
+      },
+    ];
+    if (count >= 6) {
+      // Horizontal wall in front-left (perpendicular to nearby verticals, not parallel)
+      p.push({
+        position: [-halfW * 0.3, 0, halfD * 0.05],
+        size: [roomW * 0.2, PARTITION_HEIGHT, WALL_THICKNESS],
+      });
+    }
+    if (count >= 7) {
+      // Horizontal wall in center-right (far from all other horizontals)
+      p.push({
+        position: [halfW * 0.35, 0, -halfD * 0.02],
+        size: [roomW * 0.2, PARTITION_HEIGHT, WALL_THICKNESS],
+      });
+    }
+    return p;
+  }
+
+  // 8+: Cross layout with alcoves.
+  // Alcove walls alternate H/V so no two parallel walls are close.
+  const p: Partition[] = [
+    // Central horizontal (slightly back of center)
+    {
+      position: [0, 0, -halfD * 0.15],
+      size: [roomW * 0.5, PARTITION_HEIGHT, WALL_THICKNESS],
+    },
+    // Central vertical (slightly left of center)
+    {
+      position: [-halfW * 0.1, 0, 0],
+      size: [WALL_THICKNESS, PARTITION_HEIGHT, roomD * 0.5],
+    },
+    // NW alcove — horizontal (parallel-safe: 14+ units from central H)
+    {
+      position: [-halfW * 0.4, 0, -halfD * 0.55],
+      size: [roomW * 0.25, PARTITION_HEIGHT, WALL_THICKNESS],
+    },
+    // NE alcove — vertical (parallel-safe: 19+ units from central V)
+    {
+      position: [halfW * 0.45, 0, -halfD * 0.45],
+      size: [WALL_THICKNESS, PARTITION_HEIGHT, roomD * 0.2],
+    },
+    // SE alcove — horizontal (parallel-safe: 21+ units from central H)
+    {
+      position: [halfW * 0.35, 0, halfD * 0.45],
+      size: [roomW * 0.25, PARTITION_HEIGHT, WALL_THICKNESS],
+    },
+    // SW alcove — vertical (parallel-safe: 14+ units from central V)
+    {
+      position: [-halfW * 0.45, 0, halfD * 0.35],
+      size: [WALL_THICKNESS, PARTITION_HEIGHT, roomD * 0.2],
+    },
+    // Back-right short horizontal (perpendicular to NE vertical)
+    {
+      position: [halfW * 0.25, 0, -halfD * 0.35],
+      size: [roomW * 0.15, PARTITION_HEIGHT, WALL_THICKNESS],
+    },
+    // Front-left short vertical (perpendicular to SE horizontal)
+    {
+      position: [-halfW * 0.25, 0, halfD * 0.2],
+      size: [WALL_THICKNESS, PARTITION_HEIGHT, roomD * 0.15],
+    },
+  ];
+
+  return p.slice(0, count);
 };
 
 // ---------------------------------------------------------------------------
@@ -281,54 +365,138 @@ const buildPerimeterSegments = (
 
 const buildPartitionSegments = (partitions: Partition[]): WallSegment[] => {
   const segments: WallSegment[] = [];
-  for (const p of partitions) {
-    const [px, py, pz] = p.position;
-    const [sx, _sy, sz] = p.size;
+  // Margin around junction points where art must not be placed.
+  // Accounts for connecting wall half-thickness plus visual clearance.
+  const JUNCTION_MARGIN = WALL_THICKNESS + 0.5;
+  const EDGE_MARGIN = 1; // trim from each end of a partition face
 
-    if (sx > sz) {
-      // Horizontal partition (wide in X, thin in Z)
-      const usable = sx - 2;
-      if (usable <= 0) continue;
-      // Front face (faces +Z)
-      segments.push({
-        origin: [px - sx / 2 + 1, py, pz + WALL_THICKNESS / 2 + 0.1],
-        normal: [0, 0, 1],
-        rotation: [0, 0, 0],
-        width: usable,
-        reserved: 0,
-        used: 0,
-      });
-      // Back face (faces -Z)
-      segments.push({
-        origin: [px + sx / 2 - 1, py, pz - WALL_THICKNESS / 2 - 0.1],
-        normal: [0, 0, -1],
-        rotation: [0, Math.PI, 0],
-        width: usable,
-        reserved: 0,
-        used: 0,
-      });
+  for (let i = 0; i < partitions.length; i++) {
+    const p = partitions[i];
+    const [px, py, pz] = p.position;
+    const [sx, , sz] = p.size;
+    const isHorizontal = sx > sz;
+
+    // Find where perpendicular partitions intersect this one
+    const junctions: number[] = [];
+    for (let j = 0; j < partitions.length; j++) {
+      if (i === j) continue;
+      const o = partitions[j];
+      const [opx, , opz] = o.position;
+      const [osx, , osz] = o.size;
+      const oIsHorizontal = osx > osz;
+
+      if (isHorizontal && !oIsHorizontal) {
+        // This horizontal, other vertical — check X overlap and Z proximity
+        if (
+          opx > px - sx / 2 &&
+          opx < px + sx / 2 &&
+          opz - osz / 2 <= pz + sz / 2 &&
+          opz + osz / 2 >= pz - sz / 2
+        ) {
+          junctions.push(opx); // junction along X axis
+        }
+      } else if (!isHorizontal && oIsHorizontal) {
+        // This vertical, other horizontal — check Z overlap and X proximity
+        if (
+          opz > pz - sz / 2 &&
+          opz < pz + sz / 2 &&
+          opx - osx / 2 <= px + sx / 2 &&
+          opx + osx / 2 >= px - sx / 2
+        ) {
+          junctions.push(opz); // junction along Z axis
+        }
+      }
+    }
+
+    if (isHorizontal) {
+      const segMin = px - sx / 2 + EDGE_MARGIN;
+      const segMax = px + sx / 2 - EDGE_MARGIN;
+
+      // Sort junctions and split into sub-ranges that avoid junction zones
+      const cuts = junctions
+        .filter(
+          x => x > segMin + JUNCTION_MARGIN && x < segMax - JUNCTION_MARGIN,
+        )
+        .sort((a, b) => a - b);
+
+      const ranges: [number, number][] = [];
+      let cursor = segMin;
+      for (const cutX of cuts) {
+        if (cutX - JUNCTION_MARGIN > cursor) {
+          ranges.push([cursor, cutX - JUNCTION_MARGIN]);
+        }
+        cursor = cutX + JUNCTION_MARGIN;
+      }
+      if (segMax > cursor) {
+        ranges.push([cursor, segMax]);
+      }
+
+      for (const [rMin, rMax] of ranges) {
+        const usable = rMax - rMin;
+        if (usable < 2) continue;
+        // Front face (faces +Z)
+        segments.push({
+          origin: [rMin, py, pz + WALL_THICKNESS / 2 + 0.1],
+          normal: [0, 0, 1],
+          rotation: [0, 0, 0],
+          width: usable,
+          reserved: 0,
+          used: 0,
+        });
+        // Back face (faces -Z)
+        segments.push({
+          origin: [rMax, py, pz - WALL_THICKNESS / 2 - 0.1],
+          normal: [0, 0, -1],
+          rotation: [0, Math.PI, 0],
+          width: usable,
+          reserved: 0,
+          used: 0,
+        });
+      }
     } else {
-      // Vertical partition (thin in X, wide in Z)
-      const usable = sz - 2;
-      if (usable <= 0) continue;
-      // Right face (faces +X) — right vector is (0,0,-1), sweep from +Z to -Z
-      segments.push({
-        origin: [px + WALL_THICKNESS / 2 + 0.1, py, pz + sz / 2 - 1],
-        normal: [1, 0, 0],
-        rotation: [0, Math.PI / 2, 0],
-        width: usable,
-        reserved: 0,
-        used: 0,
-      });
-      // Left face (faces -X) — right vector is (0,0,+1), sweep from -Z to +Z
-      segments.push({
-        origin: [px - WALL_THICKNESS / 2 - 0.1, py, pz - sz / 2 + 1],
-        normal: [-1, 0, 0],
-        rotation: [0, -Math.PI / 2, 0],
-        width: usable,
-        reserved: 0,
-        used: 0,
-      });
+      const segMin = pz - sz / 2 + EDGE_MARGIN;
+      const segMax = pz + sz / 2 - EDGE_MARGIN;
+
+      const cuts = junctions
+        .filter(
+          z => z > segMin + JUNCTION_MARGIN && z < segMax - JUNCTION_MARGIN,
+        )
+        .sort((a, b) => a - b);
+
+      const ranges: [number, number][] = [];
+      let cursor = segMin;
+      for (const cutZ of cuts) {
+        if (cutZ - JUNCTION_MARGIN > cursor) {
+          ranges.push([cursor, cutZ - JUNCTION_MARGIN]);
+        }
+        cursor = cutZ + JUNCTION_MARGIN;
+      }
+      if (segMax > cursor) {
+        ranges.push([cursor, segMax]);
+      }
+
+      for (const [rMin, rMax] of ranges) {
+        const usable = rMax - rMin;
+        if (usable < 2) continue;
+        // Right face (faces +X) — sweep from +Z to -Z
+        segments.push({
+          origin: [px + WALL_THICKNESS / 2 + 0.1, py, rMax],
+          normal: [1, 0, 0],
+          rotation: [0, Math.PI / 2, 0],
+          width: usable,
+          reserved: 0,
+          used: 0,
+        });
+        // Left face (faces -X) — sweep from -Z to +Z
+        segments.push({
+          origin: [px - WALL_THICKNESS / 2 - 0.1, py, rMin],
+          normal: [-1, 0, 0],
+          rotation: [0, -Math.PI / 2, 0],
+          width: usable,
+          reserved: 0,
+          used: 0,
+        });
+      }
     }
   }
   return segments;
