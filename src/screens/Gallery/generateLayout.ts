@@ -164,41 +164,45 @@ const generatePartitions = (
   if (count <= 2) {
     // L-shape: horizontal back divider + perpendicular wing
     const backZ = -halfD * 0.35;
+    const hWidth = roomW * 0.45;
+    const hEdge = hWidth / 2; // right edge X of horizontal wall
     const p: Partition[] = [
       {
         position: [0, 0, backZ],
-        size: [roomW * 0.45, PARTITION_HEIGHT, WALL_THICKNESS],
+        size: [hWidth, PARTITION_HEIGHT, WALL_THICKNESS],
       },
     ];
     if (count >= 2) {
       const wingD = roomD * 0.3;
       p.push({
-        position: [halfW * 0.5, 0, backZ + (wingD + J) / 2 - J / 2],
+        position: [hEdge, 0, backZ + (wingD + J) / 2 - J / 2],
         size: [WALL_THICKNESS, PARTITION_HEIGHT, wingD + J],
       });
     }
-    return mergeClosePartitions(snapJunctions(p, roomW, roomD));
+    return mergeClosePartitions(snapToPerimeter(p, roomW, roomD));
   }
 
   if (count <= 4) {
     // T-shape + front divider
     const backZ = -halfD * 0.35;
+    const hWidth = roomW * 0.45;
+    const hEdge = hWidth / 2; // right edge X of horizontal wall
     const wingD = roomD * 0.3;
     const wing2D = roomD * 0.25;
     const p: Partition[] = [
       // Horizontal back wall
       {
         position: [0, 0, backZ],
-        size: [roomW * 0.45, PARTITION_HEIGHT, WALL_THICKNESS],
+        size: [hWidth, PARTITION_HEIGHT, WALL_THICKNESS],
       },
-      // Right wing extending forward from back wall
+      // Right wing extending forward (positioned at horizontal wall's right edge)
       {
-        position: [halfW * 0.5, 0, backZ + (wingD + J) / 2 - J / 2],
+        position: [hEdge, 0, backZ + (wingD + J) / 2 - J / 2],
         size: [WALL_THICKNESS, PARTITION_HEIGHT, wingD + J],
       },
-      // Left wing extending backward from back wall
+      // Left wing extending backward (positioned at horizontal wall's left edge)
       {
-        position: [-halfW * 0.45, 0, backZ - (wing2D + J) / 2 + J / 2],
+        position: [-hEdge, 0, backZ - (wing2D + J) / 2 + J / 2],
         size: [WALL_THICKNESS, PARTITION_HEIGHT, wing2D + J],
       },
     ];
@@ -209,7 +213,7 @@ const generatePartitions = (
         size: [roomW * 0.35, PARTITION_HEIGHT, WALL_THICKNESS],
       });
     }
-    return mergeClosePartitions(snapJunctions(p, roomW, roomD));
+    return mergeClosePartitions(snapToPerimeter(p, roomW, roomD));
   }
 
   if (count <= 7) {
@@ -268,11 +272,12 @@ const generatePartitions = (
         size: [roomW * 0.2, PARTITION_HEIGHT, WALL_THICKNESS],
       });
     }
-    return mergeClosePartitions(snapJunctions(p, roomW, roomD));
+    return mergeClosePartitions(snapToPerimeter(p, roomW, roomD));
   }
 
   // 8+: Cross layout with alcoves.
-  // Alcove walls alternate H/V so no two parallel walls are close.
+  // Central cross + 4 well-spaced alcove walls. Alcove walls are sized
+  // generously to provide enough hanging surface for large piece counts.
   const p: Partition[] = [
     // Central horizontal (slightly back of center)
     {
@@ -284,55 +289,44 @@ const generatePartitions = (
       position: [-halfW * 0.1, 0, 0],
       size: [WALL_THICKNESS, PARTITION_HEIGHT, roomD * 0.5],
     },
-    // NW alcove — horizontal (parallel-safe: 14+ units from central H)
+    // NW alcove — horizontal
     {
       position: [-halfW * 0.4, 0, -halfD * 0.55],
-      size: [roomW * 0.25, PARTITION_HEIGHT, WALL_THICKNESS],
+      size: [roomW * 0.3, PARTITION_HEIGHT, WALL_THICKNESS],
     },
-    // NE alcove — vertical (parallel-safe: 19+ units from central V)
+    // NE alcove — vertical
     {
       position: [halfW * 0.45, 0, -halfD * 0.45],
-      size: [WALL_THICKNESS, PARTITION_HEIGHT, roomD * 0.2],
+      size: [WALL_THICKNESS, PARTITION_HEIGHT, roomD * 0.25],
     },
-    // SE alcove — horizontal (parallel-safe: 21+ units from central H)
+    // SE alcove — horizontal
     {
       position: [halfW * 0.35, 0, halfD * 0.45],
-      size: [roomW * 0.25, PARTITION_HEIGHT, WALL_THICKNESS],
+      size: [roomW * 0.3, PARTITION_HEIGHT, WALL_THICKNESS],
     },
-    // SW alcove — vertical (parallel-safe: 14+ units from central V)
+    // SW alcove — vertical
     {
       position: [-halfW * 0.45, 0, halfD * 0.35],
-      size: [WALL_THICKNESS, PARTITION_HEIGHT, roomD * 0.2],
-    },
-    // Back-right short horizontal (perpendicular to NE vertical)
-    {
-      position: [halfW * 0.25, 0, -halfD * 0.35],
-      size: [roomW * 0.15, PARTITION_HEIGHT, WALL_THICKNESS],
-    },
-    // Front-left short vertical (perpendicular to SE horizontal)
-    {
-      position: [-halfW * 0.25, 0, halfD * 0.2],
-      size: [WALL_THICKNESS, PARTITION_HEIGHT, roomD * 0.15],
+      size: [WALL_THICKNESS, PARTITION_HEIGHT, roomD * 0.25],
     },
   ];
 
-  return mergeClosePartitions(snapJunctions(p.slice(0, count), roomW, roomD));
+  return mergeClosePartitions(snapToPerimeter(p.slice(0, count), roomW, roomD));
 };
 
 // ---------------------------------------------------------------------------
-// 3b-i. Snap partition junctions — extend walls to close small gaps
+// 3b-i. Snap partition ends to room perimeter walls
 //
-// Two kinds of gap:
-//  • Partition-to-partition: a wing's position is just beyond a wall's edge.
-//  • Partition-to-perimeter: a partition end is close to a room wall.
-// In both cases, extend the partition to close the gap.
+// If a partition end is close to a room wall, extend it to meet flush.
+// Partition-to-partition alignment is handled by the patterns themselves
+// (wings computed from parent wall edges) rather than post-processing.
 // ---------------------------------------------------------------------------
-const snapJunctions = (
+const snapToPerimeter = (
   partitions: Partition[],
   roomW: number,
   roomD: number,
 ): Partition[] => {
-  const SNAP = 5; // snap threshold (units)
+  const SNAP = 5;
   const halfW = roomW / 2;
   const halfD = roomD / 2;
   const out = partitions.map(p => ({
@@ -341,66 +335,9 @@ const snapJunctions = (
     size: [...p.size] as [number, number, number],
   }));
 
-  // --- Partition-to-partition snapping ---
-
-  // Extend horizontal walls to meet nearby vertical walls
-  for (const v of out) {
-    if (v.size[0] > v.size[2]) continue;
-    for (const h of out) {
-      if (h === v || h.size[0] <= h.size[2]) continue;
-      const vMinZ = v.position[2] - v.size[2] / 2;
-      const vMaxZ = v.position[2] + v.size[2] / 2;
-      if (h.position[2] < vMinZ - SNAP || h.position[2] > vMaxZ + SNAP)
-        continue;
-
-      const hRight = h.position[0] + h.size[0] / 2;
-      const hLeft = h.position[0] - h.size[0] / 2;
-
-      const gapR = v.position[0] - hRight;
-      if (gapR > 0.01 && gapR < SNAP) {
-        h.size[0] += gapR;
-        h.position[0] += gapR / 2;
-      }
-      const gapL = hLeft - v.position[0];
-      if (gapL > 0.01 && gapL < SNAP) {
-        h.size[0] += gapL;
-        h.position[0] -= gapL / 2;
-      }
-    }
-  }
-
-  // Extend vertical walls to meet nearby horizontal walls
-  for (const h of out) {
-    if (h.size[0] <= h.size[2]) continue;
-    for (const v of out) {
-      if (v === h || v.size[0] > v.size[2]) continue;
-      const hMinX = h.position[0] - h.size[0] / 2;
-      const hMaxX = h.position[0] + h.size[0] / 2;
-      if (v.position[0] < hMinX - SNAP || v.position[0] > hMaxX + SNAP)
-        continue;
-
-      const vMaxZ = v.position[2] + v.size[2] / 2;
-      const vMinZ = v.position[2] - v.size[2] / 2;
-
-      const gapFwd = h.position[2] - vMaxZ;
-      if (gapFwd > 0.01 && gapFwd < SNAP) {
-        v.size[2] += gapFwd;
-        v.position[2] += gapFwd / 2;
-      }
-      const gapBack = vMinZ - h.position[2];
-      if (gapBack > 0.01 && gapBack < SNAP) {
-        v.size[2] += gapBack;
-        v.position[2] -= gapBack / 2;
-      }
-    }
-  }
-
-  // --- Partition-to-perimeter snapping ---
-  // Extend partitions whose ends are close to a room wall to meet it.
   for (const p of out) {
     const isH = p.size[0] > p.size[2];
     if (isH) {
-      // Horizontal wall — check if left/right ends are near room side walls
       const left = p.position[0] - p.size[0] / 2;
       const right = p.position[0] + p.size[0] / 2;
       const gapL = left - -halfW;
@@ -414,7 +351,6 @@ const snapJunctions = (
         p.position[0] += gapR / 2;
       }
     } else {
-      // Vertical wall — check if top/bottom ends are near room front/back walls
       const minZ = p.position[2] - p.size[2] / 2;
       const maxZ = p.position[2] + p.size[2] / 2;
       const gapBack = minZ - -halfD;
@@ -532,45 +468,135 @@ const mergeClosePartitions = (partitions: Partition[]): Partition[] => {
 // ---------------------------------------------------------------------------
 // 4. Build wall segments (perimeter + partitions)
 // ---------------------------------------------------------------------------
+
+// Split a linear range into sub-ranges that avoid junction exclusion zones
+const splitAtJunctions = (
+  rangeMin: number,
+  rangeMax: number,
+  junctions: number[],
+  margin: number,
+): [number, number][] => {
+  const cuts = junctions
+    .filter(x => x > rangeMin + margin && x < rangeMax - margin)
+    .sort((a, b) => a - b);
+
+  const ranges: [number, number][] = [];
+  let cursor = rangeMin;
+  for (const cut of cuts) {
+    if (cut - margin > cursor) {
+      ranges.push([cursor, cut - margin]);
+    }
+    cursor = cut + margin;
+  }
+  if (rangeMax > cursor) {
+    ranges.push([cursor, rangeMax]);
+  }
+  return ranges;
+};
+
 const buildPerimeterSegments = (
   roomW: number,
   roomD: number,
+  partitions: Partition[],
 ): WallSegment[] => {
   const halfW = roomW / 2;
   const halfD = roomD / 2;
-  const usableW = roomW - 2 * CORNER_MARGIN;
-  const usableD = roomD - 2 * CORNER_MARGIN;
+  const JUNCTION_MARGIN = WALL_THICKNESS + 0.5;
+  const TOUCH_TOL = 1.0; // tolerance for "partition touches perimeter"
 
-  return [
-    // Back wall (z = -halfD, faces +Z)
-    {
-      origin: [-halfW + CORNER_MARGIN, 0, -halfD + 0.1],
+  const segments: WallSegment[] = [];
+
+  // --- Back wall (z = -halfD, faces +Z, sweeps +X) ---
+  // Vertical partitions connecting to back wall create junctions
+  const backJunctions: number[] = [];
+  for (const p of partitions) {
+    const isV = p.size[2] > p.size[0];
+    if (isV && p.position[2] - p.size[2] / 2 <= -halfD + TOUCH_TOL) {
+      backJunctions.push(p.position[0]);
+    }
+  }
+  const backMin = -halfW + CORNER_MARGIN;
+  const backMax = halfW - CORNER_MARGIN;
+  for (const [rMin, rMax] of splitAtJunctions(
+    backMin,
+    backMax,
+    backJunctions,
+    JUNCTION_MARGIN,
+  )) {
+    const usable = rMax - rMin;
+    if (usable < 2) continue;
+    segments.push({
+      origin: [rMin, 0, -halfD + 0.1],
       normal: [0, 0, 1],
       rotation: [0, 0, 0],
-      width: usableW,
+      width: usable,
       reserved: 0,
       used: 0,
-    },
-    // Left wall (x = -halfW, faces +X) — right vector is (0,0,-1), sweep from +Z to -Z
-    {
-      origin: [-halfW + 0.1, 0, halfD - CORNER_MARGIN],
+    });
+  }
+
+  // --- Left wall (x = -halfW, faces +X, sweeps -Z) ---
+  // Horizontal partitions connecting to left wall create junctions
+  const leftJunctions: number[] = [];
+  for (const p of partitions) {
+    const isH = p.size[0] > p.size[2];
+    if (isH && p.position[0] - p.size[0] / 2 <= -halfW + TOUCH_TOL) {
+      leftJunctions.push(p.position[2]);
+    }
+  }
+  const leftMin = -halfD + CORNER_MARGIN;
+  const leftMax = halfD - CORNER_MARGIN;
+  for (const [rMin, rMax] of splitAtJunctions(
+    leftMin,
+    leftMax,
+    leftJunctions,
+    JUNCTION_MARGIN,
+  )) {
+    const usable = rMax - rMin;
+    if (usable < 2) continue;
+    // Origin at +Z end of range (sweep goes -Z)
+    segments.push({
+      origin: [-halfW + 0.1, 0, rMax],
       normal: [1, 0, 0],
       rotation: [0, Math.PI / 2, 0],
-      width: usableD,
+      width: usable,
       reserved: 0,
       used: 0,
-    },
-    // Right wall (x = +halfW, faces -X) — right vector is (0,0,+1), sweep from -Z to +Z
-    {
-      origin: [halfW - 0.1, 0, -halfD + CORNER_MARGIN],
+    });
+  }
+
+  // --- Right wall (x = +halfW, faces -X, sweeps +Z) ---
+  // Horizontal partitions connecting to right wall create junctions
+  const rightJunctions: number[] = [];
+  for (const p of partitions) {
+    const isH = p.size[0] > p.size[2];
+    if (isH && p.position[0] + p.size[0] / 2 >= halfW - TOUCH_TOL) {
+      rightJunctions.push(p.position[2]);
+    }
+  }
+  const rightMin = -halfD + CORNER_MARGIN;
+  const rightMax = halfD - CORNER_MARGIN;
+  for (const [rMin, rMax] of splitAtJunctions(
+    rightMin,
+    rightMax,
+    rightJunctions,
+    JUNCTION_MARGIN,
+  )) {
+    const usable = rMax - rMin;
+    if (usable < 2) continue;
+    // Origin at -Z end of range (sweep goes +Z)
+    segments.push({
+      origin: [halfW - 0.1, 0, rMin],
       normal: [-1, 0, 0],
       rotation: [0, -Math.PI / 2, 0],
-      width: usableD,
+      width: usable,
       reserved: 0,
       used: 0,
-    },
-    // Front wall: no art segments — reserved entirely for welcome text
-  ];
+    });
+  }
+
+  // Front wall: no art segments — reserved entirely for welcome text
+  return segments;
 };
 
 const buildPartitionSegments = (partitions: Partition[]): WallSegment[] => {
@@ -598,8 +624,8 @@ const buildPartitionSegments = (partitions: Partition[]): WallSegment[] => {
       if (isHorizontal && !oIsHorizontal) {
         // This horizontal, other vertical — check X overlap and Z proximity
         if (
-          opx > px - sx / 2 &&
-          opx < px + sx / 2 &&
+          opx >= px - sx / 2 &&
+          opx <= px + sx / 2 &&
           opz - osz / 2 <= pz + sz / 2 &&
           opz + osz / 2 >= pz - sz / 2
         ) {
@@ -608,8 +634,8 @@ const buildPartitionSegments = (partitions: Partition[]): WallSegment[] => {
       } else if (!isHorizontal && oIsHorizontal) {
         // This vertical, other horizontal — check Z overlap and X proximity
         if (
-          opz > pz - sz / 2 &&
-          opz < pz + sz / 2 &&
+          opz >= pz - sz / 2 &&
+          opz <= pz + sz / 2 &&
           opx - osx / 2 <= px + sx / 2 &&
           opx + osx / 2 >= px - sx / 2
         ) {
@@ -622,26 +648,12 @@ const buildPartitionSegments = (partitions: Partition[]): WallSegment[] => {
       const segMin = px - sx / 2 + EDGE_MARGIN;
       const segMax = px + sx / 2 - EDGE_MARGIN;
 
-      // Sort junctions and split into sub-ranges that avoid junction zones
-      const cuts = junctions
-        .filter(
-          x => x > segMin + JUNCTION_MARGIN && x < segMax - JUNCTION_MARGIN,
-        )
-        .sort((a, b) => a - b);
-
-      const ranges: [number, number][] = [];
-      let cursor = segMin;
-      for (const cutX of cuts) {
-        if (cutX - JUNCTION_MARGIN > cursor) {
-          ranges.push([cursor, cutX - JUNCTION_MARGIN]);
-        }
-        cursor = cutX + JUNCTION_MARGIN;
-      }
-      if (segMax > cursor) {
-        ranges.push([cursor, segMax]);
-      }
-
-      for (const [rMin, rMax] of ranges) {
+      for (const [rMin, rMax] of splitAtJunctions(
+        segMin,
+        segMax,
+        junctions,
+        JUNCTION_MARGIN,
+      )) {
         const usable = rMax - rMin;
         if (usable < 2) continue;
         // Front face (faces +Z)
@@ -667,25 +679,12 @@ const buildPartitionSegments = (partitions: Partition[]): WallSegment[] => {
       const segMin = pz - sz / 2 + EDGE_MARGIN;
       const segMax = pz + sz / 2 - EDGE_MARGIN;
 
-      const cuts = junctions
-        .filter(
-          z => z > segMin + JUNCTION_MARGIN && z < segMax - JUNCTION_MARGIN,
-        )
-        .sort((a, b) => a - b);
-
-      const ranges: [number, number][] = [];
-      let cursor = segMin;
-      for (const cutZ of cuts) {
-        if (cutZ - JUNCTION_MARGIN > cursor) {
-          ranges.push([cursor, cutZ - JUNCTION_MARGIN]);
-        }
-        cursor = cutZ + JUNCTION_MARGIN;
-      }
-      if (segMax > cursor) {
-        ranges.push([cursor, segMax]);
-      }
-
-      for (const [rMin, rMax] of ranges) {
+      for (const [rMin, rMax] of splitAtJunctions(
+        segMin,
+        segMax,
+        junctions,
+        JUNCTION_MARGIN,
+      )) {
         const usable = rMax - rMin;
         if (usable < 2) continue;
         // Right face (faces +X) — sweep from +Z to -Z
@@ -825,7 +824,11 @@ export const generateGalleryLayout = (images: ImageSpec[]): GalleryLayout => {
   const partitions = generatePartitions(partitionCount, roomWidth, roomDepth);
 
   // Build wall segments
-  const perimeterSegments = buildPerimeterSegments(roomWidth, roomDepth);
+  const perimeterSegments = buildPerimeterSegments(
+    roomWidth,
+    roomDepth,
+    partitions,
+  );
   const partSegments = buildPartitionSegments(partitions);
   const allSegments = [...perimeterSegments, ...partSegments];
 
