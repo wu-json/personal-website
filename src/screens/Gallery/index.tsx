@@ -524,7 +524,9 @@ const WelcomeWallText = ({
 
   useEffect(() => {
     document.fonts.ready.then(() => {
-      setTexture(createWelcomeTexture(mobile, fragmentTitle, fragmentDescription));
+      setTexture(
+        createWelcomeTexture(mobile, fragmentTitle, fragmentDescription),
+      );
     });
   }, [mobile, fragmentTitle, fragmentDescription]);
 
@@ -578,29 +580,18 @@ const frameMaterial = new THREE.MeshStandardMaterial({
 });
 const canvasMaterial = new THREE.MeshStandardMaterial({ color: '#1a1a1a' });
 
-const ArtPlaceholder = memo(
+const ArtFrame = memo(
   ({
     position,
     size,
-    rotation,
-    title,
     imageUrl,
   }: {
     position: [number, number, number];
     size: [number, number];
-    rotation: [number, number, number];
-    title: string;
     imageUrl?: string;
   }) => {
     const [w, h] = size;
-    const [labelTex, setLabelTex] = useState<THREE.Texture | null>(null);
     const matRef = useRef<THREE.MeshBasicMaterial>(null);
-
-    useEffect(() => {
-      document.fonts.ready.then(() => {
-        setLabelTex(createLabelTexture(title));
-      });
-    }, [title]);
 
     useEffect(() => {
       if (!imageUrl || !matRef.current) return;
@@ -630,14 +621,8 @@ const ArtPlaceholder = memo(
       };
     }, [imageUrl]);
 
-    // Position label just below bottom-right of frame, right-aligned
-    const frameRight = w / 2 + 0.08;
-    const frameBottom = -(h / 2 + 0.08);
-    const labelX = frameRight - LABEL_W / 2;
-    const labelY = frameBottom - 0.15 - LABEL_H / 2;
-
     return (
-      <group position={position} rotation={rotation}>
+      <group position={position}>
         {/* Frame */}
         <mesh position={[0, 0, -0.02]} material={frameMaterial}>
           <boxGeometry args={[w + 0.16, h + 0.16, 0.04]} />
@@ -647,18 +632,72 @@ const ArtPlaceholder = memo(
           <planeGeometry args={[w, h]} />
           <meshBasicMaterial ref={matRef} color='#1a1a1a' />
         </mesh>
-        {/* Title text on wall */}
-        {labelTex && (
-          <mesh position={[labelX, labelY, 0]}>
-            <planeGeometry args={[LABEL_W, LABEL_H]} />
-            <meshStandardMaterial
-              map={labelTex}
-              polygonOffset
-              polygonOffsetFactor={-1}
-              polygonOffsetUnits={-1}
+      </group>
+    );
+  },
+);
+
+const ArtLabel = memo(
+  ({
+    position,
+    title,
+  }: {
+    position: [number, number, number];
+    title: string;
+  }) => {
+    const [labelTex, setLabelTex] = useState<THREE.Texture | null>(null);
+
+    useEffect(() => {
+      document.fonts.ready.then(() => {
+        setLabelTex(createLabelTexture(title));
+      });
+    }, [title]);
+
+    if (!labelTex) return null;
+
+    return (
+      <mesh position={position}>
+        <planeGeometry args={[LABEL_W, LABEL_H]} />
+        <meshStandardMaterial
+          map={labelTex}
+          polygonOffset
+          polygonOffsetFactor={-1}
+          polygonOffsetUnits={-1}
+        />
+      </mesh>
+    );
+  },
+);
+
+const ArtPlaceholder = memo(
+  ({ position, size, rotation, title, imageUrl, childPieces }: ArtPiece) => {
+    const [w, h] = size;
+    // Label sits below the bottom-right of the composite bounding box
+    const frameRight = w / 2 + 0.08;
+    const frameBottom = -(h / 2 + 0.08);
+    const labelX = frameRight - LABEL_W / 2;
+    const labelY = frameBottom - 0.15 - LABEL_H / 2;
+
+    if (childPieces) {
+      return (
+        <group position={position} rotation={rotation}>
+          {childPieces.map((child, i) => (
+            <ArtFrame
+              key={i}
+              position={[child.offset[0], child.offset[1], 0]}
+              size={child.size}
+              imageUrl={child.imageUrl}
             />
-          </mesh>
-        )}
+          ))}
+          <ArtLabel position={[labelX, labelY, 0]} title={title} />
+        </group>
+      );
+    }
+
+    return (
+      <group position={position} rotation={rotation}>
+        <ArtFrame position={[0, 0, 0]} size={size} imageUrl={imageUrl} />
+        <ArtLabel position={[labelX, labelY, 0]} title={title} />
       </group>
     );
   },
@@ -992,6 +1031,14 @@ const GalleryScreen = ({ fragmentId }: { fragmentId?: string }) => {
         orientation: (p.width > p.height ? 'landscape' : 'portrait') as const,
         aspectRatio: p.width / p.height,
         imageUrl: photoUrl(fragment.id, p.file, 'thumb'),
+        groupId: p.group,
+        groupLayout: p.group
+          ? ((fragment.groupings?.[p.group]?.layout as 'row' | 'column') ??
+            'row')
+          : undefined,
+        groupCaption: p.group
+          ? fragment.groupings?.[p.group]?.caption
+          : undefined,
       }));
       return generateGalleryLayout(images);
     }

@@ -4,6 +4,9 @@ export type ImageSpec = {
   aspectRatio?: number; // real w/h ratio — used instead of random when present
   imageUrl?: string; // URL to load as texture
   label?: string; // display label (defaults to id)
+  groupId?: string; // references a groupings entry
+  groupLayout?: 'row' | 'column'; // layout direction for the group
+  groupCaption?: string; // shared caption for the group
 };
 
 export type AABB = {
@@ -13,12 +16,19 @@ export type AABB = {
   maxZ: number;
 };
 
+export type ArtPieceChild = {
+  offset: [number, number];
+  size: [number, number];
+  imageUrl?: string;
+};
+
 export type ArtPiece = {
   position: [number, number, number];
   size: [number, number];
   rotation: [number, number, number];
   title: string;
   imageUrl?: string;
+  childPieces?: ArtPieceChild[];
 };
 
 export type Partition = {
@@ -76,6 +86,7 @@ const ROOM_HEIGHT = 16;
 const PARTITION_HEIGHT = 15.6;
 const CORNER_MARGIN = 2;
 const ART_PADDING = 2.5;
+const GROUP_GAP = 0.3;
 const WELCOME_CENTER_X = 3;
 
 // ---------------------------------------------------------------------------
@@ -764,22 +775,156 @@ const localToWorld = (
   return [ox + rx * centerOffset, oy, oz + rz * centerOffset];
 };
 
+type SizedImage = ImageSpec & { width: number; height: number };
+
+type GroupMemberSize = { width: number; height: number };
+
+type PlacementItem = {
+  compositeWidth: number;
+  compositeHeight: number;
+  id: string;
+} & (
+  | { kind: 'solo'; spec: SizedImage }
+  | {
+      kind: 'group';
+      layout: 'row' | 'column';
+      members: SizedImage[];
+      memberSizes: GroupMemberSize[];
+      caption?: string;
+    }
+);
+
+// ---------------------------------------------------------------------------
+// Compute group member sizes using the same proportional logic as the
+// fragments page: row groups share height (widths ∝ aspect-ratio),
+// column groups share width (heights ∝ 1/aspect-ratio).
+//
+// A combined aspect-ratio is fed through computeArtSize so the composite
+// lands in the same size tier range as solo pieces.
+// ---------------------------------------------------------------------------
+const computeGroupSizes = (
+  groupId: string,
+  layout: 'row' | 'column',
+  members: ImageSpec[],
+): {
+  compositeWidth: number;
+  compositeHeight: number;
+  memberSizes: GroupMemberSize[];
+} => {
+  const ars = members.map(m => m.aspectRatio ?? 1);
+
+  // Combined AR mirrors the fragments page flex sizing:
+  //   row  → each photo gets flex-grow = AR, so they share height
+  //   column → each photo fills full width, so they share width
+  const combinedAR =
+    layout === 'row'
+      ? ars.reduce((a, b) => a + b, 0)
+      : 1 / ars.reduce((sum, ar) => sum + 1 / ar, 0);
+
+  const composite = computeArtSize({
+    id: groupId,
+    orientation: combinedAR > 1 ? 'landscape' : 'portrait',
+    aspectRatio: combinedAR,
+  });
+
+  const memberSizes: GroupMemberSize[] = [];
+
+  if (layout === 'row') {
+    const sharedH = composite.height;
+    let totalW = 0;
+    for (const ar of ars) {
+      const w = sharedH * ar;
+      memberSizes.push({ width: w, height: sharedH });
+      totalW += w;
+    }
+    return {
+      compositeWidth: totalW + GROUP_GAP * (members.length - 1),
+      compositeHeight: sharedH,
+      memberSizes,
+    };
+  }
+
+  // column
+  const sharedW = composite.width;
+  let totalH = 0;
+  for (const ar of ars) {
+    const h = sharedW / ar;
+    memberSizes.push({ width: sharedW, height: h });
+    totalH += h;
+  }
+  return {
+    compositeWidth: sharedW,
+    compositeHeight: totalH + GROUP_GAP * (members.length - 1),
+    memberSizes,
+  };
+};
+
 const distributeArt = (
   images: ImageSpec[],
   segments: WallSegment[],
 ): ArtPiece[] => {
-  const artSpecs = images.map(img => ({
+  const sized: SizedImage[] = images.map(img => ({
     ...img,
     ...computeArtSize(img),
   }));
 
+  // Collect groups and solos
+  const groupMap = new Map<string, SizedImage[]>();
+  const solos: SizedImage[] = [];
+  for (const item of sized) {
+    if (item.groupId) {
+      let arr = groupMap.get(item.groupId);
+      if (!arr) {
+        arr = [];
+        groupMap.set(item.groupId, arr);
+      }
+      arr.push(item);
+    } else {
+      solos.push(item);
+    }
+  }
+
+  // Build placement items
+  const items: PlacementItem[] = [];
+
+  for (const s of solos) {
+    items.push({
+      compositeWidth: s.width,
+      compositeHeight: s.height,
+      id: s.id,
+      kind: 'solo',
+      spec: s,
+    });
+  }
+
+  for (const [groupId, members] of groupMap) {
+    const layout = members[0]?.groupLayout ?? 'row';
+    const caption = members[0]?.groupCaption;
+    const { compositeWidth, compositeHeight, memberSizes } = computeGroupSizes(
+      groupId,
+      layout,
+      members,
+    );
+
+    items.push({
+      compositeWidth,
+      compositeHeight,
+      id: groupId,
+      kind: 'group',
+      layout,
+      members,
+      memberSizes,
+      caption,
+    });
+  }
+
   // Sort by width descending so large pieces get placed first
-  const sorted = [...artSpecs].sort((a, b) => b.width - a.width);
+  const sorted = [...items].sort((a, b) => b.compositeWidth - a.compositeWidth);
 
   const pieces: ArtPiece[] = [];
 
-  for (const art of sorted) {
-    const needed = art.width + ART_PADDING;
+  for (const item of sorted) {
+    const needed = item.compositeWidth + ART_PADDING;
 
     // Find the segment with the MOST remaining space that can still fit this piece.
     // This spreads art evenly across all walls instead of filling them sequentially.
@@ -797,7 +942,7 @@ const distributeArt = (
     if (!bestSeg) {
       for (const seg of segments) {
         const available = seg.width - seg.reserved - seg.used;
-        if (available >= art.width + 1 && available > bestAvail) {
+        if (available >= item.compositeWidth + 1 && available > bestAvail) {
           bestSeg = seg;
           bestAvail = available;
         }
@@ -806,18 +951,64 @@ const distributeArt = (
 
     if (bestSeg) {
       const pad = bestAvail >= needed ? ART_PADDING / 2 : 0.5;
-      const pos = localToWorld(bestSeg, bestSeg.used + pad, art.width);
-      const h = deterministicHash(art.id);
+      const pos = localToWorld(
+        bestSeg,
+        bestSeg.used + pad,
+        item.compositeWidth,
+      );
+      const h = deterministicHash(item.id);
       pos[1] += hashFloat(h >>> 8, -0.5, 1);
 
-      pieces.push({
-        position: pos,
-        size: [art.width, art.height],
-        rotation: bestSeg.rotation,
-        title: (art.label ?? art.id).toUpperCase(),
-        imageUrl: art.imageUrl,
-      });
-      bestSeg.used += bestAvail >= needed ? needed : art.width + 1;
+      if (item.kind === 'solo') {
+        pieces.push({
+          position: pos,
+          size: [item.compositeWidth, item.compositeHeight],
+          rotation: bestSeg.rotation,
+          title: (item.spec.label ?? item.spec.id).toUpperCase(),
+          imageUrl: item.spec.imageUrl,
+        });
+      } else {
+        // Compute child offsets using proportionally-sized members
+        const childPieces: ArtPieceChild[] = [];
+
+        if (item.layout === 'row') {
+          let offsetX = -item.compositeWidth / 2;
+          for (let i = 0; i < item.members.length; i++) {
+            const sz = item.memberSizes[i]!;
+            childPieces.push({
+              offset: [offsetX + sz.width / 2, 0],
+              size: [sz.width, sz.height],
+              imageUrl: item.members[i]!.imageUrl,
+            });
+            offsetX += sz.width + GROUP_GAP;
+          }
+        } else {
+          let offsetY = item.compositeHeight / 2;
+          for (let i = 0; i < item.members.length; i++) {
+            const sz = item.memberSizes[i]!;
+            childPieces.push({
+              offset: [0, offsetY - sz.height / 2],
+              size: [sz.width, sz.height],
+              imageUrl: item.members[i]!.imageUrl,
+            });
+            offsetY -= sz.height + GROUP_GAP;
+          }
+        }
+
+        const title = item.caption
+          ? item.caption.toUpperCase()
+          : item.members.map(m => (m.label ?? m.id).toUpperCase()).join(' / ');
+
+        pieces.push({
+          position: pos,
+          size: [item.compositeWidth, item.compositeHeight],
+          rotation: bestSeg.rotation,
+          title,
+          childPieces,
+        });
+      }
+
+      bestSeg.used += bestAvail >= needed ? needed : item.compositeWidth + 1;
     }
     // If no segment can fit, skip this piece
   }
