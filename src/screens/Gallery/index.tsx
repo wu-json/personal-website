@@ -256,110 +256,177 @@ type ArtPiece = {
   position: [number, number, number];
   size: [number, number];
   rotation: [number, number, number];
+  label: [number, number]; // local [x, y] offset from art center
 };
 
 const ART_PIECES: ArtPiece[] = [
   // === Back wall (z=-30, faces +Z) ===
-  // Hero piece — bench faces this
-  { position: [-11, 1, -29.9], size: [8, 5], rotation: [0, 0, 0] },
-  // Tall portrait
-  { position: [20, 0.5, -29.9], size: [3.5, 5], rotation: [0, 0, 0] },
+  // Hero piece — label below-right
+  {
+    position: [-11, 1, -29.9],
+    size: [8, 5],
+    rotation: [0, 0, 0],
+    label: [4.8, -3.2],
+  },
+  // Tall portrait — label to the right, mid-height
+  {
+    position: [20, 0.5, -29.9],
+    size: [3.5, 5],
+    rotation: [0, 0, 0],
+    label: [2.4, -1.8],
+  },
 
   // === Left wall (x=-30, faces +X) ===
-  // Large landscape (NW section)
+  // Large landscape — label lower-right
   {
     position: [-29.9, 1, -22],
     size: [7, 4.5],
     rotation: [0, Math.PI / 2, 0],
+    label: [4.2, -2.8],
   },
-  // Small portrait for contrast (central)
-  { position: [-29.9, 0, -2], size: [2, 3], rotation: [0, Math.PI / 2, 0] },
-  // Medium landscape (SW section)
+  // Small portrait — label to the right, centered
+  {
+    position: [-29.9, 0, -2],
+    size: [2, 3],
+    rotation: [0, Math.PI / 2, 0],
+    label: [1.6, -0.4],
+  },
+  // Medium landscape — label below, slightly right of center
   {
     position: [-29.9, 0.5, 18],
     size: [4, 3],
     rotation: [0, Math.PI / 2, 0],
+    label: [0.8, -2.2],
   },
 
   // === Right wall (x=+30, faces -X) ===
-  // Dramatic tall piece (NE)
+  // Dramatic tall piece — label lower-right
   {
     position: [29.9, 0.5, -20],
     size: [3.5, 6],
     rotation: [0, -Math.PI / 2, 0],
+    label: [2.4, -2.4],
   },
-  // Large landscape (south)
-  { position: [29.9, 1, 8], size: [8, 5], rotation: [0, -Math.PI / 2, 0] },
+  // Large landscape — label below-right
+  {
+    position: [29.9, 1, 8],
+    size: [8, 5],
+    rotation: [0, -Math.PI / 2, 0],
+    label: [4.8, -3.5],
+  },
 
   // === Partition A-Left (X: -18 to -6) ===
-  // South face — centered
-  { position: [-12, 0.5, -11.5], size: [6, 4], rotation: [0, 0, 0] },
-  // North face — faces NW gallery
-  { position: [-12, 0.5, -12.5], size: [5, 3.5], rotation: [0, Math.PI, 0] },
+  // South face — label to the right
+  {
+    position: [-12, 0.5, -11.5],
+    size: [6, 4],
+    rotation: [0, 0, 0],
+    label: [3.8, -1.2],
+  },
+  // North face — label lower-left (tight wall, label on left side)
+  {
+    position: [-12, 0.5, -12.5],
+    size: [5, 3.5],
+    rotation: [0, Math.PI, 0],
+    label: [-3.2, -1.0],
+  },
 
   // === Partition A-Right (X: 5 to 19) ===
-  // South face — centered
-  { position: [12, 0.5, -11.5], size: [6, 4.5], rotation: [0, 0, 0] },
-  // North face — faces NE gallery (between B at x=8 and wall edge at x=19)
-  { position: [14, 0.5, -12.5], size: [5, 3.5], rotation: [0, Math.PI, 0] },
+  // South face — label to the right
+  {
+    position: [12, 0.5, -11.5],
+    size: [6, 4.5],
+    rotation: [0, 0, 0],
+    label: [3.8, -1.6],
+  },
+  // North face — label to the right
+  {
+    position: [14, 0.5, -12.5],
+    size: [5, 3.5],
+    rotation: [0, Math.PI, 0],
+    label: [3.2, -0.8],
+  },
 
   // === Wall B (Z: -30 to -12, vertical) ===
-  // West face — portrait, faces NW gallery
+  // West face — portrait, label lower-right
   {
     position: [7.5, 0, -22],
     size: [3, 4],
     rotation: [0, -Math.PI / 2, 0],
+    label: [2.2, -1.4],
   },
-  // East face — landscape, faces NE alcove
+  // East face — landscape, label below centered
   {
     position: [8.5, 0.5, -20],
     size: [5, 3.5],
     rotation: [0, Math.PI / 2, 0],
+    label: [1.0, -2.4],
   },
 
   // === Wall C (X: -21 to -11) ===
-  // North face — landscape
-  { position: [-16, 0.5, 14.5], size: [5, 3], rotation: [0, Math.PI, 0] },
-  // South face — faces SW area
-  { position: [-16, 0, 15.5], size: [4, 3], rotation: [0, 0, 0] },
+  // North face — label to the right
+  {
+    position: [-16, 0.5, 14.5],
+    size: [5, 3],
+    rotation: [0, Math.PI, 0],
+    label: [3.2, -0.6],
+  },
+  // South face — label lower-right
+  {
+    position: [-16, 0, 15.5],
+    size: [4, 3],
+    rotation: [0, 0, 0],
+    label: [2.6, -1.8],
+  },
 
   // === Wall D (Z: 15 to 30, vertical) ===
-  // West face — tall portrait
+  // West face — tall portrait, label mid-right
   {
     position: [17.5, 0.5, 22.5],
     size: [4, 5],
     rotation: [0, -Math.PI / 2, 0],
+    label: [2.8, -1.6],
   },
-  // East face — medium piece, faces SE alcove
+  // East face — label to the right
   {
     position: [18.5, 0, 22.5],
     size: [4, 3],
     rotation: [0, Math.PI / 2, 0],
+    label: [2.6, -0.6],
   },
 
   // === Front wall (z=+30, faces -Z) ===
-  // Large statement piece (SW)
-  { position: [-10, 1, 29.9], size: [7, 5], rotation: [0, Math.PI, 0] },
-  // Tall portrait (east side)
-  { position: [15, 0.5, 29.9], size: [3.5, 5], rotation: [0, Math.PI, 0] },
+  // Large statement piece — label below-right
+  {
+    position: [-10, 1, 29.9],
+    size: [7, 5],
+    rotation: [0, Math.PI, 0],
+    label: [4.2, -3.5],
+  },
+  // Tall portrait — label to the right, mid-height
+  {
+    position: [15, 0.5, 29.9],
+    size: [3.5, 5],
+    rotation: [0, Math.PI, 0],
+    label: [2.4, -1.0],
+  },
 ];
 
-const PLACARD_W = 0.35;
-const PLACARD_H = 0.22;
+const PLACARD_W = 0.8;
+const PLACARD_H = 0.5;
 
 const ArtPlaceholder = ({
   position,
   size,
   rotation,
+  label,
 }: {
   position: [number, number, number];
   size: [number, number];
   rotation: [number, number, number];
+  label: [number, number];
 }) => {
   const [w, h] = size;
-  // Placard sits to the right, just below the artwork — like a real museum label
-  const placardX = w / 2 + 0.3;
-  const placardY = -h / 2 - 0.35;
   return (
     <group position={position} rotation={rotation}>
       {/* Frame */}
@@ -373,7 +440,7 @@ const ArtPlaceholder = ({
         <meshStandardMaterial color='#e8e4de' />
       </mesh>
       {/* Wall label */}
-      <group position={[placardX, placardY, 0]}>
+      <group position={[label[0], label[1], 0]}>
         <mesh position={[0, 0, -0.003]}>
           <boxGeometry args={[PLACARD_W + 0.03, PLACARD_H + 0.03, 0.006]} />
           <meshStandardMaterial
