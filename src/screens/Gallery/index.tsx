@@ -8,8 +8,12 @@ const ROOM_HEIGHT = 16;
 const ROOM_DEPTH = 60;
 const MOVE_SPEED = 16;
 const RUN_SPEED = 32;
+const CROUCH_SPEED = 8;
 const JUMP_IMPULSE = 12;
 const GRAVITY = 40;
+const STAND_HEIGHT = 0;
+const CROUCH_HEIGHT = -2.5;
+const CROUCH_LERP = 8;
 const BOUNDARY_PADDING = 0.5;
 
 const createWoodTexture = () => {
@@ -279,7 +283,7 @@ const createWelcomeTexture = () => {
   ctx.font = `20px ${font}`;
   const controls = [
     'WASD — MOVE / SHIFT — RUN',
-    'MOUSE — LOOK',
+    'MOUSE — LOOK / CTRL — CROUCH',
     'SPACE — JUMP',
     'ESC — RELEASE CAMERA',
   ];
@@ -868,20 +872,32 @@ const Movement = () => {
     if (pressed.has('KeyD') || pressed.has('ArrowRight')) direction.add(right);
     if (pressed.has('KeyA') || pressed.has('ArrowLeft')) direction.sub(right);
 
+    const crouching = pressed.has('ControlLeft') || pressed.has('ControlRight');
+
     if (direction.lengthSq() > 0) {
       direction.normalize();
-      const speed =
-        pressed.has('ShiftLeft') || pressed.has('ShiftRight')
+      const speed = crouching
+        ? CROUCH_SPEED
+        : pressed.has('ShiftLeft') || pressed.has('ShiftRight')
           ? RUN_SPEED
           : MOVE_SPEED;
       camera.position.addScaledVector(direction, speed * delta);
     }
 
+    // Crouch height
+    const targetY =
+      crouching && camera.position.y <= 0.01 ? CROUCH_HEIGHT : STAND_HEIGHT;
+    const baseY = THREE.MathUtils.lerp(
+      camera.position.y > 0.01 ? STAND_HEIGHT : camera.position.y,
+      targetY,
+      1 - Math.exp(-CROUCH_LERP * delta),
+    );
+
     // Jump physics
     velocityY.current -= GRAVITY * delta;
     camera.position.y += velocityY.current * delta;
-    if (camera.position.y <= 0) {
-      camera.position.y = 0;
+    if (camera.position.y <= baseY) {
+      camera.position.y = baseY;
       velocityY.current = 0;
     }
 
