@@ -7,6 +7,7 @@ const ROOM_WIDTH = 60;
 const ROOM_HEIGHT = 16;
 const ROOM_DEPTH = 60;
 const MOVE_SPEED = 16;
+const RUN_SPEED = 32;
 const JUMP_IMPULSE = 12;
 const GRAVITY = 40;
 const BOUNDARY_PADDING = 0.5;
@@ -277,7 +278,7 @@ const createWelcomeTexture = () => {
   ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
   ctx.font = `20px ${font}`;
   const controls = [
-    'WASD — MOVE',
+    'WASD — MOVE / SHIFT — RUN',
     'MOUSE — LOOK',
     'SPACE — JUMP',
     'ESC — RELEASE CAMERA',
@@ -819,7 +820,8 @@ const Movement = () => {
 
     if (direction.lengthSq() > 0) {
       direction.normalize();
-      camera.position.addScaledVector(direction, MOVE_SPEED * delta);
+      const speed = pressed.has('ShiftLeft') || pressed.has('ShiftRight') ? RUN_SPEED : MOVE_SPEED;
+      camera.position.addScaledVector(direction, speed * delta);
     }
 
     // Jump physics
@@ -895,7 +897,7 @@ const GalleryScreen = () => {
       {!locked && hasEntered && (
         <div className='absolute inset-x-0 bottom-8 flex justify-center pointer-events-none'>
           <p className='font-pixel text-white/25 text-xs tracking-[0.2em] select-none'>
-            CLICK ANYWHERE TO CONTROL CAMERA
+            CLICK TO RESUME
           </p>
         </div>
       )}
