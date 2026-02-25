@@ -103,6 +103,33 @@ const createWoodTexture = () => {
 };
 
 const WALL_COLOR = '#f0ece6';
+const WALL_THICKNESS = 0.3;
+const PARTITION_HEIGHT = 13.6;
+
+type AABB = {
+  minX: number;
+  maxX: number;
+  minZ: number;
+  maxZ: number;
+};
+
+const COLLIDERS: AABB[] = [
+  // Wall A-Left: center [-6, 0, -6], size [8, h, 0.3] → X: -10 to -2
+  { minX: -10, maxX: -2, minZ: -6.15, maxZ: -5.85 },
+  // Wall A-Right: center [9, 0, -6], size [14, h, 0.3] → X: 2 to 16
+  { minX: 2, maxX: 16, minZ: -6.15, maxZ: -5.85 },
+  // Archway header: passable at ground level (beam is overhead only)
+  // Wall B: center [5, 0, -13], size [0.3, h, 14] → Z: -20 to -6
+  { minX: 4.85, maxX: 5.15, minZ: -20, maxZ: -6 },
+  // Wall C: center [-11, 0, 6], size [12, h, 0.3] → X: -17 to -5
+  { minX: -17, maxX: -5, minZ: 5.85, maxZ: 6.15 },
+  // Wall D: center [10, 0, 13], size [0.3, h, 14] → Z: 6 to 20
+  { minX: 9.85, maxX: 10.15, minZ: 6, maxZ: 20 },
+  // Bench B1: center [0, y, 1], seat size [4, 0.25, 1.2]
+  { minX: -2, maxX: 2, minZ: 0.4, maxZ: 1.6 },
+  // Bench B2: center [2, y, 14], seat size [4, 0.25, 1.2]
+  { minX: 0, maxX: 4, minZ: 13.4, maxZ: 14.6 },
+];
 const BASEBOARD_HEIGHT = 0.3;
 const BASEBOARD_COLOR = '#e0dbd3';
 const CROWN_HEIGHT = 0.15;
@@ -146,6 +173,82 @@ const CrownMolding = ({
     <meshStandardMaterial color={BASEBOARD_COLOR} />
   </mesh>
 );
+
+const PartitionWall = ({
+  position,
+  size,
+}: {
+  position: [number, number, number];
+  size: [number, number, number];
+}) => (
+  <mesh position={position}>
+    <boxGeometry args={size} />
+    <meshStandardMaterial color={WALL_COLOR} roughness={0.9} />
+  </mesh>
+);
+
+const Partitions = () => (
+  <group>
+    {/* Wall A-Left */}
+    <PartitionWall
+      position={[-6, 0, -6]}
+      size={[8, PARTITION_HEIGHT, WALL_THICKNESS]}
+    />
+    {/* Wall A-Right */}
+    <PartitionWall
+      position={[9, 0, -6]}
+      size={[14, PARTITION_HEIGHT, WALL_THICKNESS]}
+    />
+    {/* Archway header beam */}
+    <PartitionWall position={[0, 5.2, -6]} size={[4, 3.2, WALL_THICKNESS]} />
+    {/* Wall B */}
+    <PartitionWall
+      position={[5, 0, -13]}
+      size={[WALL_THICKNESS, PARTITION_HEIGHT, 14]}
+    />
+    {/* Wall C */}
+    <PartitionWall
+      position={[-11, 0, 6]}
+      size={[12, PARTITION_HEIGHT, WALL_THICKNESS]}
+    />
+    {/* Wall D */}
+    <PartitionWall
+      position={[10, 0, 13]}
+      size={[WALL_THICKNESS, PARTITION_HEIGHT, 14]}
+    />
+  </group>
+);
+
+const GalleryBench = ({ position }: { position: [number, number, number] }) => {
+  const seatY = -5.25;
+  const legHeight = 1.625;
+  const legY = seatY - 0.125 - legHeight / 2;
+  const seatHalfW = 2;
+  const seatHalfD = 0.6;
+  const legInset = 0.2;
+
+  return (
+    <group position={position}>
+      {/* Seat */}
+      <mesh position={[0, seatY, 0]}>
+        <boxGeometry args={[4, 0.25, 1.2]} />
+        <meshStandardMaterial color='#2c2520' roughness={0.8} />
+      </mesh>
+      {/* Legs */}
+      {[
+        [-seatHalfW + legInset, legY, -seatHalfD + legInset],
+        [seatHalfW - legInset, legY, -seatHalfD + legInset],
+        [-seatHalfW + legInset, legY, seatHalfD - legInset],
+        [seatHalfW - legInset, legY, seatHalfD - legInset],
+      ].map((pos, i) => (
+        <mesh key={i} position={pos as [number, number, number]}>
+          <boxGeometry args={[0.12, legHeight, 0.12]} />
+          <meshStandardMaterial color='#1a1a1a' roughness={0.9} />
+        </mesh>
+      ))}
+    </group>
+  );
+};
 
 const RAIL_OFFSET = 2.5;
 const FIXTURE_POSITIONS = [-14, -7, 0, 7, 14];
@@ -342,6 +445,11 @@ const Room = () => {
       <TrackRail wallAxis='x' wallSign={1} length={ROOM_WIDTH} />
       <TrackRail wallAxis='z' wallSign={-1} length={ROOM_DEPTH} />
       <TrackRail wallAxis='z' wallSign={1} length={ROOM_DEPTH} />
+      {/* Interior partition walls */}
+      <Partitions />
+      {/* Benches */}
+      <GalleryBench position={[0, 0, 1]} />
+      <GalleryBench position={[2, 0, 14]} />
     </group>
   );
 };
@@ -394,6 +502,32 @@ const Movement = () => {
     if (camera.position.y <= 0) {
       camera.position.y = 0;
       velocityY.current = 0;
+    }
+
+    // Interior collision (AABB push-out along axis of least penetration)
+    const r = BOUNDARY_PADDING;
+    for (const box of COLLIDERS) {
+      const overlapX = Math.min(
+        camera.position.x + r - box.minX,
+        box.maxX - (camera.position.x - r),
+      );
+      const overlapZ = Math.min(
+        camera.position.z + r - box.minZ,
+        box.maxZ - (camera.position.z - r),
+      );
+      if (overlapX > 0 && overlapZ > 0) {
+        if (overlapX < overlapZ) {
+          // Push out along X
+          const centerX = (box.minX + box.maxX) / 2;
+          camera.position.x +=
+            camera.position.x < centerX ? -overlapX : overlapX;
+        } else {
+          // Push out along Z
+          const centerZ = (box.minZ + box.maxZ) / 2;
+          camera.position.z +=
+            camera.position.z < centerZ ? -overlapZ : overlapZ;
+        }
+      }
     }
 
     const halfW = ROOM_WIDTH / 2 - BOUNDARY_PADDING;
