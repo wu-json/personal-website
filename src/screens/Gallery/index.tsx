@@ -290,12 +290,12 @@ const createWelcomeTexture = () => {
   // Title
   ctx.fillStyle = '#1a1a1a';
   ctx.font = `64px ${font}`;
-  ctx.fillText('Gallery', pad, 150);
+  ctx.fillText('GALLERY', pad, 150);
 
   // Subtitle
   ctx.fillStyle = '#555';
   ctx.font = `28px ${font}`;
-  ctx.fillText('A Collection by Jason Wu', pad, 210);
+  ctx.fillText('A COLLECTION BY JASON WU', pad, 210);
 
   // Divider
   ctx.strokeStyle = '#ccc';
@@ -309,10 +309,10 @@ const createWelcomeTexture = () => {
   ctx.fillStyle = '#999';
   ctx.font = `20px ${font}`;
   const controls = [
-    'WASD — Move',
-    'Mouse — Look around',
-    'Space — Jump',
-    'ESC — Pause',
+    'WASD — MOVE',
+    'MOUSE — LOOK',
+    'SPACE — JUMP',
+    'ESC — RELEASE CAMERA',
   ];
   let y = 305;
   for (const line of controls) {
@@ -476,7 +476,7 @@ const WelcomeWallText = () => {
 
   return (
     <mesh position={[3, 0, 29.99]} rotation={[0, Math.PI, 0]}>
-      <planeGeometry args={[4, 2.5]} />
+      <planeGeometry args={[7, 4.375]} />
       <meshStandardMaterial
         map={texture}
         polygonOffset
@@ -917,15 +917,15 @@ const GalleryScreen = () => {
       </Canvas>
       {!locked && !hasEntered && (
         <div className='absolute inset-0 flex items-center justify-center bg-black/40 pointer-events-none'>
-          <p className='font-sans text-white text-sm font-light tracking-[0.25em] uppercase select-none'>
-            Click to Enter
+          <p className='font-pixel text-white text-sm tracking-[0.25em] uppercase select-none'>
+            CLICK TO ENTER
           </p>
         </div>
       )}
       {!locked && hasEntered && (
         <div className='absolute inset-x-0 bottom-8 flex justify-center pointer-events-none'>
-          <p className='font-sans text-black/25 text-xs font-light tracking-[0.2em] select-none'>
-            Click anywhere to continue
+          <p className='font-pixel text-black/25 text-xs tracking-[0.2em] select-none'>
+            CLICK ANYWHERE TO CONTROL CAMERA
           </p>
         </div>
       )}
