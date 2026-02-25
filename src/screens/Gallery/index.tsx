@@ -1,6 +1,14 @@
 import { PointerLockControls } from '@react-three/drei';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  type RefObject,
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import * as THREE from 'three';
 
 import {
@@ -11,6 +19,14 @@ import {
   type Partition,
   generateGalleryLayout,
 } from './generateLayout';
+import { MobileControls } from './MobileControls';
+
+export type MobileInput = {
+  moveX: number;
+  moveY: number;
+  lookDeltaX: number;
+  lookDeltaY: number;
+};
 
 const DEFAULT_COUNT = 19;
 
@@ -286,7 +302,7 @@ const drawBlossom = (
   ctx.fill();
 };
 
-const createWelcomeTexture = () => {
+const createWelcomeTexture = (mobile = false) => {
   const canvas = document.createElement('canvas');
   canvas.width = 2048;
   canvas.height = 1280;
@@ -333,12 +349,14 @@ const createWelcomeTexture = () => {
   // Controls
   ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
   ctx.font = `${20 * s}px ${font}`;
-  const controls = [
-    'WASD — MOVE / SHIFT — RUN',
-    'MOUSE — LOOK / CTRL — CROUCH',
-    'SPACE — JUMP',
-    'ESC — RELEASE CAMERA',
-  ];
+  const controls = mobile
+    ? ['LEFT JOYSTICK — MOVE', 'DRAG RIGHT — LOOK']
+    : [
+        'WASD — MOVE / SHIFT — RUN',
+        'MOUSE — LOOK / CTRL — CROUCH',
+        'SPACE — JUMP',
+        'ESC — RELEASE CAMERA',
+      ];
   let y = 305 * s;
   for (const line of controls) {
     ctx.fillText(line, textLeft, y);
@@ -451,17 +469,19 @@ const SpawnPoint = ({
 const WelcomeWallText = ({
   position,
   rotation,
+  mobile,
 }: {
   position: [number, number, number];
   rotation: [number, number, number];
+  mobile?: boolean;
 }) => {
   const [texture, setTexture] = useState<THREE.Texture | null>(null);
 
   useEffect(() => {
     document.fonts.ready.then(() => {
-      setTexture(createWelcomeTexture());
+      setTexture(createWelcomeTexture(mobile));
     });
-  }, []);
+  }, [mobile]);
 
   if (!texture) return null;
 
@@ -653,7 +673,13 @@ const ArtLighting = ({ pieces }: { pieces: ArtPiece[] }) => {
   );
 };
 
-const Room = ({ layout }: { layout: GalleryLayout }) => {
+const Room = ({
+  layout,
+  mobile,
+}: {
+  layout: GalleryLayout;
+  mobile?: boolean;
+}) => {
   const {
     roomWidth,
     roomDepth,
@@ -719,7 +745,11 @@ const Room = ({ layout }: { layout: GalleryLayout }) => {
         <GalleryBench key={i} position={pos} />
       ))}
       {/* Welcome wall text */}
-      <WelcomeWallText position={welcomePosition} rotation={welcomeRotation} />
+      <WelcomeWallText
+        position={welcomePosition}
+        rotation={welcomeRotation}
+        mobile={mobile}
+      />
     </group>
   );
 };
@@ -728,10 +758,12 @@ const Movement = ({
   roomWidth,
   roomDepth,
   colliders,
+  mobileInput,
 }: {
   roomWidth: number;
   roomDepth: number;
   colliders: AABB[];
+  mobileInput?: RefObject<MobileInput | null>;
 }) => {
   const { camera } = useThree();
   const keys = useRef<Set<string>>(new Set());
@@ -754,6 +786,24 @@ const Movement = ({
   }, [camera]);
 
   useFrame((_, delta) => {
+    // Apply mobile look deltas
+    const mi = mobileInput?.current;
+    if (mi) {
+      const { lookDeltaX, lookDeltaY } = mi;
+      if (lookDeltaX !== 0 || lookDeltaY !== 0) {
+        camera.rotation.order = 'YXZ';
+        camera.rotation.y -= lookDeltaX;
+        camera.rotation.x -= lookDeltaY;
+        camera.rotation.x = THREE.MathUtils.clamp(
+          camera.rotation.x,
+          -Math.PI * 0.47,
+          Math.PI * 0.47,
+        );
+        mi.lookDeltaX = 0;
+        mi.lookDeltaY = 0;
+      }
+    }
+
     const direction = new THREE.Vector3();
     const forward = new THREE.Vector3();
     const right = new THREE.Vector3();
@@ -768,6 +818,12 @@ const Movement = ({
     if (pressed.has('KeyS') || pressed.has('ArrowDown')) direction.sub(forward);
     if (pressed.has('KeyD') || pressed.has('ArrowRight')) direction.add(right);
     if (pressed.has('KeyA') || pressed.has('ArrowLeft')) direction.sub(right);
+
+    // Add mobile joystick input
+    if (mi && (mi.moveX !== 0 || mi.moveY !== 0)) {
+      direction.addScaledVector(right, mi.moveX);
+      direction.addScaledVector(forward, mi.moveY);
+    }
 
     const crouching = pressed.has('ControlLeft') || pressed.has('ControlRight');
 
@@ -834,6 +890,13 @@ const Movement = ({
 const GalleryScreen = () => {
   const [locked, setLocked] = useState(false);
   const [ready, setReady] = useState(false);
+  const isMobile = useMemo(
+    () => window.matchMedia('(pointer: coarse)').matches,
+    [],
+  );
+  const mobileInputRef = useRef<MobileInput | null>(
+    isMobile ? { moveX: 0, moveY: 0, lookDeltaX: 0, lookDeltaY: 0 } : null,
+  );
   const layout = useMemo(() => {
     const params = new URLSearchParams(window.location.search);
     const count = Number(params.get('count')) || DEFAULT_COUNT;
@@ -849,7 +912,7 @@ const GalleryScreen = () => {
 
   return (
     <div
-      className={`fixed inset-0 z-50 bg-black${!locked ? ' cursor-pointer' : ''}`}
+      className={`fixed inset-0 z-50 bg-black${!isMobile && !locked ? ' cursor-pointer' : ''}`}
     >
       <div
         className='absolute inset-0 transition-opacity duration-500'
@@ -861,7 +924,7 @@ const GalleryScreen = () => {
         >
           <ambientLight intensity={1.2} />
           <hemisphereLight args={['#ffffff', '#333333', 0.8]} />
-          <Room layout={layout} />
+          <Room layout={layout} mobile={isMobile} />
           <SpawnPoint
             position={layout.spawnPosition}
             lookAt={layout.spawnLookAt}
@@ -870,17 +933,21 @@ const GalleryScreen = () => {
             roomWidth={layout.roomWidth}
             roomDepth={layout.roomDepth}
             colliders={layout.colliders}
+            mobileInput={mobileInputRef}
           />
-          <PointerLockControls onLock={onLock} onUnlock={onUnlock} />
+          {!isMobile && (
+            <PointerLockControls onLock={onLock} onUnlock={onUnlock} />
+          )}
         </Canvas>
       </div>
-      {!locked && (
+      {!isMobile && !locked && (
         <div className='absolute inset-x-0 bottom-8 flex justify-center pointer-events-none'>
           <p className='font-pixel text-white/25 text-xs tracking-[0.2em] select-none'>
             CLICK TO LOOK
           </p>
         </div>
       )}
+      {isMobile && <MobileControls inputRef={mobileInputRef} />}
     </div>
   );
 };
