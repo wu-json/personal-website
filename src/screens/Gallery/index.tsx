@@ -17,80 +17,153 @@ const createWoodTexture = () => {
   canvas.height = 1024;
   const ctx = canvas.getContext('2d')!;
 
-  // Cool gray washed wood base
-  ctx.fillStyle = '#b5b0a9';
+  // Warm oak base
+  ctx.fillStyle = '#bfa37c';
   ctx.fillRect(0, 0, 1024, 1024);
 
-  const plankHeight = 96;
+  const plankH = 80;
 
-  // Half-bond pattern: uniform planks, each row offset by half a plank
-  // 1024 / 682 ≈ 1.5 planks per row — longer boards with stagger
-  const plankLen = 682;
-  const halfPlank = 341;
-
-  // Simple hash for deterministic per-plank color
-  const plankColor = (row: number, col: number) => {
-    const h = ((row * 17 + col * 31 + 7) * 2654435761) >>> 0;
-    const lightness = 72 + (h % 4);
-    const saturation = 5 + ((h >> 4) % 4);
-    return `hsl(30, ${saturation}%, ${lightness}%)`;
+  // Deterministic RNG
+  let _s = 0;
+  const seed = (v: number) => {
+    _s = v;
+  };
+  const next = () => {
+    _s = ((_s * 1103515245 + 12345) & 0x7fffffff) >>> 0;
+    return _s / 0x7fffffff;
   };
 
-  const drawPlank = (x: number, y: number, color: string, seed: number) => {
-    ctx.fillStyle = color;
-    ctx.fillRect(x, y, plankLen, plankHeight);
+  // Per-plank color — subtle variation
+  const plankColor = (row: number, col: number) => {
+    seed(row * 7 + col * 13 + 3);
+    const l = 63 + next() * 3;
+    const s = 23 + next() * 3;
+    return `hsl(30, ${s}%, ${l}%)`;
+  };
 
-    // Grain lines
-    let s = seed;
-    for (let i = 0; i < 10; i++) {
-      s = ((s * 1103515245 + 12345) & 0x7fffffff) >>> 0;
-      const gy = y + 8 + (s % (plankHeight - 16));
-      s = ((s * 1103515245 + 12345) & 0x7fffffff) >>> 0;
-      const alpha = 0.03 + (s % 50) / 1000;
-      ctx.strokeStyle = `rgba(100, 95, 90, ${alpha})`;
-      ctx.lineWidth = 0.5 + (i % 3) * 0.25;
+  // Variable plank lengths per row (3–5 planks across 1024px)
+  const rowPlanks = (row: number) => {
+    seed(row * 53 + 11);
+    const planks: number[] = [];
+    let x = 0;
+    // Offset the start so rows don't line up
+    const rowOffset = next() * 200 - 100;
+    x = rowOffset;
+    if (x > 0) {
+      // Need a partial plank at the left edge
+      planks.push(-rowOffset); // negative means "start before 0"
+    }
+    while (x < 1024) {
+      const len = 200 + next() * 300; // 200–500px per plank
+      planks.push(len);
+      x += len;
+    }
+    return { planks, rowOffset };
+  };
+
+  const drawPlank = (
+    x: number,
+    y: number,
+    w: number,
+    color: string,
+    plankSeed: number,
+  ) => {
+    ctx.fillStyle = color;
+    ctx.fillRect(x, y, w, plankH);
+
+    // Grain: clusters of parallel lines with varying density
+    seed(plankSeed);
+    const grainDensity = 12 + Math.floor(next() * 16); // 12–28 lines per plank
+    const grainBaseY = y + next() * 10; // slight vertical offset per plank
+    const grainSpread = 0.4 + next() * 0.3; // how spread out the lines are
+
+    for (let i = 0; i < grainDensity; i++) {
+      const t = i / grainDensity;
+      const gy = grainBaseY + t * (plankH - 6) + (next() - 0.5) * 4;
+      if (gy < y || gy > y + plankH) continue;
+
+      const alpha = 0.04 + next() * 0.06;
+      const darker = next() > 0.4;
+      ctx.strokeStyle = darker
+        ? `rgba(60, 40, 20, ${alpha})`
+        : `rgba(160, 130, 90, ${alpha * 0.6})`;
+      ctx.lineWidth = grainSpread + next() * 0.5;
       ctx.beginPath();
       ctx.moveTo(x, gy);
+      // Grain with gentle waviness
+      const drift1 = (next() - 0.5) * 3;
+      const drift2 = drift1 + (next() - 0.5) * 2;
       ctx.bezierCurveTo(
-        x + plankLen * 0.33,
-        gy + ((i % 3) - 1) * 1.5,
-        x + plankLen * 0.66,
-        gy + ((i % 2) - 0.5) * 2,
-        x + plankLen,
-        gy + ((i % 3) - 1) * 2,
+        x + w * 0.3,
+        gy + drift1,
+        x + w * 0.7,
+        gy + drift2,
+        x + w,
+        gy + drift2 + (next() - 0.5) * 1.5,
       );
       ctx.stroke();
     }
 
-    // Vertical end-seam
-    ctx.strokeStyle = 'rgba(0, 0, 0, 0.08)';
+    // Occasional darker band (heartwood variation)
+    seed(plankSeed + 999);
+    if (next() > 0.6) {
+      const bandY = y + plankH * (0.2 + next() * 0.6);
+      const bandH = 3 + next() * 8;
+      ctx.fillStyle = `rgba(90, 65, 40, ${0.03 + next() * 0.04})`;
+      ctx.fillRect(x, bandY, w, bandH);
+    }
+
+    // Vertical end-seam — visible gap between planks
+    ctx.strokeStyle = 'rgba(50, 35, 20, 0.12)';
     ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.moveTo(x + plankLen, y);
-    ctx.lineTo(x + plankLen, y + plankHeight);
+    ctx.moveTo(x + w, y);
+    ctx.lineTo(x + w, y + plankH);
+    ctx.stroke();
+    // Highlight edge (light catches the bevel)
+    ctx.strokeStyle = 'rgba(200, 180, 150, 0.06)';
+    ctx.lineWidth = 0.5;
+    ctx.beginPath();
+    ctx.moveTo(x + w + 1, y);
+    ctx.lineTo(x + w + 1, y + plankH);
     ctx.stroke();
   };
 
-  for (let y = 0; y < 1024; y += plankHeight) {
-    const row = Math.floor(y / plankHeight);
-    const offset = row % 2 === 0 ? 0 : halfPlank;
+  for (let y = 0; y < 1024; y += plankH) {
+    const row = Math.floor(y / plankH);
+    const { planks, rowOffset } = rowPlanks(row);
 
-    for (let i = 0; i < 2; i++) {
-      const x = i * plankLen - offset;
-      const color = plankColor(row, i);
-      const seed = row * 17 + i * 31;
-      drawPlank(x, y, color, seed);
-
-      // Draw the wrapping plank at the opposite edge for seamless tiling
-      if (x < 0) drawPlank(x + 1024, y, color, seed);
+    let x = rowOffset < 0 ? rowOffset : 0;
+    let col = 0;
+    for (const len of planks) {
+      const actualX = rowOffset < 0 && col === 0 ? 0 : x;
+      const actualLen = rowOffset < 0 && col === 0 ? x + len : len;
+      const color = plankColor(row, col);
+      const ps = row * 127 + col * 43;
+      drawPlank(actualX, y, actualLen, color, ps);
+      // Wrap around for seamless tiling
+      if (actualX + actualLen > 1024) {
+        drawPlank(actualX - 1024, y, actualLen, color, ps);
+      }
+      if (actualX < 0) {
+        drawPlank(actualX + 1024, y, actualLen, color, ps);
+      }
+      x += len;
+      col++;
     }
 
     // Horizontal seam between rows
-    ctx.strokeStyle = 'rgba(0, 0, 0, 0.06)';
-    ctx.lineWidth = 1;
+    ctx.strokeStyle = 'rgba(50, 35, 20, 0.08)';
+    ctx.lineWidth = 0.8;
     ctx.beginPath();
     ctx.moveTo(0, y);
     ctx.lineTo(1024, y);
+    ctx.stroke();
+    ctx.strokeStyle = 'rgba(200, 180, 150, 0.04)';
+    ctx.lineWidth = 0.5;
+    ctx.beginPath();
+    ctx.moveTo(0, y + 1);
+    ctx.lineTo(1024, y + 1);
     ctx.stroke();
   }
 
@@ -503,11 +576,11 @@ const ArtSpotlight = ({
       <spotLight
         ref={lightRef}
         position={lightPos}
-        angle={0.45}
+        angle={0.5}
         penumbra={0.7}
-        intensity={3}
-        distance={20}
-        decay={1.5}
+        intensity={4}
+        distance={25}
+        decay={1.2}
         color='#fff8f0'
       />
       <object3D ref={targetRef} position={artPosition} />
@@ -709,8 +782,8 @@ const GalleryScreen = () => {
   return (
     <div className='fixed inset-0 z-50'>
       <Canvas camera={{ position: [0, 0, 0], fov: 75 }}>
-        <ambientLight intensity={0.3} />
-        <hemisphereLight args={['#f0ece6', '#b5b0a9', 0.4]} />
+        <ambientLight intensity={0.6} />
+        <hemisphereLight args={['#faf6f0', '#c4a882', 0.7]} />
         <Room />
         <Movement />
         <PointerLockControls onLock={onLock} onUnlock={onUnlock} />
