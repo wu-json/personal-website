@@ -252,118 +252,139 @@ const GalleryBench = ({ position }: { position: [number, number, number] }) => {
   );
 };
 
-const RAIL_OFFSET = 2.5;
-const FIXTURE_POSITIONS = [-21, -10.5, 0, 10.5, 21];
-const FIXTURE_TILT = Math.PI / 6; // 30 degrees toward wall
+type ArtPiece = {
+  position: [number, number, number];
+  size: [number, number];
+  rotation: [number, number, number];
+};
 
-const FixtureHead = ({
+const ART_PIECES: ArtPiece[] = [
+  // Back wall (NW) — hero piece, bench faces this
+  { position: [-11, 0.5, -29.9], size: [5, 3.5], rotation: [0, 0, 0] },
+  // Back wall (NE) — portrait
+  { position: [20, 0, -29.9], size: [2.5, 3.5], rotation: [0, 0, 0] },
+  // Left wall (NW) — landscape
+  {
+    position: [-29.9, 0.5, -22],
+    size: [3.5, 2.5],
+    rotation: [0, Math.PI / 2, 0],
+  },
+  // Left wall (central) — small portrait
+  { position: [-29.9, 0, -2], size: [2, 3], rotation: [0, Math.PI / 2, 0] },
+  // Right wall (NE) — tall portrait
+  { position: [29.9, 0, -20], size: [3, 4], rotation: [0, -Math.PI / 2, 0] },
+  // Right wall (south) — landscape
+  { position: [29.9, 0.5, 8], size: [4, 2.5], rotation: [0, -Math.PI / 2, 0] },
+  // A-Left south face — faces central area
+  { position: [-14, 0.5, -11.5], size: [3.5, 2.5], rotation: [0, 0, 0] },
+  // A-Right south face — portrait, faces central
+  { position: [10, 0, -11.5], size: [2.5, 3.5], rotation: [0, 0, 0] },
+  // Wall B west face — portrait, faces NW gallery
+  { position: [7.5, 0, -24], size: [2, 3.5], rotation: [0, -Math.PI / 2, 0] },
+  // Wall B east face — landscape, faces NE
+  { position: [8.5, 0.5, -18], size: [4, 2.5], rotation: [0, Math.PI / 2, 0] },
+  // Wall C north face — small landscape
+  { position: [-16, 0.5, 14.5], size: [3, 2], rotation: [0, Math.PI, 0] },
+  // Wall D west face — portrait
+  { position: [17.5, 0, 22], size: [2.5, 3.5], rotation: [0, -Math.PI / 2, 0] },
+  // Front wall (SW) — tall portrait
+  { position: [-10, 0, 29.9], size: [3, 4], rotation: [0, Math.PI, 0] },
+];
+
+const ArtPlaceholder = ({
   position,
-  tiltAxis,
+  size,
+  rotation,
 }: {
   position: [number, number, number];
-  tiltAxis: [number, number, number];
-}) => (
-  <mesh position={position} rotation={tiltAxis}>
-    <cylinderGeometry args={[0.06, 0.05, 0.2, 8]} />
-    <meshStandardMaterial color='#d8d4ce' />
-  </mesh>
-);
-
-const TrackRail = ({
-  wallAxis,
-  wallSign,
-  length,
-}: {
-  wallAxis: 'x' | 'z';
-  wallSign: 1 | -1;
-  length: number;
+  size: [number, number];
+  rotation: [number, number, number];
 }) => {
-  const lightsRef = useRef<(THREE.SpotLight | null)[]>([]);
-  const targetsRef = useRef<(THREE.Object3D | null)[]>([]);
-
-  const halfH = ROOM_HEIGHT / 2;
-  const halfW = ROOM_WIDTH / 2;
-  const halfD = ROOM_DEPTH / 2;
-  const railY = halfH - 0.02; // flush to ceiling
-
-  const connectedRef = useRef(false);
-
-  useFrame(() => {
-    if (connectedRef.current) return;
-    let allConnected = true;
-    for (let i = 0; i < FIXTURE_POSITIONS.length; i++) {
-      const l = lightsRef.current[i];
-      const t = targetsRef.current[i];
-      if (l && t) {
-        l.target = t;
-      } else {
-        allConnected = false;
-      }
-    }
-    connectedRef.current = allConnected;
-  });
-
-  // Rail and fixture positions depend on which wall
-  const isZ = wallAxis === 'z'; // wall runs along Z (left/right walls)
-  const wallEdge = isZ ? halfW * wallSign : halfD * wallSign;
-  const railPos: [number, number, number] = isZ
-    ? [wallEdge - wallSign * RAIL_OFFSET, railY, 0]
-    : [0, railY, wallEdge - wallSign * RAIL_OFFSET];
-  const railRotation: [number, number, number] = isZ
-    ? [0, Math.PI / 2, 0]
-    : [0, 0, 0];
-
+  const [w, h] = size;
   return (
-    <group>
-      {/* Rail bar */}
-      <mesh position={railPos} rotation={railRotation}>
-        <boxGeometry args={[length, 0.04, 0.04]} />
-        <meshStandardMaterial color={WALL_COLOR} />
+    <group position={position} rotation={rotation}>
+      {/* Frame */}
+      <mesh position={[0, 0, -0.02]}>
+        <boxGeometry args={[w + 0.16, h + 0.16, 0.04]} />
+        <meshStandardMaterial color='#2a2420' roughness={0.8} />
       </mesh>
-
-      {/* Fixture heads + spotlights */}
-      {FIXTURE_POSITIONS.map((offset, i) => {
-        const fixturePos: [number, number, number] = isZ
-          ? [wallEdge - wallSign * RAIL_OFFSET, railY - 0.1, offset]
-          : [offset, railY - 0.1, wallEdge - wallSign * RAIL_OFFSET];
-
-        // Tilt the cylinder toward the wall
-        const tiltAxis: [number, number, number] = isZ
-          ? [0, 0, wallSign * FIXTURE_TILT]
-          : [wallSign * -FIXTURE_TILT, 0, 0];
-
-        const targetY = 0;
-        const targetPos: [number, number, number] = isZ
-          ? [wallEdge, targetY, offset]
-          : [offset, targetY, wallEdge];
-
-        return (
-          <group key={offset}>
-            <FixtureHead position={fixturePos} tiltAxis={tiltAxis} />
-            <spotLight
-              ref={el => {
-                lightsRef.current[i] = el;
-              }}
-              position={fixturePos}
-              angle={0.4}
-              penumbra={0.8}
-              intensity={2.5}
-              distance={35}
-              decay={1.2}
-              color='#fff8f0'
-            />
-            <object3D
-              ref={el => {
-                targetsRef.current[i] = el;
-              }}
-              position={targetPos}
-            />
-          </group>
-        );
-      })}
+      {/* Canvas */}
+      <mesh>
+        <planeGeometry args={[w, h]} />
+        <meshStandardMaterial color='#e8e4de' />
+      </mesh>
     </group>
   );
 };
+
+const Artworks = () => (
+  <group>
+    {ART_PIECES.map((piece, i) => (
+      <ArtPlaceholder key={i} {...piece} />
+    ))}
+  </group>
+);
+
+const ArtSpotlight = ({
+  artPosition,
+  artRotation,
+}: {
+  artPosition: [number, number, number];
+  artRotation: [number, number, number];
+}) => {
+  const lightRef = useRef<THREE.SpotLight>(null);
+  const targetRef = useRef<THREE.Object3D>(null);
+  const connectedRef = useRef(false);
+
+  const ceilingY = ROOM_HEIGHT / 2 - 0.1;
+  const offset = 2.5;
+
+  // Compute light position: offset from art toward viewing direction
+  const yRot = artRotation[1];
+  const lightPos: [number, number, number] = [
+    artPosition[0] + Math.sin(yRot) * offset,
+    ceilingY,
+    artPosition[2] + Math.cos(yRot) * offset,
+  ];
+
+  useFrame(() => {
+    if (connectedRef.current) return;
+    const l = lightRef.current;
+    const t = targetRef.current;
+    if (l && t) {
+      l.target = t;
+      connectedRef.current = true;
+    }
+  });
+
+  return (
+    <group>
+      <spotLight
+        ref={lightRef}
+        position={lightPos}
+        angle={0.45}
+        penumbra={0.7}
+        intensity={3}
+        distance={20}
+        decay={1.5}
+        color='#fff8f0'
+      />
+      <object3D ref={targetRef} position={artPosition} />
+    </group>
+  );
+};
+
+const ArtLighting = () => (
+  <group>
+    {ART_PIECES.map((piece, i) => (
+      <ArtSpotlight
+        key={i}
+        artPosition={piece.position}
+        artRotation={piece.rotation}
+      />
+    ))}
+  </group>
+);
 
 const Room = () => {
   const halfW = ROOM_WIDTH / 2;
@@ -442,13 +463,11 @@ const Room = () => {
         rotation={[0, -Math.PI / 2, 0]}
         width={ROOM_DEPTH}
       />
-      {/* Track rails with fixtures along each wall */}
-      <TrackRail wallAxis='x' wallSign={-1} length={ROOM_WIDTH} />
-      <TrackRail wallAxis='x' wallSign={1} length={ROOM_WIDTH} />
-      <TrackRail wallAxis='z' wallSign={-1} length={ROOM_DEPTH} />
-      <TrackRail wallAxis='z' wallSign={1} length={ROOM_DEPTH} />
       {/* Interior partition walls */}
       <Partitions />
+      {/* Art placeholders and per-piece spotlights */}
+      <Artworks />
+      <ArtLighting />
       {/* Benches */}
       <GalleryBench position={[-11, 0, -22]} />
     </group>
