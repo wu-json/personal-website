@@ -3,6 +3,7 @@ export type ImageSpec = {
   orientation: 'portrait' | 'landscape';
   aspectRatio?: number; // real w/h ratio — used instead of random when present
   imageUrl?: string; // URL to load as texture
+  label?: string; // display label (defaults to id)
 };
 
 export type AABB = {
@@ -813,7 +814,7 @@ const distributeArt = (
         position: pos,
         size: [art.width, art.height],
         rotation: bestSeg.rotation,
-        title: art.id.toUpperCase(),
+        title: (art.label ?? art.id).toUpperCase(),
         imageUrl: art.imageUrl,
       });
       bestSeg.used += bestAvail >= needed ? needed : art.width + 1;

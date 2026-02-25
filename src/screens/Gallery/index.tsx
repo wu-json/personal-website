@@ -590,7 +590,7 @@ const ArtPlaceholder = memo(
         {imageTex ? (
           <mesh>
             <planeGeometry args={[w, h]} />
-            <meshStandardMaterial map={imageTex} />
+            <meshBasicMaterial map={imageTex} toneMapped={false} />
           </mesh>
         ) : (
           <mesh material={canvasMaterial}>
@@ -934,7 +934,8 @@ const GalleryScreen = ({ fragmentId }: { fragmentId?: string }) => {
   const layout = useMemo(() => {
     if (fragment) {
       const images: ImageSpec[] = fragment.photos.map(p => ({
-        id: p.caption || p.file,
+        id: p.file,
+        label: p.caption || 'Untitled',
         orientation: (p.width > p.height ? 'landscape' : 'portrait') as const,
         aspectRatio: p.width / p.height,
         imageUrl: photoUrl(fragment.id, p.file, 'thumb'),
