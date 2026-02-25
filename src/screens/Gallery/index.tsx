@@ -3,12 +3,12 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
 
-const ROOM_WIDTH = 40;
-const ROOM_HEIGHT = 14;
-const ROOM_DEPTH = 40;
-const MOVE_SPEED = 14;
-const JUMP_IMPULSE = 8;
-const GRAVITY = 20;
+const ROOM_WIDTH = 60;
+const ROOM_HEIGHT = 16;
+const ROOM_DEPTH = 60;
+const MOVE_SPEED = 16;
+const JUMP_IMPULSE = 12;
+const GRAVITY = 40;
 const BOUNDARY_PADDING = 0.5;
 
 const createWoodTexture = () => {
@@ -97,14 +97,14 @@ const createWoodTexture = () => {
   const texture = new THREE.CanvasTexture(canvas);
   texture.wrapS = THREE.RepeatWrapping;
   texture.wrapT = THREE.RepeatWrapping;
-  texture.repeat.set(6, 6);
+  texture.repeat.set(9, 9);
   texture.colorSpace = THREE.SRGBColorSpace;
   return texture;
 };
 
 const WALL_COLOR = '#f0ece6';
-const WALL_THICKNESS = 0.3;
-const PARTITION_HEIGHT = 13.6;
+const WALL_THICKNESS = 0.8;
+const PARTITION_HEIGHT = 15.6;
 
 type AABB = {
   minX: number;
@@ -114,21 +114,19 @@ type AABB = {
 };
 
 const COLLIDERS: AABB[] = [
-  // Wall A-Left: center [-6, 0, -6], size [8, h, 0.3] → X: -10 to -2
-  { minX: -10, maxX: -2, minZ: -6.15, maxZ: -5.85 },
-  // Wall A-Right: center [9, 0, -6], size [14, h, 0.3] → X: 2 to 16
-  { minX: 2, maxX: 16, minZ: -6.15, maxZ: -5.85 },
+  // Wall A-Left: center [-12, 0, -12], size [12, h, 0.8] → X: -18 to -6
+  { minX: -18, maxX: -6, minZ: -12.4, maxZ: -11.6 },
+  // Wall A-Right: center [12, 0, -12], size [14, h, 0.8] → X: 5 to 19
+  { minX: 5, maxX: 19, minZ: -12.4, maxZ: -11.6 },
   // Archway header: passable at ground level (beam is overhead only)
-  // Wall B: center [5, 0, -13], size [0.3, h, 14] → Z: -20 to -6
-  { minX: 4.85, maxX: 5.15, minZ: -20, maxZ: -6 },
-  // Wall C: center [-11, 0, 6], size [12, h, 0.3] → X: -17 to -5
-  { minX: -17, maxX: -5, minZ: 5.85, maxZ: 6.15 },
-  // Wall D: center [10, 0, 13], size [0.3, h, 14] → Z: 6 to 20
-  { minX: 9.85, maxX: 10.15, minZ: 6, maxZ: 20 },
-  // Bench B1: center [0, y, 1], seat size [4, 0.25, 1.2]
-  { minX: -2, maxX: 2, minZ: 0.4, maxZ: 1.6 },
-  // Bench B2: center [2, y, 14], seat size [4, 0.25, 1.2]
-  { minX: 0, maxX: 4, minZ: 13.4, maxZ: 14.6 },
+  // Wall B: center [8, 0, -21], size [0.8, h, 18] → Z: -30 to -12
+  { minX: 7.6, maxX: 8.4, minZ: -30, maxZ: -12 },
+  // Wall C: center [-16, 0, 15], size [10, h, 0.8] → X: -21 to -11
+  { minX: -21, maxX: -11, minZ: 14.6, maxZ: 15.4 },
+  // Wall D: center [18, 0, 22.5], size [0.8, h, 15] → Z: 15 to 30
+  { minX: 17.6, maxX: 18.4, minZ: 15, maxZ: 30 },
+  // Bench: center [-11, y, -22], seat size [6, 0.35, 1.8]
+  { minX: -14, maxX: -8, minZ: -22.9, maxZ: -21.1 },
 ];
 const BASEBOARD_HEIGHT = 0.3;
 const BASEBOARD_COLOR = '#e0dbd3';
@@ -191,47 +189,51 @@ const Partitions = () => (
   <group>
     {/* Wall A-Left */}
     <PartitionWall
-      position={[-6, 0, -6]}
-      size={[8, PARTITION_HEIGHT, WALL_THICKNESS]}
+      position={[-12, 0, -12]}
+      size={[12, PARTITION_HEIGHT, WALL_THICKNESS]}
     />
     {/* Wall A-Right */}
     <PartitionWall
-      position={[9, 0, -6]}
+      position={[12, 0, -12]}
       size={[14, PARTITION_HEIGHT, WALL_THICKNESS]}
     />
     {/* Archway header beam */}
-    <PartitionWall position={[0, 5.2, -6]} size={[4, 3.2, WALL_THICKNESS]} />
+    <PartitionWall position={[-0.5, 6.3, -12]} size={[11, 3, WALL_THICKNESS]} />
     {/* Wall B */}
     <PartitionWall
-      position={[5, 0, -13]}
-      size={[WALL_THICKNESS, PARTITION_HEIGHT, 14]}
+      position={[8, 0, -21]}
+      size={[WALL_THICKNESS, PARTITION_HEIGHT, 18]}
     />
     {/* Wall C */}
     <PartitionWall
-      position={[-11, 0, 6]}
-      size={[12, PARTITION_HEIGHT, WALL_THICKNESS]}
+      position={[-16, 0, 15]}
+      size={[10, PARTITION_HEIGHT, WALL_THICKNESS]}
     />
     {/* Wall D */}
     <PartitionWall
-      position={[10, 0, 13]}
-      size={[WALL_THICKNESS, PARTITION_HEIGHT, 14]}
+      position={[18, 0, 22.5]}
+      size={[WALL_THICKNESS, PARTITION_HEIGHT, 15]}
     />
   </group>
 );
 
 const GalleryBench = ({ position }: { position: [number, number, number] }) => {
-  const seatY = -5.25;
-  const legHeight = 1.625;
-  const legY = seatY - 0.125 - legHeight / 2;
-  const seatHalfW = 2;
-  const seatHalfD = 0.6;
-  const legInset = 0.2;
+  const seatW = 6;
+  const seatD = 1.8;
+  const seatThickness = 0.35;
+  const seatY = -6.1;
+  const legW = 0.18;
+  const legHeight = 1.7;
+  const legY = seatY - seatThickness / 2 - legHeight / 2;
+  const seatHalfW = seatW / 2;
+  const seatHalfD = seatD / 2;
+  const legInset = 0.25;
 
   return (
     <group position={position}>
       {/* Seat */}
       <mesh position={[0, seatY, 0]}>
-        <boxGeometry args={[4, 0.25, 1.2]} />
+        <boxGeometry args={[seatW, seatThickness, seatD]} />
         <meshStandardMaterial color='#2c2520' roughness={0.8} />
       </mesh>
       {/* Legs */}
@@ -242,7 +244,7 @@ const GalleryBench = ({ position }: { position: [number, number, number] }) => {
         [seatHalfW - legInset, legY, seatHalfD - legInset],
       ].map((pos, i) => (
         <mesh key={i} position={pos as [number, number, number]}>
-          <boxGeometry args={[0.12, legHeight, 0.12]} />
+          <boxGeometry args={[legW, legHeight, legW]} />
           <meshStandardMaterial color='#1a1a1a' roughness={0.9} />
         </mesh>
       ))}
@@ -251,7 +253,7 @@ const GalleryBench = ({ position }: { position: [number, number, number] }) => {
 };
 
 const RAIL_OFFSET = 2.5;
-const FIXTURE_POSITIONS = [-14, -7, 0, 7, 14];
+const FIXTURE_POSITIONS = [-21, -10.5, 0, 10.5, 21];
 const FIXTURE_TILT = Math.PI / 6; // 30 degrees toward wall
 
 const FixtureHead = ({
@@ -346,7 +348,7 @@ const TrackRail = ({
               angle={0.4}
               penumbra={0.8}
               intensity={2.5}
-              distance={25}
+              distance={35}
               decay={1.2}
               color='#fff8f0'
             />
@@ -448,8 +450,7 @@ const Room = () => {
       {/* Interior partition walls */}
       <Partitions />
       {/* Benches */}
-      <GalleryBench position={[0, 0, 1]} />
-      <GalleryBench position={[2, 0, 14]} />
+      <GalleryBench position={[-11, 0, -22]} />
     </group>
   );
 };
