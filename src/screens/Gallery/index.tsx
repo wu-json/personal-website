@@ -320,16 +320,22 @@ const createWelcomeTexture = (
   ctx.fillStyle = '#0a0a0a';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+  // Center the content block horizontally
+  // Content spans from blossom left (~50*s) to text right (~canvas.width old edge)
+  // Original layout was designed for 2048px; offset to center in wider canvas
+  const contentWidth = 2048;
+  const offsetX = (canvas.width - contentWidth) / 2;
+
   // Blossom emblem on the left
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = 'high';
-  drawBlossom(ctx, 150 * s, 180 * s, 2.2 * s, 1);
+  drawBlossom(ctx, offsetX + 150 * s, 180 * s, 2.2 * s, 1);
 
   // Switch to pixel font rendering
   ctx.imageSmoothingEnabled = false;
 
   const font = "'Geist Pixel Circle'";
-  const textLeft = 310 * s;
+  const textLeft = offsetX + 310 * s;
 
   ctx.textAlign = 'left';
 
@@ -347,7 +353,8 @@ const createWelcomeTexture = (
     (fragmentTitle ? 'AN INTERACTIVE GALLERY' : 'A COLLECTION BY JASON WU');
   // Convert markdown links [text](url) → text
   const subtitle = rawSubtitle.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
-  const maxTextWidth = canvas.width - textLeft - 80 * s;
+  const contentRight = offsetX + contentWidth;
+  const maxTextWidth = contentRight - textLeft - 80 * s;
   const subtitleLines: string[] = [];
   for (const para of subtitle.split('\n')) {
     const trimmed = para.trim();
@@ -377,7 +384,7 @@ const createWelcomeTexture = (
   const divY = y + 10 * s;
   ctx.beginPath();
   ctx.moveTo(textLeft, divY);
-  ctx.lineTo(canvas.width - 80 * s, divY);
+  ctx.lineTo(contentRight - 80 * s, divY);
   ctx.stroke();
 
   // Controls
