@@ -316,7 +316,103 @@ const generatePartitions = (
     },
   ];
 
-  return p.slice(0, count);
+  return mergeClosePartitions(p.slice(0, count));
+};
+
+// ---------------------------------------------------------------------------
+// 3b. Clean up partition placement
+//
+// Two passes for same-orientation wall pairs:
+//  1. Collinear (nearly same line, small gap) → merge into one wider wall.
+//  2. Close parallels (different line but < MIN_PARALLEL_DIST) → drop the
+//     shorter wall so we never get awkward narrow corridors.
+// ---------------------------------------------------------------------------
+const mergeClosePartitions = (partitions: Partition[]): Partition[] => {
+  const COLLINEAR_TOL = WALL_THICKNESS * 2; // "same line" tolerance
+  const MERGE_GAP = 3; // max gap for collinear merge
+  const MIN_PARALLEL_DIST = 8; // minimum distance between parallel walls
+
+  const out = [...partitions];
+  let changed = true;
+
+  while (changed) {
+    changed = false;
+    outer: for (let i = 0; i < out.length; i++) {
+      for (let j = i + 1; j < out.length; j++) {
+        const a = out[i]!;
+        const b = out[j]!;
+        const aH = a.size[0] > a.size[2];
+        const bH = b.size[0] > b.size[2];
+        if (aH !== bH) continue; // different orientations
+
+        if (aH) {
+          // Both horizontal — check Z distance
+          const dist = Math.abs(a.position[2] - b.position[2]);
+
+          if (dist <= COLLINEAR_TOL) {
+            // Nearly same line — merge if gap is small
+            const aMin = a.position[0] - a.size[0] / 2;
+            const aMax = a.position[0] + a.size[0] / 2;
+            const bMin = b.position[0] - b.size[0] / 2;
+            const bMax = b.position[0] + b.size[0] / 2;
+            const gap = Math.max(bMin - aMax, aMin - bMax);
+            if (gap > MERGE_GAP) continue;
+
+            const newMin = Math.min(aMin, bMin);
+            const newMax = Math.max(aMax, bMax);
+            out[i] = {
+              position: [
+                (newMin + newMax) / 2,
+                a.position[1],
+                (a.position[2] + b.position[2]) / 2,
+              ],
+              size: [newMax - newMin, a.size[1], a.size[2]],
+            };
+            out.splice(j, 1);
+            changed = true;
+            break outer;
+          } else if (dist < MIN_PARALLEL_DIST) {
+            // Too-close parallels — drop the shorter wall
+            out.splice(a.size[0] <= b.size[0] ? i : j, 1);
+            changed = true;
+            break outer;
+          }
+        } else {
+          // Both vertical — check X distance
+          const dist = Math.abs(a.position[0] - b.position[0]);
+
+          if (dist <= COLLINEAR_TOL) {
+            const aMin = a.position[2] - a.size[2] / 2;
+            const aMax = a.position[2] + a.size[2] / 2;
+            const bMin = b.position[2] - b.size[2] / 2;
+            const bMax = b.position[2] + b.size[2] / 2;
+            const gap = Math.max(bMin - aMax, aMin - bMax);
+            if (gap > MERGE_GAP) continue;
+
+            const newMin = Math.min(aMin, bMin);
+            const newMax = Math.max(aMax, bMax);
+            out[i] = {
+              position: [
+                (a.position[0] + b.position[0]) / 2,
+                a.position[1],
+                (newMin + newMax) / 2,
+              ],
+              size: [a.size[0], a.size[1], newMax - newMin],
+            };
+            out.splice(j, 1);
+            changed = true;
+            break outer;
+          } else if (dist < MIN_PARALLEL_DIST) {
+            out.splice(a.size[2] <= b.size[2] ? i : j, 1);
+            changed = true;
+            break outer;
+          }
+        }
+      }
+    }
+  }
+
+  return out;
 };
 
 // ---------------------------------------------------------------------------
