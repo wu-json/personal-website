@@ -399,57 +399,52 @@ const distributeArt = (
     ...computeArtSize(img),
   }));
 
-  // Sort by width descending (largest first)
+  // Sort by width descending so large pieces get placed first
   const sorted = [...artSpecs].sort((a, b) => b.width - a.width);
 
   const pieces: ArtPiece[] = [];
 
   for (const art of sorted) {
     const needed = art.width + ART_PADDING;
-    let placed = false;
 
+    // Find the segment with the MOST remaining space that can still fit this piece.
+    // This spreads art evenly across all walls instead of filling them sequentially.
+    let bestSeg: WallSegment | null = null;
+    let bestAvail = -1;
     for (const seg of segments) {
       const available = seg.width - seg.reserved - seg.used;
-      if (available >= needed) {
-        const pos = localToWorld(seg, seg.used + ART_PADDING / 2, art.width);
-        // Vertical centering: slight upward offset for visual balance
-        const h = deterministicHash(art.id);
-        pos[1] += hashFloat(h >>> 8, -0.5, 1);
-
-        pieces.push({
-          position: pos,
-          size: [art.width, art.height],
-          rotation: seg.rotation,
-          title: art.id.toUpperCase(),
-        });
-        seg.used += needed;
-        placed = true;
-        break;
+      if (available >= needed && available > bestAvail) {
+        bestSeg = seg;
+        bestAvail = available;
       }
     }
 
-    if (!placed) {
-      // Overflow: try to find any segment with at least the art width
+    // Fallback: tighter fit if no segment has room with full padding
+    if (!bestSeg) {
       for (const seg of segments) {
         const available = seg.width - seg.reserved - seg.used;
-        if (available >= art.width + 1) {
-          const pos = localToWorld(seg, seg.used + 0.5, art.width);
-          const h = deterministicHash(art.id);
-          pos[1] += hashFloat(h >>> 8, -0.5, 1);
-
-          pieces.push({
-            position: pos,
-            size: [art.width, art.height],
-            rotation: seg.rotation,
-            title: art.id.toUpperCase(),
-          });
-          seg.used += art.width + 1;
-          placed = true;
-          break;
+        if (available >= art.width + 1 && available > bestAvail) {
+          bestSeg = seg;
+          bestAvail = available;
         }
       }
     }
-    // If still not placed, skip this piece (room too small)
+
+    if (bestSeg) {
+      const pad = bestAvail >= needed ? ART_PADDING / 2 : 0.5;
+      const pos = localToWorld(bestSeg, bestSeg.used + pad, art.width);
+      const h = deterministicHash(art.id);
+      pos[1] += hashFloat(h >>> 8, -0.5, 1);
+
+      pieces.push({
+        position: pos,
+        size: [art.width, art.height],
+        rotation: bestSeg.rotation,
+        title: art.id.toUpperCase(),
+      });
+      bestSeg.used += bestAvail >= needed ? needed : art.width + 1;
+    }
+    // If no segment can fit, skip this piece
   }
 
   return pieces;
