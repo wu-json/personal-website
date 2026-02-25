@@ -14,6 +14,9 @@ import { Route, Switch } from 'wouter';
 
 const App = () => (
   <Switch>
+    <Route path='/gallery/:fragmentId'>
+      {params => <GalleryScreen fragmentId={params.fragmentId} />}
+    </Route>
     <Route path='/gallery' component={GalleryScreen} />
     <Route>
       <RootLayout>

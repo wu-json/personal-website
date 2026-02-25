@@ -1,4 +1,9 @@
-export type ImageSpec = { id: string; orientation: 'portrait' | 'landscape' };
+export type ImageSpec = {
+  id: string;
+  orientation: 'portrait' | 'landscape';
+  aspectRatio?: number; // real w/h ratio — used instead of random when present
+  imageUrl?: string; // URL to load as texture
+};
 
 export type AABB = {
   minX: number;
@@ -12,6 +17,7 @@ export type ArtPiece = {
   size: [number, number];
   rotation: [number, number, number];
   title: string;
+  imageUrl?: string;
 };
 
 export type Partition = {
@@ -82,6 +88,29 @@ const computeArtSize = (spec: ImageSpec): { width: number; height: number } => {
   // Pick size tier: ~30% small, ~40% medium, ~30% large
   const tierVal = (h >>> 16) % 100;
   const tier = tierVal < 30 ? 0 : tierVal < 70 ? 1 : 2;
+
+  // When a real aspect ratio is provided, use it instead of the hash-derived one
+  if (spec.aspectRatio != null) {
+    const ar = spec.aspectRatio;
+    if (ar > 1) {
+      // Landscape: pick width from tier range, derive height
+      const width =
+        tier === 0
+          ? hashFloat(h, 3, 4.5)
+          : tier === 1
+            ? hashFloat(h, 5, 7)
+            : hashFloat(h, 8, 11);
+      return { width, height: width / ar };
+    }
+    // Portrait / square: pick height from tier range, derive width
+    const height =
+      tier === 0
+        ? hashFloat(h, 3, 4)
+        : tier === 1
+          ? hashFloat(h, 4.5, 6)
+          : hashFloat(h, 6.5, 8.5);
+    return { width: height * ar, height };
+  }
 
   if (spec.orientation === 'landscape') {
     const aspect = 1.4 + hashFloat(h >>> 4, 0, 0.4); // 1.4–1.8
@@ -785,6 +814,7 @@ const distributeArt = (
         size: [art.width, art.height],
         rotation: bestSeg.rotation,
         title: art.id.toUpperCase(),
+        imageUrl: art.imageUrl,
       });
       bestSeg.used += bestAvail >= needed ? needed : art.width + 1;
     }

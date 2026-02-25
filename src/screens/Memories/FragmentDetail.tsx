@@ -311,6 +311,13 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
               — {fragment.location}
             </span>
           </div>
+          <Link
+            to={`/gallery/${fragment.id}`}
+            className='bio-glitch text-white/30 text-[10px] font-mono uppercase tracking-widest hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)] transition-all duration-300 mt-3 inline-block'
+            style={jitter()}
+          >
+            {'> view in interactive gallery'}
+          </Link>
         </header>
 
         {fragment.description && (
