@@ -259,37 +259,93 @@ type ArtPiece = {
 };
 
 const ART_PIECES: ArtPiece[] = [
-  // Back wall (NW) — hero piece, bench faces this
-  { position: [-11, 0.5, -29.9], size: [5, 3.5], rotation: [0, 0, 0] },
-  // Back wall (NE) — portrait
-  { position: [20, 0, -29.9], size: [2.5, 3.5], rotation: [0, 0, 0] },
-  // Left wall (NW) — landscape
+  // === Back wall (z=-30, faces +Z) ===
+  // Hero piece — bench faces this
+  { position: [-11, 1, -29.9], size: [8, 5], rotation: [0, 0, 0] },
+  // Tall portrait
+  { position: [20, 0.5, -29.9], size: [3.5, 5], rotation: [0, 0, 0] },
+
+  // === Left wall (x=-30, faces +X) ===
+  // Large landscape (NW section)
   {
-    position: [-29.9, 0.5, -22],
-    size: [3.5, 2.5],
+    position: [-29.9, 1, -22],
+    size: [7, 4.5],
     rotation: [0, Math.PI / 2, 0],
   },
-  // Left wall (central) — small portrait
+  // Small portrait for contrast (central)
   { position: [-29.9, 0, -2], size: [2, 3], rotation: [0, Math.PI / 2, 0] },
-  // Right wall (NE) — tall portrait
-  { position: [29.9, 0, -20], size: [3, 4], rotation: [0, -Math.PI / 2, 0] },
-  // Right wall (south) — landscape
-  { position: [29.9, 0.5, 8], size: [4, 2.5], rotation: [0, -Math.PI / 2, 0] },
-  // A-Left south face — faces central area
-  { position: [-14, 0.5, -11.5], size: [3.5, 2.5], rotation: [0, 0, 0] },
-  // A-Right south face — portrait, faces central
-  { position: [10, 0, -11.5], size: [2.5, 3.5], rotation: [0, 0, 0] },
-  // Wall B west face — portrait, faces NW gallery
-  { position: [7.5, 0, -24], size: [2, 3.5], rotation: [0, -Math.PI / 2, 0] },
-  // Wall B east face — landscape, faces NE
-  { position: [8.5, 0.5, -18], size: [4, 2.5], rotation: [0, Math.PI / 2, 0] },
-  // Wall C north face — small landscape
-  { position: [-16, 0.5, 14.5], size: [3, 2], rotation: [0, Math.PI, 0] },
-  // Wall D west face — portrait
-  { position: [17.5, 0, 22], size: [2.5, 3.5], rotation: [0, -Math.PI / 2, 0] },
-  // Front wall (SW) — tall portrait
-  { position: [-10, 0, 29.9], size: [3, 4], rotation: [0, Math.PI, 0] },
+  // Medium landscape (SW section)
+  {
+    position: [-29.9, 0.5, 18],
+    size: [4, 3],
+    rotation: [0, Math.PI / 2, 0],
+  },
+
+  // === Right wall (x=+30, faces -X) ===
+  // Dramatic tall piece (NE)
+  {
+    position: [29.9, 0.5, -20],
+    size: [3.5, 6],
+    rotation: [0, -Math.PI / 2, 0],
+  },
+  // Large landscape (south)
+  { position: [29.9, 1, 8], size: [8, 5], rotation: [0, -Math.PI / 2, 0] },
+
+  // === Partition A-Left (X: -18 to -6) ===
+  // South face — centered
+  { position: [-12, 0.5, -11.5], size: [6, 4], rotation: [0, 0, 0] },
+  // North face — faces NW gallery
+  { position: [-12, 0.5, -12.5], size: [5, 3.5], rotation: [0, Math.PI, 0] },
+
+  // === Partition A-Right (X: 5 to 19) ===
+  // South face — centered
+  { position: [12, 0.5, -11.5], size: [6, 4.5], rotation: [0, 0, 0] },
+  // North face — faces NE gallery (between B at x=8 and wall edge at x=19)
+  { position: [14, 0.5, -12.5], size: [5, 3.5], rotation: [0, Math.PI, 0] },
+
+  // === Wall B (Z: -30 to -12, vertical) ===
+  // West face — portrait, faces NW gallery
+  {
+    position: [7.5, 0, -22],
+    size: [3, 4],
+    rotation: [0, -Math.PI / 2, 0],
+  },
+  // East face — landscape, faces NE alcove
+  {
+    position: [8.5, 0.5, -20],
+    size: [5, 3.5],
+    rotation: [0, Math.PI / 2, 0],
+  },
+
+  // === Wall C (X: -21 to -11) ===
+  // North face — landscape
+  { position: [-16, 0.5, 14.5], size: [5, 3], rotation: [0, Math.PI, 0] },
+  // South face — faces SW area
+  { position: [-16, 0, 15.5], size: [4, 3], rotation: [0, 0, 0] },
+
+  // === Wall D (Z: 15 to 30, vertical) ===
+  // West face — tall portrait
+  {
+    position: [17.5, 0.5, 22.5],
+    size: [4, 5],
+    rotation: [0, -Math.PI / 2, 0],
+  },
+  // East face — medium piece, faces SE alcove
+  {
+    position: [18.5, 0, 22.5],
+    size: [4, 3],
+    rotation: [0, Math.PI / 2, 0],
+  },
+
+  // === Front wall (z=+30, faces -Z) ===
+  // Large statement piece (SW)
+  { position: [-10, 1, 29.9], size: [7, 5], rotation: [0, Math.PI, 0] },
+  // Tall portrait (east side)
+  { position: [15, 0.5, 29.9], size: [3.5, 5], rotation: [0, Math.PI, 0] },
 ];
+
+const PLACARD_W = 0.35;
+const PLACARD_H = 0.22;
 
 const ArtPlaceholder = ({
   position,
@@ -301,6 +357,9 @@ const ArtPlaceholder = ({
   rotation: [number, number, number];
 }) => {
   const [w, h] = size;
+  // Placard sits to the right, just below the artwork — like a real museum label
+  const placardX = w / 2 + 0.3;
+  const placardY = -h / 2 - 0.35;
   return (
     <group position={position} rotation={rotation}>
       {/* Frame */}
@@ -313,6 +372,21 @@ const ArtPlaceholder = ({
         <planeGeometry args={[w, h]} />
         <meshStandardMaterial color='#e8e4de' />
       </mesh>
+      {/* Wall label */}
+      <group position={[placardX, placardY, 0]}>
+        <mesh position={[0, 0, -0.003]}>
+          <boxGeometry args={[PLACARD_W + 0.03, PLACARD_H + 0.03, 0.006]} />
+          <meshStandardMaterial
+            color='#c8c4bc'
+            roughness={0.5}
+            metalness={0.15}
+          />
+        </mesh>
+        <mesh>
+          <planeGeometry args={[PLACARD_W, PLACARD_H]} />
+          <meshStandardMaterial color='#fafafa' />
+        </mesh>
+      </group>
     </group>
   );
 };
