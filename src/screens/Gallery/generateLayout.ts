@@ -177,7 +177,7 @@ const generatePartitions = (
         size: [WALL_THICKNESS, PARTITION_HEIGHT, wingD + J],
       });
     }
-    return p;
+    return mergeClosePartitions(snapJunctions(p, roomW, roomD));
   }
 
   if (count <= 4) {
@@ -209,7 +209,7 @@ const generatePartitions = (
         size: [roomW * 0.35, PARTITION_HEIGHT, WALL_THICKNESS],
       });
     }
-    return p;
+    return mergeClosePartitions(snapJunctions(p, roomW, roomD));
   }
 
   if (count <= 7) {
@@ -268,7 +268,7 @@ const generatePartitions = (
         size: [roomW * 0.2, PARTITION_HEIGHT, WALL_THICKNESS],
       });
     }
-    return p;
+    return mergeClosePartitions(snapJunctions(p, roomW, roomD));
   }
 
   // 8+: Cross layout with alcoves.
@@ -823,6 +823,19 @@ export const generateGalleryLayout = (images: ImageSpec[]): GalleryLayout => {
 
   // Generate partitions
   const partitions = generatePartitions(partitionCount, roomWidth, roomDepth);
+
+  // Debug: log final partition layout
+  console.log(
+    `[Gallery] room=${roomSize} partitions=${partitionCount} (after snap+merge: ${partitions.length})`,
+  );
+  for (const p of partitions) {
+    const isH = p.size[0] > p.size[2];
+    const label = isH ? 'H' : 'V';
+    const ext = isH
+      ? `X:[${(p.position[0] - p.size[0] / 2).toFixed(1)},${(p.position[0] + p.size[0] / 2).toFixed(1)}] at z=${p.position[2].toFixed(1)}`
+      : `Z:[${(p.position[2] - p.size[2] / 2).toFixed(1)},${(p.position[2] + p.size[2] / 2).toFixed(1)}] at x=${p.position[0].toFixed(1)}`;
+    console.log(`  ${label} ${ext}`);
+  }
 
   // Build wall segments
   const perimeterSegments = buildPerimeterSegments(roomWidth, roomDepth);
