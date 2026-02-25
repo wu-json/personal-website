@@ -557,7 +557,7 @@ const ArtPlaceholder = memo(
   }) => {
     const [w, h] = size;
     const [labelTex, setLabelTex] = useState<THREE.Texture | null>(null);
-    const [imageTex, setImageTex] = useState<THREE.Texture | null>(null);
+    const matRef = useRef<THREE.MeshBasicMaterial>(null);
 
     useEffect(() => {
       document.fonts.ready.then(() => {
@@ -566,12 +566,31 @@ const ArtPlaceholder = memo(
     }, [title]);
 
     useEffect(() => {
-      if (!imageUrl) return;
+      if (!imageUrl || !matRef.current) return;
+      const mat = matRef.current;
       const loader = new THREE.TextureLoader();
-      loader.load(imageUrl, tex => {
-        tex.colorSpace = THREE.SRGBColorSpace;
-        setImageTex(tex);
-      });
+      loader.load(
+        imageUrl,
+        tex => {
+          tex.colorSpace = THREE.SRGBColorSpace;
+          tex.generateMipmaps = false;
+          tex.minFilter = THREE.LinearFilter;
+          tex.magFilter = THREE.LinearFilter;
+          mat.map = tex;
+          mat.color.set('#ffffff');
+          mat.needsUpdate = true;
+        },
+        undefined,
+        () => {
+          // On error, keep the dark placeholder
+        },
+      );
+      return () => {
+        if (mat.map) {
+          mat.map.dispose();
+          mat.map = null;
+        }
+      };
     }, [imageUrl]);
 
     // Position label just below bottom-right of frame, right-aligned
@@ -587,16 +606,10 @@ const ArtPlaceholder = memo(
           <boxGeometry args={[w + 0.16, h + 0.16, 0.04]} />
         </mesh>
         {/* Canvas */}
-        {imageTex ? (
-          <mesh>
-            <planeGeometry args={[w, h]} />
-            <meshBasicMaterial map={imageTex} toneMapped={false} />
-          </mesh>
-        ) : (
-          <mesh material={canvasMaterial}>
-            <planeGeometry args={[w, h]} />
-          </mesh>
-        )}
+        <mesh position={[0, 0, 0.01]}>
+          <planeGeometry args={[w, h]} />
+          <meshBasicMaterial ref={matRef} color='#1a1a1a' />
+        </mesh>
         {/* Title text on wall */}
         {labelTex && (
           <mesh position={[labelX, labelY, 0]}>
