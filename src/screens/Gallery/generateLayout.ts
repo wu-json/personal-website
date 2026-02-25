@@ -42,6 +42,10 @@ const deterministicHash = (str: string): number => {
   for (let i = 0; i < str.length; i++) {
     h = ((h << 5) + h + str.charCodeAt(i)) & 0x7fffffff;
   }
+  // Avalanche finalizer so similar strings produce very different hashes
+  h ^= h >>> 16;
+  h = Math.imul(h, 0x45d9f3b) & 0x7fffffff;
+  h ^= h >>> 16;
   return h;
 };
 
@@ -71,17 +75,42 @@ const WELCOME_PAD = 1.5; // clearance each side
 
 // ---------------------------------------------------------------------------
 // 1. Compute art sizes from orientation + deterministic hash
+//
+// Uses size tiers (small / medium / large) so pieces feel varied like a
+// real gallery rather than clustering around one "medium" size.
 // ---------------------------------------------------------------------------
 const computeArtSize = (spec: ImageSpec): { width: number; height: number } => {
   const h = deterministicHash(spec.id);
+  // Pick size tier: ~30% small, ~40% medium, ~30% large
+  const tierVal = (h >>> 16) % 100;
+  const tier = tierVal < 30 ? 0 : tierVal < 70 ? 1 : 2;
+
   if (spec.orientation === 'landscape') {
-    const width = hashFloat(h, 5, 8);
-    const height = width / (1.4 + hashFloat(h >>> 4, 0, 0.4));
-    return { width, height };
+    const aspect = 1.4 + hashFloat(h >>> 4, 0, 0.4); // 1.4–1.8
+    if (tier === 0) {
+      const width = hashFloat(h, 3, 4.5);
+      return { width, height: width / aspect };
+    }
+    if (tier === 1) {
+      const width = hashFloat(h, 5, 7);
+      return { width, height: width / aspect };
+    }
+    const width = hashFloat(h, 8, 11);
+    return { width, height: width / aspect };
   }
-  const height = hashFloat(h, 4, 6);
-  const width = height * (0.6 + hashFloat(h >>> 4, 0, 0.14));
-  return { width, height };
+
+  // Portrait
+  const aspect = 0.6 + hashFloat(h >>> 4, 0, 0.14); // 0.6–0.74
+  if (tier === 0) {
+    const height = hashFloat(h, 3, 4);
+    return { width: height * aspect, height };
+  }
+  if (tier === 1) {
+    const height = hashFloat(h, 4.5, 6);
+    return { width: height * aspect, height };
+  }
+  const height = hashFloat(h, 6.5, 8.5);
+  return { width: height * aspect, height };
 };
 
 // ---------------------------------------------------------------------------
