@@ -304,9 +304,13 @@ const drawBlossom = (
   ctx.fill();
 };
 
-const createWelcomeTexture = (mobile = false, fragmentTitle?: string) => {
+const createWelcomeTexture = (
+  mobile = false,
+  fragmentTitle?: string,
+  fragmentDescription?: string,
+) => {
   const canvas = document.createElement('canvas');
-  canvas.width = 2048;
+  canvas.width = 3072;
   canvas.height = 1280;
   const ctx = canvas.getContext('2d')!;
 
@@ -334,19 +338,43 @@ const createWelcomeTexture = (mobile = false, fragmentTitle?: string) => {
   ctx.font = `${64 * s}px ${font}`;
   ctx.fillText(fragmentTitle ?? 'GALLERY', textLeft, 150 * s);
 
-  // Subtitle
+  // Subtitle — strip markdown links and word-wrap
   ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
-  ctx.font = `${28 * s}px ${font}`;
-  ctx.fillText(
-    fragmentTitle ? 'AN INTERACTIVE GALLERY' : 'A COLLECTION BY JASON WU',
-    textLeft,
-    210 * s,
-  );
+  const subtitleSize = 28 * s;
+  ctx.font = `${subtitleSize}px ${font}`;
+  const rawSubtitle =
+    fragmentDescription ||
+    (fragmentTitle ? 'AN INTERACTIVE GALLERY' : 'A COLLECTION BY JASON WU');
+  // Convert markdown links [text](url) → text
+  const subtitle = rawSubtitle.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
+  const maxTextWidth = canvas.width - textLeft - 80 * s;
+  const subtitleLines: string[] = [];
+  for (const para of subtitle.split('\n')) {
+    const trimmed = para.trim();
+    if (trimmed === '') {
+      subtitleLines.push('');
+      continue;
+    }
+    for (const word of trimmed.split(' ')) {
+      const last = subtitleLines[subtitleLines.length - 1];
+      if (last && ctx.measureText(`${last} ${word}`).width <= maxTextWidth) {
+        subtitleLines[subtitleLines.length - 1] = `${last} ${word}`;
+      } else {
+        subtitleLines.push(word);
+      }
+    }
+  }
+  let y = 210 * s;
+  const subtitleLineHeight = 36 * s;
+  for (const line of subtitleLines) {
+    ctx.fillText(line, textLeft, y);
+    y += subtitleLineHeight;
+  }
 
   // Divider
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
   ctx.lineWidth = 1 * s;
-  const divY = 255 * s;
+  const divY = y + 10 * s;
   ctx.beginPath();
   ctx.moveTo(textLeft, divY);
   ctx.lineTo(canvas.width - 80 * s, divY);
@@ -363,7 +391,7 @@ const createWelcomeTexture = (mobile = false, fragmentTitle?: string) => {
         'SPACE — JUMP',
         'ESC — RELEASE CAMERA',
       ];
-  let y = 305 * s;
+  y = divY + 50 * s;
   for (const line of controls) {
     ctx.fillText(line, textLeft, y);
     y += 40 * s;
@@ -477,25 +505,27 @@ const WelcomeWallText = ({
   rotation,
   mobile,
   fragmentTitle,
+  fragmentDescription,
 }: {
   position: [number, number, number];
   rotation: [number, number, number];
   mobile?: boolean;
   fragmentTitle?: string;
+  fragmentDescription?: string;
 }) => {
   const [texture, setTexture] = useState<THREE.Texture | null>(null);
 
   useEffect(() => {
     document.fonts.ready.then(() => {
-      setTexture(createWelcomeTexture(mobile, fragmentTitle));
+      setTexture(createWelcomeTexture(mobile, fragmentTitle, fragmentDescription));
     });
-  }, [mobile, fragmentTitle]);
+  }, [mobile, fragmentTitle, fragmentDescription]);
 
   if (!texture) return null;
 
   return (
     <mesh position={position} rotation={rotation}>
-      <planeGeometry args={[7, 4.375]} />
+      <planeGeometry args={[10.5, 4.375]} />
       <meshStandardMaterial
         map={texture}
         polygonOffset
@@ -717,10 +747,12 @@ const Room = ({
   layout,
   mobile,
   fragmentTitle,
+  fragmentDescription,
 }: {
   layout: GalleryLayout;
   mobile?: boolean;
   fragmentTitle?: string;
+  fragmentDescription?: string;
 }) => {
   const {
     roomWidth,
@@ -792,6 +824,7 @@ const Room = ({
         rotation={welcomeRotation}
         mobile={mobile}
         fragmentTitle={fragmentTitle}
+        fragmentDescription={fragmentDescription}
       />
     </group>
   );
@@ -985,6 +1018,7 @@ const GalleryScreen = ({ fragmentId }: { fragmentId?: string }) => {
             layout={layout}
             mobile={isMobile}
             fragmentTitle={fragment?.title}
+            fragmentDescription={fragment?.description}
           />
           <SpawnPoint
             position={layout.spawnPosition}
