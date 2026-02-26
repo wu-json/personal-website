@@ -498,6 +498,7 @@ const SpawnPoint = ({
 
   useEffect(() => {
     if (!initialized.current) {
+      camera.rotation.order = 'YXZ';
       camera.position.set(...position);
       camera.lookAt(...lookAt);
       initialized.current = true;
@@ -912,7 +913,6 @@ const Movement = ({
     if (mi) {
       const { lookDeltaX, lookDeltaY } = mi;
       if (lookDeltaX !== 0 || lookDeltaY !== 0) {
-        camera.rotation.order = 'YXZ';
         camera.rotation.y -= lookDeltaX;
         camera.rotation.x -= lookDeltaY;
         camera.rotation.x = THREE.MathUtils.clamp(
