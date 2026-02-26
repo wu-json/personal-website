@@ -1,11 +1,42 @@
 import { PointerLockControls } from '@react-three/drei';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  type RefObject,
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import * as THREE from 'three';
 
-const ROOM_WIDTH = 60;
+import {
+  type AABB,
+  type ArtPiece,
+  type GalleryLayout,
+  type ImageSpec,
+  type Partition,
+  generateGalleryLayout,
+} from './generateLayout';
+import { MobileControls } from './MobileControls';
+
+export type MobileInput = {
+  moveX: number;
+  moveY: number;
+  lookDeltaX: number;
+  lookDeltaY: number;
+};
+
+const DEFAULT_COUNT = 19;
+
+const makeImages = (count: number): ImageSpec[] =>
+  Array.from({ length: count }, (_, i) => ({
+    id: `untitled ${String.fromCharCode(65 + (i % 26))}${i >= 26 ? String(i) : ''}`,
+    orientation: (i % 3 === 0 ? 'portrait' : 'landscape') as const,
+  }));
+
 const ROOM_HEIGHT = 16;
-const ROOM_DEPTH = 60;
 const MOVE_SPEED = 16;
 const RUN_SPEED = 32;
 const CROUCH_SPEED = 8;
@@ -271,7 +302,7 @@ const drawBlossom = (
   ctx.fill();
 };
 
-const createWelcomeTexture = () => {
+const createWelcomeTexture = (mobile = false) => {
   const canvas = document.createElement('canvas');
   canvas.width = 2048;
   canvas.height = 1280;
@@ -318,12 +349,14 @@ const createWelcomeTexture = () => {
   // Controls
   ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
   ctx.font = `${20 * s}px ${font}`;
-  const controls = [
-    'WASD — MOVE / SHIFT — RUN',
-    'MOUSE — LOOK / CTRL — CROUCH',
-    'SPACE — JUMP',
-    'ESC — RELEASE CAMERA',
-  ];
+  const controls = mobile
+    ? ['LEFT JOYSTICK — MOVE', 'DRAG RIGHT — LOOK']
+    : [
+        'WASD — MOVE / SHIFT — RUN',
+        'MOUSE — LOOK / CTRL — CROUCH',
+        'SPACE — JUMP',
+        'ESC — RELEASE CAMERA',
+      ];
   let y = 305 * s;
   for (const line of controls) {
     ctx.fillText(line, textLeft, y);
@@ -337,37 +370,17 @@ const createWelcomeTexture = () => {
   return texture;
 };
 
-const WALL_THICKNESS = 0.8;
-const PARTITION_HEIGHT = 15.6;
-
-type AABB = {
-  minX: number;
-  maxX: number;
-  minZ: number;
-  maxZ: number;
-};
-
-const COLLIDERS: AABB[] = [
-  // Wall A-Left: center [-12, 0, -12], size [12, h, 0.8] → X: -18 to -6
-  { minX: -18, maxX: -6, minZ: -12.4, maxZ: -11.6 },
-  // Wall A-Right: center [12, 0, -12], size [14, h, 0.8] → X: 5 to 19
-  { minX: 5, maxX: 19, minZ: -12.4, maxZ: -11.6 },
-  // Archway header: passable at ground level (beam is overhead only)
-  // Wall B: center [8, 0, -21], size [0.8, h, 18] → Z: -30 to -12
-  { minX: 7.6, maxX: 8.4, minZ: -30, maxZ: -12 },
-  // Wall C: center [-16, 0, 15], size [10, h, 0.8] → X: -21 to -11
-  { minX: -21, maxX: -11, minZ: 14.6, maxZ: 15.4 },
-  // Wall D: center [18, 0, 22.5], size [0.8, h, 15] → Z: 15 to 30
-  { minX: 17.6, maxX: 18.4, minZ: 15, maxZ: 30 },
-  // Bench: center [-11, y, -22], seat size [6, 0.35, 1.8]
-  { minX: -14, maxX: -8, minZ: -22.9, maxZ: -21.1 },
-];
-
-const Floor = () => {
+const Floor = ({
+  roomWidth,
+  roomDepth,
+}: {
+  roomWidth: number;
+  roomDepth: number;
+}) => {
   const texture = useMemo(createWoodTexture, []);
   return (
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -ROOM_HEIGHT / 2, 0]}>
-      <planeGeometry args={[ROOM_WIDTH, ROOM_DEPTH]} />
+      <planeGeometry args={[roomWidth, roomDepth]} />
       <meshStandardMaterial map={texture} />
     </mesh>
   );
@@ -389,35 +402,11 @@ const PartitionWall = ({
   );
 };
 
-const Partitions = () => (
+const Partitions = ({ partitions }: { partitions: Partition[] }) => (
   <group>
-    {/* Wall A-Left */}
-    <PartitionWall
-      position={[-12, 0, -12]}
-      size={[12, PARTITION_HEIGHT, WALL_THICKNESS]}
-    />
-    {/* Wall A-Right */}
-    <PartitionWall
-      position={[12, 0, -12]}
-      size={[14, PARTITION_HEIGHT, WALL_THICKNESS]}
-    />
-    {/* Archway header beam */}
-    <PartitionWall position={[-0.5, 6.3, -12]} size={[11, 3, WALL_THICKNESS]} />
-    {/* Wall B */}
-    <PartitionWall
-      position={[8, 0, -21]}
-      size={[WALL_THICKNESS, PARTITION_HEIGHT, 18]}
-    />
-    {/* Wall C */}
-    <PartitionWall
-      position={[-16, 0, 15]}
-      size={[10, PARTITION_HEIGHT, WALL_THICKNESS]}
-    />
-    {/* Wall D */}
-    <PartitionWall
-      position={[18, 0, 22.5]}
-      size={[WALL_THICKNESS, PARTITION_HEIGHT, 15]}
-    />
+    {partitions.map((p, i) => (
+      <PartitionWall key={i} position={p.position} size={p.size} />
+    ))}
   </group>
 );
 
@@ -456,36 +445,48 @@ const GalleryBench = ({ position }: { position: [number, number, number] }) => {
   );
 };
 
-const SPAWN_POSITION: [number, number, number] = [3, 0, 20];
-
-const SpawnPoint = () => {
+const SpawnPoint = ({
+  position,
+  lookAt,
+}: {
+  position: [number, number, number];
+  lookAt: [number, number, number];
+}) => {
   const { camera } = useThree();
   const initialized = useRef(false);
 
   useEffect(() => {
     if (!initialized.current) {
-      camera.position.set(...SPAWN_POSITION);
-      camera.lookAt(SPAWN_POSITION[0], SPAWN_POSITION[1], 30);
+      camera.position.set(...position);
+      camera.lookAt(...lookAt);
       initialized.current = true;
     }
-  }, [camera]);
+  }, [camera, position, lookAt]);
 
   return null;
 };
 
-const WelcomeWallText = () => {
+const WelcomeWallText = ({
+  position,
+  rotation,
+  mobile,
+}: {
+  position: [number, number, number];
+  rotation: [number, number, number];
+  mobile?: boolean;
+}) => {
   const [texture, setTexture] = useState<THREE.Texture | null>(null);
 
   useEffect(() => {
     document.fonts.ready.then(() => {
-      setTexture(createWelcomeTexture());
+      setTexture(createWelcomeTexture(mobile));
     });
-  }, []);
+  }, [mobile]);
 
   if (!texture) return null;
 
   return (
-    <mesh position={[3, 0, 29.99]} rotation={[0, Math.PI, 0]}>
+    <mesh position={position} rotation={rotation}>
       <planeGeometry args={[7, 4.375]} />
       <meshStandardMaterial
         map={texture}
@@ -496,147 +497,6 @@ const WelcomeWallText = () => {
     </mesh>
   );
 };
-
-type ArtPiece = {
-  position: [number, number, number];
-  size: [number, number];
-  rotation: [number, number, number];
-  title: string;
-};
-
-const ART_PIECES: ArtPiece[] = [
-  // === Back wall (z=-30, faces +Z) ===
-  {
-    position: [-11, 1, -29.9],
-    size: [8, 5],
-    rotation: [0, 0, 0],
-    title: 'UNTITLED I',
-  },
-  {
-    position: [20, 0.5, -29.9],
-    size: [3.5, 5],
-    rotation: [0, 0, 0],
-    title: 'UNTITLED II',
-  },
-
-  // === Left wall (x=-30, faces +X) ===
-  {
-    position: [-29.9, 1, -22],
-    size: [7, 4.5],
-    rotation: [0, Math.PI / 2, 0],
-    title: 'UNTITLED III',
-  },
-  {
-    position: [-29.9, 0, -2],
-    size: [2, 3],
-    rotation: [0, Math.PI / 2, 0],
-    title: 'UNTITLED IV',
-  },
-  {
-    position: [-29.9, 0.5, 18],
-    size: [4, 3],
-    rotation: [0, Math.PI / 2, 0],
-    title: 'UNTITLED V',
-  },
-
-  // === Right wall (x=+30, faces -X) ===
-  {
-    position: [29.9, 0.5, -20],
-    size: [3.5, 6],
-    rotation: [0, -Math.PI / 2, 0],
-    title: 'UNTITLED VI',
-  },
-  {
-    position: [29.9, 1, 8],
-    size: [8, 5],
-    rotation: [0, -Math.PI / 2, 0],
-    title: 'UNTITLED VII',
-  },
-
-  // === Partition A-Left (X: -18 to -6) ===
-  {
-    position: [-12, 0.5, -11.5],
-    size: [6, 4],
-    rotation: [0, 0, 0],
-    title: 'UNTITLED VIII',
-  },
-  {
-    position: [-12, 0.5, -12.5],
-    size: [5, 3.5],
-    rotation: [0, Math.PI, 0],
-    title: 'UNTITLED IX',
-  },
-
-  // === Partition A-Right (X: 5 to 19) ===
-  {
-    position: [12, 0.5, -11.5],
-    size: [6, 4.5],
-    rotation: [0, 0, 0],
-    title: 'UNTITLED X',
-  },
-  {
-    position: [14, 0.5, -12.5],
-    size: [5, 3.5],
-    rotation: [0, Math.PI, 0],
-    title: 'UNTITLED XI',
-  },
-
-  // === Wall B (Z: -30 to -12, vertical) ===
-  {
-    position: [7.5, 0, -22],
-    size: [3, 4],
-    rotation: [0, -Math.PI / 2, 0],
-    title: 'UNTITLED XII',
-  },
-  {
-    position: [8.5, 0.5, -20],
-    size: [5, 3.5],
-    rotation: [0, Math.PI / 2, 0],
-    title: 'UNTITLED XIII',
-  },
-
-  // === Wall C (X: -21 to -11) ===
-  {
-    position: [-16, 0.5, 14.5],
-    size: [5, 3],
-    rotation: [0, Math.PI, 0],
-    title: 'UNTITLED XIV',
-  },
-  {
-    position: [-16, 0, 15.5],
-    size: [4, 3],
-    rotation: [0, 0, 0],
-    title: 'UNTITLED XV',
-  },
-
-  // === Wall D (Z: 15 to 30, vertical) ===
-  {
-    position: [17.5, 0.5, 22.5],
-    size: [4, 5],
-    rotation: [0, -Math.PI / 2, 0],
-    title: 'UNTITLED XVI',
-  },
-  {
-    position: [18.5, 0, 22.5],
-    size: [4, 3],
-    rotation: [0, Math.PI / 2, 0],
-    title: 'UNTITLED XVII',
-  },
-
-  // === Front wall (z=+30, faces -Z) ===
-  {
-    position: [-10, 1, 29.9],
-    size: [7, 5],
-    rotation: [0, Math.PI, 0],
-    title: 'UNTITLED XVIII',
-  },
-  {
-    position: [15, 0.5, 29.9],
-    size: [3.5, 5],
-    rotation: [0, Math.PI, 0],
-    title: 'UNTITLED XIX',
-  },
-];
 
 const LABEL_W = 1.6;
 const LABEL_H = 0.4;
@@ -665,67 +525,80 @@ const createLabelTexture = (title: string) => {
   return texture;
 };
 
-const ArtPlaceholder = ({
-  position,
-  size,
-  rotation,
-  title,
-}: {
-  position: [number, number, number];
-  size: [number, number];
-  rotation: [number, number, number];
-  title: string;
-}) => {
-  const [w, h] = size;
-  const [labelTex, setLabelTex] = useState<THREE.Texture | null>(null);
+// Shared materials — created once, reused across all art pieces
+const frameMaterial = new THREE.MeshStandardMaterial({
+  color: '#e0e0e0',
+  roughness: 0.3,
+  metalness: 0.1,
+});
+const canvasMaterial = new THREE.MeshStandardMaterial({ color: '#1a1a1a' });
 
-  useEffect(() => {
-    document.fonts.ready.then(() => {
-      setLabelTex(createLabelTexture(title));
-    });
-  }, [title]);
+const ArtPlaceholder = memo(
+  ({
+    position,
+    size,
+    rotation,
+    title,
+  }: {
+    position: [number, number, number];
+    size: [number, number];
+    rotation: [number, number, number];
+    title: string;
+  }) => {
+    const [w, h] = size;
+    const [labelTex, setLabelTex] = useState<THREE.Texture | null>(null);
 
-  // Position label just below bottom-right of frame, right-aligned
-  const frameRight = w / 2 + 0.08;
-  const frameBottom = -(h / 2 + 0.08);
-  const labelX = frameRight - LABEL_W / 2;
-  const labelY = frameBottom - 0.15 - LABEL_H / 2;
+    useEffect(() => {
+      document.fonts.ready.then(() => {
+        setLabelTex(createLabelTexture(title));
+      });
+    }, [title]);
 
-  return (
-    <group position={position} rotation={rotation}>
-      {/* Frame */}
-      <mesh position={[0, 0, -0.02]}>
-        <boxGeometry args={[w + 0.16, h + 0.16, 0.04]} />
-        <meshStandardMaterial color='#e0e0e0' roughness={0.3} metalness={0.1} />
-      </mesh>
-      {/* Canvas */}
-      <mesh>
-        <planeGeometry args={[w, h]} />
-        <meshStandardMaterial color='#1a1a1a' />
-      </mesh>
-      {/* Title text on wall */}
-      {labelTex && (
-        <mesh position={[labelX, labelY, 0]}>
-          <planeGeometry args={[LABEL_W, LABEL_H]} />
-          <meshStandardMaterial
-            map={labelTex}
-            polygonOffset
-            polygonOffsetFactor={-1}
-            polygonOffsetUnits={-1}
-          />
+    // Position label just below bottom-right of frame, right-aligned
+    const frameRight = w / 2 + 0.08;
+    const frameBottom = -(h / 2 + 0.08);
+    const labelX = frameRight - LABEL_W / 2;
+    const labelY = frameBottom - 0.15 - LABEL_H / 2;
+
+    return (
+      <group position={position} rotation={rotation}>
+        {/* Frame */}
+        <mesh position={[0, 0, -0.02]} material={frameMaterial}>
+          <boxGeometry args={[w + 0.16, h + 0.16, 0.04]} />
         </mesh>
-      )}
-    </group>
-  );
-};
+        {/* Canvas */}
+        <mesh material={canvasMaterial}>
+          <planeGeometry args={[w, h]} />
+        </mesh>
+        {/* Title text on wall */}
+        {labelTex && (
+          <mesh position={[labelX, labelY, 0]}>
+            <planeGeometry args={[LABEL_W, LABEL_H]} />
+            <meshStandardMaterial
+              map={labelTex}
+              polygonOffset
+              polygonOffsetFactor={-1}
+              polygonOffsetUnits={-1}
+            />
+          </mesh>
+        )}
+      </group>
+    );
+  },
+);
 
-const Artworks = () => (
+const Artworks = ({ pieces }: { pieces: ArtPiece[] }) => (
   <group>
-    {ART_PIECES.map((piece, i) => (
+    {pieces.map((piece, i) => (
       <ArtPlaceholder key={i} {...piece} />
     ))}
   </group>
 );
+
+// Maximum number of spotlights to keep rendering performant.
+// When there are more art pieces than this limit, we select an evenly-spaced
+// subset so the gallery still feels well-lit without tanking framerate.
+const MAX_SPOTLIGHTS = 16;
 
 const ArtSpotlight = ({
   artPosition,
@@ -776,103 +649,122 @@ const ArtSpotlight = ({
   );
 };
 
-const ArtLighting = () => (
-  <group>
-    {ART_PIECES.map((piece, i) => (
-      <ArtSpotlight
-        key={i}
-        artPosition={piece.position}
-        artRotation={piece.rotation}
-      />
-    ))}
-  </group>
-);
+const ArtLighting = ({ pieces }: { pieces: ArtPiece[] }) => {
+  // Select an evenly-distributed subset when over the spotlight limit
+  const selected = useMemo(() => {
+    if (pieces.length <= MAX_SPOTLIGHTS) return pieces;
+    const step = pieces.length / MAX_SPOTLIGHTS;
+    return Array.from(
+      { length: MAX_SPOTLIGHTS },
+      (_, i) => pieces[Math.floor(i * step)]!,
+    );
+  }, [pieces]);
 
-const Room = () => {
-  const halfW = ROOM_WIDTH / 2;
+  return (
+    <group>
+      {selected.map((piece, i) => (
+        <ArtSpotlight
+          key={i}
+          artPosition={piece.position}
+          artRotation={piece.rotation}
+        />
+      ))}
+    </group>
+  );
+};
+
+const Room = ({
+  layout,
+  mobile,
+}: {
+  layout: GalleryLayout;
+  mobile?: boolean;
+}) => {
+  const {
+    roomWidth,
+    roomDepth,
+    partitions,
+    artPieces,
+    fillLights,
+    benchPositions,
+    welcomePosition,
+    welcomeRotation,
+  } = layout;
+  const halfW = roomWidth / 2;
   const halfH = ROOM_HEIGHT / 2;
-  const halfD = ROOM_DEPTH / 2;
+  const halfD = roomDepth / 2;
   const wallTex = useMemo(createWallTexture, []);
   const ceilingTex = useMemo(createCeilingTexture, []);
 
   return (
     <group>
-      <Floor />
+      <Floor roomWidth={roomWidth} roomDepth={roomDepth} />
       {/* Ceiling */}
       <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, halfH, 0]}>
-        <planeGeometry args={[ROOM_WIDTH, ROOM_DEPTH]} />
+        <planeGeometry args={[roomWidth, roomDepth]} />
         <meshStandardMaterial map={ceilingTex} roughness={0.95} />
       </mesh>
       {/* Back wall */}
       <mesh position={[0, 0, -halfD]}>
-        <planeGeometry args={[ROOM_WIDTH, ROOM_HEIGHT]} />
+        <planeGeometry args={[roomWidth, ROOM_HEIGHT]} />
         <meshStandardMaterial map={wallTex} roughness={0.92} />
       </mesh>
       {/* Front wall */}
       <mesh rotation={[0, Math.PI, 0]} position={[0, 0, halfD]}>
-        <planeGeometry args={[ROOM_WIDTH, ROOM_HEIGHT]} />
+        <planeGeometry args={[roomWidth, ROOM_HEIGHT]} />
         <meshStandardMaterial map={wallTex} roughness={0.92} />
       </mesh>
       {/* Left wall */}
       <mesh rotation={[0, Math.PI / 2, 0]} position={[-halfW, 0, 0]}>
-        <planeGeometry args={[ROOM_DEPTH, ROOM_HEIGHT]} />
+        <planeGeometry args={[roomDepth, ROOM_HEIGHT]} />
         <meshStandardMaterial map={wallTex} roughness={0.92} />
       </mesh>
       {/* Right wall */}
       <mesh rotation={[0, -Math.PI / 2, 0]} position={[halfW, 0, 0]}>
-        <planeGeometry args={[ROOM_DEPTH, ROOM_HEIGHT]} />
+        <planeGeometry args={[roomDepth, ROOM_HEIGHT]} />
         <meshStandardMaterial map={wallTex} roughness={0.92} />
       </mesh>
       {/* Overhead fill lights */}
-      <pointLight
-        position={[0, halfH - 1, 0]}
-        intensity={3}
-        distance={50}
-        decay={1}
-        color='#ffffff'
-      />
-      <pointLight
-        position={[-15, halfH - 1, -15]}
-        intensity={2}
-        distance={40}
-        decay={1}
-        color='#ffffff'
-      />
-      <pointLight
-        position={[15, halfH - 1, -15]}
-        intensity={2}
-        distance={40}
-        decay={1}
-        color='#ffffff'
-      />
-      <pointLight
-        position={[-15, halfH - 1, 15]}
-        intensity={2}
-        distance={40}
-        decay={1}
-        color='#ffffff'
-      />
-      <pointLight
-        position={[15, halfH - 1, 15]}
-        intensity={2}
-        distance={40}
-        decay={1}
-        color='#ffffff'
-      />
+      {fillLights.map((pos, i) => (
+        <pointLight
+          key={i}
+          position={pos}
+          intensity={i === 0 ? 3 : 2}
+          distance={i === 0 ? 50 : 40}
+          decay={1}
+          color='#ffffff'
+        />
+      ))}
       {/* Interior partition walls */}
-      <Partitions />
+      <Partitions partitions={partitions} />
       {/* Art placeholders and per-piece spotlights */}
-      <Artworks />
-      <ArtLighting />
+      <Artworks pieces={artPieces} />
+      <ArtLighting pieces={artPieces} />
       {/* Benches */}
-      <GalleryBench position={[-11, 0, -22]} />
+      {benchPositions.map((pos, i) => (
+        <GalleryBench key={i} position={pos} />
+      ))}
       {/* Welcome wall text */}
-      <WelcomeWallText />
+      <WelcomeWallText
+        position={welcomePosition}
+        rotation={welcomeRotation}
+        mobile={mobile}
+      />
     </group>
   );
 };
 
-const Movement = () => {
+const Movement = ({
+  roomWidth,
+  roomDepth,
+  colliders,
+  mobileInput,
+}: {
+  roomWidth: number;
+  roomDepth: number;
+  colliders: AABB[];
+  mobileInput?: RefObject<MobileInput | null>;
+}) => {
   const { camera } = useThree();
   const keys = useRef<Set<string>>(new Set());
   const velocityY = useRef(0);
@@ -894,6 +786,24 @@ const Movement = () => {
   }, [camera]);
 
   useFrame((_, delta) => {
+    // Apply mobile look deltas
+    const mi = mobileInput?.current;
+    if (mi) {
+      const { lookDeltaX, lookDeltaY } = mi;
+      if (lookDeltaX !== 0 || lookDeltaY !== 0) {
+        camera.rotation.order = 'YXZ';
+        camera.rotation.y -= lookDeltaX;
+        camera.rotation.x -= lookDeltaY;
+        camera.rotation.x = THREE.MathUtils.clamp(
+          camera.rotation.x,
+          -Math.PI * 0.47,
+          Math.PI * 0.47,
+        );
+        mi.lookDeltaX = 0;
+        mi.lookDeltaY = 0;
+      }
+    }
+
     const direction = new THREE.Vector3();
     const forward = new THREE.Vector3();
     const right = new THREE.Vector3();
@@ -908,6 +818,12 @@ const Movement = () => {
     if (pressed.has('KeyS') || pressed.has('ArrowDown')) direction.sub(forward);
     if (pressed.has('KeyD') || pressed.has('ArrowRight')) direction.add(right);
     if (pressed.has('KeyA') || pressed.has('ArrowLeft')) direction.sub(right);
+
+    // Add mobile joystick input
+    if (mi && (mi.moveX !== 0 || mi.moveY !== 0)) {
+      direction.addScaledVector(right, mi.moveX);
+      direction.addScaledVector(forward, mi.moveY);
+    }
 
     const crouching = pressed.has('ControlLeft') || pressed.has('ControlRight');
 
@@ -940,7 +856,7 @@ const Movement = () => {
 
     // Interior collision (AABB push-out along axis of least penetration)
     const r = BOUNDARY_PADDING;
-    for (const box of COLLIDERS) {
+    for (const box of colliders) {
       const overlapX = Math.min(
         camera.position.x + r - box.minX,
         box.maxX - (camera.position.x - r),
@@ -951,12 +867,10 @@ const Movement = () => {
       );
       if (overlapX > 0 && overlapZ > 0) {
         if (overlapX < overlapZ) {
-          // Push out along X
           const centerX = (box.minX + box.maxX) / 2;
           camera.position.x +=
             camera.position.x < centerX ? -overlapX : overlapX;
         } else {
-          // Push out along Z
           const centerZ = (box.minZ + box.maxZ) / 2;
           camera.position.z +=
             camera.position.z < centerZ ? -overlapZ : overlapZ;
@@ -964,8 +878,8 @@ const Movement = () => {
       }
     }
 
-    const halfW = ROOM_WIDTH / 2 - BOUNDARY_PADDING;
-    const halfD = ROOM_DEPTH / 2 - BOUNDARY_PADDING;
+    const halfW = roomWidth / 2 - BOUNDARY_PADDING;
+    const halfD = roomDepth / 2 - BOUNDARY_PADDING;
     camera.position.x = THREE.MathUtils.clamp(camera.position.x, -halfW, halfW);
     camera.position.z = THREE.MathUtils.clamp(camera.position.z, -halfD, halfD);
   });
@@ -975,27 +889,65 @@ const Movement = () => {
 
 const GalleryScreen = () => {
   const [locked, setLocked] = useState(false);
+  const [ready, setReady] = useState(false);
+  const isMobile = useMemo(
+    () => window.matchMedia('(pointer: coarse)').matches,
+    [],
+  );
+  const mobileInputRef = useRef<MobileInput | null>(
+    isMobile ? { moveX: 0, moveY: 0, lookDeltaX: 0, lookDeltaY: 0 } : null,
+  );
+  const layout = useMemo(() => {
+    const params = new URLSearchParams(window.location.search);
+    const count = Number(params.get('count')) || DEFAULT_COUNT;
+    return generateGalleryLayout(makeImages(count));
+  }, []);
 
   const onLock = useCallback(() => setLocked(true), []);
   const onUnlock = useCallback(() => setLocked(false), []);
+  const onCreated = useCallback(() => {
+    // Small delay to let the first frame render fully
+    requestAnimationFrame(() => setReady(true));
+  }, []);
 
   return (
-    <div className={`fixed inset-0 z-50${!locked ? ' cursor-pointer' : ''}`}>
-      <Canvas camera={{ position: SPAWN_POSITION, fov: 75 }}>
-        <ambientLight intensity={1.2} />
-        <hemisphereLight args={['#ffffff', '#333333', 0.8]} />
-        <Room />
-        <SpawnPoint />
-        <Movement />
-        <PointerLockControls onLock={onLock} onUnlock={onUnlock} />
-      </Canvas>
-      {!locked && (
+    <div
+      className={`fixed inset-0 z-50 bg-black${!isMobile && !locked ? ' cursor-pointer' : ''}`}
+    >
+      <div
+        className='absolute inset-0 transition-opacity duration-500'
+        style={{ opacity: ready ? 1 : 0 }}
+      >
+        <Canvas
+          camera={{ position: layout.spawnPosition, fov: 75 }}
+          onCreated={onCreated}
+        >
+          <ambientLight intensity={1.2} />
+          <hemisphereLight args={['#ffffff', '#333333', 0.8]} />
+          <Room layout={layout} mobile={isMobile} />
+          <SpawnPoint
+            position={layout.spawnPosition}
+            lookAt={layout.spawnLookAt}
+          />
+          <Movement
+            roomWidth={layout.roomWidth}
+            roomDepth={layout.roomDepth}
+            colliders={layout.colliders}
+            mobileInput={mobileInputRef}
+          />
+          {!isMobile && (
+            <PointerLockControls onLock={onLock} onUnlock={onUnlock} />
+          )}
+        </Canvas>
+      </div>
+      {!isMobile && !locked && (
         <div className='absolute inset-x-0 bottom-8 flex justify-center pointer-events-none'>
           <p className='font-pixel text-white/25 text-xs tracking-[0.2em] select-none'>
             CLICK TO LOOK
           </p>
         </div>
       )}
+      {isMobile && <MobileControls inputRef={mobileInputRef} />}
     </div>
   );
 };
