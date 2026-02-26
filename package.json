@@ -19,6 +19,8 @@
   "dependencies": {
     "@fontsource-variable/geist": "^5.2.8",
     "@fontsource-variable/geist-mono": "^5.2.7",
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.5.0",
     "@tailwindcss/vite": "^4.1.18",
     "geist": "^1.7.0",
     "react": "^19.2.4",
@@ -26,6 +28,7 @@
     "react-markdown": "^10.1.0",
     "rehype-raw": "^7.0.0",
     "tailwindcss": "^4.1.18",
+    "three": "^0.183.1",
     "wouter": "^3.9.0",
     "yaml": "^2.7.1"
   },
@@ -33,6 +36,7 @@
     "@j178/prek": "^0.3.2",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
+    "@types/three": "^0.183.1",
     "@vitejs/plugin-react": "^5.1.4",
     "oxfmt": "^0.32.0",
     "oxlint": "^1.35.0",
