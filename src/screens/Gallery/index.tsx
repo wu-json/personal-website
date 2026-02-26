@@ -672,7 +672,6 @@ const ArtLabel = memo(
 const ArtPlaceholder = memo(
   ({ position, size, rotation, title, imageUrl, childPieces }: ArtPiece) => {
     const [w, h] = size;
-    // Label sits below the bottom-right of the composite bounding box
     const frameRight = w / 2 + 0.08;
     const frameBottom = -(h / 2 + 0.08);
     const labelX = frameRight - LABEL_W / 2;
