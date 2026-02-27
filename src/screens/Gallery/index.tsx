@@ -1008,9 +1008,14 @@ const Movement = ({
   return null;
 };
 
+type HintPhase = 'step-back' | 'click' | 'mouse' | 'done';
+
 const GalleryScreen = ({ fragmentId }: { fragmentId?: string }) => {
   const [locked, setLocked] = useState(false);
   const [ready, setReady] = useState(false);
+  const [hintPhase, setHintPhase] = useState<HintPhase>('step-back');
+  const [mobileHintVisible, setMobileHintVisible] = useState(true);
+  const [mobileHintMounted, setMobileHintMounted] = useState(true);
   const isMobile = useMemo(
     () => window.matchMedia('(pointer: coarse)').matches,
     [],
@@ -1046,12 +1051,47 @@ const GalleryScreen = ({ fragmentId }: { fragmentId?: string }) => {
     return generateGalleryLayout(makeImages(count));
   }, [fragment]);
 
-  const onLock = useCallback(() => setLocked(true), []);
+  const onLock = useCallback(() => {
+    setLocked(true);
+    setHintPhase('mouse');
+  }, []);
   const onUnlock = useCallback(() => setLocked(false), []);
   const onCreated = useCallback(() => {
     // Small delay to let the first frame render fully
     requestAnimationFrame(() => setReady(true));
   }, []);
+
+  // Desktop: advance from "step-back" to "click" on S key or after 5s
+  useEffect(() => {
+    if (isMobile || hintPhase !== 'step-back') return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.code === 'KeyS' || e.code === 'ArrowDown') {
+        setHintPhase('click');
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => {
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [isMobile, hintPhase]);
+
+  // Desktop: auto-dismiss "mouse" hint after 3s
+  useEffect(() => {
+    if (isMobile || hintPhase !== 'mouse') return;
+    const timer = setTimeout(() => setHintPhase('done'), 3000);
+    return () => clearTimeout(timer);
+  }, [isMobile, hintPhase]);
+
+  const dismissMobileHint = useCallback(() => {
+    setMobileHintVisible(false);
+    setTimeout(() => setMobileHintMounted(false), 500);
+  }, []);
+
+  useEffect(() => {
+    if (!isMobile || !mobileHintMounted) return;
+    const timer = setTimeout(dismissMobileHint, 5000);
+    return () => clearTimeout(timer);
+  }, [isMobile, mobileHintMounted, dismissMobileHint]);
 
   return (
     <div
@@ -1096,11 +1136,55 @@ const GalleryScreen = ({ fragmentId }: { fragmentId?: string }) => {
           ← EXIT GALLERY
         </a>
       )}
-      {!isMobile && !locked && (
-        <div className='absolute inset-x-0 bottom-8 flex justify-center pointer-events-none'>
-          <p className='font-pixel text-white/25 text-xs tracking-[0.2em] select-none'>
-            CLICK TO LOOK
+      {!isMobile && ready && hintPhase !== 'done' && (
+        <div
+          key={hintPhase}
+          className='absolute inset-x-0 bottom-10 z-[5] flex flex-col items-center pointer-events-none animate-[gallery-hint-in_0.5s_ease-out_both]'
+        >
+          {hintPhase === 'step-back' && (
+            <>
+              <p className='font-pixel text-white/40 text-sm tracking-[0.2em] select-none'>
+                PRESS "S" — TAKE A STEP BACK
+              </p>
+              <p className='font-pixel text-white/20 text-[10px] tracking-[0.15em] select-none mt-2'>
+                WASD — MOVE
+              </p>
+            </>
+          )}
+          {hintPhase === 'click' && (
+            <>
+              <p className='font-pixel text-white/40 text-sm tracking-[0.2em] select-none'>
+                CLICK — EXPLORE
+              </p>
+              <p className='font-pixel text-white/20 text-[10px] tracking-[0.15em] select-none mt-2'>
+                MOUSE LOOK · ESC EXIT
+              </p>
+            </>
+          )}
+          {hintPhase === 'mouse' && (
+            <p className='font-pixel text-white/40 text-sm tracking-[0.2em] select-none'>
+              MOVE MOUSE — TURN AROUND
+            </p>
+          )}
+        </div>
+      )}
+      {isMobile && ready && mobileHintMounted && (
+        <div
+          className='absolute inset-0 z-[5] flex flex-col items-center justify-center bg-black/40 animate-[gallery-hint-in_0.5s_ease-out_both] transition-opacity duration-500'
+          style={{ opacity: mobileHintVisible ? 1 : 0 }}
+          onTouchStart={dismissMobileHint}
+        >
+          <p className='font-pixel text-white/60 text-sm tracking-[0.2em] select-none'>
+            TAP TO BEGIN
           </p>
+          <div className='mt-4 flex flex-col items-center gap-1'>
+            <p className='font-pixel text-white/25 text-[10px] tracking-[0.15em] select-none'>
+              LEFT JOYSTICK — MOVE
+            </p>
+            <p className='font-pixel text-white/25 text-[10px] tracking-[0.15em] select-none'>
+              DRAG RIGHT SIDE — LOOK AROUND
+            </p>
+          </div>
         </div>
       )}
       {isMobile && <MobileControls inputRef={mobileInputRef} />}
