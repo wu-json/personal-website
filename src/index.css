@@ -286,6 +286,18 @@
   }
 }
 
+@keyframes gallery-swipe {
+  0%,
+  100% {
+    transform: translateX(0);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translateX(12px);
+    opacity: 0.6;
+  }
+}
+
 @layer base {
   html,
   body {

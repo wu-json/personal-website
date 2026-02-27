@@ -11,8 +11,12 @@ const LOOK_SENSITIVITY = 0.003;
 
 const MobileControls = ({
   inputRef,
+  onMoveStart,
+  onLookStart,
 }: {
   inputRef: RefObject<MobileInput | null>;
+  onMoveStart?: () => void;
+  onLookStart?: () => void;
 }) => {
   const joystickRef = useRef<HTMLDivElement>(null);
   const knobRef = useRef<HTMLDivElement>(null);
@@ -23,17 +27,21 @@ const MobileControls = ({
   const lookLastPos = useRef({ x: 0, y: 0 });
 
   // --- Joystick handlers ---
-  const onJoystickTouchStart = useCallback((e: React.TouchEvent) => {
-    e.preventDefault();
-    if (joystickTouchId.current !== null) return;
-    const touch = e.changedTouches[0]!;
-    joystickTouchId.current = touch.identifier;
-    const rect = joystickRef.current!.getBoundingClientRect();
-    joystickCenter.current = {
-      x: rect.left + rect.width / 2,
-      y: rect.top + rect.height / 2,
-    };
-  }, []);
+  const onJoystickTouchStart = useCallback(
+    (e: React.TouchEvent) => {
+      e.preventDefault();
+      if (joystickTouchId.current !== null) return;
+      const touch = e.changedTouches[0]!;
+      joystickTouchId.current = touch.identifier;
+      const rect = joystickRef.current!.getBoundingClientRect();
+      joystickCenter.current = {
+        x: rect.left + rect.width / 2,
+        y: rect.top + rect.height / 2,
+      };
+      onMoveStart?.();
+    },
+    [onMoveStart],
+  );
 
   const onJoystickTouchMove = useCallback(
     (e: React.TouchEvent) => {
@@ -85,13 +93,17 @@ const MobileControls = ({
   );
 
   // --- Look handlers ---
-  const onLookTouchStart = useCallback((e: React.TouchEvent) => {
-    e.preventDefault();
-    if (lookTouchId.current !== null) return;
-    const touch = e.changedTouches[0]!;
-    lookTouchId.current = touch.identifier;
-    lookLastPos.current = { x: touch.clientX, y: touch.clientY };
-  }, []);
+  const onLookTouchStart = useCallback(
+    (e: React.TouchEvent) => {
+      e.preventDefault();
+      if (lookTouchId.current !== null) return;
+      const touch = e.changedTouches[0]!;
+      lookTouchId.current = touch.identifier;
+      lookLastPos.current = { x: touch.clientX, y: touch.clientY };
+      onLookStart?.();
+    },
+    [onLookStart],
+  );
 
   const onLookTouchMove = useCallback(
     (e: React.TouchEvent) => {
