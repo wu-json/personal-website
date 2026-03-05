@@ -1,5 +1,3 @@
-import '@fontsource-variable/geist';
-import '@fontsource-variable/geist-mono';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 
