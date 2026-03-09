@@ -329,7 +329,7 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
           </div>
         )}
 
-        <div className='columns-1 sm:columns-2 lg:columns-3 gap-3'>
+        <div className={`columns-1 gap-3 ${fragment.photos.length > 6 ? 'sm:columns-2 lg:columns-3' : 'sm:columns-2'}`}>
           {gridItems.map(item => {
             if (item.kind === 'solo') {
               const { photo: p, index: i } = item;

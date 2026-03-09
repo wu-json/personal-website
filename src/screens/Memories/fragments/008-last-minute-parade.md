@@ -9,15 +9,19 @@ photos:
   - file: R3307156
     width: 3648
     height: 2736
+    caption: Untitled
   - file: R3307158
     width: 2736
     height: 3648
+    caption: Untitled
   - file: R3307159
     width: 3648
     height: 2736
+    caption: Untitled
   - file: R3307160
     width: 2736
     height: 3648
+    caption: Untitled
 ---
 
 My flight back from Cabo was severely delayed, so I ended up missing most of the Chinese New Year Parade (thank you United).
