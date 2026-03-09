@@ -19,3 +19,10 @@ photos:
     width: 2736
     height: 3648
 ---
+
+My flight back from Cabo was severely delayed, so I ended up missing most of the Chinese New Year Parade (thank you United).
+
+I did manage to make the very last few minutes of it and captured one of my most favorite shots ever.
+
+Always show up.
+
