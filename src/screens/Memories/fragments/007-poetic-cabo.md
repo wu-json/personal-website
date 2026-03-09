@@ -84,5 +84,5 @@ photos:
     height: 3648
 ---
 
-Made a few exceptions to my monochrome streak here. Some of these shots made it criminal to not capture color.
+Made a few exceptions to my monochrome streak here. Some of these shots were criminal to not capture color.
 
