@@ -82,12 +82,16 @@ type WallSegment = {
 };
 
 const WALL_THICKNESS = 0.8;
-const ROOM_HEIGHT = 16;
-const PARTITION_HEIGHT = 15.6;
 const CORNER_MARGIN = 2;
 const ART_PADDING = 2.5;
 const GROUP_GAP = 0.3;
 const WELCOME_CENTER_X = 3;
+
+// Linear interpolation of room height: 10→16 as roomSize goes 20→60, clamped to [10, 16]
+const computeRoomHeight = (roomSize: number): number => {
+  const h = Math.max(10, Math.min(16, 10 + ((roomSize - 20) * 6) / 40));
+  return Math.round(h * 2) / 2; // round to nearest 0.5
+};
 
 // ---------------------------------------------------------------------------
 // 1. Compute art sizes from orientation + deterministic hash
@@ -157,7 +161,7 @@ const computeArtSize = (spec: ImageSpec): { width: number; height: number } => {
 // ---------------------------------------------------------------------------
 const computeRoomSize = (
   images: ImageSpec[],
-): { roomSize: number; partitionCount: number } => {
+): { roomSize: number; roomHeight: number; partitionCount: number } => {
   const artSizes = images.map(computeArtSize);
   const totalDemand = artSizes.reduce(
     (sum, a) => sum + a.width + ART_PADDING,
@@ -165,9 +169,11 @@ const computeRoomSize = (
   );
   const targetSupply = totalDemand * 1.1;
 
-  let roomSize = Math.max(60, Math.ceil(Math.sqrt(totalDemand * 12)));
+  let roomSize = Math.max(20, Math.ceil(Math.sqrt(totalDemand * 12)));
   if (roomSize % 2 !== 0) roomSize++;
   roomSize = Math.min(120, roomSize);
+
+  const roomHeight = computeRoomHeight(roomSize);
 
   // Front wall is entirely reserved for welcome text — only 3 walls contribute
   const perimeterSupply = 2 * roomSize + roomSize - 3 * CORNER_MARGIN * 2;
@@ -177,7 +183,7 @@ const computeRoomSize = (
   const partitionCount =
     deficit > 0 ? Math.ceil(deficit / surfacePerPartition) : 0;
 
-  return { roomSize, partitionCount };
+  return { roomSize, roomHeight, partitionCount };
 };
 
 // ---------------------------------------------------------------------------
@@ -190,6 +196,7 @@ const generatePartitions = (
   count: number,
   roomW: number,
   roomD: number,
+  partitionHeight: number,
 ): Partition[] => {
   if (count === 0) return [];
 
@@ -210,14 +217,14 @@ const generatePartitions = (
     const p: Partition[] = [
       {
         position: [0, 0, backZ],
-        size: [hWidth, PARTITION_HEIGHT, WALL_THICKNESS],
+        size: [hWidth, partitionHeight, WALL_THICKNESS],
       },
     ];
     if (count >= 2) {
       const wingD = roomD * 0.3;
       p.push({
         position: [hEdge, 0, backZ + (wingD + J) / 2 - J / 2],
-        size: [WALL_THICKNESS, PARTITION_HEIGHT, wingD + J],
+        size: [WALL_THICKNESS, partitionHeight, wingD + J],
       });
     }
     return mergeClosePartitions(snapToPerimeter(p, roomW, roomD));
@@ -234,24 +241,24 @@ const generatePartitions = (
       // Horizontal back wall
       {
         position: [0, 0, backZ],
-        size: [hWidth, PARTITION_HEIGHT, WALL_THICKNESS],
+        size: [hWidth, partitionHeight, WALL_THICKNESS],
       },
       // Right wing extending forward (positioned at horizontal wall's right edge)
       {
         position: [hEdge, 0, backZ + (wingD + J) / 2 - J / 2],
-        size: [WALL_THICKNESS, PARTITION_HEIGHT, wingD + J],
+        size: [WALL_THICKNESS, partitionHeight, wingD + J],
       },
       // Left wing extending backward (positioned at horizontal wall's left edge)
       {
         position: [-hEdge, 0, backZ - (wing2D + J) / 2 + J / 2],
-        size: [WALL_THICKNESS, PARTITION_HEIGHT, wing2D + J],
+        size: [WALL_THICKNESS, partitionHeight, wing2D + J],
       },
     ];
     if (count >= 4) {
       // Front horizontal divider (well separated — at least halfD*0.7 from back wall)
       p.push({
         position: [-halfW * 0.15, 0, halfD * 0.35],
-        size: [roomW * 0.35, PARTITION_HEIGHT, WALL_THICKNESS],
+        size: [roomW * 0.35, partitionHeight, WALL_THICKNESS],
       });
     }
     return mergeClosePartitions(snapToPerimeter(p, roomW, roomD));
@@ -268,12 +275,12 @@ const generatePartitions = (
       // Left archway half
       {
         position: [-(archGap / 2 + archW / 2), 0, backZ],
-        size: [archW, PARTITION_HEIGHT, WALL_THICKNESS],
+        size: [archW, partitionHeight, WALL_THICKNESS],
       },
       // Right archway half
       {
         position: [archGap / 2 + archW / 2, 0, backZ],
-        size: [archW, PARTITION_HEIGHT, WALL_THICKNESS],
+        size: [archW, partitionHeight, WALL_THICKNESS],
       },
       // Left wing extending backward (vertical)
       {
@@ -282,7 +289,7 @@ const generatePartitions = (
           0,
           backZ - (roomD * 0.2 + J) / 2 + J / 2,
         ],
-        size: [WALL_THICKNESS, PARTITION_HEIGHT, roomD * 0.2 + J],
+        size: [WALL_THICKNESS, partitionHeight, roomD * 0.2 + J],
       },
       // Right wing extending forward (vertical)
       {
@@ -291,26 +298,26 @@ const generatePartitions = (
           0,
           backZ + (roomD * 0.25 + J) / 2 - J / 2,
         ],
-        size: [WALL_THICKNESS, PARTITION_HEIGHT, roomD * 0.25 + J],
+        size: [WALL_THICKNESS, partitionHeight, roomD * 0.25 + J],
       },
       // Front horizontal divider (well separated from archway)
       {
         position: [halfW * 0.1, 0, halfD * 0.35],
-        size: [roomW * 0.35, PARTITION_HEIGHT, WALL_THICKNESS],
+        size: [roomW * 0.35, partitionHeight, WALL_THICKNESS],
       },
     ];
     if (count >= 6) {
       // Horizontal wall in front-left (perpendicular to nearby verticals, not parallel)
       p.push({
         position: [-halfW * 0.3, 0, halfD * 0.05],
-        size: [roomW * 0.2, PARTITION_HEIGHT, WALL_THICKNESS],
+        size: [roomW * 0.2, partitionHeight, WALL_THICKNESS],
       });
     }
     if (count >= 7) {
       // Horizontal wall in center-right (far from all other horizontals)
       p.push({
         position: [halfW * 0.35, 0, -halfD * 0.02],
-        size: [roomW * 0.2, PARTITION_HEIGHT, WALL_THICKNESS],
+        size: [roomW * 0.2, partitionHeight, WALL_THICKNESS],
       });
     }
     return mergeClosePartitions(snapToPerimeter(p, roomW, roomD));
@@ -323,32 +330,32 @@ const generatePartitions = (
     // Central horizontal (slightly back of center)
     {
       position: [0, 0, -halfD * 0.15],
-      size: [roomW * 0.5, PARTITION_HEIGHT, WALL_THICKNESS],
+      size: [roomW * 0.5, partitionHeight, WALL_THICKNESS],
     },
     // Central vertical (slightly left of center)
     {
       position: [-halfW * 0.1, 0, 0],
-      size: [WALL_THICKNESS, PARTITION_HEIGHT, roomD * 0.5],
+      size: [WALL_THICKNESS, partitionHeight, roomD * 0.5],
     },
     // NW alcove — horizontal
     {
       position: [-halfW * 0.4, 0, -halfD * 0.55],
-      size: [roomW * 0.3, PARTITION_HEIGHT, WALL_THICKNESS],
+      size: [roomW * 0.3, partitionHeight, WALL_THICKNESS],
     },
     // NE alcove — vertical
     {
       position: [halfW * 0.45, 0, -halfD * 0.45],
-      size: [WALL_THICKNESS, PARTITION_HEIGHT, roomD * 0.25],
+      size: [WALL_THICKNESS, partitionHeight, roomD * 0.25],
     },
     // SE alcove — horizontal
     {
       position: [halfW * 0.35, 0, halfD * 0.45],
-      size: [roomW * 0.3, PARTITION_HEIGHT, WALL_THICKNESS],
+      size: [roomW * 0.3, partitionHeight, WALL_THICKNESS],
     },
     // SW alcove — vertical
     {
       position: [-halfW * 0.45, 0, halfD * 0.35],
-      size: [WALL_THICKNESS, PARTITION_HEIGHT, roomD * 0.25],
+      size: [WALL_THICKNESS, partitionHeight, roomD * 0.25],
     },
   ];
 
@@ -1022,15 +1029,21 @@ const partitionColliders = (partitions: Partition[]): AABB[] =>
 // Main entry point
 // ---------------------------------------------------------------------------
 export const generateGalleryLayout = (images: ImageSpec[]): GalleryLayout => {
-  const { roomSize, partitionCount } = computeRoomSize(images);
+  const { roomSize, roomHeight, partitionCount } = computeRoomSize(images);
   const roomWidth = roomSize;
   const roomDepth = roomSize;
   const halfW = roomWidth / 2;
   const halfD = roomDepth / 2;
-  const halfH = ROOM_HEIGHT / 2;
+  const halfH = roomHeight / 2;
+  const partitionHeight = roomHeight - 0.4;
 
   // Generate partitions
-  const partitions = generatePartitions(partitionCount, roomWidth, roomDepth);
+  const partitions = generatePartitions(
+    partitionCount,
+    roomWidth,
+    roomDepth,
+    partitionHeight,
+  );
 
   // Build wall segments
   const perimeterSegments = buildPerimeterSegments(
@@ -1055,7 +1068,7 @@ export const generateGalleryLayout = (images: ImageSpec[]): GalleryLayout => {
   }
 
   // Spawn: directly in front of welcome text, facing it
-  const spawnZ = halfD - 10;
+  const spawnZ = halfD - Math.min(10, halfD * 0.65);
   const spawnPosition: [number, number, number] = [WELCOME_CENTER_X, 0, spawnZ];
   const spawnLookAt: [number, number, number] = [WELCOME_CENTER_X, 0, halfD];
 
@@ -1081,7 +1094,7 @@ export const generateGalleryLayout = (images: ImageSpec[]): GalleryLayout => {
 
   return {
     roomWidth,
-    roomHeight: ROOM_HEIGHT,
+    roomHeight,
     roomDepth,
     partitions,
     artPieces,

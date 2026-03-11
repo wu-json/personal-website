@@ -109,4 +109,3 @@ photos:
 ---
 
 Made a few exceptions to my monochrome streak here. Some of these shots were criminal to not capture in color.
-

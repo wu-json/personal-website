@@ -38,7 +38,6 @@ const makeImages = (count: number): ImageSpec[] =>
     orientation: (i % 3 === 0 ? 'portrait' : 'landscape') as const,
   }));
 
-const ROOM_HEIGHT = 16;
 const MOVE_SPEED = 16;
 const RUN_SPEED = 32;
 const CROUCH_SPEED = 8;
@@ -414,13 +413,15 @@ const createWelcomeTexture = (
 const Floor = ({
   roomWidth,
   roomDepth,
+  roomHeight,
 }: {
   roomWidth: number;
   roomDepth: number;
+  roomHeight: number;
 }) => {
   const texture = useMemo(createWoodTexture, []);
   return (
-    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -ROOM_HEIGHT / 2, 0]}>
+    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -roomHeight / 2, 0]}>
       <planeGeometry args={[roomWidth, roomDepth]} />
       <meshStandardMaterial map={texture} />
     </mesh>
@@ -719,15 +720,17 @@ const MAX_SPOTLIGHTS = 16;
 const ArtSpotlight = ({
   artPosition,
   artRotation,
+  roomHeight,
 }: {
   artPosition: [number, number, number];
   artRotation: [number, number, number];
+  roomHeight: number;
 }) => {
   const lightRef = useRef<THREE.SpotLight>(null);
   const targetRef = useRef<THREE.Object3D>(null);
   const connectedRef = useRef(false);
 
-  const ceilingY = ROOM_HEIGHT / 2 - 0.1;
+  const ceilingY = roomHeight / 2 - 0.1;
   const offset = 2.5;
 
   // Compute light position: offset from art toward viewing direction
@@ -765,7 +768,13 @@ const ArtSpotlight = ({
   );
 };
 
-const ArtLighting = ({ pieces }: { pieces: ArtPiece[] }) => {
+const ArtLighting = ({
+  pieces,
+  roomHeight,
+}: {
+  pieces: ArtPiece[];
+  roomHeight: number;
+}) => {
   // Select an evenly-distributed subset when over the spotlight limit
   const selected = useMemo(() => {
     if (pieces.length <= MAX_SPOTLIGHTS) return pieces;
@@ -783,6 +792,7 @@ const ArtLighting = ({ pieces }: { pieces: ArtPiece[] }) => {
           key={i}
           artPosition={piece.position}
           artRotation={piece.rotation}
+          roomHeight={roomHeight}
         />
       ))}
     </group>
@@ -802,6 +812,7 @@ const Room = ({
 }) => {
   const {
     roomWidth,
+    roomHeight,
     roomDepth,
     partitions,
     artPieces,
@@ -811,14 +822,18 @@ const Room = ({
     welcomeRotation,
   } = layout;
   const halfW = roomWidth / 2;
-  const halfH = ROOM_HEIGHT / 2;
+  const halfH = roomHeight / 2;
   const halfD = roomDepth / 2;
   const wallTex = useMemo(createWallTexture, []);
   const ceilingTex = useMemo(createCeilingTexture, []);
 
   return (
     <group>
-      <Floor roomWidth={roomWidth} roomDepth={roomDepth} />
+      <Floor
+        roomWidth={roomWidth}
+        roomDepth={roomDepth}
+        roomHeight={roomHeight}
+      />
       {/* Ceiling */}
       <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, halfH, 0]}>
         <planeGeometry args={[roomWidth, roomDepth]} />
@@ -826,22 +841,22 @@ const Room = ({
       </mesh>
       {/* Back wall */}
       <mesh position={[0, 0, -halfD]}>
-        <planeGeometry args={[roomWidth, ROOM_HEIGHT]} />
+        <planeGeometry args={[roomWidth, roomHeight]} />
         <meshStandardMaterial map={wallTex} roughness={0.92} />
       </mesh>
       {/* Front wall */}
       <mesh rotation={[0, Math.PI, 0]} position={[0, 0, halfD]}>
-        <planeGeometry args={[roomWidth, ROOM_HEIGHT]} />
+        <planeGeometry args={[roomWidth, roomHeight]} />
         <meshStandardMaterial map={wallTex} roughness={0.92} />
       </mesh>
       {/* Left wall */}
       <mesh rotation={[0, Math.PI / 2, 0]} position={[-halfW, 0, 0]}>
-        <planeGeometry args={[roomDepth, ROOM_HEIGHT]} />
+        <planeGeometry args={[roomDepth, roomHeight]} />
         <meshStandardMaterial map={wallTex} roughness={0.92} />
       </mesh>
       {/* Right wall */}
       <mesh rotation={[0, -Math.PI / 2, 0]} position={[halfW, 0, 0]}>
-        <planeGeometry args={[roomDepth, ROOM_HEIGHT]} />
+        <planeGeometry args={[roomDepth, roomHeight]} />
         <meshStandardMaterial map={wallTex} roughness={0.92} />
       </mesh>
       {/* Overhead fill lights */}
@@ -859,7 +874,7 @@ const Room = ({
       <Partitions partitions={partitions} />
       {/* Art placeholders and per-piece spotlights */}
       <Artworks pieces={artPieces} />
-      <ArtLighting pieces={artPieces} />
+      <ArtLighting pieces={artPieces} roomHeight={roomHeight} />
       {/* Benches */}
       {benchPositions.map((pos, i) => (
         <GalleryBench key={i} position={pos} />
