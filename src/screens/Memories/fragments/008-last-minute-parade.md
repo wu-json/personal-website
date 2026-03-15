@@ -24,8 +24,7 @@ photos:
     caption: Untitled
 ---
 
-My flight back from Cabo was severely delayed, so I ended up missing most of the Chinese New Year Parade (thank you United).
+My flight back from Cabo was comically delayed, so I ended up missing most of the Chinese New Year Parade (thank you United).
 
-I did manage to make the very last few minutes of it and captured one of my most favorite shots ever.
+I did manage to make the last few minutes of it though, and captured one of my favorite shots ever.
 
-Always show up.
