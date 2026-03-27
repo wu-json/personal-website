@@ -70,7 +70,7 @@ const Sidebar = ({
   const links = (onClick?: () => void) => (
     <>
       <NavLink to='/' active={pathname === '/'} onClick={onClick}>
-        Jason Wu
+        Jason Cui Wu
       </NavLink>
       <NavLink
         to='/memories'
