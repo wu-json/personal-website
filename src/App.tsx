@@ -2,7 +2,6 @@ import { RootLayout } from 'src/layouts/RootLayout';
 import { ConstructsScreen } from 'src/screens/Constructs';
 import { ConstructDetail } from 'src/screens/Constructs/ConstructDetail';
 import { GalleryScreen } from 'src/screens/Gallery';
-import { GardenScreen } from 'src/screens/Garden';
 import { HeroesScreen } from 'src/screens/Heroes';
 import { HeroDetail } from 'src/screens/Heroes/HeroDetail';
 import { HomeScreen } from 'src/screens/Home';
@@ -42,7 +41,6 @@ const App = () => (
           <Route path='/heroes/:id'>
             {params => <HeroDetail id={params.id} />}
           </Route>
-          <Route path='/garden' component={GardenScreen} />
         </Switch>
       </RootLayout>
     </Route>

@@ -6,8 +6,7 @@ A working directory of myself.
 ├── Memories       — photo albums (fragments)
 ├── Transmissions  — writing and thoughts
 ├── Constructs     — coming soon
-├── Heroes         — coming soon
-└── Garden         — coming soon
+└── Heroes         — coming soon
 ```
 
 ## Local Development

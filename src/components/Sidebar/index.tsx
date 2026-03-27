@@ -100,9 +100,6 @@ const Sidebar = ({
       >
         Heroes
       </NavLink>
-      <NavLink to='/garden' active={pathname === '/garden'} onClick={onClick}>
-        Garden
-      </NavLink>
     </>
   );
 

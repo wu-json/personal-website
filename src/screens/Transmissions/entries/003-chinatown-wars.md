@@ -1,6 +1,6 @@
 ---
 id: '003'
-timestamp: '2026.03.26 // 12:00:00'
+timestamp: '2026.03.22 // 12:00:00'
 title: 'Chinatown Wars'
 expanded: false
 location: 'San Francisco, US'
