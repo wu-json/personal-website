@@ -55,7 +55,7 @@ const MainBanner = () => {
               San Francisco.
             </p>
             <p className={bioClass} style={jitter()}>
-              Breakdance + capture humans and landscapes in monochrome
+              Dance + capture humans and landscapes in monochrome
             </p>
           </div>
         </div>
