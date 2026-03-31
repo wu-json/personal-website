@@ -231,6 +231,55 @@
 .transmission-prose p:last-child {
   margin-bottom: 0;
 }
+
+/* Transmission entries only — long-form rhythm (generous paragraph gaps like overreacted-style blogs) */
+.transmission-prose.transmission-entry {
+  line-height: 1.78;
+}
+.transmission-prose.transmission-entry p {
+  margin-bottom: 1.45em;
+}
+.transmission-prose.transmission-entry p:last-child {
+  margin-bottom: 0;
+}
+.transmission-prose.transmission-entry h1,
+.transmission-prose.transmission-entry h2,
+.transmission-prose.transmission-entry h3 {
+  margin-top: 1.85em;
+  margin-bottom: 0.65em;
+}
+.transmission-prose.transmission-entry h1:first-child,
+.transmission-prose.transmission-entry h2:first-child,
+.transmission-prose.transmission-entry h3:first-child {
+  margin-top: 0;
+}
+.transmission-prose.transmission-entry hr {
+  margin: 2.25em 0;
+}
+.transmission-prose.transmission-entry blockquote {
+  margin: 1.5em 0;
+}
+.transmission-prose.transmission-entry ul,
+.transmission-prose.transmission-entry ol {
+  margin: 1.15em 0;
+}
+.transmission-prose.transmission-entry li {
+  margin-bottom: 0.45em;
+}
+.transmission-prose.transmission-entry li:last-child {
+  margin-bottom: 0;
+}
+.transmission-prose.transmission-entry img,
+.transmission-prose.transmission-entry .construct-body-img {
+  margin-top: 1.65em;
+  margin-bottom: 1.65em;
+}
+.transmission-prose.transmission-entry section[data-footnotes] {
+  margin-top: 2.5rem;
+}
+.transmission-prose.transmission-entry pre {
+  margin: 1.35em 0;
+}
 .transmission-prose strong {
   color: rgba(255, 255, 255, 0.9);
   font-weight: 600;
@@ -309,6 +358,67 @@
   border: none;
   border-top: 1px solid rgba(255, 255, 255, 0.05);
   margin: 1em 0;
+}
+
+/* GFM footnotes — relay-style */
+.transmission-prose section[data-footnotes] {
+  margin-top: 1.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.transmission-prose section[data-footnotes]::before {
+  content: '// ref nodes';
+  display: block;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.625rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: rgba(255, 255, 255, 0.28);
+  margin-bottom: 0.65rem;
+}
+
+.transmission-prose section[data-footnotes] > h2#footnote-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.transmission-prose section[data-footnotes] ol {
+  list-style-type: decimal;
+  padding-left: 1.25rem;
+  margin: 0;
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.transmission-prose section[data-footnotes] li {
+  margin-bottom: 0.35em;
+}
+
+.transmission-prose section[data-footnotes] li p {
+  margin: 0;
+  display: inline;
+}
+
+.transmission-prose a[data-footnote-ref],
+.transmission-prose a.data-footnote-backref {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.7em;
+  text-decoration: none;
+  color: rgba(255, 255, 255, 0.42);
+}
+
+.transmission-prose a[data-footnote-ref]:hover,
+.transmission-prose a.data-footnote-backref:hover {
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: 0 0 6px rgba(255, 255, 255, 0.25);
 }
 .transmission-prose img {
   max-width: 100%;

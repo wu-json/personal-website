@@ -1,9 +1,7 @@
-import Markdown from 'react-markdown';
-import rehypeRaw from 'rehype-raw';
 import { Link } from 'wouter';
 
-import { ProgressiveImage } from '../../components/ProgressiveImage';
 import { transmissions } from './data';
+import { MarkdownBody } from './MarkdownBody';
 
 const jitter = () => ({ animationDelay: `${Math.random() * 120}ms` });
 
@@ -74,43 +72,10 @@ const TransmissionDetail = ({ id }: { id: string }) => {
         </header>
 
         <div
-          className='bio-glitch transmission-prose text-white/70 text-xs sm:text-sm font-mono leading-loose'
+          className='bio-glitch transmission-prose transmission-entry text-white/70 text-xs sm:text-sm font-mono'
           style={jitter()}
         >
-          <Markdown
-            rehypePlugins={[rehypeRaw]}
-            components={{
-              img: ({
-                src,
-                alt,
-                width,
-                height,
-              }: {
-                src?: string;
-                alt?: string;
-                width?: string | number;
-                height?: string | number;
-              }) => {
-                if (!src || !width || !height)
-                  return <img src={src} alt={alt} />;
-                return (
-                  <ProgressiveImage
-                    placeholderSrc={src.replace(
-                      /-full\.webp$/,
-                      '-placeholder.webp',
-                    )}
-                    src={src}
-                    alt={alt ?? ''}
-                    width={Number(width)}
-                    height={Number(height)}
-                    className='construct-body-img'
-                  />
-                );
-              },
-            }}
-          >
-            {t.body}
-          </Markdown>
+          <MarkdownBody>{t.body}</MarkdownBody>
         </div>
 
         <footer className='mt-12 pt-6 border-t border-white/5'>
