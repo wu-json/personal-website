@@ -6,11 +6,13 @@ expanded: false
 location: 'Atlanta, Georgia'
 ---
 
-<img src="/images/fragments/farewell-atlanta/P3290081-full.webp" alt="Conservatory at the Atlanta Botanical Garden" width="5184" height="3888">
+<img src="/images/fragments/stay-safe-out-there/P3290081-full.webp" alt="Conservatory at the Atlanta Botanical Garden" width="5184" height="3888">
+
+[Open Memories](/memories/stay-safe-out-there)
 
 I visited my parents in Atlanta this weekend one last time to clean up some of my forgotten belongings before they move out of state... like a good, responsible son.
 
-Looking back, I spent around 3 years after college in that home working remotely and venturing around the South. Unlike a lot of other Asians I've met with a Southern Arc (which has been surprisingly numerous), I was very fortunate to have experienced nothing but Southern hospitality in its purest form during my time there. Whether it was Amber telling me to floss more, or Joy from BodyPlex saying good morning to me at 6am every morning, I felt that Georgia was one of the kindest places I've ever lived in (not that New Jersey set a very high bar).
+Looking back, I spent around 3 years after college in that home working remotely and venturing around the South. Unlike a lot of other Asians I've met with a Southern Arc (which have been surprisingly numerous), I was very fortunate to have experienced nothing but Southern hospitality in its purest form during my time there. Whether it was Amber telling me to floss more, or Joy from BodyPlex greeting me at 6am every morning, I felt that Georgia was one of the kindest places I've ever lived in (not that New Jersey set a very high bar).
 
 There were a few instances of "not used to seeing your kind around here", and people saying "감사합니다" to me for holding the door, but these didn't carry any ill intent. After breaking through the playful racial misunderstandings and the temporary awkwardness that usually followed, these conversations felt really authentic and full of human touch; something that I now rarely see in conversations in San Francisco.
 

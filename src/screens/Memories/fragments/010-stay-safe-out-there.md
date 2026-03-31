@@ -1,6 +1,6 @@
 ---
-id: farewell-atlanta
-title: Farewell Atlanta
+id: stay-safe-out-there
+title: Stay Safe Out There
 date: '2026.03.29'
 location: Atlanta, Georgia
 cover: P3290081
@@ -47,4 +47,4 @@ photos:
     caption: Untitled
 ---
 
-Photos from a last visit to the botanical garden. [Full note on Transmissions](/transmissions/004).
+[Stay Safe Out There](/transmissions/004).
