@@ -8,8 +8,6 @@ location: 'Atlanta, Georgia'
 
 <img src="/images/fragments/stay-safe-out-there/P3290081-full.webp" alt="Conservatory at the Atlanta Botanical Garden" width="5184" height="3888">
 
-[Open Memories](/memories/stay-safe-out-there)
-
 I visited my parents in Atlanta this weekend one last time to clean up some of my forgotten belongings before they move out of state... like a good, responsible son.
 
 Looking back, I spent around 3 years after college in that home working remotely and venturing around the South. Unlike a lot of other Asians I've met with a Southern Arc (which have been surprisingly numerous), I was very fortunate to have experienced nothing but Southern hospitality in its purest form during my time there. Whether it was Amber telling me to floss more, or Joy from BodyPlex greeting me at 6am every morning, I felt that Georgia was one of the kindest places I've ever lived in (not that New Jersey set a very high bar).
@@ -21,6 +19,8 @@ Atlanta has quite a few landmarks. The aquarium[^ga] with the massive whale shar
 I was only back for a few days, with most of the hours occupied by packing, so I only had time for one day trip. I decided to visit the botanical garden[^abg] one last time.
 
 To all the Georgians I've met and may never see again - stay safe out there.
+
+[[Open Memories]](/memories/stay-safe-out-there)
 
 [^ga]: [Georgia Aquarium](https://www.georgiaaquarium.org/)
 
