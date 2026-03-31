@@ -27,4 +27,3 @@ photos:
 My flight back from Cabo was comically delayed, so I ended up missing most of the Chinese New Year Parade (thank you United).
 
 I did manage to make the last few minutes of it though, and captured one of my favorite shots ever.
-

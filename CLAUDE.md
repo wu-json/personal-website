@@ -100,6 +100,24 @@ photos:
 
 `DSCF0839` + `DSCF0859` = horizontal row. `DSCF0860` = solo. Groups can contain any number of photos.
 
+## Transmissions markdown reference
+
+Entry bodies live in `src/screens/Transmissions/entries/*.md` (after YAML frontmatter). They are rendered by **`MarkdownBody`** (`src/screens/Transmissions/MarkdownBody.tsx`) on the transmission detail page and on the full (non-collapsed) list preview. The wrapper uses **`transmission-prose transmission-entry`** for long-form spacing (paragraph gaps, line height); other screens use `transmission-prose` without `transmission-entry`. Do not duplicate markdown pipeline config elsewhere—extend behavior in `MarkdownBody` if needed.
+
+### Supported syntax
+
+| Feature                      | Notes                                                                                                                                                                                                                                                     |
+| ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **GitHub Flavored Markdown** | Tables, strikethrough, task lists, autolinks, **footnotes** (`remark-gfm`).                                                                                                                                                                               |
+| **Raw HTML**                 | Allowed via `rehype-raw` (e.g. `<img width height>` for progressive images).                                                                                                                                                                              |
+| **Images**                   | `<img src="…-full.webp" width="…" height="…">` under `/images/transmissions/<id>/` or `/images/fragments/<slug>/` gets progressive placeholder loading.                                                                                                   |
+| **Footnotes**                | Inline `[^shortId]`; definitions at end of body (blank line before first `[^shortId]:`). Reuse the same `[^shortId]` for multiple callouts. Renders a `// ref nodes` section (styled in `index.css` under `.transmission-prose section[data-footnotes]`). |
+| **Links**                    | `https://…` opens in a new tab with `rel="noopener noreferrer"`. Site paths like `/memories/…` stay normal in-page anchors.                                                                                                                               |
+
+### List index vs detail
+
+Long posts use a collapsed teaser on `/transmissions` unless frontmatter has `expanded: true`. Footnote definitions and full body appear on `/transmissions/<id>`.
+
 ## When Making Changes
 
 1. Always run `bun run lint` and `bun run format` before committing

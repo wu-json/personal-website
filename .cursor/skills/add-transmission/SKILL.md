@@ -37,6 +37,20 @@ Ask the user for:
 - `slug` (kebab-case; used in filename)
 - Markdown body; images as `![alt](/images/transmissions/<id>/<filename>-full.webp)` (or `<img src="…">` as in existing entries)
 
+### Markdown features (all entries)
+
+Bodies are rendered by **`MarkdownBody`** (`src/screens/Transmissions/MarkdownBody.tsx`) with **GFM** (`remark-gfm`) and **raw HTML** (`rehype-raw`). For future entries you can reuse without code changes:
+
+- **Footnotes** — `Text[^a]` then at end of file:
+
+  ```markdown
+  [^a]: [Label](https://example.org/)
+  ```
+
+  Same `[^a]` can appear multiple times. Styling: `// ref nodes` block + mono superscripts (see `CLAUDE.md` → Transmissions markdown reference).
+
+- **External links** — `https://…` opens in a new tab; internal `/…` links stay in-app.
+
 Frontmatter:
 
 ```yaml
