@@ -77,6 +77,15 @@ const MainBanner = () => {
           >
             LinkedIn
           </a>
+          <span className='text-white/20 text-xs'>/</span>
+          <a
+            href='https://www.instagram.com/jasoncuiwu/'
+            target='_blank'
+            rel='noopener noreferrer'
+            className={linkClass}
+          >
+            Instagram
+          </a>
         </div>
       </div>
     </div>
