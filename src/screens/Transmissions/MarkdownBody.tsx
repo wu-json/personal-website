@@ -6,7 +6,7 @@
  * - rehype-raw: <img> with dimensions for ProgressiveImage
  * - Footnote block styling: `.transmission-prose section[data-footnotes]` in index.css
  *
- * @see CLAUDE.md → "Transmissions markdown reference"
+ * @see AGENTS.md → "Transmissions markdown reference"
  */
 import type { AnchorHTMLAttributes, ReactNode } from 'react';
 

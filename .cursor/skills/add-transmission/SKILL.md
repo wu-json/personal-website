@@ -47,7 +47,7 @@ Bodies are rendered by **`MarkdownBody`** (`src/screens/Transmissions/MarkdownBo
   [^a]: [Label](https://example.org/)
   ```
 
-  Same `[^a]` can appear multiple times. Styling: `// ref nodes` block + mono superscripts (see `CLAUDE.md` → Transmissions markdown reference).
+  Same `[^a]` can appear multiple times. Styling: `// ref nodes` block + mono superscripts (see `AGENTS.md` → Transmissions markdown reference).
 
 - **External links** — `https://…` opens in a new tab; internal `/…` links stay in-app.
 

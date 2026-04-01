@@ -1,57 +1,60 @@
-# CLAUDE.md
+# AGENTS.md
 
-This file provides context and guidelines for AI assistants working on this project.
+Context and guidelines for AI assistants and coding agents working on this project.
 
-## Project Overview
+## Project overview
 
-This is a personal website for Jason Wu (jasonwu.io), built as a modern React application.
+Personal site for Jason Wu ([jasonwu.io](https://jasonwu.io)): React + TypeScript app with **Memories** (photo fragments), **Transmissions** (markdown posts), **Constructs** (project entries), and **Heroes** (people). The **Gallery** screen is a first-person Three.js space built with React Three Fiber.
 
-## Tech Stack
+## Tech stack
 
-- **Framework**: React 18 with TypeScript
-- **Build Tool**: Vite 5
-- **Styling**: Tailwind CSS v4
-- **Package Manager**: Bun (>=1.3.4)
-- **Node Version**: 22.x
-- **Linting**: Oxlint
-- **Formatting**: Oxfmt
-- **Git Hooks**: Prek
+- **Framework**: React 19 with TypeScript
+- **Build**: Vite 7
+- **Routing**: [wouter](https://github.com/molefrog/wouter)
+- **Styling**: Tailwind CSS v4 (`@tailwindcss/vite`)
+- **3D**: `three`, `@react-three/fiber`, `@react-three/drei`
+- **Markdown**: `react-markdown`, `remark-gfm`, `rehype-raw`
+- **Package manager**: Bun (>=1.3.4); **Node**: 22.x (`engines` in `package.json`)
+- **Lint / format**: Oxlint, Oxfmt
+- **Git hooks**: [prek](https://github.com/j178/prek) (runs on `bun install`, skipped in CI)
 
-## Development Commands
+## Typography
 
-- `bun install` - Install dependencies
-- `bun dev` - Start development server
-- `bun build` - Build for production
-- `bun preview` - Preview production build
-- `bun run lint` - Run linter
-- `bun run format` - Format code
+[Geist](https://vercel.com/font): `@fontsource-variable/geist`, `@fontsource-variable/geist-mono`, and the `geist` package where needed (including pixel variants for gallery UI).
 
-## Code Style Guidelines
+## Development commands
 
-- The project uses Oxc toolchain for linting and formatting
-- Follow TypeScript best practices
-- Use functional React components with hooks
-- Tailwind CSS v4 for all styling (no inline styles or CSS modules)
+- `bun install` — dependencies + prek hooks locally
+- `bun dev` — Vite dev server (repo also has `curse.toml` wrapping the same command)
+- `bun run build` — production build
+- `bun run preview` — serve production build
+- `bun run lint` — oxlint
+- `bun run format` — oxfmt
+- `bun run optimize-photos` — image pipeline for fragments (see `scripts/optimize-photos.ts`)
 
-## Key Dependencies
+## Code style
 
-- **react-router-dom**: For routing
-- **@fontsource/poppins**: Typography
+- Oxc toolchain for lint and format; match existing patterns and import style
+- Functional components and hooks; keep TypeScript types honest
+- Prefer Tailwind v4 for layout and UI chrome; Three.js / canvas code may use programmatic styles where appropriate
 
-## Project Structure
+## Content locations
 
-- Source code is organized following standard Vite conventions
-- Components use TypeScript for type safety
+| Section       | Entry data                                                                                 |
+| ------------- | ------------------------------------------------------------------------------------------ |
+| Memories      | `src/screens/Memories/fragments/*.md`, images under `public/images/fragments/<slug>/`      |
+| Transmissions | `src/screens/Transmissions/entries/*.md`, images under `public/images/transmissions/<id>/` |
+| Constructs    | `src/screens/Constructs/entries/*.md` (+ optimized assets per add-construct workflow)      |
+| Heroes        | `src/screens/Heroes/entries/*.md`                                                          |
 
-## Important Notes
+Agent workflows: `.cursor/skills/` (`add-fragment`, `add-transmission`, `add-construct`).
 
-- This project has migrated from Sass to Tailwind CSS v4
-- Recently migrated from pnpm to Bun package manager
-- Recently migrated from Biome to Oxc toolchain
-- Uses prek instead of husky/lint-staged for git hooks
-- Main branch is `main`
+## Notes
 
-## Fragment Format Reference
+- Migrated from Sass → Tailwind v4; pnpm → Bun; Biome → Oxc; husky → prek
+- Default branch: `main`
+
+## Fragment format reference
 
 Each fragment markdown file in `src/screens/Memories/fragments/` has YAML frontmatter with a `photos` array and an optional `groupings` map.
 
@@ -118,8 +121,8 @@ Entry bodies live in `src/screens/Transmissions/entries/*.md` (after YAML frontm
 
 Long posts use a collapsed teaser on `/transmissions` unless frontmatter has `expanded: true`. Footnote definitions and full body appear on `/transmissions/<id>`.
 
-## When Making Changes
+## When making changes
 
-1. Always run `bun run lint` and `bun run format` before committing
-2. Ensure TypeScript types are properly defined
-3. Follow existing code patterns and component structure
+1. Run `bun run lint` and `bun run format` before committing
+2. Keep TypeScript types accurate
+3. Follow existing component and file patterns

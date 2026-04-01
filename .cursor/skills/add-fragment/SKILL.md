@@ -29,7 +29,7 @@ Ask the user for:
 - `location`
 - `cover` (must match a photo `file` value, no extension)
 - Optional: per-photo `caption`; optional markdown body below frontmatter
-- Optional: `groupings` for row/column layouts (see project `CLAUDE.md` fragment reference)
+- Optional: `groupings` for row/column layouts (see project `AGENTS.md` fragment reference)
 
 Frontmatter:
 
