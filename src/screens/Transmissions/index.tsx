@@ -5,6 +5,7 @@ import { useLocation } from 'wouter';
 
 import { transmissions } from './data';
 import { MarkdownBody } from './MarkdownBody';
+import { PretextLineBlock } from './PretextLineBlock';
 import {
   parseFirstImgFromTransmissionBody,
   shouldCollapseTransmissionList,
@@ -127,9 +128,11 @@ const TransmissionsScreen = () => {
                           />
                         )}
                         {excerpt ? (
-                          <p className='text-white/50 leading-relaxed'>
-                            {excerpt}
-                          </p>
+                          <PretextLineBlock
+                            as='p'
+                            text={excerpt}
+                            className='text-white/50 leading-relaxed'
+                          />
                         ) : (
                           <p className='text-white/25 text-[10px] font-mono'>
                             {'// preview truncated — open for full signal'}

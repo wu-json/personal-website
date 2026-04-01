@@ -17,6 +17,7 @@
     "optimize-photos": "bun scripts/optimize-photos.ts"
   },
   "dependencies": {
+    "@chenglou/pretext": "^0.0.3",
     "@fontsource-variable/geist": "^5.2.8",
     "@fontsource-variable/geist-mono": "^5.2.7",
     "@react-three/drei": "^10.7.7",
