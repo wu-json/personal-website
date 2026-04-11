@@ -218,64 +218,67 @@ const SpiderLily = ({ className }: { className?: string }) => {
       </defs>
 
       <g filter="url(#ink-texture)">
-        {/* Stem — brush stroke: wide at flower head, trails to a wisp */}
+        {/* Stem — organic brush stroke with natural curve */}
         <path
-          d={`M${CX - 5} ${CY}
-              C${CX - 6} ${CY + 25}, ${CX - 7} 280, ${CX - 6} 330
-              C${CX - 4} 375, ${CX - 6} 420, ${CX - 7} 470
-              C${CX - 6} 515, ${CX - 4} 550, ${CX - 3} 580
-              Q${CX - 2} 594, ${CX} 598
-              Q${CX + 2} 594, ${CX + 2} 580
-              C${CX + 3} 550, ${CX + 1} 515, ${CX} 470
-              C${CX - 1} 420, ${CX + 2} 375, ${CX + 4} 330
-              C${CX + 5} 280, ${CX + 5} ${CY + 25}, ${CX + 5} ${CY}
+          d={`M${CX - 4} ${CY}
+              C${CX - 3} ${CY + 30}, ${CX + 2} 275, ${CX + 6} 320
+              C${CX + 10} 365, ${CX + 8} 410, ${CX + 4} 455
+              C${CX + 1} 500, ${CX - 3} 540, ${CX - 5} 575
+              Q${CX - 5} 592, ${CX - 3} 598
+              Q${CX - 1} 592, ${CX - 1} 575
+              C${CX + 1} 540, ${CX + 5} 500, ${CX + 8} 455
+              C${CX + 12} 410, ${CX + 14} 365, ${CX + 10} 320
+              C${CX + 6} 275, ${CX + 7} ${CY + 30}, ${CX + 6} ${CY}
               Z`}
           className={`spider-lily-stem ${stemActive ? 'spider-lily-stem-active' : ''}`}
         />
 
-        {/* Petals */}
-        {petals.map((p, i) => (
-          <path
-            key={`petal-${i}`}
-            d={p.d}
-            className={`spider-lily-petal ${petalsActive ? 'spider-lily-petal-active' : ''}`}
-            style={{ animationDelay: `${petalDelays[i]}ms` }}
-            pathLength={1}
-          />
-        ))}
-
-        {/* Stamens */}
-        {stamens.map((s, i) => (
-          <g key={`stamen-${i}`}>
+        {/* Flower head — subtle lean */}
+        <g transform={`rotate(-4 ${CX} ${CY})`}>
+          {/* Petals */}
+          {petals.map((p, i) => (
             <path
-              d={s.d}
-              className={`spider-lily-stamen ${stamensActive ? 'spider-lily-stamen-active' : ''}`}
-              style={{ animationDelay: `${s.delay}ms` }}
-              filter="url(#stamen-glow)"
+              key={`petal-${i}`}
+              d={p.d}
+              className={`spider-lily-petal ${petalsActive ? 'spider-lily-petal-active' : ''}`}
+              style={{ animationDelay: `${petalDelays[i]}ms` }}
               pathLength={1}
             />
-            {!s.noTip && (
-              <ellipse
-                cx={s.tipX}
-                cy={s.tipY}
-                rx={s.tipLen}
-                ry={s.tipW}
-                transform={`rotate(${s.tipAngle} ${s.tipX} ${s.tipY})`}
-                className={`spider-lily-anther ${stamensActive ? 'spider-lily-anther-active' : ''}`}
-                style={{ animationDelay: `${s.delay + STAMEN_DURATION}ms` }}
-                filter="url(#stamen-glow)"
-              />
-            )}
-          </g>
-        ))}
+          ))}
 
-        {/* Center */}
-        <circle
-          cx={CX}
-          cy={CY}
-          r="3"
-          className={`spider-lily-center ${petalsActive ? 'spider-lily-center-active' : ''}`}
-        />
+          {/* Stamens */}
+          {stamens.map((s, i) => (
+            <g key={`stamen-${i}`}>
+              <path
+                d={s.d}
+                className={`spider-lily-stamen ${stamensActive ? 'spider-lily-stamen-active' : ''}`}
+                style={{ animationDelay: `${s.delay}ms` }}
+                filter="url(#stamen-glow)"
+                pathLength={1}
+              />
+              {!s.noTip && (
+                <ellipse
+                  cx={s.tipX}
+                  cy={s.tipY}
+                  rx={s.tipLen}
+                  ry={s.tipW}
+                  transform={`rotate(${s.tipAngle} ${s.tipX} ${s.tipY})`}
+                  className={`spider-lily-anther ${stamensActive ? 'spider-lily-anther-active' : ''}`}
+                  style={{ animationDelay: `${s.delay + STAMEN_DURATION}ms` }}
+                  filter="url(#stamen-glow)"
+                />
+              )}
+            </g>
+          ))}
+
+          {/* Center */}
+          <circle
+            cx={CX}
+            cy={CY}
+            r="3"
+            className={`spider-lily-center ${petalsActive ? 'spider-lily-center-active' : ''}`}
+          />
+        </g>
       </g>
     </svg>
   );
