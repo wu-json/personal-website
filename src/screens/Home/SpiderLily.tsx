@@ -9,186 +9,166 @@ import { useEffect, useState } from 'react';
 const CX = 220;
 const CY = 230;
 
-// Petals are thin ribbons (two-edge closed paths) with tight curling
-// spiral tips. Each one: narrow at base → slight widening → tight loop.
-// The "top edge" and "bottom edge" of the ribbon are offset by ~6-10px.
+// Reference analysis: most petal mass droops BELOW center, curling down
+// and outward like a skirt, with tips curling back up. Only 2-3 short
+// petals go upward. The shape is WIDE and DROOPING, not a vertical fan.
+// W = half-width of ribbon.
+const W = 4;
 const petals: { d: string; delay: number }[] = [
-  // ---- LEFT HORIZONTAL ----
-  // Far left — long sweep, tight downward spiral at tip
+  // ==== DROOPING LEFT — the main visual mass ====
+  // Far left — drops down-left, sweeps wide, tip curls up
   {
-    d: `M${CX} ${CY - 3}
-       L${CX - 40} ${CY - 12} L${CX - 85} ${CY - 16} L${CX - 125} ${CY - 10}
-       L${CX - 152} ${CY + 2} L${CX - 165} ${CY + 18} L${CX - 170} ${CY + 38}
-       C${CX - 170} ${CY + 52}, ${CX - 160} ${CY + 58}, ${CX - 150} ${CY + 52}
-       C${CX - 142} ${CY + 44}, ${CX - 148} ${CY + 32}, ${CX - 158} ${CY + 22}
-       L${CX - 155} ${CY + 8} L${CX - 140} ${CY - 2}
-       L${CX - 118} ${CY - 6} L${CX - 82} ${CY - 8} L${CX - 42} ${CY - 2}
-       L${CX - 5} ${CY + 5} Z`,
+    d: `M${CX} ${CY + W}
+       C${CX - 35} ${CY + W + 15}, ${CX - 80} ${CY + W + 45}, ${CX - 120} ${CY + W + 68}
+       C${CX - 145} ${CY + W + 80}, ${CX - 162} ${CY + 78}, ${CX - 165} ${CY + 62}
+       C${CX - 166} ${CY + 48}, ${CX - 155} ${CY + 45}, ${CX - 150} ${CY + 55}
+       C${CX - 145} ${CY + 65}, ${CX - 148} ${CY + 72}, ${CX - 130} ${CY - W + 65}
+       C${CX - 90} ${CY - W + 45}, ${CX - 40} ${CY - W + 18}, ${CX} ${CY - W} Z`,
     delay: 0,
   },
-  // Left mid-upper
+  // Left mid-drop — slightly less steep
   {
-    d: `M${CX} ${CY - 2}
-       L${CX - 35} ${CY - 14} L${CX - 72} ${CY - 28} L${CX - 108} ${CY - 34}
-       L${CX - 138} ${CY - 28} L${CX - 155} ${CY - 14} L${CX - 162} ${CY + 4}
-       C${CX - 165} ${CY + 18}, ${CX - 156} ${CY + 26}, ${CX - 146} ${CY + 20}
-       C${CX - 138} ${CY + 14}, ${CX - 142} ${CY + 2}, ${CX - 150} ${CY - 6}
-       L${CX - 142} ${CY - 16} L${CX - 125} ${CY - 22}
-       L${CX - 102} ${CY - 24} L${CX - 70} ${CY - 18} L${CX - 38} ${CY - 6}
-       L${CX - 6} ${CY + 6} Z`,
-    delay: 100,
+    d: `M${CX} ${CY + W}
+       C${CX - 40} ${CY + W + 10}, ${CX - 90} ${CY + W + 30}, ${CX - 130} ${CY + W + 42}
+       C${CX - 155} ${CY + W + 48}, ${CX - 170} ${CY + 38}, ${CX - 172} ${CY + 22}
+       C${CX - 172} ${CY + 8}, ${CX - 162} ${CY + 5}, ${CX - 158} ${CY + 15}
+       C${CX - 154} ${CY + 25}, ${CX - 158} ${CY + 32}, ${CX - 140} ${CY - W + 38}
+       C${CX - 100} ${CY - W + 25}, ${CX - 45} ${CY - W + 8}, ${CX} ${CY - W} Z`,
+    delay: 80,
   },
-  // Left low — sweeps down, curls up
+  // Left upper-drop — goes out left, slight downward, curls back
   {
-    d: `M${CX} ${CY + 2}
-       L${CX - 32} ${CY + 15} L${CX - 65} ${CY + 32} L${CX - 95} ${CY + 50}
-       L${CX - 115} ${CY + 66} L${CX - 125} ${CY + 82} L${CX - 126} ${CY + 98}
-       C${CX - 124} ${CY + 112}, ${CX - 114} ${CY + 116}, ${CX - 108} ${CY + 108}
-       C${CX - 102} ${CY + 98}, ${CX - 108} ${CY + 86}, ${CX - 116} ${CY + 78}
-       L${CX - 110} ${CY + 62} L${CX - 95} ${CY + 48}
-       L${CX - 72} ${CY + 34} L${CX - 45} ${CY + 20} L${CX - 18} ${CY + 8}
-       L${CX + 3} ${CY + 6} Z`,
-    delay: 190,
-  },
-
-  // ---- RIGHT HORIZONTAL ----
-  // Far right
-  {
-    d: `M${CX} ${CY - 4}
-       L${CX + 42} ${CY - 15} L${CX + 88} ${CY - 20} L${CX + 128} ${CY - 14}
-       L${CX + 155} ${CY} L${CX + 168} ${CY + 16} L${CX + 174} ${CY + 36}
-       C${CX + 175} ${CY + 50}, ${CX + 165} ${CY + 56}, ${CX + 155} ${CY + 50}
-       C${CX + 147} ${CY + 42}, ${CX + 152} ${CY + 30}, ${CX + 162} ${CY + 20}
-       L${CX + 158} ${CY + 6} L${CX + 145} ${CY - 4}
-       L${CX + 122} ${CY - 8} L${CX + 85} ${CY - 10} L${CX + 45} ${CY - 4}
-       L${CX + 6} ${CY + 4} Z`,
-    delay: 50,
-  },
-  // Right mid-upper
-  {
-    d: `M${CX} ${CY - 3}
-       L${CX + 38} ${CY - 16} L${CX + 76} ${CY - 32} L${CX + 112} ${CY - 38}
-       L${CX + 142} ${CY - 30} L${CX + 160} ${CY - 16} L${CX + 168} ${CY + 2}
-       C${CX + 172} ${CY + 16}, ${CX + 162} ${CY + 24}, ${CX + 152} ${CY + 18}
-       C${CX + 144} ${CY + 12}, ${CX + 148} ${CY}, ${CX + 155} ${CY - 8}
-       L${CX + 148} ${CY - 18} L${CX + 130} ${CY - 24}
-       L${CX + 106} ${CY - 28} L${CX + 74} ${CY - 22} L${CX + 40} ${CY - 8}
-       L${CX + 8} ${CY + 5} Z`,
-    delay: 140,
-  },
-  // Right low
-  {
-    d: `M${CX} ${CY + 3}
-       L${CX + 35} ${CY + 18} L${CX + 68} ${CY + 36} L${CX + 98} ${CY + 54}
-       L${CX + 118} ${CY + 70} L${CX + 128} ${CY + 86} L${CX + 130} ${CY + 102}
-       C${CX + 128} ${CY + 115}, ${CX + 118} ${CY + 118}, ${CX + 112} ${CY + 110}
-       C${CX + 106} ${CY + 100}, ${CX + 112} ${CY + 88}, ${CX + 120} ${CY + 80}
-       L${CX + 114} ${CY + 66} L${CX + 100} ${CY + 52}
-       L${CX + 76} ${CY + 38} L${CX + 48} ${CY + 22} L${CX + 20} ${CY + 10}
-       L${CX - 2} ${CY + 6} Z`,
-    delay: 230,
-  },
-
-  // ---- UPPER LEFT DIAGONAL ----
-  {
-    d: `M${CX - 2} ${CY}
-       L${CX - 20} ${CY - 22} L${CX - 42} ${CY - 52} L${CX - 62} ${CY - 78}
-       L${CX - 76} ${CY - 100} L${CX - 82} ${CY - 118} L${CX - 80} ${CY - 132}
-       C${CX - 76} ${CY - 144}, ${CX - 66} ${CY - 146}, ${CX - 60} ${CY - 138}
-       C${CX - 56} ${CY - 130}, ${CX - 62} ${CY - 120}, ${CX - 70} ${CY - 114}
-       L${CX - 68} ${CY - 98} L${CX - 58} ${CY - 78}
-       L${CX - 42} ${CY - 54} L${CX - 24} ${CY - 30} L${CX - 6} ${CY - 8}
-       L${CX + 3} ${CY + 5} Z`,
-    delay: 70,
-  },
-
-  // ---- UPPER RIGHT DIAGONAL ----
-  {
-    d: `M${CX + 2} ${CY}
-       L${CX + 22} ${CY - 24} L${CX + 46} ${CY - 56} L${CX + 68} ${CY - 82}
-       L${CX + 82} ${CY - 104} L${CX + 88} ${CY - 122} L${CX + 86} ${CY - 136}
-       C${CX + 82} ${CY - 148}, ${CX + 72} ${CY - 150}, ${CX + 66} ${CY - 142}
-       C${CX + 62} ${CY - 134}, ${CX + 68} ${CY - 124}, ${CX + 76} ${CY - 118}
-       L${CX + 74} ${CY - 102} L${CX + 64} ${CY - 82}
-       L${CX + 46} ${CY - 58} L${CX + 26} ${CY - 32} L${CX + 8} ${CY - 10}
-       L${CX - 2} ${CY + 4} Z`,
+    d: `M${CX} ${CY - W}
+       C${CX - 42} ${CY - W - 2}, ${CX - 95} ${CY - W + 8}, ${CX - 135} ${CY - W + 18}
+       C${CX - 158} ${CY - W + 25}, ${CX - 170} ${CY + 15}, ${CX - 168} ${CY}
+       C${CX - 166} ${CY - 14}, ${CX - 156} ${CY - 18}, ${CX - 152} ${CY - 8}
+       C${CX - 148} ${CY + 2}, ${CX - 152} ${CY + 10}, ${CX - 135} ${CY + W + 10}
+       C${CX - 95} ${CY + W + 2}, ${CX - 42} ${CY + W - 2}, ${CX} ${CY + W} Z`,
     delay: 160,
   },
+  // Left steep drop — goes sharply down-left
+  {
+    d: `M${CX} ${CY + W}
+       C${CX - 25} ${CY + W + 20}, ${CX - 55} ${CY + W + 55}, ${CX - 80} ${CY + W + 85}
+       C${CX - 95} ${CY + W + 100}, ${CX - 108} ${CY + 102}, ${CX - 112} ${CY + 88}
+       C${CX - 115} ${CY + 75}, ${CX - 105} ${CY + 70}, ${CX - 100} ${CY + 80}
+       C${CX - 95} ${CY + 90}, ${CX - 98} ${CY + 95}, ${CX - 78} ${CY - W + 82}
+       C${CX - 52} ${CY - W + 55}, ${CX - 25} ${CY - W + 22}, ${CX} ${CY - W} Z`,
+    delay: 240,
+  },
 
-  // ---- TOP PETALS ----
+  // ==== DROOPING RIGHT — mirror mass ====
+  // Far right drop
+  {
+    d: `M${CX} ${CY + W}
+       C${CX + 38} ${CY + W + 16}, ${CX + 85} ${CY + W + 48}, ${CX + 125} ${CY + W + 72}
+       C${CX + 150} ${CY + W + 84}, ${CX + 168} ${CY + 80}, ${CX + 170} ${CY + 64}
+       C${CX + 172} ${CY + 50}, ${CX + 160} ${CY + 46}, ${CX + 155} ${CY + 56}
+       C${CX + 150} ${CY + 66}, ${CX + 152} ${CY + 74}, ${CX + 135} ${CY - W + 68}
+       C${CX + 95} ${CY - W + 48}, ${CX + 42} ${CY - W + 20}, ${CX} ${CY - W} Z`,
+    delay: 40,
+  },
+  // Right mid-drop
+  {
+    d: `M${CX} ${CY + W}
+       C${CX + 42} ${CY + W + 12}, ${CX + 95} ${CY + W + 32}, ${CX + 135} ${CY + W + 44}
+       C${CX + 160} ${CY + W + 50}, ${CX + 175} ${CY + 40}, ${CX + 178} ${CY + 24}
+       C${CX + 178} ${CY + 10}, ${CX + 168} ${CY + 6}, ${CX + 162} ${CY + 16}
+       C${CX + 158} ${CY + 26}, ${CX + 162} ${CY + 34}, ${CX + 145} ${CY - W + 40}
+       C${CX + 105} ${CY - W + 28}, ${CX + 48} ${CY - W + 10}, ${CX} ${CY - W} Z`,
+    delay: 120,
+  },
+  // Right upper-drop
+  {
+    d: `M${CX} ${CY - W}
+       C${CX + 45} ${CY - W - 4}, ${CX + 100} ${CY - W + 5}, ${CX + 140} ${CY - W + 15}
+       C${CX + 162} ${CY - W + 22}, ${CX + 175} ${CY + 12}, ${CX + 172} ${CY - 2}
+       C${CX + 170} ${CY - 16}, ${CX + 160} ${CY - 20}, ${CX + 156} ${CY - 10}
+       C${CX + 152} ${CY}, ${CX + 156} ${CY + 8}, ${CX + 140} ${CY + W + 8}
+       C${CX + 100} ${CY + W}, ${CX + 45} ${CY + W - 4}, ${CX} ${CY + W} Z`,
+    delay: 200,
+  },
+  // Right steep drop
+  {
+    d: `M${CX} ${CY + W}
+       C${CX + 28} ${CY + W + 22}, ${CX + 58} ${CY + W + 58}, ${CX + 85} ${CY + W + 88}
+       C${CX + 100} ${CY + W + 104}, ${CX + 112} ${CY + 105}, ${CX + 116} ${CY + 90}
+       C${CX + 118} ${CY + 78}, ${CX + 108} ${CY + 72}, ${CX + 104} ${CY + 82}
+       C${CX + 100} ${CY + 92}, ${CX + 102} ${CY + 98}, ${CX + 82} ${CY - W + 85}
+       C${CX + 56} ${CY - W + 58}, ${CX + 28} ${CY - W + 24}, ${CX} ${CY - W} Z`,
+    delay: 280,
+  },
+
+  // ==== UPPER — spreading out wide at various angles ====
+  // Upper far-left — goes up and out left, curls back
+  {
+    d: `M${CX - W} ${CY}
+       C${CX - W - 15} ${CY - 18}, ${CX - W - 45} ${CY - 45}, ${CX - W - 78} ${CY - 62}
+       C${CX - W - 100} ${CY - 72}, ${CX - W - 118} ${CY - 68}, ${CX - W - 125} ${CY - 52}
+       C${CX - W - 130} ${CY - 38}, ${CX - W - 120} ${CY - 32}, ${CX - W - 112} ${CY - 42}
+       C${CX - W - 105} ${CY - 52}, ${CX - W - 108} ${CY - 58}, ${CX + W - 95} ${CY - 55}
+       C${CX + W - 60} ${CY - 42}, ${CX + W - 25} ${CY - 20}, ${CX + W} ${CY} Z`,
+    delay: 60,
+  },
+  // Upper far-right — mirror
+  {
+    d: `M${CX + W} ${CY}
+       C${CX + W + 18} ${CY - 20}, ${CX + W + 48} ${CY - 48}, ${CX + W + 82} ${CY - 66}
+       C${CX + W + 105} ${CY - 76}, ${CX + W + 122} ${CY - 72}, ${CX + W + 130} ${CY - 55}
+       C${CX + W + 135} ${CY - 42}, ${CX + W + 125} ${CY - 34}, ${CX + W + 116} ${CY - 44}
+       C${CX + W + 108} ${CY - 54}, ${CX + W + 112} ${CY - 62}, ${CX - W + 100} ${CY - 58}
+       C${CX - W + 65} ${CY - 45}, ${CX - W + 28} ${CY - 22}, ${CX - W} ${CY} Z`,
+    delay: 130,
+  },
+  // Upper-left diagonal — steeper
+  {
+    d: `M${CX - W} ${CY}
+       C${CX - W - 10} ${CY - 25}, ${CX - W - 28} ${CY - 62}, ${CX - W - 42} ${CY - 95}
+       C${CX - W - 52} ${CY - 118}, ${CX - W - 48} ${CY - 140}, ${CX - W - 35} ${CY - 148}
+       C${CX - W - 22} ${CY - 155}, ${CX - W - 12} ${CY - 145}, ${CX - W - 16} ${CY - 132}
+       C${CX - W - 20} ${CY - 120}, ${CX - W - 28} ${CY - 115}, ${CX + W - 38} ${CY - 100}
+       C${CX + W - 25} ${CY - 65}, ${CX + W - 8} ${CY - 28}, ${CX + W} ${CY} Z`,
+    delay: 100,
+  },
+  // Upper-right diagonal — steeper
+  {
+    d: `M${CX + W} ${CY}
+       C${CX + W + 12} ${CY - 28}, ${CX + W + 32} ${CY - 65}, ${CX + W + 48} ${CY - 98}
+       C${CX + W + 58} ${CY - 122}, ${CX + W + 54} ${CY - 144}, ${CX + W + 40} ${CY - 152}
+       C${CX + W + 28} ${CY - 158}, ${CX + W + 16} ${CY - 148}, ${CX + W + 20} ${CY - 135}
+       C${CX + W + 24} ${CY - 122}, ${CX + W + 32} ${CY - 118}, ${CX - W + 42} ${CY - 104}
+       C${CX - W + 28} ${CY - 68}, ${CX - W + 10} ${CY - 30}, ${CX - W} ${CY} Z`,
+    delay: 190,
+  },
   // Top left-lean
   {
-    d: `M${CX - 1} ${CY}
-       L${CX - 10} ${CY - 28} L${CX - 18} ${CY - 65} L${CX - 24} ${CY - 102}
-       L${CX - 26} ${CY - 132} L${CX - 22} ${CY - 155} L${CX - 14} ${CY - 170}
-       C${CX - 6} ${CY - 180}, ${CX + 2} ${CY - 176}, ${CX + 2} ${CY - 166}
-       C${CX + 2} ${CY - 156}, ${CX - 8} ${CY - 152}, ${CX - 16} ${CY - 148}
-       L${CX - 18} ${CY - 132} L${CX - 16} ${CY - 105}
-       L${CX - 12} ${CY - 68} L${CX - 4} ${CY - 32} L${CX + 4} ${CY - 4}
-       L${CX + 3} ${CY + 5} Z`,
-    delay: 40,
+    d: `M${CX - W} ${CY}
+       C${CX - W - 3} ${CY - 30}, ${CX - W - 10} ${CY - 72}, ${CX - W - 14} ${CY - 108}
+       C${CX - W - 16} ${CY - 132}, ${CX - W - 8} ${CY - 150}, ${CX + 2} ${CY - 155}
+       C${CX + 10} ${CY - 158}, ${CX + 14} ${CY - 148}, ${CX + 10} ${CY - 135}
+       C${CX + 6} ${CY - 122}, ${CX - 2} ${CY - 118}, ${CX + W - 10} ${CY - 105}
+       C${CX + W - 6} ${CY - 72}, ${CX + W - 1} ${CY - 30}, ${CX + W} ${CY} Z`,
+    delay: 50,
   },
   // Top right-lean
   {
-    d: `M${CX + 1} ${CY}
-       L${CX + 12} ${CY - 30} L${CX + 22} ${CY - 68} L${CX + 30} ${CY - 106}
-       L${CX + 34} ${CY - 138} L${CX + 30} ${CY - 160} L${CX + 22} ${CY - 175}
-       C${CX + 14} ${CY - 185}, ${CX + 4} ${CY - 182}, ${CX + 4} ${CY - 172}
-       C${CX + 4} ${CY - 162}, ${CX + 14} ${CY - 156}, ${CX + 22} ${CY - 152}
-       L${CX + 24} ${CY - 138} L${CX + 22} ${CY - 108}
-       L${CX + 16} ${CY - 72} L${CX + 8} ${CY - 34} L${CX} ${CY - 6}
-       L${CX - 2} ${CY + 4} Z`,
-    delay: 110,
+    d: `M${CX + W} ${CY}
+       C${CX + W + 5} ${CY - 32}, ${CX + W + 14} ${CY - 75}, ${CX + W + 18} ${CY - 112}
+       C${CX + W + 20} ${CY - 135}, ${CX + W + 12} ${CY - 152}, ${CX + 2} ${CY - 158}
+       C${CX - 8} ${CY - 162}, ${CX - 12} ${CY - 152}, ${CX - 8} ${CY - 138}
+       C${CX - 4} ${CY - 125}, ${CX + 4} ${CY - 120}, ${CX - W + 14} ${CY - 108}
+       C${CX - W + 10} ${CY - 75}, ${CX - W + 3} ${CY - 32}, ${CX - W} ${CY} Z`,
+    delay: 150,
   },
-  // Top center-left narrow
+  // Top center
   {
-    d: `M${CX - 1} ${CY}
-       L${CX - 6} ${CY - 22} L${CX - 14} ${CY - 55} L${CX - 24} ${CY - 88}
-       L${CX - 36} ${CY - 115} L${CX - 42} ${CY - 135} L${CX - 42} ${CY - 150}
-       C${CX - 38} ${CY - 162}, ${CX - 28} ${CY - 164}, ${CX - 24} ${CY - 155}
-       C${CX - 20} ${CY - 146}, ${CX - 28} ${CY - 138}, ${CX - 35} ${CY - 132}
-       L${CX - 32} ${CY - 115} L${CX - 22} ${CY - 90}
-       L${CX - 12} ${CY - 58} L${CX - 4} ${CY - 26} L${CX + 4} ${CY - 2}
-       Z`,
-    delay: 200,
-  },
-  // Top center-right narrow
-  {
-    d: `M${CX + 1} ${CY}
-       L${CX + 8} ${CY - 24} L${CX + 18} ${CY - 58} L${CX + 30} ${CY - 92}
-       L${CX + 42} ${CY - 118} L${CX + 48} ${CY - 138} L${CX + 48} ${CY - 152}
-       C${CX + 44} ${CY - 164}, ${CX + 34} ${CY - 166}, ${CX + 30} ${CY - 158}
-       C${CX + 26} ${CY - 148}, ${CX + 34} ${CY - 140}, ${CX + 42} ${CY - 135}
-       L${CX + 38} ${CY - 118} L${CX + 28} ${CY - 94}
-       L${CX + 16} ${CY - 62} L${CX + 6} ${CY - 28} L${CX - 2} ${CY - 4}
-       Z`,
-    delay: 260,
-  },
-
-  // ---- EXTRA DENSITY PETALS ----
-  // Left far-upper — tighter angle
-  {
-    d: `M${CX - 1} ${CY - 1}
-       L${CX - 28} ${CY - 18} L${CX - 58} ${CY - 42} L${CX - 85} ${CY - 58}
-       L${CX - 108} ${CY - 66} L${CX - 124} ${CY - 64} L${CX - 134} ${CY - 52}
-       C${CX - 140} ${CY - 40}, ${CX - 134} ${CY - 30}, ${CX - 124} ${CY - 32}
-       C${CX - 116} ${CY - 34}, ${CX - 118} ${CY - 44}, ${CX - 124} ${CY - 50}
-       L${CX - 114} ${CY - 54} L${CX - 98} ${CY - 52}
-       L${CX - 75} ${CY - 44} L${CX - 50} ${CY - 30} L${CX - 25} ${CY - 12}
-       L${CX + 2} ${CY + 5} Z`,
-    delay: 280,
-  },
-  // Right far-upper
-  {
-    d: `M${CX + 1} ${CY - 1}
-       L${CX + 30} ${CY - 20} L${CX + 62} ${CY - 46} L${CX + 90} ${CY - 62}
-       L${CX + 112} ${CY - 70} L${CX + 128} ${CY - 68} L${CX + 138} ${CY - 56}
-       C${CX + 144} ${CY - 44}, ${CX + 138} ${CY - 34}, ${CX + 128} ${CY - 36}
-       C${CX + 120} ${CY - 38}, ${CX + 122} ${CY - 48}, ${CX + 128} ${CY - 54}
-       L${CX + 118} ${CY - 58} L${CX + 102} ${CY - 56}
-       L${CX + 80} ${CY - 48} L${CX + 54} ${CY - 34} L${CX + 28} ${CY - 14}
-       L${CX - 1} ${CY + 4} Z`,
-    delay: 310,
+    d: `M${CX - W} ${CY}
+       C${CX - W} ${CY - 28}, ${CX - W - 3} ${CY - 65}, ${CX - W - 5} ${CY - 98}
+       C${CX - W - 6} ${CY - 120}, ${CX - W} ${CY - 138}, ${CX + 2} ${CY - 142}
+       C${CX + W + 2} ${CY - 145}, ${CX + W + 5} ${CY - 135}, ${CX + W + 3} ${CY - 122}
+       C${CX + W} ${CY - 108}, ${CX + W - 2} ${CY - 102}, ${CX + W} ${CY - 85}
+       C${CX + W} ${CY - 58}, ${CX + W} ${CY - 28}, ${CX + W} ${CY} Z`,
+    delay: 220,
   },
 ];
 
