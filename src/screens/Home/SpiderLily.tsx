@@ -13,134 +13,134 @@ const CY = 230;
 // W = half-width of ribbon. Kept narrow for paper/ribbon feel.
 const W = 4;
 const petals: { d: string; delay: number }[] = [
-  // ==== UPPER DOME — organic ribbon petals, tips tracing a dome arc ====
+  // ==== UPPER DOME — organic ribbon petals with natural irregularity ====
 
-  // Top center — straight up
+  // Top center — leans very slightly left
   {
     d: `M${CX - W} ${CY}
-       C${CX - W - 1} ${CY - 40}, ${CX - W - 3} ${CY - 85}, ${CX - W - 2} ${CY - 125}
-       C${CX - W - 1} ${CY - 145}, ${CX} ${CY - 156}, ${CX} ${CY - 158}
-       C${CX} ${CY - 156}, ${CX + W + 1} ${CY - 145}, ${CX + W} ${CY - 125}
-       C${CX + W - 1} ${CY - 85}, ${CX + W + 1} ${CY - 40}, ${CX + W} ${CY} Z`,
+       C${CX - W - 2} ${CY - 38}, ${CX - W - 5} ${CY - 82}, ${CX - W - 4} ${CY - 122}
+       C${CX - W - 3} ${CY - 144}, ${CX - 1} ${CY - 157}, ${CX - 1} ${CY - 160}
+       C${CX} ${CY - 157}, ${CX + W} ${CY - 143}, ${CX + W - 1} ${CY - 124}
+       C${CX + W} ${CY - 88}, ${CX + W + 2} ${CY - 42}, ${CX + W} ${CY} Z`,
     delay: 0,
   },
-  // Left ~20°
+  // Left ~18°
   {
     d: `M${CX - W} ${CY}
-       C${CX - W - 6} ${CY - 35}, ${CX - W - 18} ${CY - 78}, ${CX - W - 30} ${CY - 118}
-       C${CX - W - 38} ${CY - 140}, ${CX - W - 24} ${CY - 154}, ${CX - W - 18} ${CY - 155}
-       L${CX + W - 24} ${CY - 152}
-       C${CX + W - 22} ${CY - 138}, ${CX + W - 18} ${CY - 112}, ${CX + W - 14} ${CY - 76}
-       C${CX + W - 4} ${CY - 35}, ${CX + W} ${CY - 10}, ${CX + W} ${CY} Z`,
+       C${CX - W - 5} ${CY - 33}, ${CX - W - 16} ${CY - 75}, ${CX - W - 28} ${CY - 115}
+       C${CX - W - 36} ${CY - 138}, ${CX - W - 23} ${CY - 153}, ${CX - W - 16} ${CY - 156}
+       L${CX + W - 22} ${CY - 153}
+       C${CX + W - 20} ${CY - 136}, ${CX + W - 17} ${CY - 108}, ${CX + W - 12} ${CY - 74}
+       C${CX + W - 3} ${CY - 37}, ${CX + W + 1} ${CY - 12}, ${CX + W} ${CY} Z`,
     delay: 60,
   },
-  // Right ~20°
+  // Right ~22°
   {
     d: `M${CX + W} ${CY}
-       C${CX + W + 7} ${CY - 36}, ${CX + W + 20} ${CY - 80}, ${CX + W + 34} ${CY - 120}
-       C${CX + W + 42} ${CY - 142}, ${CX + W + 28} ${CY - 156}, ${CX + W + 22} ${CY - 158}
-       L${CX - W + 28} ${CY - 155}
-       C${CX - W + 26} ${CY - 140}, ${CX - W + 22} ${CY - 115}, ${CX - W + 18} ${CY - 78}
-       C${CX - W + 6} ${CY - 36}, ${CX - W} ${CY - 10}, ${CX - W} ${CY} Z`,
+       C${CX + W + 8} ${CY - 34}, ${CX + W + 22} ${CY - 78}, ${CX + W + 36} ${CY - 118}
+       C${CX + W + 44} ${CY - 141}, ${CX + W + 30} ${CY - 155}, ${CX + W + 23} ${CY - 157}
+       L${CX - W + 29} ${CY - 153}
+       C${CX - W + 27} ${CY - 139}, ${CX - W + 23} ${CY - 113}, ${CX - W + 19} ${CY - 76}
+       C${CX - W + 7} ${CY - 38}, ${CX - W + 1} ${CY - 11}, ${CX - W} ${CY} Z`,
     delay: 100,
   },
-  // Left ~42°
+  // Left ~40°
   {
     d: `M${CX - W} ${CY}
-       C${CX - W - 14} ${CY - 26}, ${CX - W - 38} ${CY - 62}, ${CX - W - 62} ${CY - 98}
-       C${CX - W - 78} ${CY - 122}, ${CX - W - 64} ${CY - 140}, ${CX - W - 56} ${CY - 142}
-       L${CX + W - 62} ${CY - 139}
-       C${CX + W - 58} ${CY - 122}, ${CX + W - 50} ${CY - 95}, ${CX + W - 34} ${CY - 60}
-       C${CX + W - 12} ${CY - 26}, ${CX + W} ${CY - 8}, ${CX + W} ${CY} Z`,
+       C${CX - W - 13} ${CY - 24}, ${CX - W - 36} ${CY - 58}, ${CX - W - 60} ${CY - 95}
+       C${CX - W - 76} ${CY - 120}, ${CX - W - 63} ${CY - 139}, ${CX - W - 54} ${CY - 143}
+       L${CX + W - 60} ${CY - 140}
+       C${CX + W - 57} ${CY - 120}, ${CX + W - 48} ${CY - 92}, ${CX + W - 33} ${CY - 58}
+       C${CX + W - 11} ${CY - 25}, ${CX + W + 1} ${CY - 9}, ${CX + W} ${CY} Z`,
     delay: 140,
   },
-  // Right ~42°
+  // Right ~44°
   {
     d: `M${CX + W} ${CY}
-       C${CX + W + 16} ${CY - 28}, ${CX + W + 42} ${CY - 65}, ${CX + W + 66} ${CY - 100}
-       C${CX + W + 82} ${CY - 124}, ${CX + W + 68} ${CY - 142}, ${CX + W + 60} ${CY - 144}
-       L${CX - W + 66} ${CY - 141}
-       C${CX - W + 62} ${CY - 124}, ${CX - W + 54} ${CY - 98}, ${CX - W + 38} ${CY - 62}
-       C${CX - W + 14} ${CY - 28}, ${CX - W} ${CY - 8}, ${CX - W} ${CY} Z`,
+       C${CX + W + 17} ${CY - 27}, ${CX + W + 44} ${CY - 63}, ${CX + W + 68} ${CY - 98}
+       C${CX + W + 84} ${CY - 123}, ${CX + W + 70} ${CY - 141}, ${CX + W + 62} ${CY - 145}
+       L${CX - W + 68} ${CY - 142}
+       C${CX - W + 64} ${CY - 123}, ${CX - W + 56} ${CY - 96}, ${CX - W + 40} ${CY - 61}
+       C${CX - W + 15} ${CY - 27}, ${CX - W + 1} ${CY - 9}, ${CX - W} ${CY} Z`,
     delay: 180,
   },
-  // Left ~62°
+  // Left ~60°
   {
     d: `M${CX - W} ${CY}
-       C${CX - W - 20} ${CY - 18}, ${CX - W - 55} ${CY - 42}, ${CX - W - 88} ${CY - 66}
-       C${CX - W - 108} ${CY - 82}, ${CX - W - 100} ${CY - 102}, ${CX - W - 95} ${CY - 105}
-       L${CX + W - 100} ${CY - 102}
-       C${CX + W - 95} ${CY - 85}, ${CX + W - 82} ${CY - 62}, ${CX + W - 50} ${CY - 40}
-       C${CX + W - 18} ${CY - 18}, ${CX + W} ${CY - 5}, ${CX + W} ${CY} Z`,
+       C${CX - W - 19} ${CY - 16}, ${CX - W - 52} ${CY - 39}, ${CX - W - 85} ${CY - 63}
+       C${CX - W - 106} ${CY - 80}, ${CX - W - 98} ${CY - 100}, ${CX - W - 92} ${CY - 104}
+       L${CX + W - 97} ${CY - 100}
+       C${CX + W - 93} ${CY - 83}, ${CX + W - 80} ${CY - 60}, ${CX + W - 48} ${CY - 38}
+       C${CX + W - 17} ${CY - 17}, ${CX + W + 1} ${CY - 5}, ${CX + W} ${CY} Z`,
     delay: 220,
   },
-  // Right ~62°
+  // Right ~64°
   {
     d: `M${CX + W} ${CY}
-       C${CX + W + 22} ${CY - 20}, ${CX + W + 58} ${CY - 44}, ${CX + W + 92} ${CY - 68}
-       C${CX + W + 112} ${CY - 84}, ${CX + W + 104} ${CY - 104}, ${CX + W + 100} ${CY - 108}
-       L${CX - W + 104} ${CY - 105}
-       C${CX - W + 100} ${CY - 88}, ${CX - W + 86} ${CY - 65}, ${CX - W + 54} ${CY - 42}
-       C${CX - W + 20} ${CY - 20}, ${CX - W} ${CY - 5}, ${CX - W} ${CY} Z`,
+       C${CX + W + 24} ${CY - 19}, ${CX + W + 60} ${CY - 43}, ${CX + W + 94} ${CY - 67}
+       C${CX + W + 114} ${CY - 83}, ${CX + W + 106} ${CY - 103}, ${CX + W + 101} ${CY - 107}
+       L${CX - W + 106} ${CY - 103}
+       C${CX - W + 102} ${CY - 87}, ${CX - W + 88} ${CY - 64}, ${CX - W + 56} ${CY - 41}
+       C${CX - W + 22} ${CY - 19}, ${CX - W + 1} ${CY - 6}, ${CX - W} ${CY} Z`,
     delay: 250,
   },
-  // Left ~80° — nearly horizontal
+  // Left ~78° — nearly horizontal, slight droop
   {
     d: `M${CX} ${CY - W}
-       C${CX - 28} ${CY - W - 4}, ${CX - 72} ${CY - W - 10}, ${CX - 115} ${CY - W - 12}
-       C${CX - 142} ${CY - W - 12}, ${CX - 156} ${CY - 22}, ${CX - 158} ${CY - 28}
-       L${CX - 155} ${CY + W - 22}
-       C${CX - 142} ${CY + W - 12}, ${CX - 112} ${CY + W - 6}, ${CX - 72} ${CY + W - 2}
-       C${CX - 28} ${CY + W}, ${CX} ${CY + W}, ${CX} ${CY + W} Z`,
+       C${CX - 26} ${CY - W - 3}, ${CX - 68} ${CY - W - 8}, ${CX - 112} ${CY - W - 10}
+       C${CX - 140} ${CY - W - 11}, ${CX - 154} ${CY - 20}, ${CX - 157} ${CY - 27}
+       L${CX - 154} ${CY + W - 21}
+       C${CX - 140} ${CY + W - 11}, ${CX - 108} ${CY + W - 4}, ${CX - 70} ${CY + W}
+       C${CX - 30} ${CY + W + 2}, ${CX} ${CY + W}, ${CX} ${CY + W} Z`,
     delay: 40,
   },
-  // Right ~80° — nearly horizontal
+  // Right ~82° — nearly horizontal, slight lift
   {
     d: `M${CX} ${CY - W}
-       C${CX + 30} ${CY - W - 5}, ${CX + 76} ${CY - W - 12}, ${CX + 120} ${CY - W - 14}
-       C${CX + 148} ${CY - W - 13}, ${CX + 162} ${CY - 24}, ${CX + 164} ${CY - 30}
-       L${CX + 161} ${CY + W - 24}
-       C${CX + 148} ${CY + W - 13}, ${CX + 118} ${CY + W - 8}, ${CX + 76} ${CY + W - 3}
-       C${CX + 30} ${CY + W - 1}, ${CX} ${CY + W}, ${CX} ${CY + W} Z`,
+       C${CX + 32} ${CY - W - 6}, ${CX + 78} ${CY - W - 13}, ${CX + 122} ${CY - W - 16}
+       C${CX + 150} ${CY - W - 15}, ${CX + 164} ${CY - 25}, ${CX + 166} ${CY - 32}
+       L${CX + 163} ${CY + W - 26}
+       C${CX + 150} ${CY + W - 14}, ${CX + 120} ${CY + W - 9}, ${CX + 78} ${CY + W - 4}
+       C${CX + 32} ${CY + W - 2}, ${CX} ${CY + W}, ${CX} ${CY + W} Z`,
     delay: 80,
   },
 
-  // ==== LOWER PETALS — four parenthesis curves, sharp pointed tips ====
+  // ==== LOWER PETALS — parenthesis curves with organic asymmetry ====
 
-  // Outer left "("
+  // Outer left "(" — wider arc, tip curls slightly inward
   {
     d: `M${CX} ${CY + W}
-       C${CX - 35} ${CY + W + 5}, ${CX - 70} ${CY + W + 18}, ${CX - 85} ${CY + W + 40}
-       C${CX - 95} ${CY + W + 58}, ${CX - 88} ${CY + W + 78}, ${CX - 68} ${CY + 86}
-       C${CX - 82} ${CY + 72}, ${CX - 88} ${CY + 52}, ${CX - 78} ${CY + 35}
-       C${CX - 65} ${CY + 16}, ${CX - 32} ${CY + 4}, ${CX} ${CY - W} Z`,
+       C${CX - 33} ${CY + W + 4}, ${CX - 68} ${CY + W + 16}, ${CX - 84} ${CY + W + 38}
+       C${CX - 96} ${CY + W + 57}, ${CX - 90} ${CY + W + 78}, ${CX - 70} ${CY + 87}
+       C${CX - 84} ${CY + 73}, ${CX - 89} ${CY + 53}, ${CX - 79} ${CY + 36}
+       C${CX - 66} ${CY + 17}, ${CX - 34} ${CY + 5}, ${CX} ${CY - W} Z`,
     delay: 280,
   },
-  // Outer right ")"
+  // Outer right ")" — slightly tighter than left
   {
     d: `M${CX} ${CY + W}
-       C${CX + 38} ${CY + W + 6}, ${CX + 72} ${CY + W + 20}, ${CX + 88} ${CY + W + 42}
-       C${CX + 98} ${CY + W + 60}, ${CX + 92} ${CY + W + 80}, ${CX + 72} ${CY + 88}
-       C${CX + 86} ${CY + 74}, ${CX + 92} ${CY + 54}, ${CX + 82} ${CY + 37}
-       C${CX + 68} ${CY + 18}, ${CX + 35} ${CY + 5}, ${CX} ${CY - W} Z`,
+       C${CX + 36} ${CY + W + 5}, ${CX + 70} ${CY + W + 19}, ${CX + 86} ${CY + W + 40}
+       C${CX + 97} ${CY + W + 59}, ${CX + 91} ${CY + W + 79}, ${CX + 70} ${CY + 86}
+       C${CX + 85} ${CY + 72}, ${CX + 90} ${CY + 52}, ${CX + 80} ${CY + 35}
+       C${CX + 66} ${CY + 17}, ${CX + 33} ${CY + 4}, ${CX} ${CY - W} Z`,
     delay: 320,
   },
-  // Inner left "("
+  // Inner left "(" — shorter, tighter curl
   {
     d: `M${CX} ${CY + W}
-       C${CX - 20} ${CY + W + 6}, ${CX - 42} ${CY + W + 20}, ${CX - 52} ${CY + W + 38}
-       C${CX - 58} ${CY + W + 52}, ${CX - 52} ${CY + W + 68}, ${CX - 37} ${CY + 74}
-       C${CX - 48} ${CY + 62}, ${CX - 52} ${CY + 46}, ${CX - 44} ${CY + 32}
-       C${CX - 36} ${CY + 18}, ${CX - 18} ${CY + 5}, ${CX} ${CY - W} Z`,
+       C${CX - 18} ${CY + W + 5}, ${CX - 40} ${CY + W + 18}, ${CX - 50} ${CY + W + 36}
+       C${CX - 57} ${CY + W + 51}, ${CX - 51} ${CY + W + 67}, ${CX - 36} ${CY + 73}
+       C${CX - 47} ${CY + 61}, ${CX - 51} ${CY + 45}, ${CX - 43} ${CY + 31}
+       C${CX - 34} ${CY + 17}, ${CX - 17} ${CY + 5}, ${CX} ${CY - W} Z`,
     delay: 360,
   },
-  // Inner right ")"
+  // Inner right ")" — slightly longer than inner left
   {
     d: `M${CX} ${CY + W}
-       C${CX + 22} ${CY + W + 8}, ${CX + 45} ${CY + W + 22}, ${CX + 55} ${CY + W + 40}
-       C${CX + 62} ${CY + W + 55}, ${CX + 56} ${CY + W + 70}, ${CX + 41} ${CY + 76}
-       C${CX + 52} ${CY + 64}, ${CX + 56} ${CY + 48}, ${CX + 48} ${CY + 34}
-       C${CX + 40} ${CY + 20}, ${CX + 20} ${CY + 6}, ${CX} ${CY - W} Z`,
+       C${CX + 24} ${CY + W + 7}, ${CX + 47} ${CY + W + 21}, ${CX + 57} ${CY + W + 39}
+       C${CX + 64} ${CY + W + 54}, ${CX + 58} ${CY + W + 70}, ${CX + 43} ${CY + 77}
+       C${CX + 54} ${CY + 65}, ${CX + 58} ${CY + 49}, ${CX + 50} ${CY + 35}
+       C${CX + 42} ${CY + 21}, ${CX + 22} ${CY + 7}, ${CX} ${CY - W} Z`,
     delay: 400,
   },
 ];
