@@ -11,7 +11,7 @@ const CY = 230;
 
 // Hand-drawn ribbon petals — thin, organic, dome-shaped arrangement.
 // W = half-width of ribbon. Kept narrow for paper/ribbon feel.
-const W = 3;
+const W = 4;
 const petals: { d: string; delay: number }[] = [
   // ==== UPPER DOME — organic ribbon petals, tips tracing a dome arc ====
 
