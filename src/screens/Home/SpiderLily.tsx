@@ -146,46 +146,46 @@ const petals: { d: string; delay: number }[] = [
     delay: 280,
   },
 
-  // ==== LOWER PETALS — four ribbon curls, droop out then tips curl back up ====
+  // ==== LOWER PETALS — four parenthesis-shaped curves framing the stem ====
 
-  // Far left — sweeps wide left, droops, tip curls back up
+  // Outer left "(" — arcs out left then curves down
   {
     d: `M${CX} ${CY + W}
-       C${CX - 30} ${CY + W + 10}, ${CX - 75} ${CY + W + 30}, ${CX - 110} ${CY + W + 50}
-       C${CX - 135} ${CY + W + 65}, ${CX - 148} ${CY + W + 72}, ${CX - 150} ${CY + W + 60}
-       C${CX - 152} ${CY + W + 48}, ${CX - 142} ${CY + W + 38}, ${CX - 138} ${CY + W + 45}
-       C${CX - 132} ${CY + 52}, ${CX - 128} ${CY + 48}, ${CX - 115} ${CY + 38}
-       C${CX - 78} ${CY + 22}, ${CX - 35} ${CY + 8}, ${CX} ${CY - W} Z`,
+       C${CX - 35} ${CY + W + 5}, ${CX - 70} ${CY + W + 18}, ${CX - 85} ${CY + W + 40}
+       C${CX - 95} ${CY + W + 58}, ${CX - 88} ${CY + W + 78}, ${CX - 72} ${CY + W + 88}
+       L${CX - 65} ${CY - W + 85}
+       C${CX - 80} ${CY - W + 72}, ${CX - 88} ${CY - W + 52}, ${CX - 78} ${CY - W + 35}
+       C${CX - 65} ${CY - W + 16}, ${CX - 32} ${CY - W + 4}, ${CX} ${CY - W} Z`,
     delay: 280,
   },
-  // Far right — mirror
+  // Outer right ")" — mirror
   {
     d: `M${CX} ${CY + W}
-       C${CX + 32} ${CY + W + 12}, ${CX + 78} ${CY + W + 32}, ${CX + 114} ${CY + W + 52}
-       C${CX + 140} ${CY + W + 68}, ${CX + 152} ${CY + W + 75}, ${CX + 155} ${CY + W + 62}
-       C${CX + 157} ${CY + W + 50}, ${CX + 147} ${CY + W + 40}, ${CX + 142} ${CY + W + 48}
-       C${CX + 136} ${CY + 54}, ${CX + 132} ${CY + 50}, ${CX + 118} ${CY + 40}
-       C${CX + 82} ${CY + 24}, ${CX + 38} ${CY + 10}, ${CX} ${CY - W} Z`,
+       C${CX + 38} ${CY + W + 6}, ${CX + 72} ${CY + W + 20}, ${CX + 88} ${CY + W + 42}
+       C${CX + 98} ${CY + W + 60}, ${CX + 92} ${CY + W + 80}, ${CX + 76} ${CY + W + 90}
+       L${CX + 69} ${CY - W + 87}
+       C${CX + 84} ${CY - W + 74}, ${CX + 92} ${CY - W + 54}, ${CX + 82} ${CY - W + 37}
+       C${CX + 68} ${CY - W + 18}, ${CX + 35} ${CY - W + 5}, ${CX} ${CY - W} Z`,
     delay: 320,
   },
-  // Inner left — steeper droop, closer to center, tip curls up
+  // Inner left "(" — tighter, closer to stem
   {
     d: `M${CX} ${CY + W}
-       C${CX - 18} ${CY + W + 14}, ${CX - 48} ${CY + W + 40}, ${CX - 72} ${CY + W + 65}
-       C${CX - 90} ${CY + W + 82}, ${CX - 100} ${CY + W + 88}, ${CX - 102} ${CY + W + 76}
-       C${CX - 104} ${CY + W + 64}, ${CX - 95} ${CY + W + 56}, ${CX - 90} ${CY + W + 62}
-       C${CX - 85} ${CY + 68}, ${CX - 82} ${CY + 64}, ${CX - 72} ${CY + 52}
-       C${CX - 48} ${CY + 32}, ${CX - 20} ${CY + 12}, ${CX} ${CY - W} Z`,
+       C${CX - 20} ${CY + W + 6}, ${CX - 42} ${CY + W + 20}, ${CX - 52} ${CY + W + 38}
+       C${CX - 58} ${CY + W + 52}, ${CX - 52} ${CY + W + 68}, ${CX - 40} ${CY + W + 76}
+       L${CX - 34} ${CY - W + 73}
+       C${CX - 45} ${CY - W + 62}, ${CX - 50} ${CY - W + 46}, ${CX - 44} ${CY - W + 32}
+       C${CX - 36} ${CY - W + 18}, ${CX - 18} ${CY - W + 5}, ${CX} ${CY - W} Z`,
     delay: 360,
   },
-  // Inner right — mirror
+  // Inner right ")" — mirror
   {
     d: `M${CX} ${CY + W}
-       C${CX + 20} ${CY + W + 16}, ${CX + 52} ${CY + W + 42}, ${CX + 76} ${CY + W + 68}
-       C${CX + 94} ${CY + W + 85}, ${CX + 104} ${CY + W + 92}, ${CX + 106} ${CY + W + 80}
-       C${CX + 108} ${CY + W + 68}, ${CX + 98} ${CY + W + 58}, ${CX + 94} ${CY + W + 65}
-       C${CX + 88} ${CY + 70}, ${CX + 86} ${CY + 66}, ${CX + 76} ${CY + 54}
-       C${CX + 50} ${CY + 34}, ${CX + 22} ${CY + 14}, ${CX} ${CY - W} Z`,
+       C${CX + 22} ${CY + W + 8}, ${CX + 45} ${CY + W + 22}, ${CX + 55} ${CY + W + 40}
+       C${CX + 62} ${CY + W + 55}, ${CX + 56} ${CY + W + 70}, ${CX + 44} ${CY + W + 78}
+       L${CX + 38} ${CY - W + 75}
+       C${CX + 48} ${CY - W + 64}, ${CX + 54} ${CY - W + 48}, ${CX + 48} ${CY - W + 34}
+       C${CX + 40} ${CY - W + 20}, ${CX + 20} ${CY - W + 6}, ${CX} ${CY - W} Z`,
     delay: 400,
   },
 ];
@@ -196,24 +196,24 @@ const petalDelays = petals.map((p) => p.delay);
 // so nothing dips below the flower neck. Tips staggered naturally.
 const stamens = [
   // ==== OUTERMOST — wide, shallow curve ====
-  { d: `M${CX} ${CY - 12} C${CX - 120} ${CY - 18}, ${CX - 260} ${CY - 25}, ${CX - 280} ${CY - 120}`, tipX: CX - 280, tipY: CY - 120, delay: 0 },
-  { d: `M${CX} ${CY - 12} C${CX + 118} ${CY - 20}, ${CX + 256} ${CY - 28}, ${CX + 278} ${CY - 125}`, tipX: CX + 278, tipY: CY - 125, delay: 40 },
+  { d: `M${CX} ${CY - 12} C${CX - 120} ${CY - 18}, ${CX - 260} ${CY - 25}, ${CX - 280} ${CY - 120}`, tipX: CX - 280, tipY: CY - 120, delay: 0, tipAngle: -15, tipLen: 3.8, tipW: 2.4 },
+  { d: `M${CX} ${CY - 12} C${CX + 118} ${CY - 20}, ${CX + 256} ${CY - 28}, ${CX + 278} ${CY - 125}`, tipX: CX + 278, tipY: CY - 125, delay: 40, tipAngle: 20, tipLen: 3.5, tipW: 2.6 },
 
   // ==== WIDE ====
-  { d: `M${CX} ${CY - 12} C${CX - 100} ${CY - 22}, ${CX - 235} ${CY - 35}, ${CX - 252} ${CY - 145}`, tipX: CX - 252, tipY: CY - 145, delay: 80 },
-  { d: `M${CX} ${CY - 12} C${CX + 98} ${CY - 24}, ${CX + 232} ${CY - 38}, ${CX + 250} ${CY - 140}`, tipX: CX + 250, tipY: CY - 140, delay: 120 },
+  { d: `M${CX} ${CY - 12} C${CX - 100} ${CY - 22}, ${CX - 235} ${CY - 35}, ${CX - 252} ${CY - 145}`, tipX: CX - 252, tipY: CY - 145, delay: 80, tipAngle: -35, tipLen: 4, tipW: 2.3 },
+  { d: `M${CX} ${CY - 12} C${CX + 98} ${CY - 24}, ${CX + 232} ${CY - 38}, ${CX + 250} ${CY - 140}`, tipX: CX + 250, tipY: CY - 140, delay: 120, tipAngle: 40, tipLen: 3.4, tipW: 2.7 },
 
   // ==== MID-WIDE ====
-  { d: `M${CX} ${CY - 12} C${CX - 65} ${CY - 38}, ${CX - 185} ${CY - 72}, ${CX - 205} ${CY - 165}`, tipX: CX - 205, tipY: CY - 165, delay: 160 },
-  { d: `M${CX} ${CY - 12} C${CX + 62} ${CY - 40}, ${CX + 182} ${CY - 76}, ${CX + 202} ${CY - 170}`, tipX: CX + 202, tipY: CY - 170, delay: 200 },
+  { d: `M${CX} ${CY - 12} C${CX - 65} ${CY - 38}, ${CX - 185} ${CY - 72}, ${CX - 205} ${CY - 165}`, tipX: CX - 205, tipY: CY - 165, delay: 160, tipAngle: -50, tipLen: 3.8, tipW: 2.2 },
+  { d: `M${CX} ${CY - 12} C${CX + 62} ${CY - 40}, ${CX + 182} ${CY - 76}, ${CX + 202} ${CY - 170}`, tipX: CX + 202, tipY: CY - 170, delay: 200, tipAngle: 55, tipLen: 3.6, tipW: 2.5 },
 
   // ==== UPPER ====
-  { d: `M${CX} ${CY - 12} C${CX - 40} ${CY - 55}, ${CX - 130} ${CY - 125}, ${CX - 142} ${CY - 180}`, tipX: CX - 142, tipY: CY - 180, delay: 240 },
-  { d: `M${CX} ${CY - 12} C${CX + 38} ${CY - 58}, ${CX + 128} ${CY - 128}, ${CX + 140} ${CY - 175}`, tipX: CX + 140, tipY: CY - 175, delay: 280 },
+  { d: `M${CX} ${CY - 12} C${CX - 40} ${CY - 55}, ${CX - 130} ${CY - 125}, ${CX - 142} ${CY - 180}`, tipX: CX - 142, tipY: CY - 180, delay: 240, tipAngle: -70, tipLen: 3.9, tipW: 2.2 },
+  { d: `M${CX} ${CY - 12} C${CX + 38} ${CY - 58}, ${CX + 128} ${CY - 128}, ${CX + 140} ${CY - 175}`, tipX: CX + 140, tipY: CY - 175, delay: 280, tipAngle: 65, tipLen: 3.4, tipW: 2.6 },
 
   // ==== CENTER ====
-  { d: `M${CX} ${CY - 12} C${CX - 18} ${CY - 68}, ${CX - 58} ${CY - 155}, ${CX - 55} ${CY - 188}`, tipX: CX - 55, tipY: CY - 188, delay: 320 },
-  { d: `M${CX} ${CY - 12} C${CX + 16} ${CY - 70}, ${CX + 56} ${CY - 158}, ${CX + 52} ${CY - 185}`, tipX: CX + 52, tipY: CY - 185, delay: 360 },
+  { d: `M${CX} ${CY - 12} C${CX - 18} ${CY - 68}, ${CX - 58} ${CY - 155}, ${CX - 55} ${CY - 188}`, tipX: CX - 55, tipY: CY - 188, delay: 320, tipAngle: -80, tipLen: 3.6, tipW: 2.4 },
+  { d: `M${CX} ${CY - 12} C${CX + 16} ${CY - 70}, ${CX + 56} ${CY - 158}, ${CX + 52} ${CY - 185}`, tipX: CX + 52, tipY: CY - 185, delay: 360, tipAngle: 75, tipLen: 3.8, tipW: 2.3 },
 ];
 
 const STEM_DELAY = 150;
@@ -302,10 +302,12 @@ const SpiderLily = ({ className }: { className?: string }) => {
               filter="url(#stamen-glow)"
               pathLength={1}
             />
-            <circle
+            <ellipse
               cx={s.tipX}
               cy={s.tipY}
-              r="2.2"
+              rx={s.tipLen}
+              ry={s.tipW}
+              transform={`rotate(${s.tipAngle} ${s.tipX} ${s.tipY})`}
               className={`spider-lily-anther ${stamensActive ? 'spider-lily-anther-active' : ''}`}
               style={{ animationDelay: `${s.delay + STAMEN_DURATION}ms` }}
               filter="url(#stamen-glow)"
