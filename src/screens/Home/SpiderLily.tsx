@@ -194,21 +194,28 @@ const petals: { d: string; delay: number }[] = [
 
 const petalDelays = petals.map((p) => p.delay);
 
-// Stamens: smooth graceful U-arcs — sweep outward then curve back up.
-// Single long cubic beziers for buttery smooth curves, no kinks.
+// Stamens: smooth wide U-arcs. Tips staggered naturally around petal height.
+// Outer ones have a gentler, shallower curve. Inner ones arc higher.
 const stamens = [
-  // Far left — wide sweep out, gentle curve up
-  { d: `M${CX} ${CY - 10} C${CX - 80} ${CY - 15}, ${CX - 195} ${CY - 30}, ${CX - 205} ${CY - 150}`, tipX: CX - 205, tipY: CY - 150, delay: 580 },
-  // Far right
-  { d: `M${CX} ${CY - 10} C${CX + 78} ${CY - 18}, ${CX + 190} ${CY - 34}, ${CX + 202} ${CY - 155}`, tipX: CX + 202, tipY: CY - 155, delay: 650 },
-  // Left-upper — arcs out and up
-  { d: `M${CX} ${CY - 10} C${CX - 55} ${CY - 45}, ${CX - 155} ${CY - 105}, ${CX - 145} ${CY - 270}`, tipX: CX - 145, tipY: CY - 270, delay: 720 },
-  // Right-upper
-  { d: `M${CX} ${CY - 10} C${CX + 52} ${CY - 48}, ${CX + 150} ${CY - 110}, ${CX + 140} ${CY - 275}`, tipX: CX + 140, tipY: CY - 275, delay: 790 },
-  // Center-left — taller, gentle lean
-  { d: `M${CX} ${CY - 10} C${CX - 30} ${CY - 60}, ${CX - 80} ${CY - 180}, ${CX - 42} ${CY - 325}`, tipX: CX - 42, tipY: CY - 325, delay: 860 },
-  // Center-right
-  { d: `M${CX} ${CY - 10} C${CX + 28} ${CY - 62}, ${CX + 78} ${CY - 185}, ${CX + 45} ${CY - 328}`, tipX: CX + 45, tipY: CY - 328, delay: 930 },
+  // ==== OUTERMOST — very wide, shallow gentle curve, tips a bit lower ====
+  { d: `M${CX} ${CY - 8} C${CX - 140} ${CY + 10}, ${CX - 278} ${CY + 8}, ${CX - 280} ${CY - 120}`, tipX: CX - 280, tipY: CY - 120, delay: 550 },
+  { d: `M${CX} ${CY - 8} C${CX + 138} ${CY + 6}, ${CX + 274} ${CY + 5}, ${CX + 278} ${CY - 125}`, tipX: CX + 278, tipY: CY - 125, delay: 600 },
+
+  // ==== WIDE — slightly higher tips ====
+  { d: `M${CX} ${CY - 8} C${CX - 115} ${CY - 2}, ${CX - 250} ${CY - 8}, ${CX - 252} ${CY - 145}`, tipX: CX - 252, tipY: CY - 145, delay: 650 },
+  { d: `M${CX} ${CY - 8} C${CX + 112} ${CY - 5}, ${CX + 246} ${CY - 12}, ${CX + 250} ${CY - 140}`, tipX: CX + 250, tipY: CY - 140, delay: 700 },
+
+  // ==== MID-WIDE — tips near petal height ====
+  { d: `M${CX} ${CY - 8} C${CX - 72} ${CY - 28}, ${CX - 195} ${CY - 60}, ${CX - 205} ${CY - 165}`, tipX: CX - 205, tipY: CY - 165, delay: 750 },
+  { d: `M${CX} ${CY - 8} C${CX + 70} ${CY - 30}, ${CX + 192} ${CY - 65}, ${CX + 202} ${CY - 170}`, tipX: CX + 202, tipY: CY - 170, delay: 800 },
+
+  // ==== UPPER — tips at petal height ====
+  { d: `M${CX} ${CY - 8} C${CX - 45} ${CY - 50}, ${CX - 138} ${CY - 120}, ${CX - 142} ${CY - 180}`, tipX: CX - 142, tipY: CY - 180, delay: 850 },
+  { d: `M${CX} ${CY - 8} C${CX + 42} ${CY - 52}, ${CX + 135} ${CY - 125}, ${CX + 140} ${CY - 175}`, tipX: CX + 140, tipY: CY - 175, delay: 900 },
+
+  // ==== CENTER — tallest, just above petal height ====
+  { d: `M${CX} ${CY - 8} C${CX - 20} ${CY - 65}, ${CX - 62} ${CY - 155}, ${CX - 55} ${CY - 188}`, tipX: CX - 55, tipY: CY - 188, delay: 950 },
+  { d: `M${CX} ${CY - 8} C${CX + 18} ${CY - 68}, ${CX + 60} ${CY - 158}, ${CX + 52} ${CY - 185}`, tipX: CX + 52, tipY: CY - 185, delay: 1000 },
 ];
 
 const SpiderLily = ({ className }: { className?: string }) => {
@@ -221,7 +228,7 @@ const SpiderLily = ({ className }: { className?: string }) => {
 
   return (
     <svg
-      viewBox="-10 -130 480 710"
+      viewBox="-120 10 680 590"
       className={className}
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
