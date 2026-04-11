@@ -149,26 +149,26 @@ const petalDelays = petals.map((p) => p.delay);
 
 // Stamens: smooth wide U-arcs. All control points stay above CY (the center)
 // so nothing dips below the flower neck. Tips staggered naturally.
-const stamens = [
+const stamens: { d: string; tipX: number; tipY: number; delay: number; tipAngle: number; tipLen: number; tipW: number; noTip?: boolean }[] = [
   // ==== OUTERMOST — wide, shallow curve ====
-  { d: `M${CX} ${CY - 12} C${CX - 120} ${CY - 18}, ${CX - 260} ${CY - 25}, ${CX - 280} ${CY - 120}`, tipX: CX - 280, tipY: CY - 120, delay: 0, tipAngle: -15, tipLen: 3.8, tipW: 2.4 },
-  { d: `M${CX} ${CY - 12} C${CX + 118} ${CY - 20}, ${CX + 256} ${CY - 28}, ${CX + 278} ${CY - 125}`, tipX: CX + 278, tipY: CY - 125, delay: 40, tipAngle: 20, tipLen: 3.5, tipW: 2.6 },
+  { d: `M${CX} ${CY - 12} C${CX - 145} ${CY - 16}, ${CX - 310} ${CY - 20}, ${CX - 335} ${CY - 110}`, tipX: CX - 335, tipY: CY - 110, delay: 0, tipAngle: -15, tipLen: 3.8, tipW: 2.4, noTip: true },
+  { d: `M${CX} ${CY - 12} C${CX + 142} ${CY - 18}, ${CX + 306} ${CY - 24}, ${CX + 332} ${CY - 115}`, tipX: CX + 332, tipY: CY - 115, delay: 40, tipAngle: 20, tipLen: 3.5, tipW: 2.6 },
 
   // ==== WIDE ====
-  { d: `M${CX} ${CY - 12} C${CX - 100} ${CY - 22}, ${CX - 235} ${CY - 35}, ${CX - 252} ${CY - 145}`, tipX: CX - 252, tipY: CY - 145, delay: 80, tipAngle: -35, tipLen: 4, tipW: 2.3 },
-  { d: `M${CX} ${CY - 12} C${CX + 98} ${CY - 24}, ${CX + 232} ${CY - 38}, ${CX + 250} ${CY - 140}`, tipX: CX + 250, tipY: CY - 140, delay: 120, tipAngle: 40, tipLen: 3.4, tipW: 2.7 },
+  { d: `M${CX} ${CY - 12} C${CX - 120} ${CY - 20}, ${CX - 280} ${CY - 30}, ${CX - 305} ${CY - 135}`, tipX: CX - 305, tipY: CY - 135, delay: 80, tipAngle: -35, tipLen: 4, tipW: 2.3 },
+  { d: `M${CX} ${CY - 12} C${CX + 118} ${CY - 22}, ${CX + 276} ${CY - 34}, ${CX + 302} ${CY - 130}`, tipX: CX + 302, tipY: CY - 130, delay: 120, tipAngle: 40, tipLen: 3.4, tipW: 2.7, noTip: true },
 
   // ==== MID-WIDE ====
-  { d: `M${CX} ${CY - 12} C${CX - 65} ${CY - 38}, ${CX - 185} ${CY - 72}, ${CX - 205} ${CY - 165}`, tipX: CX - 205, tipY: CY - 165, delay: 160, tipAngle: -50, tipLen: 3.8, tipW: 2.2 },
-  { d: `M${CX} ${CY - 12} C${CX + 62} ${CY - 40}, ${CX + 182} ${CY - 76}, ${CX + 202} ${CY - 170}`, tipX: CX + 202, tipY: CY - 170, delay: 200, tipAngle: 55, tipLen: 3.6, tipW: 2.5 },
+  { d: `M${CX} ${CY - 12} C${CX - 80} ${CY - 35}, ${CX - 225} ${CY - 65}, ${CX - 255} ${CY - 158}`, tipX: CX - 255, tipY: CY - 158, delay: 160, tipAngle: -50, tipLen: 3.8, tipW: 2.2 },
+  { d: `M${CX} ${CY - 12} C${CX + 78} ${CY - 38}, ${CX + 222} ${CY - 70}, ${CX + 252} ${CY - 162}`, tipX: CX + 252, tipY: CY - 162, delay: 200, tipAngle: 55, tipLen: 3.6, tipW: 2.5 },
 
   // ==== UPPER ====
-  { d: `M${CX} ${CY - 12} C${CX - 40} ${CY - 55}, ${CX - 130} ${CY - 125}, ${CX - 142} ${CY - 180}`, tipX: CX - 142, tipY: CY - 180, delay: 240, tipAngle: -70, tipLen: 3.9, tipW: 2.2 },
-  { d: `M${CX} ${CY - 12} C${CX + 38} ${CY - 58}, ${CX + 128} ${CY - 128}, ${CX + 140} ${CY - 175}`, tipX: CX + 140, tipY: CY - 175, delay: 280, tipAngle: 65, tipLen: 3.4, tipW: 2.6 },
+  { d: `M${CX} ${CY - 12} C${CX - 52} ${CY - 50}, ${CX - 165} ${CY - 118}, ${CX - 182} ${CY - 178}`, tipX: CX - 182, tipY: CY - 178, delay: 240, tipAngle: -70, tipLen: 3.9, tipW: 2.2, noTip: true },
+  { d: `M${CX} ${CY - 12} C${CX + 50} ${CY - 52}, ${CX + 162} ${CY - 122}, ${CX + 180} ${CY - 174}`, tipX: CX + 180, tipY: CY - 174, delay: 280, tipAngle: 65, tipLen: 3.4, tipW: 2.6 },
 
   // ==== CENTER ====
-  { d: `M${CX} ${CY - 12} C${CX - 18} ${CY - 68}, ${CX - 58} ${CY - 155}, ${CX - 55} ${CY - 188}`, tipX: CX - 55, tipY: CY - 188, delay: 320, tipAngle: -80, tipLen: 3.6, tipW: 2.4 },
-  { d: `M${CX} ${CY - 12} C${CX + 16} ${CY - 70}, ${CX + 56} ${CY - 158}, ${CX + 52} ${CY - 185}`, tipX: CX + 52, tipY: CY - 185, delay: 360, tipAngle: 75, tipLen: 3.8, tipW: 2.3 },
+  { d: `M${CX} ${CY - 12} C${CX - 25} ${CY - 65}, ${CX - 78} ${CY - 150}, ${CX - 75} ${CY - 190}`, tipX: CX - 75, tipY: CY - 190, delay: 320, tipAngle: -80, tipLen: 3.6, tipW: 2.4 },
+  { d: `M${CX} ${CY - 12} C${CX + 22} ${CY - 68}, ${CX + 75} ${CY - 154}, ${CX + 72} ${CY - 188}`, tipX: CX + 72, tipY: CY - 188, delay: 360, tipAngle: 75, tipLen: 3.8, tipW: 2.3, noTip: true },
 ];
 
 const STEM_DELAY = 150;
@@ -190,7 +190,7 @@ const SpiderLily = ({ className }: { className?: string }) => {
 
   return (
     <svg
-      viewBox="-120 10 680 590"
+      viewBox="-180 10 800 590"
       className={className}
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
