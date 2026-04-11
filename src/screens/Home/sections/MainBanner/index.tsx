@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { SpiderLily } from '../../SpiderLily';
 
 const linkClass =
   'font-mono text-xs uppercase tracking-widest text-white/50 hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)] transition-all duration-300';
@@ -9,26 +9,11 @@ const bioClass =
 const jitter = () => ({ animationDelay: `${Math.random() * 120}ms` });
 
 const MainBanner = () => {
-  const [loaded, setLoaded] = useState(false);
-
   return (
     <div className='w-full h-screen bg-black flex items-center justify-center md:pr-40'>
       <div className='flex flex-col items-start gap-6 md:gap-8 max-w-md lg:max-w-lg px-6'>
-        <div
-          className='bio-glitch relative w-52 sm:w-52 md:w-64 lg:w-80 aspect-square opacity-80 grayscale rotate-25'
-          style={jitter()}
-        >
-          <img
-            src='/images/mirror-placeholder.webp'
-            alt=''
-            className={`w-full ${loaded ? 'opacity-0' : 'opacity-100'} blur-md transition-opacity duration-500`}
-          />
-          <img
-            src='/images/mirror.webp'
-            alt=''
-            className={`absolute inset-0 w-full ${loaded ? 'opacity-100' : 'opacity-0'} transition-opacity duration-500`}
-            onLoad={() => setLoaded(true)}
-          />
+        <div className='bio-glitch w-80 sm:w-88 md:w-[26rem] lg:w-[30rem]' style={jitter()}>
+          <SpiderLily className='spider-lily-container w-full h-auto' />
         </div>
         <div className='flex flex-col gap-4'>
           <p
