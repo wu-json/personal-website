@@ -320,20 +320,20 @@
 @keyframes lily-breathe {
   0%,
   100% {
-    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.25))
-      drop-shadow(0 0 30px rgba(255, 255, 255, 0.12))
-      drop-shadow(0 0 60px rgba(255, 255, 255, 0.05));
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.2))
+      drop-shadow(0 0 25px rgba(255, 255, 255, 0.08))
+      drop-shadow(0 0 50px rgba(255, 255, 255, 0.03));
   }
   50% {
-    filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.45))
-      drop-shadow(0 0 50px rgba(255, 255, 255, 0.18))
-      drop-shadow(0 0 100px rgba(255, 255, 255, 0.08));
+    filter: drop-shadow(0 0 16px rgba(255, 255, 255, 0.35))
+      drop-shadow(0 0 45px rgba(255, 255, 255, 0.12))
+      drop-shadow(0 0 80px rgba(255, 255, 255, 0.05));
   }
 }
 
 /* Stem — brush stroke aesthetic */
 .spider-lily-stem {
-  fill: rgba(255, 255, 255, 0.9);
+  fill: rgba(255, 255, 255, 0.8);
   stroke: none;
   opacity: 0;
 }
@@ -359,8 +359,8 @@
 
 /* Petals — solid white filled */
 .spider-lily-petal {
-  fill: rgba(255, 255, 255, 0.9);
-  stroke: rgba(255, 255, 255, 0.95);
+  fill: rgba(255, 255, 255, 0.85);
+  stroke: rgba(255, 255, 255, 0.9);
   stroke-width: 0.5;
   stroke-linejoin: round;
   opacity: 0;
@@ -374,7 +374,7 @@
 /* Stamens */
 .spider-lily-stamen {
   fill: none;
-  stroke: rgba(255, 255, 255, 0.65);
+  stroke: rgba(255, 255, 255, 0.55);
   stroke-width: 0.8;
   stroke-linecap: round;
   stroke-dasharray: 1;
@@ -388,7 +388,7 @@
 
 /* Anther tips */
 .spider-lily-anther {
-  fill: rgba(255, 255, 255, 0.8);
+  fill: rgba(255, 255, 255, 0.65);
   opacity: 0;
 }
 
@@ -408,8 +408,8 @@
 
 /* Ethereal glow — fades in during bloom, then breathes */
 .spider-lily-container {
-  animation: lily-glow-in 1.8s ease-out 1.2s forwards,
-    lily-breathe 5s ease-in-out 3.4s infinite;
+  animation: lily-glow-in 2.5s ease-out 1.2s forwards,
+    lily-breathe 7s ease-in-out 4s infinite;
 }
 
 @keyframes lily-glitch {
@@ -460,9 +460,9 @@
     filter: drop-shadow(0 0 0 rgba(255, 255, 255, 0));
   }
   100% {
-    filter: drop-shadow(0 0 14px rgba(255, 255, 255, 0.3))
-      drop-shadow(0 0 40px rgba(255, 255, 255, 0.14))
-      drop-shadow(0 0 70px rgba(255, 255, 255, 0.06));
+    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.22))
+      drop-shadow(0 0 30px rgba(255, 255, 255, 0.1))
+      drop-shadow(0 0 55px rgba(255, 255, 255, 0.04));
   }
 }
 

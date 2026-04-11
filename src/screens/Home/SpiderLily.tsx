@@ -167,31 +167,20 @@ const PETAL_DELAY = STEM_DELAY + STEM_DURATION;
 const STAMEN_DELAY = PETAL_DELAY + 300;
 const STAMEN_DURATION = 600;
 
-const HOVER_RADIUS = 120;
-const HOVER_STRENGTH = 12;
-const LERP_SPEED = 0.08;
-const RETURN_SPEED = 0.06;
+const HOVER_RADIUS = 140;
+const HOVER_STRENGTH = 8;
+const LERP_SPEED = 0.045;
+const RETURN_SPEED = 0.025;
 
-const WIND_SPEED = 0.0006;
-const WIND_STRENGTH_X = 2.5;
-const WIND_STRENGTH_Y = 1.0;
+const WIND_SPEED = 0.0005;
+const WIND_STRENGTH_X = 1.8;
+const WIND_STRENGTH_Y = 0.7;
+
+const PRESS_RADIUS = 160;
+const PRESS_STRENGTH = 20;
 
 type Vec2 = { x: number; y: number };
 
-function computeDisplacement(
-  elCx: number,
-  elCy: number,
-  mouseX: number,
-  mouseY: number,
-): Vec2 {
-  const dx = elCx - mouseX;
-  const dy = elCy - mouseY;
-  const dist = Math.sqrt(dx * dx + dy * dy);
-  if (dist > HOVER_RADIUS || dist < 0.1) return { x: 0, y: 0 };
-  const factor = (1 - dist / HOVER_RADIUS) ** 2;
-  const norm = HOVER_STRENGTH * factor;
-  return { x: (dx / dist) * norm, y: (dy / dist) * norm };
-}
 
 const SpiderLily = ({ className }: { className?: string }) => {
   const [stemActive, setStemActive] = useState(false);
@@ -199,12 +188,13 @@ const SpiderLily = ({ className }: { className?: string }) => {
   const [stamensActive, setStamensActive] = useState(false);
 
   const svgRef = useRef<SVGSVGElement>(null);
-  const mouseRef = useRef<{ x: number; y: number; active: boolean }>({ x: 0, y: 0, active: false });
+  const mouseRef = useRef<{ x: number; y: number; active: boolean; pressed: boolean }>({ x: 0, y: 0, active: false, pressed: false });
   const petalOffsetsRef = useRef<Vec2[]>(petals.map(() => ({ x: 0, y: 0 })));
   const stamenOffsetsRef = useRef<Vec2[]>(stamens.map(() => ({ x: 0, y: 0 })));
   const petalElsRef = useRef<(SVGPathElement | null)[]>([]);
   const stamenGroupElsRef = useRef<(SVGGElement | null)[]>([]);
   const wholeFlowerRef = useRef<SVGGElement>(null);
+  const leanRef = useRef(0);
   const rafRef = useRef<number>(0);
 
   useEffect(() => {
@@ -228,22 +218,50 @@ const SpiderLily = ({ className }: { className?: string }) => {
 
   const handleMouseMove = useCallback((e: React.MouseEvent<SVGSVGElement>) => {
     const coords = toSVGCoords(e.clientX, e.clientY);
-    mouseRef.current = { x: coords.x, y: coords.y, active: true };
+    mouseRef.current.x = coords.x;
+    mouseRef.current.y = coords.y;
+    mouseRef.current.active = true;
   }, [toSVGCoords]);
+
+  const handleMouseDown = useCallback((e: React.MouseEvent<SVGSVGElement>) => {
+    const coords = toSVGCoords(e.clientX, e.clientY);
+    mouseRef.current.x = coords.x;
+    mouseRef.current.y = coords.y;
+    mouseRef.current.active = true;
+    mouseRef.current.pressed = true;
+  }, [toSVGCoords]);
+
+  const handleMouseUp = useCallback(() => {
+    mouseRef.current.pressed = false;
+  }, []);
 
   const handleMouseLeave = useCallback(() => {
     mouseRef.current.active = false;
+    mouseRef.current.pressed = false;
   }, []);
+
+  const handleTouchStart = useCallback((e: React.TouchEvent<SVGSVGElement>) => {
+    const touch = e.touches[0];
+    if (!touch) return;
+    const coords = toSVGCoords(touch.clientX, touch.clientY);
+    mouseRef.current.x = coords.x;
+    mouseRef.current.y = coords.y;
+    mouseRef.current.active = true;
+    mouseRef.current.pressed = true;
+  }, [toSVGCoords]);
 
   const handleTouchMove = useCallback((e: React.TouchEvent<SVGSVGElement>) => {
     const touch = e.touches[0];
     if (!touch) return;
     const coords = toSVGCoords(touch.clientX, touch.clientY);
-    mouseRef.current = { x: coords.x, y: coords.y, active: true };
+    mouseRef.current.x = coords.x;
+    mouseRef.current.y = coords.y;
+    mouseRef.current.active = true;
   }, [toSVGCoords]);
 
   const handleTouchEnd = useCallback(() => {
     mouseRef.current.active = false;
+    mouseRef.current.pressed = false;
   }, []);
 
   useEffect(() => {
@@ -257,18 +275,28 @@ const SpiderLily = ({ className }: { className?: string }) => {
       const mouse = mouseRef.current;
       const petalOffsets = petalOffsetsRef.current;
       const stamenOffsets = stamenOffsetsRef.current;
+      const strength = mouse.pressed ? PRESS_STRENGTH : HOVER_STRENGTH;
+      const radius = mouse.pressed ? PRESS_RADIUS : HOVER_RADIUS;
 
       for (let i = 0; i < petals.length; i++) {
         const phase = petalPhases[i];
         const windX = Math.sin(t + phase) * WIND_STRENGTH_X + Math.sin(t * 1.7 + phase * 0.6) * WIND_STRENGTH_X * 0.3;
         const windY = Math.cos(t * 0.8 + phase * 1.3) * WIND_STRENGTH_Y;
 
-        const hover = mouse.active
-          ? computeDisplacement(petals[i].cx, petals[i].cy, mouse.x, mouse.y)
-          : { x: 0, y: 0 };
+        let pushX = 0, pushY = 0;
+        if (mouse.active) {
+          const dx = petals[i].cx - mouse.x;
+          const dy = petals[i].cy - mouse.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < radius && dist > 0.1) {
+            const factor = (1 - dist / radius) ** 2;
+            pushX = (dx / dist) * strength * factor;
+            pushY = (dy / dist) * strength * factor;
+          }
+        }
 
-        const targetX = windX + hover.x;
-        const targetY = windY + hover.y;
+        const targetX = windX + pushX;
+        const targetY = windY + pushY;
         const speed = mouse.active ? LERP_SPEED : RETURN_SPEED;
 
         petalOffsets[i] = {
@@ -286,12 +314,20 @@ const SpiderLily = ({ className }: { className?: string }) => {
         const windX = Math.sin(t + phase) * WIND_STRENGTH_X * 1.2 + Math.sin(t * 1.4 + phase * 0.8) * WIND_STRENGTH_X * 0.4;
         const windY = Math.cos(t * 0.7 + phase * 1.1) * WIND_STRENGTH_Y * 0.8;
 
-        const hover = mouse.active
-          ? computeDisplacement(stamens[i].cx, stamens[i].cy, mouse.x, mouse.y)
-          : { x: 0, y: 0 };
+        let pushX = 0, pushY = 0;
+        if (mouse.active) {
+          const dx = stamens[i].cx - mouse.x;
+          const dy = stamens[i].cy - mouse.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < radius && dist > 0.1) {
+            const factor = (1 - dist / radius) ** 2;
+            pushX = (dx / dist) * strength * factor * 1.2;
+            pushY = (dy / dist) * strength * factor * 1.2;
+          }
+        }
 
-        const targetX = windX + hover.x;
-        const targetY = windY + hover.y;
+        const targetX = windX + pushX;
+        const targetY = windY + pushY;
         const speed = mouse.active ? LERP_SPEED : RETURN_SPEED;
 
         stamenOffsets[i] = {
@@ -304,9 +340,19 @@ const SpiderLily = ({ className }: { className?: string }) => {
         }
       }
 
+      let leanTarget = 0;
+      if (mouse.active && mouse.pressed) {
+        const side = mouse.x < CX ? -1 : 1;
+        const dx = Math.abs(mouse.x - CX);
+        const dy = Math.abs(mouse.y - CY);
+        const proximity = Math.max(0, 1 - Math.sqrt(dx * dx + dy * dy) / PRESS_RADIUS);
+        leanTarget = side * proximity * 3.5;
+      }
+      leanRef.current += (leanTarget - leanRef.current) * (mouse.active ? 0.03 : 0.015);
+
       const flowerEl = wholeFlowerRef.current;
       if (flowerEl) {
-        const swayAngle = Math.sin(t * 0.8) * 0.6 + Math.sin(t * 1.3) * 0.25;
+        const swayAngle = Math.sin(t * 0.8) * 0.5 + Math.sin(t * 1.3) * 0.2 + leanRef.current;
         flowerEl.setAttribute('transform', `rotate(${swayAngle.toFixed(3)} ${CX} 598)`);
       }
 
@@ -325,7 +371,10 @@ const SpiderLily = ({ className }: { className?: string }) => {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       onMouseMove={handleMouseMove}
+      onMouseDown={handleMouseDown}
+      onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseLeave}
+      onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
