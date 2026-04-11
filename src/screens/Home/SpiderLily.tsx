@@ -172,9 +172,9 @@ const HOVER_STRENGTH = 8;
 const LERP_SPEED = 0.045;
 const RETURN_SPEED = 0.025;
 
-const WIND_SPEED = 0.0005;
-const WIND_STRENGTH_X = 1.8;
-const WIND_STRENGTH_Y = 0.7;
+const WIND_SPEED = 0.0008;
+const WIND_STRENGTH_X = 4.5;
+const WIND_STRENGTH_Y = 2.0;
 
 const PRESS_RADIUS = 160;
 const PRESS_STRENGTH = 20;
@@ -352,7 +352,7 @@ const SpiderLily = ({ className }: { className?: string }) => {
 
       const flowerEl = wholeFlowerRef.current;
       if (flowerEl) {
-        const swayAngle = Math.sin(t * 0.8) * 0.5 + Math.sin(t * 1.3) * 0.2 + leanRef.current;
+        const swayAngle = Math.sin(t * 0.8) * 0.8 + Math.sin(t * 1.3) * 0.35 + leanRef.current;
         flowerEl.setAttribute('transform', `rotate(${swayAngle.toFixed(3)} ${CX} 598)`);
       }
 
