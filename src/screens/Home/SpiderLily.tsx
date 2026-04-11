@@ -194,28 +194,28 @@ const petals: { d: string; delay: number }[] = [
 
 const petalDelays = petals.map((p) => p.delay);
 
-// Stamens: smooth wide U-arcs. Tips staggered naturally around petal height.
-// Outer ones have a gentler, shallower curve. Inner ones arc higher.
+// Stamens: smooth wide U-arcs. All control points stay above CY (the center)
+// so nothing dips below the flower neck. Tips staggered naturally.
 const stamens = [
-  // ==== OUTERMOST — very wide, shallow gentle curve, tips a bit lower ====
-  { d: `M${CX} ${CY - 8} C${CX - 140} ${CY + 10}, ${CX - 278} ${CY + 8}, ${CX - 280} ${CY - 120}`, tipX: CX - 280, tipY: CY - 120, delay: 550 },
-  { d: `M${CX} ${CY - 8} C${CX + 138} ${CY + 6}, ${CX + 274} ${CY + 5}, ${CX + 278} ${CY - 125}`, tipX: CX + 278, tipY: CY - 125, delay: 600 },
+  // ==== OUTERMOST — wide, shallow curve, control points above center ====
+  { d: `M${CX} ${CY - 12} C${CX - 120} ${CY - 18}, ${CX - 260} ${CY - 25}, ${CX - 280} ${CY - 120}`, tipX: CX - 280, tipY: CY - 120, delay: 550 },
+  { d: `M${CX} ${CY - 12} C${CX + 118} ${CY - 20}, ${CX + 256} ${CY - 28}, ${CX + 278} ${CY - 125}`, tipX: CX + 278, tipY: CY - 125, delay: 600 },
 
-  // ==== WIDE — slightly higher tips ====
-  { d: `M${CX} ${CY - 8} C${CX - 115} ${CY - 2}, ${CX - 250} ${CY - 8}, ${CX - 252} ${CY - 145}`, tipX: CX - 252, tipY: CY - 145, delay: 650 },
-  { d: `M${CX} ${CY - 8} C${CX + 112} ${CY - 5}, ${CX + 246} ${CY - 12}, ${CX + 250} ${CY - 140}`, tipX: CX + 250, tipY: CY - 140, delay: 700 },
+  // ==== WIDE ====
+  { d: `M${CX} ${CY - 12} C${CX - 100} ${CY - 22}, ${CX - 235} ${CY - 35}, ${CX - 252} ${CY - 145}`, tipX: CX - 252, tipY: CY - 145, delay: 650 },
+  { d: `M${CX} ${CY - 12} C${CX + 98} ${CY - 24}, ${CX + 232} ${CY - 38}, ${CX + 250} ${CY - 140}`, tipX: CX + 250, tipY: CY - 140, delay: 700 },
 
-  // ==== MID-WIDE — tips near petal height ====
-  { d: `M${CX} ${CY - 8} C${CX - 72} ${CY - 28}, ${CX - 195} ${CY - 60}, ${CX - 205} ${CY - 165}`, tipX: CX - 205, tipY: CY - 165, delay: 750 },
-  { d: `M${CX} ${CY - 8} C${CX + 70} ${CY - 30}, ${CX + 192} ${CY - 65}, ${CX + 202} ${CY - 170}`, tipX: CX + 202, tipY: CY - 170, delay: 800 },
+  // ==== MID-WIDE ====
+  { d: `M${CX} ${CY - 12} C${CX - 65} ${CY - 38}, ${CX - 185} ${CY - 72}, ${CX - 205} ${CY - 165}`, tipX: CX - 205, tipY: CY - 165, delay: 750 },
+  { d: `M${CX} ${CY - 12} C${CX + 62} ${CY - 40}, ${CX + 182} ${CY - 76}, ${CX + 202} ${CY - 170}`, tipX: CX + 202, tipY: CY - 170, delay: 800 },
 
-  // ==== UPPER — tips at petal height ====
-  { d: `M${CX} ${CY - 8} C${CX - 45} ${CY - 50}, ${CX - 138} ${CY - 120}, ${CX - 142} ${CY - 180}`, tipX: CX - 142, tipY: CY - 180, delay: 850 },
-  { d: `M${CX} ${CY - 8} C${CX + 42} ${CY - 52}, ${CX + 135} ${CY - 125}, ${CX + 140} ${CY - 175}`, tipX: CX + 140, tipY: CY - 175, delay: 900 },
+  // ==== UPPER ====
+  { d: `M${CX} ${CY - 12} C${CX - 40} ${CY - 55}, ${CX - 130} ${CY - 125}, ${CX - 142} ${CY - 180}`, tipX: CX - 142, tipY: CY - 180, delay: 850 },
+  { d: `M${CX} ${CY - 12} C${CX + 38} ${CY - 58}, ${CX + 128} ${CY - 128}, ${CX + 140} ${CY - 175}`, tipX: CX + 140, tipY: CY - 175, delay: 900 },
 
-  // ==== CENTER — tallest, just above petal height ====
-  { d: `M${CX} ${CY - 8} C${CX - 20} ${CY - 65}, ${CX - 62} ${CY - 155}, ${CX - 55} ${CY - 188}`, tipX: CX - 55, tipY: CY - 188, delay: 950 },
-  { d: `M${CX} ${CY - 8} C${CX + 18} ${CY - 68}, ${CX + 60} ${CY - 158}, ${CX + 52} ${CY - 185}`, tipX: CX + 52, tipY: CY - 185, delay: 1000 },
+  // ==== CENTER ====
+  { d: `M${CX} ${CY - 12} C${CX - 18} ${CY - 68}, ${CX - 58} ${CY - 155}, ${CX - 55} ${CY - 188}`, tipX: CX - 55, tipY: CY - 188, delay: 950 },
+  { d: `M${CX} ${CY - 12} C${CX + 16} ${CY - 70}, ${CX + 56} ${CY - 158}, ${CX + 52} ${CY - 185}`, tipX: CX + 52, tipY: CY - 185, delay: 1000 },
 ];
 
 const SpiderLily = ({ className }: { className?: string }) => {
@@ -263,20 +263,6 @@ const SpiderLily = ({ className }: { className?: string }) => {
         <path
           d={`M195 580 C198 520, 205 445, 212 380 C218 320, 220 275, ${CX} ${CY + 15}`}
           className={`spider-lily-stem ${bloomed ? 'spider-lily-stem-active' : ''}`}
-          pathLength={1}
-        />
-
-        {/* Bracts */}
-        <path
-          d={`M${CX - 2} ${CY + 8} C${CX - 10} ${CY + 20}, ${CX - 16} ${CY + 35}, ${CX - 20} ${CY + 52}`}
-          className={`spider-lily-bract ${bloomed ? 'spider-lily-bract-active' : ''}`}
-          style={{ animationDelay: '120ms' }}
-          pathLength={1}
-        />
-        <path
-          d={`M${CX + 2} ${CY + 8} C${CX + 8} ${CY + 20}, ${CX + 12} ${CY + 35}, ${CX + 14} ${CY + 52}`}
-          className={`spider-lily-bract ${bloomed ? 'spider-lily-bract-active' : ''}`}
-          style={{ animationDelay: '150ms' }}
           pathLength={1}
         />
 
