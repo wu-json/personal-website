@@ -232,8 +232,16 @@
     clip-path: inset(100% 0 0 0);
     opacity: 0;
   }
-  30% {
-    opacity: 0.8;
+  8% {
+    opacity: 0.6;
+  }
+  40% {
+    clip-path: inset(30% 0 0 0);
+    opacity: 0.85;
+  }
+  70% {
+    clip-path: inset(8% 0 0 0);
+    opacity: 0.95;
   }
   100% {
     clip-path: inset(0 0 0 0);
@@ -255,14 +263,23 @@
 @keyframes lily-petal-bloom {
   0% {
     opacity: 0;
-    transform: scale(0.3);
+    transform: scale(0) rotate(8deg);
   }
-  60% {
-    opacity: 0.85;
+  20% {
+    opacity: 0.5;
+    transform: scale(0.4) rotate(4deg);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(0.75) rotate(1deg);
+  }
+  80% {
+    opacity: 0.9;
+    transform: scale(0.95) rotate(-0.5deg);
   }
   100% {
     opacity: 0.92;
-    transform: scale(1);
+    transform: scale(1) rotate(0deg);
   }
 }
 
@@ -271,8 +288,13 @@
     stroke-dashoffset: 1;
     opacity: 0;
   }
+  25% {
+    stroke-dashoffset: 0.7;
+    opacity: 0.3;
+  }
   60% {
-    opacity: 0.5;
+    stroke-dashoffset: 0.2;
+    opacity: 0.55;
   }
   100% {
     stroke-dashoffset: 0;
@@ -283,15 +305,12 @@
 @keyframes lily-anther-appear {
   0% {
     opacity: 0;
-    r: 0;
   }
-  70% {
+  60% {
     opacity: 0.85;
-    r: 2.8;
   }
   100% {
     opacity: 0.75;
-    r: 2.2;
   }
 }
 
@@ -328,7 +347,7 @@
 }
 
 .spider-lily-stem-active {
-  animation: lily-stem-rise 700ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: lily-stem-rise 800ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 /* Bract */
@@ -357,7 +376,7 @@
 }
 
 .spider-lily-petal-active {
-  animation: lily-petal-bloom 600ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: lily-petal-bloom 700ms cubic-bezier(0.12, 0.8, 0.2, 1) forwards;
 }
 
 /* Stamens */
@@ -372,7 +391,7 @@
 }
 
 .spider-lily-stamen-active {
-  animation: lily-stamen-grow 550ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: lily-stamen-grow 600ms cubic-bezier(0.12, 0.8, 0.2, 1) forwards;
 }
 
 /* Anther tips */
@@ -382,7 +401,7 @@
 }
 
 .spider-lily-anther-active {
-  animation: lily-anther-appear 300ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: lily-anther-appear 350ms cubic-bezier(0.12, 0.8, 0.2, 1) forwards;
 }
 
 /* Center node */
@@ -392,13 +411,56 @@
 }
 
 .spider-lily-center-active {
-  animation: lily-center-pulse 400ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: lily-center-pulse 500ms cubic-bezier(0.12, 0.8, 0.2, 1) forwards;
 }
 
-/* Ethereal glow — fades in after bloom, then breathes */
+/* Ethereal glow — fades in during bloom, then breathes */
 .spider-lily-container {
-  animation: lily-glow-in 2s ease-out 1.4s forwards,
+  animation: lily-glow-in 1.8s ease-out 1.2s forwards,
     lily-breathe 5s ease-in-out 3.4s infinite;
+}
+
+@keyframes lily-glitch {
+  0% {
+    translate: 0 0;
+    opacity: 1;
+  }
+  10% {
+    translate: 5px -2px;
+    opacity: 0.2;
+  }
+  20% {
+    translate: -4px 1px;
+    opacity: 1;
+  }
+  30% {
+    translate: 0 0;
+    opacity: 0;
+  }
+  40% {
+    translate: 3px -1px;
+    opacity: 0.7;
+  }
+  50% {
+    translate: -6px 2px;
+    opacity: 0.15;
+  }
+  60% {
+    translate: 4px 0;
+    opacity: 1;
+  }
+  70% {
+    translate: 0 -1px;
+    opacity: 0.5;
+  }
+  80% {
+    translate: -2px 0;
+    opacity: 1;
+  }
+  100% {
+    translate: 0 0;
+    opacity: 1;
+  }
 }
 
 @keyframes lily-glow-in {

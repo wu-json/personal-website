@@ -168,10 +168,11 @@ const stamens: { d: string; tipX: number; tipY: number; delay: number; tipAngle:
   { d: `M${CX} ${CY - 12} C${CX + 28} ${CY - 64}, ${CX + 92} ${CY - 150}, ${CX + 88} ${CY - 188}`, tipX: CX + 88, tipY: CY - 188, delay: 320, tipAngle: 75, tipLen: 4.7, tipW: 2.5 },
 ];
 
-const STEM_DELAY = 150;
-const PETAL_DELAY = 650;
-const STAMEN_DELAY = 1000;
-const STAMEN_DURATION = 550;
+const STEM_DELAY = 100;
+const STEM_DURATION = 800;
+const PETAL_DELAY = STEM_DELAY + STEM_DURATION;
+const STAMEN_DELAY = PETAL_DELAY + 300;
+const STAMEN_DURATION = 600;
 
 const SpiderLily = ({ className }: { className?: string }) => {
   const [stemActive, setStemActive] = useState(false);
