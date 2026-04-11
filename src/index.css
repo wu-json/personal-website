@@ -229,15 +229,15 @@
 
 @keyframes lily-stem-rise {
   0% {
-    stroke-dashoffset: 1;
+    clip-path: inset(100% 0 0 0);
     opacity: 0;
   }
   30% {
-    opacity: 0.7;
+    opacity: 0.8;
   }
   100% {
-    stroke-dashoffset: 0;
-    opacity: 0.6;
+    clip-path: inset(0 0 0 0);
+    opacity: 1;
   }
 }
 
@@ -316,14 +316,10 @@
   }
 }
 
-/* Stem */
+/* Stem — brush stroke aesthetic */
 .spider-lily-stem {
-  fill: none;
-  stroke: rgba(255, 255, 255, 0.55);
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-dasharray: 1;
-  stroke-dashoffset: 1;
+  fill: rgba(255, 255, 255, 0.88);
+  stroke: none;
   opacity: 0;
 }
 

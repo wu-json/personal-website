@@ -239,11 +239,19 @@ const SpiderLily = ({ className }: { className?: string }) => {
       </defs>
 
       <g filter="url(#ink-texture)">
-        {/* Stem */}
+        {/* Stem — brush stroke: wide at flower head, trails to a wisp */}
         <path
-          d={`M195 580 C198 520, 205 445, 212 380 C218 320, 220 275, ${CX} ${CY + 15}`}
+          d={`M${CX - 7} ${CY}
+              C${CX - 9} ${CY + 25}, ${CX - 10} 280, ${CX - 8} 330
+              C${CX - 5} 375, ${CX - 8} 420, ${CX - 10} 470
+              C${CX - 9} 515, ${CX - 6} 550, ${CX - 4} 580
+              Q${CX - 3} 594, ${CX - 1} 598
+              Q${CX + 2} 594, ${CX + 3} 580
+              C${CX + 4} 550, ${CX + 1} 515, ${CX} 470
+              C${CX - 1} 420, ${CX + 3} 375, ${CX + 5} 330
+              C${CX + 7} 280, ${CX + 8} ${CY + 25}, ${CX + 7} ${CY}
+              Z`}
           className={`spider-lily-stem ${bloomed ? 'spider-lily-stem-active' : ''}`}
-          pathLength={1}
         />
 
         {/* Petals */}
