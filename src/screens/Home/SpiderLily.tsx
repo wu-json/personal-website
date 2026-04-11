@@ -146,27 +146,47 @@ const petals: { d: string; delay: number }[] = [
     delay: 280,
   },
 
-  // ==== LOWER PETALS — two short, curving down then bending inward ====
+  // ==== LOWER PETALS — four ribbon curls, droop out then tips curl back up ====
 
-  // Left — gentle arc down-left, curves back toward center at mid-point
+  // Far left — sweeps wide left, droops, tip curls back up
   {
     d: `M${CX} ${CY + W}
-       C${CX - 20} ${CY + W + 10}, ${CX - 45} ${CY + W + 25}, ${CX - 65} ${CY + W + 35}
-       C${CX - 78} ${CY + W + 42}, ${CX - 82} ${CY + W + 48}, ${CX - 76} ${CY + W + 52}
-       C${CX - 68} ${CY + W + 55}, ${CX - 60} ${CY + W + 48}, ${CX - 58} ${CY + W + 40}
-       C${CX - 55} ${CY + W + 32}, ${CX - 58} ${CY + 38}, ${CX - 50} ${CY + 28}
-       C${CX - 35} ${CY + 16}, ${CX - 18} ${CY + 6}, ${CX} ${CY - W} Z`,
-    delay: 300,
+       C${CX - 30} ${CY + W + 10}, ${CX - 75} ${CY + W + 30}, ${CX - 110} ${CY + W + 50}
+       C${CX - 135} ${CY + W + 65}, ${CX - 148} ${CY + W + 72}, ${CX - 150} ${CY + W + 60}
+       C${CX - 152} ${CY + W + 48}, ${CX - 142} ${CY + W + 38}, ${CX - 138} ${CY + W + 45}
+       C${CX - 132} ${CY + 52}, ${CX - 128} ${CY + 48}, ${CX - 115} ${CY + 38}
+       C${CX - 78} ${CY + 22}, ${CX - 35} ${CY + 8}, ${CX} ${CY - W} Z`,
+    delay: 280,
   },
-  // Right — mirror
+  // Far right — mirror
   {
     d: `M${CX} ${CY + W}
-       C${CX + 22} ${CY + W + 12}, ${CX + 48} ${CY + W + 28}, ${CX + 68} ${CY + W + 38}
-       C${CX + 82} ${CY + W + 45}, ${CX + 86} ${CY + W + 52}, ${CX + 80} ${CY + W + 55}
-       C${CX + 72} ${CY + W + 58}, ${CX + 64} ${CY + W + 50}, ${CX + 62} ${CY + W + 42}
-       C${CX + 58} ${CY + W + 34}, ${CX + 62} ${CY + 40}, ${CX + 54} ${CY + 30}
-       C${CX + 38} ${CY + 18}, ${CX + 20} ${CY + 8}, ${CX} ${CY - W} Z`,
-    delay: 340,
+       C${CX + 32} ${CY + W + 12}, ${CX + 78} ${CY + W + 32}, ${CX + 114} ${CY + W + 52}
+       C${CX + 140} ${CY + W + 68}, ${CX + 152} ${CY + W + 75}, ${CX + 155} ${CY + W + 62}
+       C${CX + 157} ${CY + W + 50}, ${CX + 147} ${CY + W + 40}, ${CX + 142} ${CY + W + 48}
+       C${CX + 136} ${CY + 54}, ${CX + 132} ${CY + 50}, ${CX + 118} ${CY + 40}
+       C${CX + 82} ${CY + 24}, ${CX + 38} ${CY + 10}, ${CX} ${CY - W} Z`,
+    delay: 320,
+  },
+  // Inner left — steeper droop, closer to center, tip curls up
+  {
+    d: `M${CX} ${CY + W}
+       C${CX - 18} ${CY + W + 14}, ${CX - 48} ${CY + W + 40}, ${CX - 72} ${CY + W + 65}
+       C${CX - 90} ${CY + W + 82}, ${CX - 100} ${CY + W + 88}, ${CX - 102} ${CY + W + 76}
+       C${CX - 104} ${CY + W + 64}, ${CX - 95} ${CY + W + 56}, ${CX - 90} ${CY + W + 62}
+       C${CX - 85} ${CY + 68}, ${CX - 82} ${CY + 64}, ${CX - 72} ${CY + 52}
+       C${CX - 48} ${CY + 32}, ${CX - 20} ${CY + 12}, ${CX} ${CY - W} Z`,
+    delay: 360,
+  },
+  // Inner right — mirror
+  {
+    d: `M${CX} ${CY + W}
+       C${CX + 20} ${CY + W + 16}, ${CX + 52} ${CY + W + 42}, ${CX + 76} ${CY + W + 68}
+       C${CX + 94} ${CY + W + 85}, ${CX + 104} ${CY + W + 92}, ${CX + 106} ${CY + W + 80}
+       C${CX + 108} ${CY + W + 68}, ${CX + 98} ${CY + W + 58}, ${CX + 94} ${CY + W + 65}
+       C${CX + 88} ${CY + 70}, ${CX + 86} ${CY + 66}, ${CX + 76} ${CY + 54}
+       C${CX + 50} ${CY + 34}, ${CX + 22} ${CY + 14}, ${CX} ${CY - W} Z`,
+    delay: 400,
   },
 ];
 
@@ -199,20 +219,18 @@ const stamens = [
 const STEM_DELAY = 150;
 const PETAL_DELAY = 650;
 const STAMEN_DELAY = 1000;
-const ANTHER_DELAY = STAMEN_DELAY + 550 + 360;
+const STAMEN_DURATION = 550;
 
 const SpiderLily = ({ className }: { className?: string }) => {
   const [stemActive, setStemActive] = useState(false);
   const [petalsActive, setPetalsActive] = useState(false);
   const [stamensActive, setStamensActive] = useState(false);
-  const [anthersActive, setAnthersActive] = useState(false);
 
   useEffect(() => {
     const t1 = setTimeout(() => setStemActive(true), STEM_DELAY);
     const t2 = setTimeout(() => setPetalsActive(true), PETAL_DELAY);
     const t3 = setTimeout(() => setStamensActive(true), STAMEN_DELAY);
-    const t4 = setTimeout(() => setAnthersActive(true), ANTHER_DELAY);
-    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4); };
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
   }, []);
 
   return (
@@ -288,8 +306,8 @@ const SpiderLily = ({ className }: { className?: string }) => {
               cx={s.tipX}
               cy={s.tipY}
               r="2.2"
-              className={`spider-lily-anther ${anthersActive ? 'spider-lily-anther-active' : ''}`}
-              style={{ animationDelay: `${s.delay}ms` }}
+              className={`spider-lily-anther ${stamensActive ? 'spider-lily-anther-active' : ''}`}
+              style={{ animationDelay: `${s.delay + STAMEN_DURATION}ms` }}
               filter="url(#stamen-glow)"
             />
           </g>
