@@ -215,10 +215,12 @@ const SpiderLily = ({ className }: { className?: string }) => {
             <feMergeNode in="SourceGraphic" />
           </feMerge>
         </filter>
-        <filter id="petal-glow" x="-20%" y="-20%" width="140%" height="140%">
-          <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="softGlow" />
+        <filter id="petal-glow" x="-30%" y="-30%" width="160%" height="160%">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="wideGlow" />
+          <feGaussianBlur in="SourceGraphic" stdDeviation="2.5" result="tightGlow" />
           <feMerge>
-            <feMergeNode in="softGlow" />
+            <feMergeNode in="wideGlow" />
+            <feMergeNode in="tightGlow" />
             <feMergeNode in="SourceGraphic" />
           </feMerge>
         </filter>
