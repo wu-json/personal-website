@@ -324,7 +324,7 @@
 }
 
 .spider-lily-stem-active {
-  animation: lily-stem-rise 1200ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: lily-stem-rise 700ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 /* Bract */
@@ -353,7 +353,7 @@
 }
 
 .spider-lily-petal-active {
-  animation: lily-petal-bloom 1000ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: lily-petal-bloom 600ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 /* Stamens */
@@ -368,7 +368,7 @@
 }
 
 .spider-lily-stamen-active {
-  animation: lily-stamen-grow 900ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: lily-stamen-grow 550ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 /* Anther tips */
@@ -378,7 +378,7 @@
 }
 
 .spider-lily-anther-active {
-  animation: lily-anther-appear 500ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: lily-anther-appear 300ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 /* Center node */
@@ -388,12 +388,12 @@
 }
 
 .spider-lily-center-active {
-  animation: lily-center-pulse 600ms cubic-bezier(0.22, 1, 0.36, 1) 200ms forwards;
+  animation: lily-center-pulse 400ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 /* Breathing glow after bloom */
 .spider-lily-container {
-  animation: lily-breathe 4s ease-in-out 2.5s infinite;
+  animation: lily-breathe 4s ease-in-out 1.8s infinite;
 }
 
 .transmission-prose p {
