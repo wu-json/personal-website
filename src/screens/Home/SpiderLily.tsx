@@ -1,131 +1,214 @@
 import { useEffect, useState } from 'react';
 
 /**
- * Side-view spider lily (彼岸花) — Japanese ink/anime aesthetic.
- * Solid white filled petals with irregular widths and aggressive curling tips.
- * Graceful curved stamens. Stem leans naturally.
+ * Side-view spider lily (彼岸花) — Japanese anime ink aesthetic.
+ * Thin ribbon petals with tight spiral curls at the tips.
+ * Dense, chaotic, overlapping. White on black.
  */
 
-const CX = 218;
-const CY = 195;
+const CX = 220;
+const CY = 230;
 
-// Each petal is a closed filled shape — ribbon-like, wider in the middle,
-// tapering at base and tip, with a tight curl at the end.
-// Irregularity in widths and angles makes it feel hand-drawn.
+// Petals are thin ribbons (two-edge closed paths) with tight curling
+// spiral tips. Each one: narrow at base → slight widening → tight loop.
+// The "top edge" and "bottom edge" of the ribbon are offset by ~6-10px.
 const petals: { d: string; delay: number }[] = [
-  // === FAR LEFT — wide sweep, aggressive curl down ===
+  // ---- LEFT HORIZONTAL ----
+  // Far left — long sweep, tight downward spiral at tip
   {
-    d: `M${CX} ${CY} C${CX - 15} ${CY - 2}, ${CX - 45} ${CY - 8}, ${CX - 80} ${CY - 6}
-       C${CX - 105} ${CY - 4}, ${CX - 128} ${CY + 2}, ${CX - 140} ${CY + 15}
-       C${CX - 148} ${CY + 25}, ${CX - 145} ${CY + 35}, ${CX - 135} ${CY + 32}
-       C${CX - 125} ${CY + 28}, ${CX - 128} ${CY + 18}, ${CX - 122} ${CY + 8}
-       C${CX - 110} ${CY - 2}, ${CX - 82} ${CY - 2}, ${CX - 55} ${CY + 2}
-       C${CX - 30} ${CY + 5}, ${CX - 10} ${CY + 4}, ${CX} ${CY} Z`,
+    d: `M${CX} ${CY - 3}
+       L${CX - 40} ${CY - 12} L${CX - 85} ${CY - 16} L${CX - 125} ${CY - 10}
+       L${CX - 152} ${CY + 2} L${CX - 165} ${CY + 18} L${CX - 170} ${CY + 38}
+       C${CX - 170} ${CY + 52}, ${CX - 160} ${CY + 58}, ${CX - 150} ${CY + 52}
+       C${CX - 142} ${CY + 44}, ${CX - 148} ${CY + 32}, ${CX - 158} ${CY + 22}
+       L${CX - 155} ${CY + 8} L${CX - 140} ${CY - 2}
+       L${CX - 118} ${CY - 6} L${CX - 82} ${CY - 8} L${CX - 42} ${CY - 2}
+       L${CX - 5} ${CY + 5} Z`,
     delay: 0,
   },
-  // Left-upper sweep with tight hook
+  // Left mid-upper
   {
-    d: `M${CX} ${CY} C${CX - 12} ${CY - 8}, ${CX - 38} ${CY - 22}, ${CX - 68} ${CY - 30}
-       C${CX - 92} ${CY - 35}, ${CX - 115} ${CY - 32}, ${CX - 130} ${CY - 20}
-       C${CX - 140} ${CY - 10}, ${CX - 142} ${CY + 2}, ${CX - 132} ${CY + 5}
-       C${CX - 122} ${CY + 6}, ${CX - 120} ${CY - 5}, ${CX - 112} ${CY - 15}
-       C${CX - 98} ${CY - 28}, ${CX - 72} ${CY - 25}, ${CX - 48} ${CY - 18}
-       C${CX - 25} ${CY - 10}, ${CX - 8} ${CY - 3}, ${CX} ${CY} Z`,
-    delay: 80,
+    d: `M${CX} ${CY - 2}
+       L${CX - 35} ${CY - 14} L${CX - 72} ${CY - 28} L${CX - 108} ${CY - 34}
+       L${CX - 138} ${CY - 28} L${CX - 155} ${CY - 14} L${CX - 162} ${CY + 4}
+       C${CX - 165} ${CY + 18}, ${CX - 156} ${CY + 26}, ${CX - 146} ${CY + 20}
+       C${CX - 138} ${CY + 14}, ${CX - 142} ${CY + 2}, ${CX - 150} ${CY - 6}
+       L${CX - 142} ${CY - 16} L${CX - 125} ${CY - 22}
+       L${CX - 102} ${CY - 24} L${CX - 70} ${CY - 18} L${CX - 38} ${CY - 6}
+       L${CX - 6} ${CY + 6} Z`,
+    delay: 100,
   },
-  // Left-low sweep curling under
+  // Left low — sweeps down, curls up
   {
-    d: `M${CX} ${CY} C${CX - 10} ${CY + 4}, ${CX - 35} ${CY + 14}, ${CX - 62} ${CY + 22}
-       C${CX - 85} ${CY + 28}, ${CX - 105} ${CY + 35}, ${CX - 115} ${CY + 48}
-       C${CX - 120} ${CY + 58}, ${CX - 115} ${CY + 65}, ${CX - 105} ${CY + 60}
-       C${CX - 98} ${CY + 55}, ${CX - 100} ${CY + 45}, ${CX - 95} ${CY + 35}
-       C${CX - 85} ${CY + 22}, ${CX - 60} ${CY + 18}, ${CX - 38} ${CY + 12}
-       C${CX - 18} ${CY + 6}, ${CX - 5} ${CY + 2}, ${CX} ${CY} Z`,
+    d: `M${CX} ${CY + 2}
+       L${CX - 32} ${CY + 15} L${CX - 65} ${CY + 32} L${CX - 95} ${CY + 50}
+       L${CX - 115} ${CY + 66} L${CX - 125} ${CY + 82} L${CX - 126} ${CY + 98}
+       C${CX - 124} ${CY + 112}, ${CX - 114} ${CY + 116}, ${CX - 108} ${CY + 108}
+       C${CX - 102} ${CY + 98}, ${CX - 108} ${CY + 86}, ${CX - 116} ${CY + 78}
+       L${CX - 110} ${CY + 62} L${CX - 95} ${CY + 48}
+       L${CX - 72} ${CY + 34} L${CX - 45} ${CY + 20} L${CX - 18} ${CY + 8}
+       L${CX + 3} ${CY + 6} Z`,
+    delay: 190,
+  },
+
+  // ---- RIGHT HORIZONTAL ----
+  // Far right
+  {
+    d: `M${CX} ${CY - 4}
+       L${CX + 42} ${CY - 15} L${CX + 88} ${CY - 20} L${CX + 128} ${CY - 14}
+       L${CX + 155} ${CY} L${CX + 168} ${CY + 16} L${CX + 174} ${CY + 36}
+       C${CX + 175} ${CY + 50}, ${CX + 165} ${CY + 56}, ${CX + 155} ${CY + 50}
+       C${CX + 147} ${CY + 42}, ${CX + 152} ${CY + 30}, ${CX + 162} ${CY + 20}
+       L${CX + 158} ${CY + 6} L${CX + 145} ${CY - 4}
+       L${CX + 122} ${CY - 8} L${CX + 85} ${CY - 10} L${CX + 45} ${CY - 4}
+       L${CX + 6} ${CY + 4} Z`,
+    delay: 50,
+  },
+  // Right mid-upper
+  {
+    d: `M${CX} ${CY - 3}
+       L${CX + 38} ${CY - 16} L${CX + 76} ${CY - 32} L${CX + 112} ${CY - 38}
+       L${CX + 142} ${CY - 30} L${CX + 160} ${CY - 16} L${CX + 168} ${CY + 2}
+       C${CX + 172} ${CY + 16}, ${CX + 162} ${CY + 24}, ${CX + 152} ${CY + 18}
+       C${CX + 144} ${CY + 12}, ${CX + 148} ${CY}, ${CX + 155} ${CY - 8}
+       L${CX + 148} ${CY - 18} L${CX + 130} ${CY - 24}
+       L${CX + 106} ${CY - 28} L${CX + 74} ${CY - 22} L${CX + 40} ${CY - 8}
+       L${CX + 8} ${CY + 5} Z`,
+    delay: 140,
+  },
+  // Right low
+  {
+    d: `M${CX} ${CY + 3}
+       L${CX + 35} ${CY + 18} L${CX + 68} ${CY + 36} L${CX + 98} ${CY + 54}
+       L${CX + 118} ${CY + 70} L${CX + 128} ${CY + 86} L${CX + 130} ${CY + 102}
+       C${CX + 128} ${CY + 115}, ${CX + 118} ${CY + 118}, ${CX + 112} ${CY + 110}
+       C${CX + 106} ${CY + 100}, ${CX + 112} ${CY + 88}, ${CX + 120} ${CY + 80}
+       L${CX + 114} ${CY + 66} L${CX + 100} ${CY + 52}
+       L${CX + 76} ${CY + 38} L${CX + 48} ${CY + 22} L${CX + 20} ${CY + 10}
+       L${CX - 2} ${CY + 6} Z`,
+    delay: 230,
+  },
+
+  // ---- UPPER LEFT DIAGONAL ----
+  {
+    d: `M${CX - 2} ${CY}
+       L${CX - 20} ${CY - 22} L${CX - 42} ${CY - 52} L${CX - 62} ${CY - 78}
+       L${CX - 76} ${CY - 100} L${CX - 82} ${CY - 118} L${CX - 80} ${CY - 132}
+       C${CX - 76} ${CY - 144}, ${CX - 66} ${CY - 146}, ${CX - 60} ${CY - 138}
+       C${CX - 56} ${CY - 130}, ${CX - 62} ${CY - 120}, ${CX - 70} ${CY - 114}
+       L${CX - 68} ${CY - 98} L${CX - 58} ${CY - 78}
+       L${CX - 42} ${CY - 54} L${CX - 24} ${CY - 30} L${CX - 6} ${CY - 8}
+       L${CX + 3} ${CY + 5} Z`,
+    delay: 70,
+  },
+
+  // ---- UPPER RIGHT DIAGONAL ----
+  {
+    d: `M${CX + 2} ${CY}
+       L${CX + 22} ${CY - 24} L${CX + 46} ${CY - 56} L${CX + 68} ${CY - 82}
+       L${CX + 82} ${CY - 104} L${CX + 88} ${CY - 122} L${CX + 86} ${CY - 136}
+       C${CX + 82} ${CY - 148}, ${CX + 72} ${CY - 150}, ${CX + 66} ${CY - 142}
+       C${CX + 62} ${CY - 134}, ${CX + 68} ${CY - 124}, ${CX + 76} ${CY - 118}
+       L${CX + 74} ${CY - 102} L${CX + 64} ${CY - 82}
+       L${CX + 46} ${CY - 58} L${CX + 26} ${CY - 32} L${CX + 8} ${CY - 10}
+       L${CX - 2} ${CY + 4} Z`,
     delay: 160,
   },
 
-  // === FAR RIGHT — mirror-ish but irregular ===
+  // ---- TOP PETALS ----
+  // Top left-lean
   {
-    d: `M${CX} ${CY} C${CX + 18} ${CY - 4}, ${CX + 50} ${CY - 12}, ${CX + 85} ${CY - 10}
-       C${CX + 108} ${CY - 8}, ${CX + 130} ${CY - 2}, ${CX + 142} ${CY + 10}
-       C${CX + 150} ${CY + 20}, ${CX + 148} ${CY + 32}, ${CX + 138} ${CY + 30}
-       C${CX + 128} ${CY + 26}, ${CX + 130} ${CY + 14}, ${CX + 125} ${CY + 4}
-       C${CX + 112} ${CY - 4}, ${CX + 85} ${CY - 4}, ${CX + 58} ${CY}
-       C${CX + 32} ${CY + 3}, ${CX + 12} ${CY + 2}, ${CX} ${CY} Z`,
-    delay: 50,
+    d: `M${CX - 1} ${CY}
+       L${CX - 10} ${CY - 28} L${CX - 18} ${CY - 65} L${CX - 24} ${CY - 102}
+       L${CX - 26} ${CY - 132} L${CX - 22} ${CY - 155} L${CX - 14} ${CY - 170}
+       C${CX - 6} ${CY - 180}, ${CX + 2} ${CY - 176}, ${CX + 2} ${CY - 166}
+       C${CX + 2} ${CY - 156}, ${CX - 8} ${CY - 152}, ${CX - 16} ${CY - 148}
+       L${CX - 18} ${CY - 132} L${CX - 16} ${CY - 105}
+       L${CX - 12} ${CY - 68} L${CX - 4} ${CY - 32} L${CX + 4} ${CY - 4}
+       L${CX + 3} ${CY + 5} Z`,
+    delay: 40,
   },
-  // Right-upper with curl
+  // Top right-lean
   {
-    d: `M${CX} ${CY} C${CX + 14} ${CY - 10}, ${CX + 42} ${CY - 25}, ${CX + 72} ${CY - 35}
-       C${CX + 95} ${CY - 40}, ${CX + 118} ${CY - 36}, ${CX + 132} ${CY - 22}
-       C${CX + 142} ${CY - 12}, ${CX + 144} ${CY}, ${CX + 134} ${CY + 2}
-       C${CX + 124} ${CY + 2}, ${CX + 122} ${CY - 8}, ${CX + 115} ${CY - 18}
-       C${CX + 100} ${CY - 30}, ${CX + 75} ${CY - 28}, ${CX + 50} ${CY - 20}
-       C${CX + 28} ${CY - 12}, ${CX + 10} ${CY - 4}, ${CX} ${CY} Z`,
-    delay: 130,
+    d: `M${CX + 1} ${CY}
+       L${CX + 12} ${CY - 30} L${CX + 22} ${CY - 68} L${CX + 30} ${CY - 106}
+       L${CX + 34} ${CY - 138} L${CX + 30} ${CY - 160} L${CX + 22} ${CY - 175}
+       C${CX + 14} ${CY - 185}, ${CX + 4} ${CY - 182}, ${CX + 4} ${CY - 172}
+       C${CX + 4} ${CY - 162}, ${CX + 14} ${CY - 156}, ${CX + 22} ${CY - 152}
+       L${CX + 24} ${CY - 138} L${CX + 22} ${CY - 108}
+       L${CX + 16} ${CY - 72} L${CX + 8} ${CY - 34} L${CX} ${CY - 6}
+       L${CX - 2} ${CY + 4} Z`,
+    delay: 110,
   },
-  // Right-low curling under
+  // Top center-left narrow
   {
-    d: `M${CX} ${CY} C${CX + 12} ${CY + 5}, ${CX + 38} ${CY + 16}, ${CX + 65} ${CY + 25}
-       C${CX + 88} ${CY + 32}, ${CX + 108} ${CY + 40}, ${CX + 118} ${CY + 52}
-       C${CX + 124} ${CY + 62}, ${CX + 118} ${CY + 68}, ${CX + 108} ${CY + 62}
-       C${CX + 100} ${CY + 55}, ${CX + 102} ${CY + 45}, ${CX + 98} ${CY + 38}
-       C${CX + 88} ${CY + 25}, ${CX + 62} ${CY + 20}, ${CX + 40} ${CY + 14}
-       C${CX + 20} ${CY + 8}, ${CX + 6} ${CY + 3}, ${CX} ${CY} Z`,
+    d: `M${CX - 1} ${CY}
+       L${CX - 6} ${CY - 22} L${CX - 14} ${CY - 55} L${CX - 24} ${CY - 88}
+       L${CX - 36} ${CY - 115} L${CX - 42} ${CY - 135} L${CX - 42} ${CY - 150}
+       C${CX - 38} ${CY - 162}, ${CX - 28} ${CY - 164}, ${CX - 24} ${CY - 155}
+       C${CX - 20} ${CY - 146}, ${CX - 28} ${CY - 138}, ${CX - 35} ${CY - 132}
+       L${CX - 32} ${CY - 115} L${CX - 22} ${CY - 90}
+       L${CX - 12} ${CY - 58} L${CX - 4} ${CY - 26} L${CX + 4} ${CY - 2}
+       Z`,
     delay: 200,
   },
-
-  // === UPPER — rise and hook back ===
+  // Top center-right narrow
   {
-    d: `M${CX} ${CY} C${CX - 5} ${CY - 12}, ${CX - 15} ${CY - 38}, ${CX - 22} ${CY - 62}
-       C${CX - 28} ${CY - 82}, ${CX - 30} ${CY - 100}, ${CX - 25} ${CY - 110}
-       C${CX - 20} ${CY - 118}, ${CX - 12} ${CY - 115}, ${CX - 12} ${CY - 105}
-       C${CX - 12} ${CY - 95}, ${CX - 18} ${CY - 88}, ${CX - 18} ${CY - 72}
-       C${CX - 16} ${CY - 50}, ${CX - 8} ${CY - 28}, ${CX - 2} ${CY - 8}
-       L${CX} ${CY} Z`,
-    delay: 100,
-  },
-  {
-    d: `M${CX} ${CY} C${CX + 6} ${CY - 14}, ${CX + 18} ${CY - 42}, ${CX + 26} ${CY - 68}
-       C${CX + 32} ${CY - 88}, ${CX + 34} ${CY - 105}, ${CX + 28} ${CY - 115}
-       C${CX + 22} ${CY - 122}, ${CX + 14} ${CY - 118}, ${CX + 15} ${CY - 108}
-       C${CX + 16} ${CY - 98}, ${CX + 22} ${CY - 90}, ${CX + 22} ${CY - 75}
-       C${CX + 20} ${CY - 52}, ${CX + 12} ${CY - 30}, ${CX + 4} ${CY - 10}
-       L${CX} ${CY} Z`,
-    delay: 170,
+    d: `M${CX + 1} ${CY}
+       L${CX + 8} ${CY - 24} L${CX + 18} ${CY - 58} L${CX + 30} ${CY - 92}
+       L${CX + 42} ${CY - 118} L${CX + 48} ${CY - 138} L${CX + 48} ${CY - 152}
+       C${CX + 44} ${CY - 164}, ${CX + 34} ${CY - 166}, ${CX + 30} ${CY - 158}
+       C${CX + 26} ${CY - 148}, ${CX + 34} ${CY - 140}, ${CX + 42} ${CY - 135}
+       L${CX + 38} ${CY - 118} L${CX + 28} ${CY - 94}
+       L${CX + 16} ${CY - 62} L${CX + 6} ${CY - 28} L${CX - 2} ${CY - 4}
+       Z`,
+    delay: 260,
   },
 
-  // === UPPER-DIAGONAL — aggressive angular ===
+  // ---- EXTRA DENSITY PETALS ----
+  // Left far-upper — tighter angle
   {
-    d: `M${CX} ${CY} C${CX - 10} ${CY - 10}, ${CX - 30} ${CY - 35}, ${CX - 48} ${CY - 58}
-       C${CX - 62} ${CY - 75}, ${CX - 72} ${CY - 90}, ${CX - 70} ${CY - 100}
-       C${CX - 68} ${CY - 108}, ${CX - 60} ${CY - 108}, ${CX - 58} ${CY - 98}
-       C${CX - 56} ${CY - 88}, ${CX - 60} ${CY - 78}, ${CX - 52} ${CY - 65}
-       C${CX - 40} ${CY - 45}, ${CX - 22} ${CY - 25}, ${CX - 5} ${CY - 5}
-       L${CX} ${CY} Z`,
-    delay: 140,
+    d: `M${CX - 1} ${CY - 1}
+       L${CX - 28} ${CY - 18} L${CX - 58} ${CY - 42} L${CX - 85} ${CY - 58}
+       L${CX - 108} ${CY - 66} L${CX - 124} ${CY - 64} L${CX - 134} ${CY - 52}
+       C${CX - 140} ${CY - 40}, ${CX - 134} ${CY - 30}, ${CX - 124} ${CY - 32}
+       C${CX - 116} ${CY - 34}, ${CX - 118} ${CY - 44}, ${CX - 124} ${CY - 50}
+       L${CX - 114} ${CY - 54} L${CX - 98} ${CY - 52}
+       L${CX - 75} ${CY - 44} L${CX - 50} ${CY - 30} L${CX - 25} ${CY - 12}
+       L${CX + 2} ${CY + 5} Z`,
+    delay: 280,
   },
+  // Right far-upper
   {
-    d: `M${CX} ${CY} C${CX + 12} ${CY - 12}, ${CX + 35} ${CY - 38}, ${CX + 55} ${CY - 62}
-       C${CX + 68} ${CY - 78}, ${CX + 78} ${CY - 92}, ${CX + 75} ${CY - 102}
-       C${CX + 72} ${CY - 110}, ${CX + 64} ${CY - 108}, ${CX + 62} ${CY - 98}
-       C${CX + 60} ${CY - 88}, ${CX + 65} ${CY - 78}, ${CX + 58} ${CY - 65}
-       C${CX + 45} ${CY - 48}, ${CX + 25} ${CY - 28}, ${CX + 8} ${CY - 8}
-       L${CX} ${CY} Z`,
-    delay: 220,
+    d: `M${CX + 1} ${CY - 1}
+       L${CX + 30} ${CY - 20} L${CX + 62} ${CY - 46} L${CX + 90} ${CY - 62}
+       L${CX + 112} ${CY - 70} L${CX + 128} ${CY - 68} L${CX + 138} ${CY - 56}
+       C${CX + 144} ${CY - 44}, ${CX + 138} ${CY - 34}, ${CX + 128} ${CY - 36}
+       C${CX + 120} ${CY - 38}, ${CX + 122} ${CY - 48}, ${CX + 128} ${CY - 54}
+       L${CX + 118} ${CY - 58} L${CX + 102} ${CY - 56}
+       L${CX + 80} ${CY - 48} L${CX + 54} ${CY - 34} L${CX + 28} ${CY - 14}
+       L${CX - 1} ${CY + 4} Z`,
+    delay: 310,
   },
 ];
 
 const petalDelays = petals.map((p) => p.delay);
 
-// Stamens: graceful curves, not straight lines. Thin, elegant arcs.
+// Stamens: smooth graceful U-arcs — sweep outward then curve back up.
+// Single long cubic beziers for buttery smooth curves, no kinks.
 const stamens = [
-  { d: `M${CX} ${CY - 5} C${CX - 12} ${CY - 45}, ${CX - 30} ${CY - 100}, ${CX - 55} ${CY - 155} C${CX - 65} ${CY - 180}, ${CX - 72} ${CY - 200}, ${CX - 75} ${CY - 215}`, tipX: CX - 75, tipY: CY - 215, delay: 550 },
-  { d: `M${CX} ${CY - 5} C${CX + 10} ${CY - 48}, ${CX + 28} ${CY - 105}, ${CX + 50} ${CY - 158} C${CX + 60} ${CY - 182}, ${CX + 68} ${CY - 202}, ${CX + 72} ${CY - 218}`, tipX: CX + 72, tipY: CY - 218, delay: 620 },
-  { d: `M${CX} ${CY - 5} C${CX - 5} ${CY - 50}, ${CX - 12} ${CY - 110}, ${CX - 20} ${CY - 168} C${CX - 24} ${CY - 195}, ${CX - 26} ${CY - 215}, ${CX - 25} ${CY - 232}`, tipX: CX - 25, tipY: CY - 232, delay: 690 },
-  { d: `M${CX} ${CY - 5} C${CX + 5} ${CY - 52}, ${CX + 14} ${CY - 112}, ${CX + 22} ${CY - 170} C${CX + 26} ${CY - 198}, ${CX + 28} ${CY - 218}, ${CX + 28} ${CY - 235}`, tipX: CX + 28, tipY: CY - 235, delay: 760 },
-  { d: `M${CX} ${CY - 5} C${CX - 20} ${CY - 38}, ${CX - 52} ${CY - 82}, ${CX - 85} ${CY - 125} C${CX - 100} ${CY - 145}, ${CX - 112} ${CY - 160}, ${CX - 120} ${CY - 172}`, tipX: CX - 120, tipY: CY - 172, delay: 830 },
-  { d: `M${CX} ${CY - 5} C${CX + 18} ${CY - 40}, ${CX + 48} ${CY - 85}, ${CX + 80} ${CY - 128} C${CX + 95} ${CY - 148}, ${CX + 108} ${CY - 165}, ${CX + 115} ${CY - 175}`, tipX: CX + 115, tipY: CY - 175, delay: 900 },
+  // Far left — wide sweep out, gentle curve up
+  { d: `M${CX} ${CY - 10} C${CX - 80} ${CY - 15}, ${CX - 195} ${CY - 30}, ${CX - 205} ${CY - 150}`, tipX: CX - 205, tipY: CY - 150, delay: 580 },
+  // Far right
+  { d: `M${CX} ${CY - 10} C${CX + 78} ${CY - 18}, ${CX + 190} ${CY - 34}, ${CX + 202} ${CY - 155}`, tipX: CX + 202, tipY: CY - 155, delay: 650 },
+  // Left-upper — arcs out and up
+  { d: `M${CX} ${CY - 10} C${CX - 55} ${CY - 45}, ${CX - 155} ${CY - 105}, ${CX - 145} ${CY - 270}`, tipX: CX - 145, tipY: CY - 270, delay: 720 },
+  // Right-upper
+  { d: `M${CX} ${CY - 10} C${CX + 52} ${CY - 48}, ${CX + 150} ${CY - 110}, ${CX + 140} ${CY - 275}`, tipX: CX + 140, tipY: CY - 275, delay: 790 },
+  // Center-left — taller, gentle lean
+  { d: `M${CX} ${CY - 10} C${CX - 30} ${CY - 60}, ${CX - 80} ${CY - 180}, ${CX - 42} ${CY - 325}`, tipX: CX - 42, tipY: CY - 325, delay: 860 },
+  // Center-right
+  { d: `M${CX} ${CY - 10} C${CX + 28} ${CY - 62}, ${CX + 78} ${CY - 185}, ${CX + 45} ${CY - 328}`, tipX: CX + 45, tipY: CY - 328, delay: 930 },
 ];
 
 const SpiderLily = ({ className }: { className?: string }) => {
@@ -138,7 +221,7 @@ const SpiderLily = ({ className }: { className?: string }) => {
 
   return (
     <svg
-      viewBox="10 -60 400 580"
+      viewBox="-10 -130 480 710"
       className={className}
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -169,28 +252,28 @@ const SpiderLily = ({ className }: { className?: string }) => {
       </defs>
 
       <g filter="url(#ink-texture)">
-        {/* Stem — natural lean */}
+        {/* Stem */}
         <path
-          d={`M188 520 C190 475, 195 410, 200 350 C206 290, 214 245, ${CX} ${CY + 12}`}
+          d={`M195 580 C198 520, 205 445, 212 380 C218 320, 220 275, ${CX} ${CY + 15}`}
           className={`spider-lily-stem ${bloomed ? 'spider-lily-stem-active' : ''}`}
           pathLength={1}
         />
 
         {/* Bracts */}
         <path
-          d={`M${CX - 1} ${CY + 6} C${CX - 8} ${CY + 15}, ${CX - 14} ${CY + 28}, ${CX - 18} ${CY + 40}`}
+          d={`M${CX - 2} ${CY + 8} C${CX - 10} ${CY + 20}, ${CX - 16} ${CY + 35}, ${CX - 20} ${CY + 52}`}
           className={`spider-lily-bract ${bloomed ? 'spider-lily-bract-active' : ''}`}
           style={{ animationDelay: '120ms' }}
           pathLength={1}
         />
         <path
-          d={`M${CX + 1} ${CY + 6} C${CX + 6} ${CY + 15}, ${CX + 10} ${CY + 28}, ${CX + 12} ${CY + 40}`}
+          d={`M${CX + 2} ${CY + 8} C${CX + 8} ${CY + 20}, ${CX + 12} ${CY + 35}, ${CX + 14} ${CY + 52}`}
           className={`spider-lily-bract ${bloomed ? 'spider-lily-bract-active' : ''}`}
           style={{ animationDelay: '150ms' }}
           pathLength={1}
         />
 
-        {/* Petals — solid white filled shapes */}
+        {/* Petals */}
         {petals.map((p, i) => (
           <path
             key={`petal-${i}`}
@@ -201,7 +284,7 @@ const SpiderLily = ({ className }: { className?: string }) => {
           />
         ))}
 
-        {/* Stamens — graceful curves */}
+        {/* Stamens */}
         {stamens.map((s, i) => (
           <g key={`stamen-${i}`}>
             <path
