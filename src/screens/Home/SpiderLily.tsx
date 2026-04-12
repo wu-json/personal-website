@@ -172,15 +172,14 @@ const HOVER_STRENGTH = 8;
 const LERP_SPEED = 0.045;
 const RETURN_SPEED = 0.025;
 
-const WIND_SPEED = 0.0005;
-const WIND_STRENGTH_X = 1.8;
-const WIND_STRENGTH_Y = 0.7;
+const WIND_SPEED = 0.0008;
+const WIND_STRENGTH_X = 4.5;
+const WIND_STRENGTH_Y = 2.0;
 
 const PRESS_RADIUS = 160;
 const PRESS_STRENGTH = 20;
 
 type Vec2 = { x: number; y: number };
-
 
 const SpiderLily = ({ className }: { className?: string }) => {
   const [stemActive, setStemActive] = useState(false);
@@ -352,8 +351,8 @@ const SpiderLily = ({ className }: { className?: string }) => {
 
       const flowerEl = wholeFlowerRef.current;
       if (flowerEl) {
-        const swayAngle = Math.sin(t * 0.8) * 0.5 + Math.sin(t * 1.3) * 0.2 + leanRef.current;
-        flowerEl.setAttribute('transform', `rotate(${swayAngle.toFixed(3)} ${CX} 598)`);
+        const swayAngle = Math.sin(t * 0.8) * 0.8 + Math.sin(t * 1.3) * 0.35 + leanRef.current;
+        flowerEl.setAttribute('transform', `rotate(${swayAngle.toFixed(3)} ${CX} 465)`);
       }
 
       rafRef.current = requestAnimationFrame(animate);
@@ -366,7 +365,7 @@ const SpiderLily = ({ className }: { className?: string }) => {
   return (
     <svg
       ref={svgRef}
-      viewBox="-180 10 800 590"
+      viewBox="-180 10 800 470"
       className={className}
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -417,14 +416,10 @@ const SpiderLily = ({ className }: { className?: string }) => {
         {/* Stem */}
         <path
           d={`M${CX - 4} ${CY}
-              C${CX - 3} ${CY + 30}, ${CX + 2} 275, ${CX + 6} 320
-              C${CX + 10} 365, ${CX + 8} 410, ${CX + 4} 455
-              C${CX + 1} 500, ${CX - 3} 540, ${CX - 5} 575
-              Q${CX - 5} 592, ${CX - 3} 598
-              Q${CX - 1} 592, ${CX - 1} 575
-              C${CX + 1} 540, ${CX + 5} 500, ${CX + 8} 455
-              C${CX + 12} 410, ${CX + 14} 365, ${CX + 10} 320
-              C${CX + 6} 275, ${CX + 7} ${CY + 30}, ${CX + 6} ${CY}
+              C${CX - 3} ${CY + 30}, ${CX + 2} 275, ${CX + 4} 320
+              C${CX + 6} 365, ${CX + 4} 410, ${CX + 1} 465
+              C${CX + 6} 410, ${CX + 8} 365, ${CX + 10} 320
+              C${CX + 8} 275, ${CX + 7} ${CY + 30}, ${CX + 6} ${CY}
               Z`}
           className={`spider-lily-stem ${stemActive ? 'spider-lily-stem-active' : ''}`}
         />
