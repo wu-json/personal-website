@@ -117,7 +117,7 @@ const TransmissionsScreen = () => {
                     {t.title}
                   </h2>
 
-                  <div className='transmission-prose transmission-entry text-white/60 text-xs sm:text-sm font-mono'>
+                  <div className='transmission-prose transmission-entry transmission-list text-white/60 text-xs sm:text-sm font-mono'>
                     {collapsed ? (
                       <>
                         {hero && (
