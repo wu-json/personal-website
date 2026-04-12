@@ -408,7 +408,8 @@
 
 /* Ethereal glow — fades in during bloom, then breathes */
 .spider-lily-container {
-  animation: lily-glow-in 2.5s ease-out 1.2s forwards,
+  animation:
+    lily-glow-in 2.5s ease-out 1.2s forwards,
     lily-breathe 7s ease-in-out 4s infinite;
 }
 
