@@ -519,6 +519,11 @@
 .transmission-prose.transmission-entry section[data-footnotes] {
   margin-top: 2.5rem;
 }
+.transmission-prose.transmission-list section[data-footnotes] {
+  margin-top: 0.75rem;
+  padding-top: 0.5rem;
+  border-top: none;
+}
 .transmission-prose.transmission-entry pre {
   margin: 1.35em 0;
 }
