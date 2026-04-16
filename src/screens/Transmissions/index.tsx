@@ -94,12 +94,14 @@ const TransmissionsScreen = () => {
               >
                 <div
                   tabIndex={0}
-                  aria-label={`View full transmission: ${t.title}`}
+                  aria-label={`View full transmission${t.title ? `: ${t.title}` : ` ${t.id}`}`}
                   className='cursor-pointer rounded-sm -mx-2 px-2 py-1 -my-1 transition-colors hover:bg-white/[0.03] outline-none focus-visible:ring-1 focus-visible:ring-white/25 focus-visible:ring-offset-2 focus-visible:ring-offset-black'
                   onClick={onPreviewClick}
                   onKeyDown={onPreviewKeyDown}
                 >
-                  <div className='flex items-baseline gap-3 mb-2 flex-wrap'>
+                  <div
+                    className={`flex items-baseline gap-3 flex-wrap ${t.title ? 'mb-2' : 'mb-1'}`}
+                  >
                     <span className='text-white/20 text-[10px] font-mono shrink-0'>
                       [{t.id}]
                     </span>
@@ -113,9 +115,11 @@ const TransmissionsScreen = () => {
                     )}
                   </div>
 
-                  <h2 className='text-white text-xs sm:text-sm font-pixel uppercase tracking-wide mb-2'>
-                    {t.title}
-                  </h2>
+                  {t.title && (
+                    <h2 className='text-white text-xs sm:text-sm font-pixel uppercase tracking-wide mb-2'>
+                      {t.title}
+                    </h2>
+                  )}
 
                   <div className='transmission-prose transmission-entry transmission-list text-white/60 text-xs sm:text-sm font-mono'>
                     {collapsed ? (

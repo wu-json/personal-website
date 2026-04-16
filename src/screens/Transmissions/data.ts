@@ -1,7 +1,7 @@
 export type Transmission = {
   id: string;
   timestamp: string;
-  title: string;
+  title?: string;
   body: string;
   expanded: boolean;
   location: string;
@@ -41,7 +41,7 @@ export const transmissions: Transmission[] = Object.values(modules)
     return {
       id: attrs.id ?? '',
       timestamp: attrs.timestamp ?? '',
-      title: attrs.title ?? '',
+      title: attrs.title || undefined,
       body,
       expanded: attrs.expanded === 'true',
       location: attrs.location ?? '',

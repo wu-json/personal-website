@@ -31,7 +31,7 @@ Output: `public/images/transmissions/<id>/`. Capture printed `photos:` YAML if u
 
 Ask the user for:
 
-- `title` (short, uppercase — e.g. `SIDEWALK FREQ`)
+- `title` (optional; short, uppercase — e.g. `SIDEWALK FREQ`. Omit the frontmatter key entirely when there's no title.)
 - `timestamp` (`YYYY.MM.DD // HH:MM:SS`; default to current local time if omitted)
 - `location` (e.g. `San Francisco, US`)
 - `slug` (kebab-case; used in filename)
@@ -57,7 +57,7 @@ Frontmatter:
 ---
 id: '<id>'
 timestamp: '<timestamp>'
-title: '<title>'
+title: '<title>' # optional — omit the whole line for untitled entries
 expanded: false
 location: '<location>'
 ---
@@ -65,6 +65,7 @@ location: '<location>'
 
 - `id` is the zero-padded number string (e.g. `'004'`)
 - `expanded: false` is the default
+- `title` is optional; when omitted, the entry renders with only the `[id] timestamp — location` meta row above the body
 
 Save as `src/screens/Transmissions/entries/<id>-<slug>.md`.
 

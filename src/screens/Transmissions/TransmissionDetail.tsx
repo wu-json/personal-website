@@ -40,8 +40,12 @@ const TransmissionDetail = ({ id }: { id: string }) => {
           {'< return to relay'}
         </Link>
 
-        <header className='mb-8 border-b border-white/5 pb-6'>
-          <div className='flex items-baseline gap-3 mb-3 flex-wrap'>
+        <header
+          className={`border-b border-white/5 ${t.title ? 'mb-5 pb-4' : 'mb-4 pb-3'}`}
+        >
+          <div
+            className={`flex items-baseline gap-3 flex-wrap ${t.title ? 'mb-2' : ''}`}
+          >
             <span
               className='bio-glitch text-white/20 text-[10px] font-mono'
               style={jitter()}
@@ -63,12 +67,14 @@ const TransmissionDetail = ({ id }: { id: string }) => {
               </span>
             )}
           </div>
-          <h1
-            className='bio-glitch text-white text-xl sm:text-3xl font-pixel uppercase tracking-wide'
-            style={jitter()}
-          >
-            {t.title}
-          </h1>
+          {t.title && (
+            <h1
+              className='bio-glitch text-white text-xl sm:text-3xl font-pixel uppercase tracking-wide'
+              style={jitter()}
+            >
+              {t.title}
+            </h1>
+          )}
         </header>
 
         <div

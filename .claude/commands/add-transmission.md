@@ -23,7 +23,7 @@ Look at existing files in `src/screens/Transmissions/entries/` and determine the
 
 Ask the user for:
 
-- `title` (uppercase, short — e.g. "SIDEWALK FREQ")
+- `title` (optional; uppercase, short — e.g. "SIDEWALK FREQ". Omit the frontmatter line entirely for untitled entries.)
 - `timestamp` (format: `YYYY.MM.DD // HH:MM:SS`, default to current date/time)
 - `location` (e.g. "San Francisco, US")
 - `slug` (kebab-case, used in the filename — e.g. "sidewalk-freq")
@@ -35,7 +35,7 @@ Create a new markdown file (e.g. `003-my-slug.md`) in `src/screens/Transmissions
 ---
 id: '<id>'
 timestamp: '<timestamp>'
-title: '<title>'
+title: '<title>' # optional — omit entirely for untitled entries
 expanded: false
 location: '<location>'
 ---
@@ -44,6 +44,7 @@ location: '<location>'
 
 - `id` is the zero-padded number (e.g. `003`)
 - `expanded: false` is always the default
+- `title` is optional; when omitted, the entry shows only the meta row (`[id] timestamp — location`) above the body
 - Images in the body use the format `![alt text](/images/transmissions/<id>/<filename>-full.webp)`
 
 The transmission will automatically appear on `/transmissions` and be viewable at `/transmissions/<id>`.
