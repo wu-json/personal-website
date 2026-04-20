@@ -1,6 +1,7 @@
 import type { KeyboardEvent, MouseEvent } from 'react';
 
 import { useState } from 'react';
+import { useInfiniteList } from 'src/hooks/useInfiniteList';
 import { useLocation } from 'wouter';
 
 import { transmissions } from './data';
@@ -44,6 +45,10 @@ const CollapsedListHeroImage = ({ src, alt }: { src: string; alt: string }) => {
 
 const TransmissionsScreen = () => {
   const [, navigate] = useLocation();
+  const { visibleCount, sentinelRef, done } = useInfiniteList(
+    transmissions.length,
+    { pageSize: 6 },
+  );
 
   return (
     <div className='w-full min-h-screen bg-black md:pr-40'>
@@ -64,7 +69,7 @@ const TransmissionsScreen = () => {
         </header>
 
         <div className='flex flex-col gap-px'>
-          {transmissions.map((t, i) => {
+          {transmissions.slice(0, visibleCount).map((t, i) => {
             const collapsed = shouldCollapseTransmissionList(
               t.expanded,
               t.body,
@@ -149,6 +154,18 @@ const TransmissionsScreen = () => {
             );
           })}
         </div>
+
+        {!done && (
+          <div
+            ref={sentinelRef}
+            className='mt-8 flex justify-center'
+            aria-hidden
+          >
+            <span className='text-white/20 text-[10px] font-mono uppercase tracking-widest'>
+              {'// loading more signal…'}
+            </span>
+          </div>
+        )}
       </div>
     </div>
   );
