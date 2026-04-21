@@ -5,4 +5,5 @@ expanded: false
 location: 'San Francisco, US'
 ---
 
-Design Engineering seems pretty cool ngl.
+I kinda fuck with this Design Engineering thing.
+
