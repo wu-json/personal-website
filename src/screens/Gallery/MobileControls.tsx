@@ -147,7 +147,7 @@ const MobileControls = ({
       {/* Joystick — bottom-left */}
       <div
         ref={joystickRef}
-        className='fixed bottom-6 left-6 touch-none rounded-full border border-white/20'
+        className='fixed bottom-6 left-6 touch-none rounded-full border border-[color:var(--color-ink-ghost)]'
         style={{ width: JOYSTICK_SIZE, height: JOYSTICK_SIZE }}
         onTouchStart={onJoystickTouchStart}
         onTouchMove={onJoystickTouchMove}
@@ -156,7 +156,7 @@ const MobileControls = ({
       >
         <div
           ref={knobRef}
-          className='absolute rounded-full bg-white/30'
+          className='absolute rounded-full bg-[color:var(--color-ink-faint)]'
           style={{
             width: KNOB_SIZE,
             height: KNOB_SIZE,
