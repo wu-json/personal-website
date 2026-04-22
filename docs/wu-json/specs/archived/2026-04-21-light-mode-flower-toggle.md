@@ -1,5 +1,5 @@
 ---
-status: draft
+status: implemented
 ---
 
 # Light mode via spider lily toggle

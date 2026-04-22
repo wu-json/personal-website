@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useTheme } from 'src/theme/ThemeContext';
 
 /**
  * Side-view spider lily (彼岸花) — Japanese anime ink aesthetic.
@@ -351,6 +352,7 @@ const PRESS_STRENGTH = 20;
 type Vec2 = { x: number; y: number };
 
 const SpiderLily = ({ className }: { className?: string }) => {
+  const { toggle } = useTheme();
   const [stemActive, setStemActive] = useState(false);
   const [petalsActive, setPetalsActive] = useState(false);
   const [activeStamens, setActiveStamens] = useState<boolean[]>(() =>
@@ -465,6 +467,26 @@ const SpiderLily = ({ className }: { className?: string }) => {
     mouseRef.current.active = false;
     mouseRef.current.pressed = false;
   }, []);
+
+  const handleClick = useCallback(
+    (e: React.MouseEvent<SVGSVGElement>) => {
+      toggle({ x: e.clientX, y: e.clientY });
+    },
+    [toggle],
+  );
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<SVGSVGElement>) => {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      e.preventDefault();
+      const rect = svgRef.current?.getBoundingClientRect();
+      const origin = rect
+        ? { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 }
+        : undefined;
+      toggle(origin);
+    },
+    [toggle],
+  );
 
   useEffect(() => {
     const t0 = performance.now();
@@ -591,9 +613,12 @@ const SpiderLily = ({ className }: { className?: string }) => {
     <svg
       ref={svgRef}
       viewBox='-180 10 800 470'
-      className={className}
+      className={`${className ?? ''} cursor-pointer focus:outline-none focus-visible:[filter:drop-shadow(0_0_8px_var(--color-glow))]`}
       fill='none'
       xmlns='http://www.w3.org/2000/svg'
+      role='button'
+      tabIndex={0}
+      aria-label='Toggle color scheme'
       onMouseMove={handleMouseMove}
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
@@ -601,6 +626,8 @@ const SpiderLily = ({ className }: { className?: string }) => {
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
+      onClick={handleClick}
+      onKeyDown={handleKeyDown}
     >
       <defs>
         <filter id='ink-texture'>

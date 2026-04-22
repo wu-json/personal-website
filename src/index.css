@@ -1,5 +1,41 @@
 @import 'tailwindcss';
 
+/* Theming: data-theme on <html> drives every palette swap. Default is dark;
+   light mode is activated by clicking the home-page spider lily. See
+   src/theme/ThemeContext.tsx and src/theme/RippleOverlay.tsx. */
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+:root,
+:where([data-theme='dark']) {
+  --color-surface: #000000;
+  --color-ink: #ffffff;
+  --color-ink-soft: rgba(255, 255, 255, 0.7);
+  --color-ink-muted: rgba(255, 255, 255, 0.5);
+  --color-ink-faint: rgba(255, 255, 255, 0.3);
+  --color-ink-ghost: rgba(255, 255, 255, 0.2);
+  --color-ink-trace: rgba(255, 255, 255, 0.1);
+  --color-ink-hair: rgba(255, 255, 255, 0.05);
+  --color-glow-strong: rgba(255, 255, 255, 0.6);
+  --color-glow: rgba(255, 255, 255, 0.3);
+  --color-glow-soft: rgba(255, 255, 255, 0.2);
+  --color-glow-mist: rgba(255, 255, 255, 0.08);
+}
+
+:where([data-theme='light']) {
+  --color-surface: #ffffff;
+  --color-ink: #000000;
+  --color-ink-soft: rgba(0, 0, 0, 0.78);
+  --color-ink-muted: rgba(0, 0, 0, 0.6);
+  --color-ink-faint: rgba(0, 0, 0, 0.42);
+  --color-ink-ghost: rgba(0, 0, 0, 0.3);
+  --color-ink-trace: rgba(0, 0, 0, 0.14);
+  --color-ink-hair: rgba(0, 0, 0, 0.07);
+  --color-glow-strong: rgba(0, 0, 0, 0.55);
+  --color-glow: rgba(0, 0, 0, 0.28);
+  --color-glow-soft: rgba(0, 0, 0, 0.18);
+  --color-glow-mist: rgba(0, 0, 0, 0.07);
+}
+
 /* Geist Sans */
 @font-face {
   font-family: 'Geist Variable';
@@ -83,15 +119,18 @@
     'Geist Mono Variable', ui-monospace, SFMono-Regular, Menlo, Monaco,
     Consolas, 'Liberation Mono', 'Courier New', monospace;
   --font-pixel: 'Geist Pixel Circle';
+
+  --color-surface-token: var(--color-surface);
+  --color-ink-token: var(--color-ink);
 }
 
 @keyframes lunar-tear-glow {
   0%,
   100% {
-    filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.4));
+    filter: drop-shadow(0 0 2px var(--color-glow-soft));
   }
   50% {
-    filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.8));
+    filter: drop-shadow(0 0 6px var(--color-glow-strong));
   }
 }
 
@@ -320,32 +359,32 @@
 @keyframes lily-breathe {
   0%,
   100% {
-    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.2))
-      drop-shadow(0 0 25px rgba(255, 255, 255, 0.08))
-      drop-shadow(0 0 50px rgba(255, 255, 255, 0.03));
+    filter: drop-shadow(0 0 8px var(--color-glow-soft))
+      drop-shadow(0 0 25px var(--color-glow-mist))
+      drop-shadow(0 0 50px var(--color-glow-mist));
   }
   50% {
-    filter: drop-shadow(0 0 16px rgba(255, 255, 255, 0.35))
-      drop-shadow(0 0 45px rgba(255, 255, 255, 0.12))
-      drop-shadow(0 0 80px rgba(255, 255, 255, 0.05));
+    filter: drop-shadow(0 0 16px var(--color-glow))
+      drop-shadow(0 0 45px var(--color-glow-soft))
+      drop-shadow(0 0 80px var(--color-glow-mist));
   }
 }
 
 /* Stem — brush stroke aesthetic */
 .spider-lily-stem {
-  fill: rgba(255, 255, 255, 0.8);
-  stroke: none;
+  fill: var(--color-ink);
   opacity: 0;
 }
 
 .spider-lily-stem-active {
   animation: lily-stem-rise 800ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0.8;
 }
 
 /* Bract */
 .spider-lily-bract {
   fill: none;
-  stroke: rgba(255, 255, 255, 0.4);
+  stroke: var(--color-ink-faint);
   stroke-width: 0.8;
   stroke-linecap: round;
   stroke-dasharray: 1;
@@ -357,10 +396,10 @@
   animation: lily-bract-open 600ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
-/* Petals — solid white filled */
+/* Petals — ink on surface */
 .spider-lily-petal {
-  fill: rgba(255, 255, 255, 0.85);
-  stroke: rgba(255, 255, 255, 0.9);
+  fill: var(--color-ink);
+  stroke: var(--color-ink);
   stroke-width: 0.5;
   stroke-linejoin: round;
   opacity: 0;
@@ -374,7 +413,7 @@
 /* Stamens */
 .spider-lily-stamen {
   fill: none;
-  stroke: rgba(255, 255, 255, 0.55);
+  stroke: var(--color-ink-muted);
   stroke-width: 0.8;
   stroke-linecap: round;
   stroke-dasharray: 1;
@@ -388,7 +427,7 @@
 
 /* Anther tips */
 .spider-lily-anther {
-  fill: rgba(255, 255, 255, 0.65);
+  fill: var(--color-ink-soft);
   opacity: 0;
 }
 
@@ -398,7 +437,7 @@
 
 /* Center node */
 .spider-lily-center {
-  fill: rgba(255, 255, 255, 0.85);
+  fill: var(--color-ink);
   opacity: 0;
 }
 
@@ -458,12 +497,12 @@
 
 @keyframes lily-glow-in {
   0% {
-    filter: drop-shadow(0 0 0 rgba(255, 255, 255, 0));
+    filter: drop-shadow(0 0 0 transparent);
   }
   100% {
-    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.22))
-      drop-shadow(0 0 30px rgba(255, 255, 255, 0.1))
-      drop-shadow(0 0 55px rgba(255, 255, 255, 0.04));
+    filter: drop-shadow(0 0 10px var(--color-glow-soft))
+      drop-shadow(0 0 30px var(--color-glow-mist))
+      drop-shadow(0 0 55px var(--color-glow-mist));
   }
 }
 
@@ -528,32 +567,32 @@
   margin: 1.35em 0;
 }
 .transmission-prose strong {
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--color-ink);
   font-weight: 600;
 }
 .transmission-prose em {
   font-style: italic;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--color-ink-muted);
 }
 .transmission-prose a {
   text-decoration: underline;
-  text-decoration-color: rgba(255, 255, 255, 0.3);
+  text-decoration-color: var(--color-ink-faint);
   transition: all 300ms;
 }
 .transmission-prose a:hover {
-  color: white;
-  text-decoration-color: white;
-  text-shadow: 0 0 6px rgba(255, 255, 255, 0.3);
+  color: var(--color-ink);
+  text-decoration-color: var(--color-ink);
+  text-shadow: 0 0 6px var(--color-glow);
 }
 .transmission-prose code {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--color-ink-hair);
   padding: 0.1em 0.4em;
   border-radius: 2px;
   font-size: 0.9em;
 }
 .transmission-prose pre {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--color-ink-hair);
+  border: 1px solid var(--color-ink-hair);
   padding: 1em;
   margin: 0.75em 0;
   overflow-x: auto;
@@ -577,15 +616,15 @@
   margin-bottom: 0.25em;
 }
 .transmission-prose blockquote {
-  border-left: 2px solid rgba(255, 255, 255, 0.1);
+  border-left: 2px solid var(--color-ink-trace);
   padding-left: 1em;
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--color-ink-faint);
   margin: 0.75em 0;
 }
 .transmission-prose h1,
 .transmission-prose h2,
 .transmission-prose h3 {
-  color: rgba(255, 255, 255, 0.85);
+  color: var(--color-ink);
   font-family: var(--font-pixel);
   font-weight: 600;
   text-transform: uppercase;
@@ -603,7 +642,7 @@
 }
 .transmission-prose hr {
   border: none;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-top: 1px solid var(--color-ink-hair);
   margin: 1em 0;
 }
 
@@ -611,7 +650,7 @@
 .transmission-prose section[data-footnotes] {
   margin-top: 1.75rem;
   padding-top: 1rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-top: 1px solid var(--color-ink-hair);
 }
 
 .transmission-prose section[data-footnotes]::before {
@@ -621,7 +660,7 @@
   font-size: 0.625rem;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: rgba(255, 255, 255, 0.28);
+  color: var(--color-ink-ghost);
   margin-bottom: 0.65rem;
 }
 
@@ -642,7 +681,7 @@
   padding-left: 1.25rem;
   margin: 0;
   font-size: 0.7rem;
-  color: rgba(255, 255, 255, 0.45);
+  color: var(--color-ink-muted);
 }
 
 .transmission-prose section[data-footnotes] li {
@@ -659,13 +698,13 @@
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 0.7em;
   text-decoration: none;
-  color: rgba(255, 255, 255, 0.42);
+  color: var(--color-ink-muted);
 }
 
 .transmission-prose a[data-footnote-ref]:hover,
 .transmission-prose a.data-footnote-backref:hover {
-  color: rgba(255, 255, 255, 0.95);
-  text-shadow: 0 0 6px rgba(255, 255, 255, 0.25);
+  color: var(--color-ink);
+  text-shadow: 0 0 6px var(--color-glow-soft);
 }
 .transmission-prose img {
   max-width: 100%;
@@ -700,6 +739,49 @@
   object-fit: cover;
 }
 
+/* Scroll-to-top — ink-colored glow that tracks the active theme */
+.scroll-to-top {
+  filter: drop-shadow(0 0 2px var(--color-glow));
+}
+.scroll-to-top:hover {
+  filter: drop-shadow(0 0 6px var(--color-glow-strong));
+}
+
+/* Theme ripple — scales from the flower click origin, masks the palette swap */
+@keyframes theme-ripple-grow {
+  0% {
+    transform: scale(0);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes theme-ripple-fade {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.theme-ripple-disc {
+  position: absolute;
+  border-radius: 9999px;
+  will-change: transform, opacity;
+  transform-origin: center center;
+}
+
+.theme-ripple-disc-grow {
+  animation: theme-ripple-grow 650ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.theme-ripple-disc-fade {
+  transform: scale(1);
+  animation: theme-ripple-fade 160ms ease-out forwards;
+}
+
 @keyframes gallery-hint-in {
   from {
     opacity: 0;
@@ -727,10 +809,134 @@
   html,
   body {
     @apply h-full w-full m-0 p-0 font-sans;
-    background-color: #000000;
+    background-color: var(--color-surface);
+    color: var(--color-ink);
   }
 
   #root {
     @apply h-full w-full;
   }
+}
+
+/*
+ * Light-theme overrides.
+ *
+ * The codebase has many hard-coded Tailwind utilities (bg-black, text-white,
+ * border-white/5, etc.) baked into the dark aesthetic. Rather than rewriting
+ * every screen file, we override those computed classes here when
+ * [data-theme='light'] is active. This keeps the dark theme unchanged
+ * (utilities resolve normally) and gives light mode an ink-on-paper palette
+ * that tracks the same semantic intent.
+ *
+ * `:where(...)` keeps specificity at 0 so page-level utilities can still win
+ * when they need to; the `[data-theme='light']` attribute selector by itself
+ * carries the minimum specificity required to override Tailwind's generated
+ * class rules (both are [class] / [attr]).
+ */
+[data-theme='light'] .bg-black {
+  background-color: var(--color-surface);
+}
+
+/* Lightbox black/95 scrim → surface-colored scrim */
+[data-theme='light'] .bg-black\/95 {
+  background-color: color-mix(in srgb, var(--color-surface) 95%, transparent);
+}
+
+/* Solid white text → ink */
+[data-theme='light'] .text-white {
+  color: var(--color-ink);
+}
+
+/* Opacity-tinted white text — map each percentage used in the codebase to an
+   ink token. Values correspond to what Tailwind generates for text-white/<n>. */
+[data-theme='light'] .text-white\/80 {
+  color: var(--color-ink-soft);
+}
+[data-theme='light'] .text-white\/70 {
+  color: var(--color-ink-soft);
+}
+[data-theme='light'] .text-white\/60 {
+  color: var(--color-ink-muted);
+}
+[data-theme='light'] .text-white\/50 {
+  color: var(--color-ink-muted);
+}
+[data-theme='light'] .text-white\/40 {
+  color: var(--color-ink-faint);
+}
+[data-theme='light'] .text-white\/30 {
+  color: var(--color-ink-faint);
+}
+[data-theme='light'] .text-white\/25 {
+  color: var(--color-ink-ghost);
+}
+[data-theme='light'] .text-white\/20 {
+  color: var(--color-ink-ghost);
+}
+
+[data-theme='light'] .hover\:text-white:hover {
+  color: var(--color-ink);
+}
+
+/* Borders / dividers */
+[data-theme='light'] .border-white\/5 {
+  border-color: var(--color-ink-hair);
+}
+[data-theme='light'] .border-white\/10 {
+  border-color: var(--color-ink-trace);
+}
+
+/* Subtle hover / background tints */
+[data-theme='light'] .bg-white\/\[0\.03\] {
+  background-color: var(--color-ink-hair);
+}
+[data-theme='light'] .bg-white\/5 {
+  background-color: var(--color-ink-hair);
+}
+[data-theme='light'] .hover\:bg-white\/\[0\.03\]:hover {
+  background-color: var(--color-ink-hair);
+}
+
+/* Focus ring (used on transmission list previews) */
+[data-theme='light'] .focus-visible\:ring-white\/25:focus-visible {
+  --tw-ring-color: var(--color-ink-ghost);
+}
+[data-theme='light'] .focus-visible\:ring-offset-black:focus-visible {
+  --tw-ring-offset-color: var(--color-surface);
+}
+
+/*
+ * Inline arbitrary text-shadow utilities used throughout the codebase
+ * (`[text-shadow:0_0_Npx_rgba(255,255,255,…)]`). In light mode these become
+ * ink-colored glows so text doesn't look flat on white. We target the
+ * specific arbitrary values that exist in the JSX; if new ones are added,
+ * extend this list.
+ */
+[data-theme='light']
+  .\[text-shadow\:0_0_8px_rgba\(255\2c
+  255\2c
+  255\2c
+  0\.4\)\] {
+  text-shadow: 0 0 8px var(--color-glow);
+}
+[data-theme='light']
+  .hover\:\[text-shadow\:0_0_6px_rgba\(255\2c
+  255\2c
+  255\2c
+  0\.3\)\]:hover {
+  text-shadow: 0 0 6px var(--color-glow-soft);
+}
+[data-theme='light']
+  .\[text-shadow\:0_0_8px_rgba\(255\2c
+  255\2c
+  255\2c
+  0\.6\)\] {
+  text-shadow: 0 0 8px var(--color-glow-strong);
+}
+[data-theme='light']
+  .group-hover\:\[text-shadow\:0_0_6px_rgba\(255\2c
+  255\2c
+  255\2c
+  0\.3\)\]:is(:where(.group):hover *) {
+  text-shadow: 0 0 6px var(--color-glow-soft);
 }

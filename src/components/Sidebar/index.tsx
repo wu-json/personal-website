@@ -9,7 +9,7 @@ const LunarTear = ({ active }: { active: boolean }) => (
     height='14'
     viewBox='0 0 100 100'
     fill='none'
-    className={`shrink-0 transition-opacity duration-300 ${active ? 'opacity-100 lunar-tear-active' : 'opacity-0'}`}
+    className={`shrink-0 transition-opacity duration-300 text-[var(--color-ink)] ${active ? 'opacity-100 lunar-tear-active' : 'opacity-0'}`}
   >
     {PETAL_ANGLES.map((angle, i) => (
       <ellipse
@@ -18,7 +18,7 @@ const LunarTear = ({ active }: { active: boolean }) => (
         cy='22'
         rx='10'
         ry='22'
-        fill='white'
+        fill='currentColor'
         className={`petal petal-${i} ${active ? 'petal-active' : ''}`}
         transform={`rotate(${angle} 50 50)`}
       />
@@ -27,7 +27,7 @@ const LunarTear = ({ active }: { active: boolean }) => (
       cx='50'
       cy='50'
       r='8'
-      fill='white'
+      fill='currentColor'
       className={active ? 'center-active' : 'opacity-0'}
     />
   </svg>
