@@ -9,6 +9,7 @@ import {
   useRef,
   useState,
 } from 'react';
+import { type Theme, useTheme } from 'src/theme/ThemeContext';
 import * as THREE from 'three';
 
 import {
@@ -20,6 +21,124 @@ import {
   generateGalleryLayout,
 } from './generateLayout';
 import { MobileControls } from './MobileControls';
+
+type GalleryPalette = {
+  // Surfaces
+  wall: string;
+  wallNoiseAmp: number;
+  ceiling: string;
+  ceilingNoiseAmp: number;
+  floorBase: string;
+  plankHue: number;
+  plankLightness: [number, number];
+  plankSaturation: [number, number];
+  grainDark: (alpha: number) => string;
+  grainLight: (alpha: number) => string;
+  plankBand: (alpha: number) => string;
+  plankSeam: string;
+  plankSeamHighlight: string;
+  rowSeam: string;
+  rowSeamHighlight: string;
+  // Ink / text on canvas-rendered textures
+  ink: string;
+  inkMuted: string;
+  inkFaint: string;
+  inkDivider: string;
+  // 3D object colors
+  frame: string;
+  canvasPlaceholder: string;
+  benchSeat: string;
+  benchLeg: string;
+  // Lighting
+  ambientIntensity: number;
+  hemiSky: string;
+  hemiGround: string;
+  hemiIntensity: number;
+  spotColor: string;
+  spotIntensity: number;
+  fillColor: string;
+  fillIntensityNear: number;
+  fillIntensityFar: number;
+  fillDistanceNear: number;
+  fillDistanceFar: number;
+};
+
+const DARK_PALETTE: GalleryPalette = {
+  wall: '#0a0a0a',
+  wallNoiseAmp: 6,
+  ceiling: '#080808',
+  ceilingNoiseAmp: 4,
+  floorBase: '#2a2a2a',
+  plankHue: 0,
+  plankLightness: [15, 19],
+  plankSaturation: [2, 4],
+  grainDark: alpha => `rgba(20, 20, 20, ${alpha})`,
+  grainLight: alpha => `rgba(60, 60, 60, ${alpha})`,
+  plankBand: alpha => `rgba(15, 15, 15, ${alpha})`,
+  plankSeam: 'rgba(10, 10, 10, 0.12)',
+  plankSeamHighlight: 'rgba(60, 60, 60, 0.06)',
+  rowSeam: 'rgba(10, 10, 10, 0.08)',
+  rowSeamHighlight: 'rgba(60, 60, 60, 0.04)',
+  ink: '#ffffff',
+  inkMuted: 'rgba(255, 255, 255, 0.5)',
+  inkFaint: 'rgba(255, 255, 255, 0.3)',
+  inkDivider: 'rgba(255, 255, 255, 0.12)',
+  frame: '#1a1a1e',
+  canvasPlaceholder: '#1a1a1a',
+  benchSeat: '#1a1a1a',
+  benchLeg: '#111111',
+  ambientIntensity: 1.2,
+  hemiSky: '#ffffff',
+  hemiGround: '#333333',
+  hemiIntensity: 0.8,
+  spotColor: '#ffffff',
+  spotIntensity: 12,
+  fillColor: '#ffffff',
+  fillIntensityNear: 3,
+  fillIntensityFar: 2,
+  fillDistanceNear: 50,
+  fillDistanceFar: 40,
+};
+
+const LIGHT_PALETTE: GalleryPalette = {
+  wall: '#f2f2f2',
+  wallNoiseAmp: 4,
+  ceiling: '#f7f7f7',
+  ceilingNoiseAmp: 3,
+  floorBase: '#d6cfc1',
+  plankHue: 30,
+  plankLightness: [78, 86],
+  plankSaturation: [10, 18],
+  grainDark: alpha => `rgba(60, 45, 28, ${alpha * 1.3})`,
+  grainLight: alpha => `rgba(255, 245, 230, ${alpha * 0.9})`,
+  plankBand: alpha => `rgba(80, 60, 40, ${alpha * 1.2})`,
+  plankSeam: 'rgba(70, 50, 30, 0.18)',
+  plankSeamHighlight: 'rgba(255, 250, 240, 0.5)',
+  rowSeam: 'rgba(70, 50, 30, 0.12)',
+  rowSeamHighlight: 'rgba(255, 250, 240, 0.4)',
+  ink: '#0a0a0a',
+  inkMuted: 'rgba(0, 0, 0, 0.55)',
+  inkFaint: 'rgba(0, 0, 0, 0.35)',
+  inkDivider: 'rgba(0, 0, 0, 0.18)',
+  frame: '#1a1a1e',
+  canvasPlaceholder: '#e6e6e6',
+  benchSeat: '#c9bda8',
+  benchLeg: '#a89d8a',
+  ambientIntensity: 0.75,
+  hemiSky: '#ffffff',
+  hemiGround: '#c8c8c8',
+  hemiIntensity: 0.4,
+  spotColor: '#ffffff',
+  spotIntensity: 6,
+  fillColor: '#ffffff',
+  fillIntensityNear: 1.2,
+  fillIntensityFar: 0.8,
+  fillDistanceNear: 50,
+  fillDistanceFar: 40,
+};
+
+const getPalette = (theme: Theme): GalleryPalette =>
+  theme === 'light' ? LIGHT_PALETTE : DARK_PALETTE;
 
 export type MobileInput = {
   moveX: number;
@@ -48,14 +167,13 @@ const CROUCH_HEIGHT = -2.5;
 const CROUCH_LERP = 8;
 const BOUNDARY_PADDING = 0.5;
 
-const createWoodTexture = () => {
+const createWoodTexture = (palette: GalleryPalette) => {
   const canvas = document.createElement('canvas');
   canvas.width = 1024;
   canvas.height = 1024;
   const ctx = canvas.getContext('2d')!;
 
-  // Ashy gray wood base
-  ctx.fillStyle = '#2a2a2a';
+  ctx.fillStyle = palette.floorBase;
   ctx.fillRect(0, 0, 1024, 1024);
 
   const plankH = 80;
@@ -70,12 +188,17 @@ const createWoodTexture = () => {
     return _s / 0x7fffffff;
   };
 
+  const [lMin, lMax] = palette.plankLightness;
+  const [sMin, sMax] = palette.plankSaturation;
+  const lRange = lMax - lMin;
+  const sRange = sMax - sMin;
+
   // Per-plank color — subtle variation
   const plankColor = (row: number, col: number) => {
     seed(row * 7 + col * 13 + 3);
-    const l = 15 + next() * 4;
-    const s = 2 + next() * 2;
-    return `hsl(0, ${s}%, ${l}%)`;
+    const l = lMin + next() * lRange;
+    const s = sMin + next() * sRange;
+    return `hsl(${palette.plankHue}, ${s}%, ${l}%)`;
   };
 
   // Variable plank lengths per row (3–5 planks across 1024px)
@@ -122,8 +245,8 @@ const createWoodTexture = () => {
       const alpha = 0.04 + next() * 0.06;
       const darker = next() > 0.4;
       ctx.strokeStyle = darker
-        ? `rgba(20, 20, 20, ${alpha})`
-        : `rgba(60, 60, 60, ${alpha * 0.6})`;
+        ? palette.grainDark(alpha)
+        : palette.grainLight(alpha * 0.6);
       ctx.lineWidth = grainSpread + next() * 0.5;
       ctx.beginPath();
       ctx.moveTo(x, gy);
@@ -146,19 +269,19 @@ const createWoodTexture = () => {
     if (next() > 0.6) {
       const bandY = y + plankH * (0.2 + next() * 0.6);
       const bandH = 3 + next() * 8;
-      ctx.fillStyle = `rgba(15, 15, 15, ${0.03 + next() * 0.04})`;
+      ctx.fillStyle = palette.plankBand(0.03 + next() * 0.04);
       ctx.fillRect(x, bandY, w, bandH);
     }
 
     // Vertical end-seam — visible gap between planks
-    ctx.strokeStyle = 'rgba(10, 10, 10, 0.12)';
+    ctx.strokeStyle = palette.plankSeam;
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(x + w, y);
     ctx.lineTo(x + w, y + plankH);
     ctx.stroke();
     // Highlight edge (light catches the bevel)
-    ctx.strokeStyle = 'rgba(60, 60, 60, 0.06)';
+    ctx.strokeStyle = palette.plankSeamHighlight;
     ctx.lineWidth = 0.5;
     ctx.beginPath();
     ctx.moveTo(x + w + 1, y);
@@ -190,13 +313,13 @@ const createWoodTexture = () => {
     }
 
     // Horizontal seam between rows
-    ctx.strokeStyle = 'rgba(10, 10, 10, 0.08)';
+    ctx.strokeStyle = palette.rowSeam;
     ctx.lineWidth = 0.8;
     ctx.beginPath();
     ctx.moveTo(0, y);
     ctx.lineTo(1024, y);
     ctx.stroke();
-    ctx.strokeStyle = 'rgba(60, 60, 60, 0.04)';
+    ctx.strokeStyle = palette.rowSeamHighlight;
     ctx.lineWidth = 0.5;
     ctx.beginPath();
     ctx.moveTo(0, y + 1);
@@ -212,23 +335,23 @@ const createWoodTexture = () => {
   return texture;
 };
 
-const createWallTexture = () => {
+const createWallTexture = (palette: GalleryPalette) => {
   const canvas = document.createElement('canvas');
   canvas.width = 512;
   canvas.height = 512;
   const ctx = canvas.getContext('2d')!;
 
-  // Dark charcoal base
-  ctx.fillStyle = '#0a0a0a';
+  ctx.fillStyle = palette.wall;
   ctx.fillRect(0, 0, 512, 512);
 
   // Subtle noise
   const imageData = ctx.getImageData(0, 0, 512, 512);
   const data = imageData.data;
   let s = 42;
+  const amp = palette.wallNoiseAmp;
   for (let i = 0; i < data.length; i += 4) {
     s = ((s * 1103515245 + 12345) & 0x7fffffff) >>> 0;
-    const noise = (s / 0x7fffffff - 0.5) * 6;
+    const noise = (s / 0x7fffffff - 0.5) * amp;
     data[i] = Math.min(255, Math.max(0, data[i]! + noise));
     data[i + 1] = Math.min(255, Math.max(0, data[i + 1]! + noise));
     data[i + 2] = Math.min(255, Math.max(0, data[i + 2]! + noise));
@@ -243,23 +366,23 @@ const createWallTexture = () => {
   return texture;
 };
 
-const createCeilingTexture = () => {
+const createCeilingTexture = (palette: GalleryPalette) => {
   const canvas = document.createElement('canvas');
   canvas.width = 512;
   canvas.height = 512;
   const ctx = canvas.getContext('2d')!;
 
-  // Flat dark ceiling
-  ctx.fillStyle = '#080808';
+  ctx.fillStyle = palette.ceiling;
   ctx.fillRect(0, 0, 512, 512);
 
   // Subtle noise
   const imageData = ctx.getImageData(0, 0, 512, 512);
   const data = imageData.data;
   let s = 77;
+  const amp = palette.ceilingNoiseAmp;
   for (let i = 0; i < data.length; i += 4) {
     s = ((s * 1103515245 + 12345) & 0x7fffffff) >>> 0;
-    const noise = (s / 0x7fffffff - 0.5) * 4;
+    const noise = (s / 0x7fffffff - 0.5) * amp;
     data[i] = Math.min(255, Math.max(0, data[i]! + noise));
     data[i + 1] = Math.min(255, Math.max(0, data[i + 1]! + noise));
     data[i + 2] = Math.min(255, Math.max(0, data[i + 2]! + noise));
@@ -279,14 +402,14 @@ const drawBlossom = (
   cx: number,
   cy: number,
   scale: number,
-  alpha: number,
+  fill: string,
 ) => {
   const angles = [0, 72, 144, 216, 288];
   const petalRx = 10 * scale;
   const petalRy = 22 * scale;
   const petalOffset = 28 * scale;
 
-  ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+  ctx.fillStyle = fill;
   for (const angle of angles) {
     const rad = (angle * Math.PI) / 180;
     ctx.save();
@@ -304,6 +427,7 @@ const drawBlossom = (
 };
 
 const createWelcomeTexture = (
+  palette: GalleryPalette,
   mobile = false,
   fragmentTitle?: string,
   fragmentDescription?: string,
@@ -315,8 +439,7 @@ const createWelcomeTexture = (
 
   const s = 2; // scale factor for hi-res
 
-  // Match gallery wall color
-  ctx.fillStyle = '#0a0a0a';
+  ctx.fillStyle = palette.wall;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   // Center the content block horizontally
@@ -328,7 +451,7 @@ const createWelcomeTexture = (
   // Blossom emblem on the left
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = 'high';
-  drawBlossom(ctx, offsetX + 150 * s, 180 * s, 2.2 * s, 1);
+  drawBlossom(ctx, offsetX + 150 * s, 180 * s, 2.2 * s, palette.ink);
 
   // Switch to pixel font rendering
   ctx.imageSmoothingEnabled = false;
@@ -339,12 +462,12 @@ const createWelcomeTexture = (
   ctx.textAlign = 'left';
 
   // Title
-  ctx.fillStyle = '#ffffff';
+  ctx.fillStyle = palette.ink;
   ctx.font = `${64 * s}px ${font}`;
   ctx.fillText(fragmentTitle ?? 'GALLERY', textLeft, 150 * s);
 
   // Subtitle — strip markdown links and word-wrap
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+  ctx.fillStyle = palette.inkMuted;
   const subtitleSize = 28 * s;
   ctx.font = `${subtitleSize}px ${font}`;
   const rawSubtitle =
@@ -378,7 +501,7 @@ const createWelcomeTexture = (
   }
 
   // Divider
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+  ctx.strokeStyle = palette.inkDivider;
   ctx.lineWidth = 1 * s;
   const divY = y + 10 * s;
   ctx.beginPath();
@@ -387,7 +510,7 @@ const createWelcomeTexture = (
   ctx.stroke();
 
   // Controls
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+  ctx.fillStyle = palette.inkFaint;
   ctx.font = `${20 * s}px ${font}`;
   const controls = mobile
     ? ['LEFT JOYSTICK — MOVE', 'DRAG RIGHT — LOOK']
@@ -414,12 +537,15 @@ const Floor = ({
   roomWidth,
   roomDepth,
   roomHeight,
+  palette,
 }: {
   roomWidth: number;
   roomDepth: number;
   roomHeight: number;
+  palette: GalleryPalette;
 }) => {
-  const texture = useMemo(createWoodTexture, []);
+  const texture = useMemo(() => createWoodTexture(palette), [palette]);
+  useEffect(() => () => texture.dispose(), [texture]);
   return (
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -roomHeight / 2, 0]}>
       <planeGeometry args={[roomWidth, roomDepth]} />
@@ -431,11 +557,14 @@ const Floor = ({
 const PartitionWall = ({
   position,
   size,
+  palette,
 }: {
   position: [number, number, number];
   size: [number, number, number];
+  palette: GalleryPalette;
 }) => {
-  const wallTex = useMemo(createWallTexture, []);
+  const wallTex = useMemo(() => createWallTexture(palette), [palette]);
+  useEffect(() => () => wallTex.dispose(), [wallTex]);
   return (
     <mesh position={position}>
       <boxGeometry args={size} />
@@ -444,15 +573,32 @@ const PartitionWall = ({
   );
 };
 
-const Partitions = ({ partitions }: { partitions: Partition[] }) => (
+const Partitions = ({
+  partitions,
+  palette,
+}: {
+  partitions: Partition[];
+  palette: GalleryPalette;
+}) => (
   <group>
     {partitions.map((p, i) => (
-      <PartitionWall key={i} position={p.position} size={p.size} />
+      <PartitionWall
+        key={i}
+        position={p.position}
+        size={p.size}
+        palette={palette}
+      />
     ))}
   </group>
 );
 
-const GalleryBench = ({ position }: { position: [number, number, number] }) => {
+const GalleryBench = ({
+  position,
+  palette,
+}: {
+  position: [number, number, number];
+  palette: GalleryPalette;
+}) => {
   const seatW = 6;
   const seatD = 1.8;
   const seatThickness = 0.35;
@@ -469,7 +615,7 @@ const GalleryBench = ({ position }: { position: [number, number, number] }) => {
       {/* Seat */}
       <mesh position={[0, seatY, 0]}>
         <boxGeometry args={[seatW, seatThickness, seatD]} />
-        <meshStandardMaterial color='#1a1a1a' roughness={0.8} />
+        <meshStandardMaterial color={palette.benchSeat} roughness={0.8} />
       </mesh>
       {/* Legs */}
       {[
@@ -480,7 +626,7 @@ const GalleryBench = ({ position }: { position: [number, number, number] }) => {
       ].map((pos, i) => (
         <mesh key={i} position={pos as [number, number, number]}>
           <boxGeometry args={[legW, legHeight, legW]} />
-          <meshStandardMaterial color='#111' roughness={0.9} />
+          <meshStandardMaterial color={palette.benchLeg} roughness={0.9} />
         </mesh>
       ))}
     </group>
@@ -515,22 +661,35 @@ const WelcomeWallText = ({
   mobile,
   fragmentTitle,
   fragmentDescription,
+  palette,
 }: {
   position: [number, number, number];
   rotation: [number, number, number];
   mobile?: boolean;
   fragmentTitle?: string;
   fragmentDescription?: string;
+  palette: GalleryPalette;
 }) => {
   const [texture, setTexture] = useState<THREE.Texture | null>(null);
 
   useEffect(() => {
+    let cancelled = false;
+    let created: THREE.Texture | null = null;
     document.fonts.ready.then(() => {
-      setTexture(
-        createWelcomeTexture(mobile, fragmentTitle, fragmentDescription),
+      if (cancelled) return;
+      created = createWelcomeTexture(
+        palette,
+        mobile,
+        fragmentTitle,
+        fragmentDescription,
       );
+      setTexture(created);
     });
-  }, [mobile, fragmentTitle, fragmentDescription]);
+    return () => {
+      cancelled = true;
+      if (created) created.dispose();
+    };
+  }, [palette, mobile, fragmentTitle, fragmentDescription]);
 
   if (!texture) return null;
 
@@ -550,7 +709,7 @@ const WelcomeWallText = ({
 const LABEL_W = 1.6;
 const LABEL_H = 0.4;
 
-const createLabelTexture = (title: string) => {
+const createLabelTexture = (palette: GalleryPalette, title: string) => {
   const canvas = document.createElement('canvas');
   canvas.width = 256;
   canvas.height = 64;
@@ -558,14 +717,17 @@ const createLabelTexture = (title: string) => {
   ctx.imageSmoothingEnabled = false;
 
   // Match wall color so it blends seamlessly
-  ctx.fillStyle = '#0a0a0a';
+  ctx.fillStyle = palette.wall;
   ctx.fillRect(0, 0, 256, 64);
 
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+  // Slightly brighter than inkMuted so labels read at reading distance.
+  ctx.fillStyle = palette.ink;
+  ctx.globalAlpha = 0.7;
   ctx.font = "16px 'Geist Pixel Circle'";
   ctx.textAlign = 'left';
   ctx.textBaseline = 'middle';
   ctx.fillText(title, 8, 32);
+  ctx.globalAlpha = 1;
 
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
@@ -574,26 +736,33 @@ const createLabelTexture = (title: string) => {
   return texture;
 };
 
-// Shared materials — created once, reused across all art pieces
-const frameMaterial = new THREE.MeshStandardMaterial({
-  color: '#1a1a1e',
-  roughness: 0.3,
-  metalness: 0.1,
-});
-const canvasMaterial = new THREE.MeshStandardMaterial({ color: '#1a1a1a' });
-
 const ArtFrame = memo(
   ({
     position,
     size,
     imageUrl,
+    palette,
   }: {
     position: [number, number, number];
     size: [number, number];
     imageUrl?: string;
+    palette: GalleryPalette;
   }) => {
     const [w, h] = size;
     const matRef = useRef<THREE.MeshBasicMaterial>(null);
+
+    // Per-instance, palette-keyed frame material. Replaces the previous
+    // module-scope singleton so theme flips actually re-color the frames.
+    const frameMaterial = useMemo(
+      () =>
+        new THREE.MeshStandardMaterial({
+          color: palette.frame,
+          roughness: 0.3,
+          metalness: 0.1,
+        }),
+      [palette.frame],
+    );
+    useEffect(() => () => frameMaterial.dispose(), [frameMaterial]);
 
     useEffect(() => {
       if (!imageUrl || !matRef.current) return;
@@ -612,7 +781,7 @@ const ArtFrame = memo(
         },
         undefined,
         () => {
-          // On error, keep the dark placeholder
+          // On error, keep the placeholder
         },
       );
       return () => {
@@ -632,7 +801,7 @@ const ArtFrame = memo(
         {/* Canvas */}
         <mesh position={[0, 0, 0.01]}>
           <planeGeometry args={[w, h]} />
-          <meshBasicMaterial ref={matRef} color='#1a1a1a' />
+          <meshBasicMaterial ref={matRef} color={palette.canvasPlaceholder} />
         </mesh>
       </group>
     );
@@ -643,17 +812,27 @@ const ArtLabel = memo(
   ({
     position,
     title,
+    palette,
   }: {
     position: [number, number, number];
     title: string;
+    palette: GalleryPalette;
   }) => {
     const [labelTex, setLabelTex] = useState<THREE.Texture | null>(null);
 
     useEffect(() => {
+      let cancelled = false;
+      let created: THREE.Texture | null = null;
       document.fonts.ready.then(() => {
-        setLabelTex(createLabelTexture(title));
+        if (cancelled) return;
+        created = createLabelTexture(palette, title);
+        setLabelTex(created);
       });
-    }, [title]);
+      return () => {
+        cancelled = true;
+        if (created) created.dispose();
+      };
+    }, [palette, title]);
 
     if (!labelTex) return null;
 
@@ -672,7 +851,8 @@ const ArtLabel = memo(
 );
 
 const ArtPlaceholder = memo(
-  ({ position, size, rotation, title, imageUrl, childPieces }: ArtPiece) => {
+  ({ piece, palette }: { piece: ArtPiece; palette: GalleryPalette }) => {
+    const { position, size, rotation, title, imageUrl, childPieces } = piece;
     const [w, h] = size;
     const frameRight = w / 2 + 0.08;
     const frameBottom = -(h / 2 + 0.08);
@@ -688,26 +868,46 @@ const ArtPlaceholder = memo(
               position={[child.offset[0], child.offset[1], 0]}
               size={child.size}
               imageUrl={child.imageUrl}
+              palette={palette}
             />
           ))}
-          <ArtLabel position={[labelX, labelY, 0]} title={title} />
+          <ArtLabel
+            position={[labelX, labelY, 0]}
+            title={title}
+            palette={palette}
+          />
         </group>
       );
     }
 
     return (
       <group position={position} rotation={rotation}>
-        <ArtFrame position={[0, 0, 0]} size={size} imageUrl={imageUrl} />
-        <ArtLabel position={[labelX, labelY, 0]} title={title} />
+        <ArtFrame
+          position={[0, 0, 0]}
+          size={size}
+          imageUrl={imageUrl}
+          palette={palette}
+        />
+        <ArtLabel
+          position={[labelX, labelY, 0]}
+          title={title}
+          palette={palette}
+        />
       </group>
     );
   },
 );
 
-const Artworks = ({ pieces }: { pieces: ArtPiece[] }) => (
+const Artworks = ({
+  pieces,
+  palette,
+}: {
+  pieces: ArtPiece[];
+  palette: GalleryPalette;
+}) => (
   <group>
     {pieces.map((piece, i) => (
-      <ArtPlaceholder key={i} {...piece} />
+      <ArtPlaceholder key={i} piece={piece} palette={palette} />
     ))}
   </group>
 );
@@ -721,10 +921,12 @@ const ArtSpotlight = ({
   artPosition,
   artRotation,
   roomHeight,
+  palette,
 }: {
   artPosition: [number, number, number];
   artRotation: [number, number, number];
   roomHeight: number;
+  palette: GalleryPalette;
 }) => {
   const lightRef = useRef<THREE.SpotLight>(null);
   const targetRef = useRef<THREE.Object3D>(null);
@@ -758,10 +960,10 @@ const ArtSpotlight = ({
         position={lightPos}
         angle={0.5}
         penumbra={0.7}
-        intensity={12}
+        intensity={palette.spotIntensity}
         distance={35}
         decay={1}
-        color='#ffffff'
+        color={palette.spotColor}
       />
       <object3D ref={targetRef} position={artPosition} />
     </group>
@@ -771,9 +973,11 @@ const ArtSpotlight = ({
 const ArtLighting = ({
   pieces,
   roomHeight,
+  palette,
 }: {
   pieces: ArtPiece[];
   roomHeight: number;
+  palette: GalleryPalette;
 }) => {
   // Select an evenly-distributed subset when over the spotlight limit
   const selected = useMemo(() => {
@@ -793,6 +997,7 @@ const ArtLighting = ({
           artPosition={piece.position}
           artRotation={piece.rotation}
           roomHeight={roomHeight}
+          palette={palette}
         />
       ))}
     </group>
@@ -804,11 +1009,13 @@ const Room = ({
   mobile,
   fragmentTitle,
   fragmentDescription,
+  palette,
 }: {
   layout: GalleryLayout;
   mobile?: boolean;
   fragmentTitle?: string;
   fragmentDescription?: string;
+  palette: GalleryPalette;
 }) => {
   const {
     roomWidth,
@@ -824,8 +1031,10 @@ const Room = ({
   const halfW = roomWidth / 2;
   const halfH = roomHeight / 2;
   const halfD = roomDepth / 2;
-  const wallTex = useMemo(createWallTexture, []);
-  const ceilingTex = useMemo(createCeilingTexture, []);
+  const wallTex = useMemo(() => createWallTexture(palette), [palette]);
+  const ceilingTex = useMemo(() => createCeilingTexture(palette), [palette]);
+  useEffect(() => () => wallTex.dispose(), [wallTex]);
+  useEffect(() => () => ceilingTex.dispose(), [ceilingTex]);
 
   return (
     <group>
@@ -833,6 +1042,7 @@ const Room = ({
         roomWidth={roomWidth}
         roomDepth={roomDepth}
         roomHeight={roomHeight}
+        palette={palette}
       />
       {/* Ceiling */}
       <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, halfH, 0]}>
@@ -859,25 +1069,39 @@ const Room = ({
         <planeGeometry args={[roomDepth, roomHeight]} />
         <meshStandardMaterial map={wallTex} roughness={0.92} />
       </mesh>
+      {/* Ambient + hemisphere set the room's overall exposure. Palette-driven
+          because light mode needs much less of both. */}
+      <ambientLight intensity={palette.ambientIntensity} />
+      <hemisphereLight
+        args={[palette.hemiSky, palette.hemiGround, palette.hemiIntensity]}
+      />
       {/* Overhead fill lights */}
       {fillLights.map((pos, i) => (
         <pointLight
           key={i}
           position={pos}
-          intensity={i === 0 ? 3 : 2}
-          distance={i === 0 ? 50 : 40}
+          intensity={
+            i === 0 ? palette.fillIntensityNear : palette.fillIntensityFar
+          }
+          distance={
+            i === 0 ? palette.fillDistanceNear : palette.fillDistanceFar
+          }
           decay={1}
-          color='#ffffff'
+          color={palette.fillColor}
         />
       ))}
       {/* Interior partition walls */}
-      <Partitions partitions={partitions} />
+      <Partitions partitions={partitions} palette={palette} />
       {/* Art placeholders and per-piece spotlights */}
-      <Artworks pieces={artPieces} />
-      <ArtLighting pieces={artPieces} roomHeight={roomHeight} />
+      <Artworks pieces={artPieces} palette={palette} />
+      <ArtLighting
+        pieces={artPieces}
+        roomHeight={roomHeight}
+        palette={palette}
+      />
       {/* Benches */}
       {benchPositions.map((pos, i) => (
-        <GalleryBench key={i} position={pos} />
+        <GalleryBench key={i} position={pos} palette={palette} />
       ))}
       {/* Welcome wall text */}
       <WelcomeWallText
@@ -886,6 +1110,7 @@ const Room = ({
         mobile={mobile}
         fragmentTitle={fragmentTitle}
         fragmentDescription={fragmentDescription}
+        palette={palette}
       />
     </group>
   );
@@ -1026,6 +1251,8 @@ const Movement = ({
 type HintPhase = 'step-back' | 'click' | 'mouse' | 'done';
 
 const GalleryScreen = ({ fragmentId }: { fragmentId?: string }) => {
+  const { theme } = useTheme();
+  const palette = useMemo(() => getPalette(theme), [theme]);
   const [locked, setLocked] = useState(false);
   const [ready, setReady] = useState(false);
   const [hintPhase, setHintPhase] = useState<HintPhase>('step-back');
@@ -1112,9 +1339,19 @@ const GalleryScreen = ({ fragmentId }: { fragmentId?: string }) => {
     return () => clearTimeout(timer);
   }, [isMobile, hintPhase]);
 
+  // Pixel-hint text uses ink tokens so the gallery UI chrome matches the
+  // site theme in both dark and light. Base / hover opacities are tuned to
+  // read against the gallery's own floor + wall tones, not the page
+  // background, since the canvas fills the viewport once `ready`.
+  const hintBase =
+    'font-pixel text-[color:var(--color-ink-faint)] text-sm tracking-[0.2em] select-none';
+  const hintSub =
+    'font-pixel text-[color:var(--color-ink-ghost)] text-[10px] tracking-[0.15em] select-none mt-2';
+
   return (
     <div
-      className={`fixed inset-0 z-50 bg-black${!isMobile && !locked ? ' cursor-pointer' : ''}`}
+      className={`fixed inset-0 z-50${!isMobile && !locked ? ' cursor-pointer' : ''}`}
+      style={{ backgroundColor: 'var(--color-surface)' }}
     >
       <div
         className='absolute inset-0 transition-opacity duration-500'
@@ -1124,13 +1361,12 @@ const GalleryScreen = ({ fragmentId }: { fragmentId?: string }) => {
           camera={{ position: layout.spawnPosition, fov: 75 }}
           onCreated={onCreated}
         >
-          <ambientLight intensity={1.2} />
-          <hemisphereLight args={['#ffffff', '#333333', 0.8]} />
           <Room
             layout={layout}
             mobile={isMobile}
             fragmentTitle={fragment?.title}
             fragmentDescription={fragment?.description}
+            palette={palette}
           />
           <SpawnPoint
             position={layout.spawnPosition}
@@ -1150,7 +1386,7 @@ const GalleryScreen = ({ fragmentId }: { fragmentId?: string }) => {
       {!locked && (
         <a
           href={fragment ? `/memories/${fragment.id}` : '/'}
-          className='absolute top-6 left-6 z-10 font-pixel text-white/25 text-xs tracking-[0.2em] pointer-events-auto hover:text-white/50 transition-colors'
+          className='absolute top-6 left-6 z-10 font-pixel text-[color:var(--color-ink-ghost)] text-xs tracking-[0.2em] pointer-events-auto hover:text-[color:var(--color-ink-muted)] transition-colors'
         >
           ← EXIT GALLERY
         </a>
@@ -1162,28 +1398,18 @@ const GalleryScreen = ({ fragmentId }: { fragmentId?: string }) => {
         >
           {hintPhase === 'step-back' && (
             <>
-              <p className='font-pixel text-white/40 text-sm tracking-[0.2em] select-none'>
-                PRESS "S" — TAKE A STEP BACK
-              </p>
-              <p className='font-pixel text-white/20 text-[10px] tracking-[0.15em] select-none mt-2'>
-                WASD — MOVE
-              </p>
+              <p className={hintBase}>PRESS "S" — TAKE A STEP BACK</p>
+              <p className={hintSub}>WASD — MOVE</p>
             </>
           )}
           {hintPhase === 'click' && (
             <>
-              <p className='font-pixel text-white/40 text-sm tracking-[0.2em] select-none'>
-                CLICK — EXPLORE
-              </p>
-              <p className='font-pixel text-white/20 text-[10px] tracking-[0.15em] select-none mt-2'>
-                MOUSE LOOK · ESC EXIT
-              </p>
+              <p className={hintBase}>CLICK — EXPLORE</p>
+              <p className={hintSub}>MOUSE LOOK · ESC EXIT</p>
             </>
           )}
           {hintPhase === 'mouse' && (
-            <p className='font-pixel text-white/40 text-sm tracking-[0.2em] select-none'>
-              MOVE MOUSE — TURN AROUND
-            </p>
+            <p className={hintBase}>MOVE MOUSE — TURN AROUND</p>
           )}
         </div>
       )}
@@ -1193,16 +1419,12 @@ const GalleryScreen = ({ fragmentId }: { fragmentId?: string }) => {
           className='absolute inset-x-0 bottom-36 z-[5] flex flex-col items-center pointer-events-none animate-[gallery-hint-in_0.5s_ease-out_both]'
         >
           {hintPhase === 'step-back' && (
-            <p className='font-pixel text-white/40 text-sm tracking-[0.2em] select-none'>
-              PULL JOYSTICK DOWN — STEP BACK
-            </p>
+            <p className={hintBase}>PULL JOYSTICK DOWN — STEP BACK</p>
           )}
           {hintPhase === 'mouse' && (
             <div className='flex flex-col items-center gap-3'>
-              <p className='font-pixel text-white/40 text-sm tracking-[0.2em] select-none'>
-                SWIPE RIGHT SIDE — TURN AROUND
-              </p>
-              <span className='text-white/40 text-2xl animate-[gallery-swipe_1.2s_ease-in-out_infinite] select-none'>
+              <p className={hintBase}>SWIPE RIGHT SIDE — TURN AROUND</p>
+              <span className='text-[color:var(--color-ink-faint)] text-2xl animate-[gallery-swipe_1.2s_ease-in-out_infinite] select-none'>
                 →
               </span>
             </div>
