@@ -468,22 +468,15 @@ const SpiderLily = ({ className }: { className?: string }) => {
     mouseRef.current.pressed = false;
   }, []);
 
-  const handleClick = useCallback(
-    (e: React.MouseEvent<SVGSVGElement>) => {
-      toggle({ x: e.clientX, y: e.clientY });
-    },
-    [toggle],
-  );
+  const handleClick = useCallback(() => {
+    toggle();
+  }, [toggle]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<SVGSVGElement>) => {
       if (e.key !== 'Enter' && e.key !== ' ') return;
       e.preventDefault();
-      const rect = svgRef.current?.getBoundingClientRect();
-      const origin = rect
-        ? { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 }
-        : undefined;
-      toggle(origin);
+      toggle();
     },
     [toggle],
   );

@@ -4,26 +4,15 @@ import {
   useContext,
   useEffect,
   useMemo,
-  useRef,
   useState,
 } from 'react';
 
-import { RippleOverlay } from './RippleOverlay';
-
 type Theme = 'dark' | 'light';
-
-type RipplePayload = {
-  id: number;
-  x: number;
-  y: number;
-  fromTheme: Theme;
-  toTheme: Theme;
-};
 
 type ThemeContextValue = {
   theme: Theme;
-  toggle: (origin?: { x: number; y: number }) => void;
-  setTheme: (next: Theme, origin?: { x: number; y: number }) => void;
+  toggle: () => void;
+  setTheme: (next: Theme) => void;
 };
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
@@ -48,32 +37,15 @@ function readInitialTheme(): Theme {
   return 'dark';
 }
 
-function prefersReducedMotion(): boolean {
-  if (typeof window === 'undefined') return false;
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-}
-
 /**
- * Theme coordination:
- *
- * - `theme` state is the "intent" — it updates immediately on toggle and is
- *   what `useTheme()` consumers render against.
- * - The `data-theme` attribute on <html> is what actually drives the CSS
- *   palette. We flip it ~60% through the ripple animation (or immediately
- *   when reduced motion is on / no origin provided), so the visual swap is
- *   masked by the ripple wash.
- * - `RippleOverlay` is the only thing that calls into `commitThemeAttribute`
- *   (via the `onFlip` callback), which keeps the masking contract in one
- *   place.
+ * Theme coordination: `theme` state and the `data-theme` attribute on <html>
+ * are kept in lockstep. Flipping is instantaneous — no ripple, no transition.
  */
 const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   const [theme, setThemeState] = useState<Theme>(readInitialTheme);
-  const [ripple, setRipple] = useState<RipplePayload | null>(null);
-  const rippleIdRef = useRef(0);
 
-  // Persist to localStorage when theme changes. We do NOT flip the
-  // data-theme attribute here — that is the ripple's job.
   useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
     try {
       localStorage.setItem(STORAGE_KEY, theme);
     } catch {
@@ -81,55 +53,12 @@ const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [theme]);
 
-  const commitThemeAttribute = useCallback((next: Theme) => {
-    document.documentElement.setAttribute('data-theme', next);
+  const toggle = useCallback(() => {
+    setThemeState(prev => (prev === 'dark' ? 'light' : 'dark'));
   }, []);
 
-  const applyThemeChange = useCallback(
-    (next: Theme, origin?: { x: number; y: number }) => {
-      setThemeState(prev => {
-        if (prev === next) return prev;
-
-        if (!origin || prefersReducedMotion()) {
-          // No ripple — flip the attribute immediately so paint matches state.
-          commitThemeAttribute(next);
-          return next;
-        }
-
-        const id = ++rippleIdRef.current;
-        setRipple({
-          id,
-          x: origin.x,
-          y: origin.y,
-          fromTheme: prev,
-          toTheme: next,
-        });
-        return next;
-      });
-    },
-    [commitThemeAttribute],
-  );
-
-  const toggle = useCallback(
-    (origin?: { x: number; y: number }) => {
-      applyThemeChange(theme === 'dark' ? 'light' : 'dark', origin);
-    },
-    [theme, applyThemeChange],
-  );
-
-  const setTheme = useCallback(
-    (next: Theme, origin?: { x: number; y: number }) => {
-      applyThemeChange(next, origin);
-    },
-    [applyThemeChange],
-  );
-
-  const handleRippleFlip = useCallback(() => {
-    if (ripple) commitThemeAttribute(ripple.toTheme);
-  }, [ripple, commitThemeAttribute]);
-
-  const handleRippleDone = useCallback(() => {
-    setRipple(null);
+  const setTheme = useCallback((next: Theme) => {
+    setThemeState(next);
   }, []);
 
   const value = useMemo<ThemeContextValue>(
@@ -138,19 +67,7 @@ const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   );
 
   return (
-    <ThemeContext.Provider value={value}>
-      {children}
-      {ripple && (
-        <RippleOverlay
-          key={ripple.id}
-          x={ripple.x}
-          y={ripple.y}
-          toTheme={ripple.toTheme}
-          onFlip={handleRippleFlip}
-          onDone={handleRippleDone}
-        />
-      )}
-    </ThemeContext.Provider>
+    <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
   );
 };
 
