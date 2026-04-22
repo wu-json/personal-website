@@ -346,6 +346,18 @@ const WIND_SPEED = 0.0008;
 const WIND_STRENGTH_X = 4.5;
 const WIND_STRENGTH_Y = 2.0;
 
+// Capability flags captured once at module load. iOS Safari chokes on the
+// stacked SVG filters (feTurbulence + two Gaussian blurs + per-stamen glow)
+// re-rasterizing every rAF, so on coarse-pointer devices and under Reduce
+// Motion we skip the filter chain and the wind/sway loop entirely. Desktop
+// behavior is unchanged.
+const heavyEffectsEnabled = (() => {
+  if (typeof window === 'undefined') return true;
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const coarse = window.matchMedia('(pointer: coarse)').matches;
+  return !reduce && !coarse;
+})();
+
 type Vec2 = { x: number; y: number };
 
 const SpiderLily = ({ className }: { className?: string }) => {
@@ -447,6 +459,7 @@ const SpiderLily = ({ className }: { className?: string }) => {
   );
 
   useEffect(() => {
+    if (!heavyEffectsEnabled) return;
     const t0 = performance.now();
     const petalPhases = petals.map((_, i) => i * 0.7 + Math.sin(i * 2.3) * 0.5);
     const stamenPhases = stamens.map(
@@ -569,50 +582,52 @@ const SpiderLily = ({ className }: { className?: string }) => {
       onClick={handleClick}
       onKeyDown={handleKeyDown}
     >
-      <defs>
-        <filter id='ink-texture'>
-          <feTurbulence
-            type='fractalNoise'
-            baseFrequency='0.04'
-            numOctaves='3'
-            result='noise'
-          />
-          <feDisplacementMap
-            in='SourceGraphic'
-            in2='noise'
-            scale='1.2'
-            xChannelSelector='R'
-            yChannelSelector='G'
-          />
-        </filter>
-        <filter id='stamen-glow'>
-          <feGaussianBlur stdDeviation='1.2' result='blur' />
-          <feMerge>
-            <feMergeNode in='blur' />
-            <feMergeNode in='SourceGraphic' />
-          </feMerge>
-        </filter>
-        <filter id='petal-glow' x='-30%' y='-30%' width='160%' height='160%'>
-          <feGaussianBlur
-            in='SourceGraphic'
-            stdDeviation='6'
-            result='wideGlow'
-          />
-          <feGaussianBlur
-            in='SourceGraphic'
-            stdDeviation='2.5'
-            result='tightGlow'
-          />
-          <feMerge>
-            <feMergeNode in='wideGlow' />
-            <feMergeNode in='tightGlow' />
-            <feMergeNode in='SourceGraphic' />
-          </feMerge>
-        </filter>
-      </defs>
+      {heavyEffectsEnabled && (
+        <defs>
+          <filter id='ink-texture'>
+            <feTurbulence
+              type='fractalNoise'
+              baseFrequency='0.04'
+              numOctaves='3'
+              result='noise'
+            />
+            <feDisplacementMap
+              in='SourceGraphic'
+              in2='noise'
+              scale='1.2'
+              xChannelSelector='R'
+              yChannelSelector='G'
+            />
+          </filter>
+          <filter id='stamen-glow'>
+            <feGaussianBlur stdDeviation='1.2' result='blur' />
+            <feMerge>
+              <feMergeNode in='blur' />
+              <feMergeNode in='SourceGraphic' />
+            </feMerge>
+          </filter>
+          <filter id='petal-glow' x='-30%' y='-30%' width='160%' height='160%'>
+            <feGaussianBlur
+              in='SourceGraphic'
+              stdDeviation='6'
+              result='wideGlow'
+            />
+            <feGaussianBlur
+              in='SourceGraphic'
+              stdDeviation='2.5'
+              result='tightGlow'
+            />
+            <feMerge>
+              <feMergeNode in='wideGlow' />
+              <feMergeNode in='tightGlow' />
+              <feMergeNode in='SourceGraphic' />
+            </feMerge>
+          </filter>
+        </defs>
+      )}
 
       <g ref={wholeFlowerRef}>
-        <g filter='url(#ink-texture)'>
+        <g filter={heavyEffectsEnabled ? 'url(#ink-texture)' : undefined}>
           {/* Stem */}
           <path
             d={`M${CX - 4} ${CY}
@@ -625,7 +640,13 @@ const SpiderLily = ({ className }: { className?: string }) => {
           />
 
           {/* Flower head */}
-          <g transform={`rotate(-4 ${CX} ${CY})`} filter='url(#petal-glow)'>
+          <g
+            transform={`rotate(-4 ${CX} ${CY})`}
+            filter={heavyEffectsEnabled ? 'url(#petal-glow)' : undefined}
+            className={
+              heavyEffectsEnabled ? undefined : 'spider-lily-head-lite'
+            }
+          >
             {/* Petals */}
             {petals.map((p, i) => (
               <path
@@ -651,7 +672,7 @@ const SpiderLily = ({ className }: { className?: string }) => {
                 <path
                   d={s.d}
                   className={`spider-lily-stamen ${activeStamens[i] ? 'spider-lily-stamen-active' : ''}`}
-                  filter='url(#stamen-glow)'
+                  filter={heavyEffectsEnabled ? 'url(#stamen-glow)' : undefined}
                   pathLength={1}
                 />
                 {!s.noTip && (
@@ -663,7 +684,9 @@ const SpiderLily = ({ className }: { className?: string }) => {
                     transform={`rotate(${s.tipAngle} ${s.tipX} ${s.tipY})`}
                     className={`spider-lily-anther ${activeStamens[i] ? 'spider-lily-anther-active' : ''}`}
                     style={{ animationDelay: `${STAMEN_DURATION}ms` }}
-                    filter='url(#stamen-glow)'
+                    filter={
+                      heavyEffectsEnabled ? 'url(#stamen-glow)' : undefined
+                    }
                   />
                 )}
               </g>
