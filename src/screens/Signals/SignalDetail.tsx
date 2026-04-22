@@ -22,7 +22,7 @@ const SignalDetail = ({ id }: { id: string }) => {
             to='/signals'
             className='mt-4 text-white/30 text-[10px] font-mono uppercase tracking-widest hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)] transition-all duration-300'
           >
-            {'< return to relay'}
+            {'< return to signals'}
           </Link>
         </div>
       </div>
@@ -37,7 +37,7 @@ const SignalDetail = ({ id }: { id: string }) => {
           className='bio-glitch inline-block mb-8 text-white/30 text-[10px] font-mono uppercase tracking-widest hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)] transition-all duration-300'
           style={jitter()}
         >
-          {'< return to relay'}
+          {'< return to signals'}
         </Link>
 
         <header
