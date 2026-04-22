@@ -464,13 +464,12 @@ html[data-theme-flash-reset] .nav-glitch-active {
     lily-breathe 7s ease-in-out 4s infinite;
 }
 
-/* Mobile / reduced-motion fallback.
+/* Mobile / reduced-motion fallback for the spider lily.
    iOS Safari can't composite the stacked SVG filters (feTurbulence + two
    Gaussian blurs + per-stamen glow) at 60fps while the lily is animating.
    SpiderLily.tsx drops those filters and the wind/sway rAF loop on coarse
    pointers; here we also skip the infinite breathing drop-shadow (which
-   layers on top of those filters) and stop the bio-glitch text animation
-   across the site. Desktop behavior is unchanged. */
+   layers on top of those filters). Desktop behavior is unchanged. */
 @media (prefers-reduced-motion: reduce), (pointer: coarse) {
   .spider-lily-container {
     animation: lily-glow-in 2.5s ease-out 1.2s forwards;
@@ -481,7 +480,15 @@ html[data-theme-flash-reset] .nav-glitch-active {
   .spider-lily-head-lite {
     filter: drop-shadow(0 0 4px var(--color-glow-soft));
   }
+}
 
+/* The bio/nav glitch entrance is opacity + translateX only (cheap on its
+   own). It was originally bundled into the coarse-pointer opt-out above
+   because it ran concurrently with the heavy lily filters on mobile — now
+   that the lily drops those on coarse pointers, the glitch itself plays
+   fine on iOS Safari and gives the page load its intended cadence. We
+   still honor `prefers-reduced-motion` for accessibility. */
+@media (prefers-reduced-motion: reduce) {
   .bio-glitch,
   .nav-glitch-active {
     animation: none;
