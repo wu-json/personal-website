@@ -5,8 +5,11 @@
    src/theme/ThemeContext.tsx and src/theme/RippleOverlay.tsx. */
 @custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
 
-:root,
-:where([data-theme='dark']) {
+/* Equal-specificity attribute selectors — neither wins over the other by
+   selector weight, so document order picks the active theme. The bootstrap
+   script in index.html sets data-theme='dark' by default, so the dark
+   variables always apply until the attribute flips. */
+[data-theme='dark'] {
   --color-surface: #000000;
   --color-ink: #ffffff;
   --color-ink-soft: rgba(255, 255, 255, 0.7);
@@ -21,7 +24,7 @@
   --color-glow-mist: rgba(255, 255, 255, 0.08);
 }
 
-:where([data-theme='light']) {
+[data-theme='light'] {
   --color-surface: #ffffff;
   --color-ink: #000000;
   --color-ink-soft: rgba(0, 0, 0, 0.78);
