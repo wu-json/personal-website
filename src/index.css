@@ -793,6 +793,16 @@ html[data-theme-flash-reset] .nav-glitch-active {
   filter: drop-shadow(0 0 6px var(--color-glow-strong));
 }
 
+/* Signal list item hover. Gated behind `(hover: hover)` so iOS Safari
+   doesn't strand the tint on the last-tapped card while scrolling — most
+   noticeable in light mode where the hair-line tint reads as a real
+   highlight. */
+@media (hover: hover) {
+  .signal-list-item:hover {
+    background-color: var(--color-ink-hair);
+  }
+}
+
 @keyframes gallery-hint-in {
   from {
     opacity: 0;
@@ -902,9 +912,6 @@ html[data-theme-flash-reset] .nav-glitch-active {
   background-color: var(--color-ink-hair);
 }
 [data-theme='light'] .bg-white\/5 {
-  background-color: var(--color-ink-hair);
-}
-[data-theme='light'] .hover\:bg-white\/\[0\.03\]:hover {
   background-color: var(--color-ink-hair);
 }
 
