@@ -1,7 +1,6 @@
 ---
 id: '005'
 timestamp: '2026.04.12 // 12:11:00'
-title: 'David'
 expanded: false
 location: 'San Francisco, US'
 ---
