@@ -1,4 +1,4 @@
-export type Transmission = {
+export type Signal = {
   id: string;
   timestamp: string;
   title?: string;
@@ -35,7 +35,7 @@ const modules = import.meta.glob('./entries/*.md', {
   eager: true,
 }) as Record<string, string>;
 
-export const transmissions: Transmission[] = Object.values(modules)
+export const signals: Signal[] = Object.values(modules)
   .map(raw => {
     const { attrs, body } = parseFrontmatter(raw);
     return {

@@ -1,12 +1,12 @@
 /**
- * Single markdown pipeline for every transmission body (detail + full list rows).
+ * Single markdown pipeline for every signal body (detail + full list rows).
  *
- * Extend here only — do not fork another Markdown + remark stack for Transmissions.
+ * Extend here only — do not fork another Markdown + remark stack for Signals.
  * - remark-gfm: tables, footnotes [^id], etc.
  * - rehype-raw: <img> with dimensions for ProgressiveImage
- * - Footnote block styling: `.transmission-prose section[data-footnotes]` in index.css
+ * - Footnote block styling: `.signal-prose section[data-footnotes]` in index.css
  *
- * @see AGENTS.md → "Transmissions markdown reference"
+ * @see AGENTS.md → "Signals markdown reference"
  */
 import type { AnchorHTMLAttributes, ReactNode } from 'react';
 

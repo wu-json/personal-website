@@ -1,14 +1,14 @@
 import { Link } from 'wouter';
 
-import { transmissions } from './data';
+import { signals } from './data';
 import { MarkdownBody } from './MarkdownBody';
 
 const jitter = () => ({ animationDelay: `${Math.random() * 120}ms` });
 
-const TransmissionDetail = ({ id }: { id: string }) => {
-  const t = transmissions.find(tx => tx.id === id);
+const SignalDetail = ({ id }: { id: string }) => {
+  const s = signals.find(sx => sx.id === id);
 
-  if (!t) {
+  if (!s) {
     return (
       <div className='w-full min-h-screen bg-black flex items-center justify-center md:pr-40'>
         <div className='flex flex-col items-center gap-3'>
@@ -16,10 +16,10 @@ const TransmissionDetail = ({ id }: { id: string }) => {
             SIGNAL LOST
           </h1>
           <p className='bio-glitch text-white/30 text-xs font-mono'>
-            {'// transmission not found in relay logs'}
+            {'// signal not found in relay logs'}
           </p>
           <Link
-            to='/transmissions'
+            to='/signals'
             className='mt-4 text-white/30 text-[10px] font-mono uppercase tracking-widest hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)] transition-all duration-300'
           >
             {'< return to relay'}
@@ -33,7 +33,7 @@ const TransmissionDetail = ({ id }: { id: string }) => {
     <div className='w-full min-h-screen bg-black md:pr-40'>
       <div className='max-w-2xl mx-auto px-6 py-16 pb-32'>
         <Link
-          to='/transmissions'
+          to='/signals'
           className='bio-glitch inline-block mb-8 text-white/30 text-[10px] font-mono uppercase tracking-widest hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)] transition-all duration-300'
           style={jitter()}
         >
@@ -41,52 +41,52 @@ const TransmissionDetail = ({ id }: { id: string }) => {
         </Link>
 
         <header
-          className={`border-b border-white/5 ${t.title ? 'mb-5 pb-4' : 'mb-4 pb-3'}`}
+          className={`border-b border-white/5 ${s.title ? 'mb-5 pb-4' : 'mb-4 pb-3'}`}
         >
           <div
-            className={`flex items-baseline gap-3 flex-wrap ${t.title ? 'mb-2' : ''}`}
+            className={`flex items-baseline gap-3 flex-wrap ${s.title ? 'mb-2' : ''}`}
           >
             <span
               className='bio-glitch text-white/20 text-[10px] font-mono'
               style={jitter()}
             >
-              [{t.id}]
+              [{s.id}]
             </span>
             <span
               className='bio-glitch text-white/30 text-[10px] font-mono'
               style={jitter()}
             >
-              {t.timestamp}
+              {s.timestamp}
             </span>
-            {t.location && (
+            {s.location && (
               <span
                 className='bio-glitch text-white/20 text-[10px] font-mono'
                 style={jitter()}
               >
-                — {t.location}
+                — {s.location}
               </span>
             )}
           </div>
-          {t.title && (
+          {s.title && (
             <h1
               className='bio-glitch text-white text-xl sm:text-3xl font-pixel uppercase tracking-wide'
               style={jitter()}
             >
-              {t.title}
+              {s.title}
             </h1>
           )}
         </header>
 
         <div
-          className='bio-glitch transmission-prose transmission-entry text-white/70 text-xs sm:text-sm font-mono'
+          className='bio-glitch signal-prose signal-entry text-white/70 text-xs sm:text-sm font-mono'
           style={jitter()}
         >
-          <MarkdownBody>{t.body}</MarkdownBody>
+          <MarkdownBody>{s.body}</MarkdownBody>
         </div>
 
         <footer className='mt-12 pt-6 border-t border-white/5'>
           <p className='text-white/20 text-[10px] font-mono uppercase tracking-widest'>
-            {'// end of transmission'}
+            {'// end of signal'}
           </p>
         </footer>
       </div>
@@ -94,4 +94,4 @@ const TransmissionDetail = ({ id }: { id: string }) => {
   );
 };
 
-export { TransmissionDetail };
+export { SignalDetail };

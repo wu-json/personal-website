@@ -4,7 +4,7 @@ Context and guidelines for AI assistants and coding agents working on this proje
 
 ## Project overview
 
-Personal site for Jason Wu ([jasonwu.io](https://jasonwu.io)): React + TypeScript app with **Memories** (photo fragments), **Transmissions** (markdown posts), **Constructs** (project entries), and **Heroes** (people). The **Gallery** screen is a first-person Three.js space built with React Three Fiber.
+Personal site for Jason Wu ([jasonwu.io](https://jasonwu.io)): React + TypeScript app with **Memories** (photo fragments), **Signals** (markdown posts), **Constructs** (project entries), and **Heroes** (people). The **Gallery** screen is a first-person Three.js space built with React Three Fiber.
 
 ## Tech stack
 
@@ -40,14 +40,14 @@ Personal site for Jason Wu ([jasonwu.io](https://jasonwu.io)): React + TypeScrip
 
 ## Content locations
 
-| Section       | Entry data                                                                                 |
-| ------------- | ------------------------------------------------------------------------------------------ |
-| Memories      | `src/screens/Memories/fragments/*.md`, images under `public/images/fragments/<slug>/`      |
-| Transmissions | `src/screens/Transmissions/entries/*.md`, images under `public/images/transmissions/<id>/` |
-| Constructs    | `src/screens/Constructs/entries/*.md` (+ optimized assets per add-construct workflow)      |
-| Heroes        | `src/screens/Heroes/entries/*.md`                                                          |
+| Section    | Entry data                                                                            |
+| ---------- | ------------------------------------------------------------------------------------- |
+| Memories   | `src/screens/Memories/fragments/*.md`, images under `public/images/fragments/<slug>/` |
+| Signals    | `src/screens/Signals/entries/*.md`, images under `public/images/signals/<id>/`        |
+| Constructs | `src/screens/Constructs/entries/*.md` (+ optimized assets per add-construct workflow) |
+| Heroes     | `src/screens/Heroes/entries/*.md`                                                     |
 
-Agent workflows: `.cursor/skills/` (`add-fragment`, `add-transmission`, `add-construct`).
+Agent workflows: `.cursor/skills/` (`add-fragment`, `add-signal`, `add-construct`).
 
 ## Notes
 
@@ -103,23 +103,23 @@ photos:
 
 `DSCF0839` + `DSCF0859` = horizontal row. `DSCF0860` = solo. Groups can contain any number of photos.
 
-## Transmissions markdown reference
+## Signals markdown reference
 
-Entry bodies live in `src/screens/Transmissions/entries/*.md` (after YAML frontmatter). They are rendered by **`MarkdownBody`** (`src/screens/Transmissions/MarkdownBody.tsx`) on the transmission detail page and on the full (non-collapsed) list preview. The wrapper uses **`transmission-prose transmission-entry`** for long-form spacing (paragraph gaps, line height); other screens use `transmission-prose` without `transmission-entry`. Do not duplicate markdown pipeline config elsewhere—extend behavior in `MarkdownBody` if needed.
+Entry bodies live in `src/screens/Signals/entries/*.md` (after YAML frontmatter). They are rendered by **`MarkdownBody`** (`src/screens/Signals/MarkdownBody.tsx`) on the signal detail page and on the full (non-collapsed) list preview. The wrapper uses **`signal-prose signal-entry`** for long-form spacing (paragraph gaps, line height); other screens use `signal-prose` without `signal-entry`. Do not duplicate markdown pipeline config elsewhere—extend behavior in `MarkdownBody` if needed.
 
 ### Supported syntax
 
-| Feature                      | Notes                                                                                                                                                                                                                                                     |
-| ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **GitHub Flavored Markdown** | Tables, strikethrough, task lists, autolinks, **footnotes** (`remark-gfm`).                                                                                                                                                                               |
-| **Raw HTML**                 | Allowed via `rehype-raw` (e.g. `<img width height>` for progressive images).                                                                                                                                                                              |
-| **Images**                   | `<img src="…-full.webp" width="…" height="…">` under `/images/transmissions/<id>/` or `/images/fragments/<slug>/` gets progressive placeholder loading.                                                                                                   |
-| **Footnotes**                | Inline `[^shortId]`; definitions at end of body (blank line before first `[^shortId]:`). Reuse the same `[^shortId]` for multiple callouts. Renders a `// ref nodes` section (styled in `index.css` under `.transmission-prose section[data-footnotes]`). |
-| **Links**                    | `https://…` opens in a new tab with `rel="noopener noreferrer"`. Site paths like `/memories/…` stay normal in-page anchors.                                                                                                                               |
+| Feature                      | Notes                                                                                                                                                                                                                                          |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **GitHub Flavored Markdown** | Tables, strikethrough, task lists, autolinks, **footnotes** (`remark-gfm`).                                                                                                                                                                    |
+| **Raw HTML**                 | Allowed via `rehype-raw` (e.g. `<img width height>` for progressive images).                                                                                                                                                                   |
+| **Images**                   | `<img src="…-full.webp" width="…" height="…">` under `/images/signals/<id>/` or `/images/fragments/<slug>/` gets progressive placeholder loading.                                                                                              |
+| **Footnotes**                | Inline `[^shortId]`; definitions at end of body (blank line before first `[^shortId]:`). Reuse the same `[^shortId]` for multiple callouts. Renders a `// refs` section (styled in `index.css` under `.signal-prose section[data-footnotes]`). |
+| **Links**                    | `https://…` opens in a new tab with `rel="noopener noreferrer"`. Site paths like `/memories/…` stay normal in-page anchors.                                                                                                                    |
 
 ### List index vs detail
 
-Long posts use a collapsed teaser on `/transmissions` unless frontmatter has `expanded: true`. Footnote definitions and full body appear on `/transmissions/<id>`.
+Long posts use a collapsed teaser on `/signals` unless frontmatter has `expanded: true`. Footnote definitions and full body appear on `/signals/<id>`.
 
 ## When making changes
 

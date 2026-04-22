@@ -156,7 +156,7 @@ const GroupLightbox = ({
           >
             <span className='text-white/30'>{counter}</span>
             {caption && (
-              <span className='text-white/50 transmission-prose'>
+              <span className='text-white/50 signal-prose'>
                 <Markdown>{caption}</Markdown>
               </span>
             )}

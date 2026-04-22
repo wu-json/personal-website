@@ -77,7 +77,7 @@ const ConstructDetail = ({ id }: { id: string }) => {
         </header>
 
         <div
-          className='bio-glitch transmission-prose text-white/70 text-xs sm:text-sm font-mono leading-loose'
+          className='bio-glitch signal-prose text-white/70 text-xs sm:text-sm font-mono leading-loose'
           style={jitter()}
         >
           <Markdown

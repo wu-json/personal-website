@@ -1,5 +1,5 @@
-/** First <img> in transmission markdown (hero), if any. */
-export function parseFirstImgFromTransmissionBody(body: string): {
+/** First <img> in signal markdown (hero), if any. */
+export function parseFirstImgFromSignalBody(body: string): {
   src: string;
   alt: string;
   width: number;
@@ -24,7 +24,7 @@ function bodyPlainTextLength(body: string): number {
 /**
  * Index list: show a teaser instead of full body when not expanded and body is long.
  */
-export function shouldCollapseTransmissionList(
+export function shouldCollapseSignalList(
   expanded: boolean,
   body: string,
 ): boolean {
@@ -33,7 +33,7 @@ export function shouldCollapseTransmissionList(
 }
 
 /** Plain excerpt for collapsed list rows (after stripping hero images). */
-export function transmissionPlainExcerpt(body: string, maxLen = 300): string {
+export function signalPlainExcerpt(body: string, maxLen = 300): string {
   const noImg = body.replace(/<img\s[^>]*\/?>/gi, ' ').trim();
   const plain = noImg
     .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')

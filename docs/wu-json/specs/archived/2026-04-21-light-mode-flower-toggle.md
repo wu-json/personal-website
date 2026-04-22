@@ -232,7 +232,7 @@ Two subtle touches:
   use the exact click point, which is the flower's body, so the ripple
   naturally feels like it originates from the bloom itself.
 - A very light radial gradient inside the circle (`from
-  transparent` at the edge to fully opaque at ~80%) softens the leading
+transparent` at the edge to fully opaque at ~80%) softens the leading
   edge so it reads as a wash rather than a hard disc.
 
 Reduced motion:
