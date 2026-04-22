@@ -464,21 +464,14 @@ html[data-theme-flash-reset] .nav-glitch-active {
     lily-breathe 7s ease-in-out 4s infinite;
 }
 
-/* Theme color for the mobile/reduced-motion petal glow (SVG <feDropShadow>
-   in SpiderLily.tsx). We theme via a CSS `flood-color` rule instead of an
-   SVG presentation attribute so the light/dark tokens resolve correctly. */
-.spider-lily-petal-glow {
-  flood-color: var(--color-glow-soft);
-  flood-opacity: 1;
-}
-
 /* Mobile / reduced-motion fallback for the spider lily.
    iOS Safari can't composite the stacked SVG filters (feTurbulence + two
    Gaussian blurs + per-stamen glow) at 60fps while the lily is animating.
    SpiderLily.tsx drops those filters and the wind/sway rAF loop on coarse
-   pointers, and swaps the heavy #petal-glow for a single-pass
-   <feDropShadow> (#petal-glow-lite). Here we also skip the infinite
-   breathing drop-shadow on the container. Desktop behavior is unchanged. */
+   pointers, and swaps the heavy #petal-glow for a slimmer two-pass
+   Gaussian blur merge (#petal-glow-lite) that self-colors from
+   SourceGraphic. Here we also skip the infinite breathing drop-shadow on
+   the container. Desktop behavior is unchanged. */
 @media (prefers-reduced-motion: reduce), (pointer: coarse) {
   .spider-lily-container {
     animation: lily-glow-in 2.5s ease-out 1.2s forwards;
