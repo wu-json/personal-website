@@ -930,6 +930,13 @@ html[data-theme-flash-reset] .nav-glitch-active {
   filter: none;
 }
 
+/* Same story for the mobile menu flower: the breathing drop-shadow reads as a
+   smudge around the black petals on white. Kill the animation in light mode. */
+[data-theme='light'] .menu-flower-glow {
+  animation: none;
+  filter: none;
+}
+
 /*
  * Inline arbitrary text-shadow utilities used throughout the codebase
  * (`[text-shadow:0_0_Npx_rgba(255,255,255,…)]`). In light mode these become
