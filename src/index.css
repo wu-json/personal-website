@@ -894,7 +894,7 @@ html[data-theme-flash-reset] .nav-glitch-active {
   255\2c
   255\2c
   0\.4\)\] {
-  text-shadow: 0 0 8px var(--color-glow);
+  text-shadow: none;
 }
 [data-theme='light']
   .hover\:\[text-shadow\:0_0_6px_rgba\(255\2c
