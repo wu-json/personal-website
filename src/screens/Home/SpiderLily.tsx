@@ -625,12 +625,15 @@ const SpiderLily = ({ className }: { className?: string }) => {
           </filter>
         </defs>
       ) : (
-        /* Mobile / reduced-motion path. A single `<feDropShadow>` is cheap
-           for Safari to composite (one pass, no per-frame rasterization)
-           and — unlike CSS `filter: drop-shadow(...)` on an inline SVG
-           subtree — actually renders on iOS (WebKit bug 261806). This
-           replaces the removed #petal-glow so the flower still reads as
-           luminous on mobile. */
+        /* Mobile / reduced-motion path. Mirrors the desktop #petal-glow
+           (wide blur + tight blur + SourceGraphic merge) at smaller radii.
+           On this branch the flower subtree is static — no rAF transform
+           writes inside the filtered group — so iOS Safari rasterizes the
+           filter once at paint time instead of every frame, which keeps
+           it cheap. Self-coloring via SourceGraphic avoids a `flood-color`
+           CSS theming seam that iOS ignores on `<feDropShadow>`; the halo
+           inherits the petals' ink color and tracks the active theme
+           automatically. */
         <defs>
           <filter
             id='petal-glow-lite'
@@ -639,14 +642,21 @@ const SpiderLily = ({ className }: { className?: string }) => {
             width='160%'
             height='160%'
           >
-            {/* flood-color is themed via CSS (see .spider-lily-petal-glow
-                rule in index.css) so the glow tracks the active palette. */}
-            <feDropShadow
-              className='spider-lily-petal-glow'
-              dx='0'
-              dy='0'
-              stdDeviation='3'
+            <feGaussianBlur
+              in='SourceGraphic'
+              stdDeviation='5'
+              result='wideGlow'
             />
+            <feGaussianBlur
+              in='SourceGraphic'
+              stdDeviation='2'
+              result='tightGlow'
+            />
+            <feMerge>
+              <feMergeNode in='wideGlow' />
+              <feMergeNode in='tightGlow' />
+              <feMergeNode in='SourceGraphic' />
+            </feMerge>
           </filter>
         </defs>
       )}
