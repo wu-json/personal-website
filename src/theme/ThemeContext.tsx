@@ -4,6 +4,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 
@@ -37,12 +38,22 @@ function readInitialTheme(): Theme {
   return 'dark';
 }
 
+// Must exceed the longest glitch-replay animation duration so the attribute
+// stays on long enough for every `.bio-glitch` / `.nav-glitch-active` element
+// to play through fresh.
+const THEME_FLASH_MS = 400;
+
 /**
  * Theme coordination: `theme` state and the `data-theme` attribute on <html>
- * are kept in lockstep. Flipping is instantaneous — no ripple, no transition.
+ * are kept in lockstep. Flipping is instantaneous. On every change we also
+ * set `data-theme-flash` on <html> for a brief window so the page-load glitch
+ * effects replay — see index.css `nav-glitch-replay`.
  */
 const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   const [theme, setThemeState] = useState<Theme>(readInitialTheme);
+  // Skip the flash on initial mount — the page is already mid-entrance and
+  // the glitch is running naturally from first paint.
+  const isInitialMount = useRef(true);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -51,6 +62,27 @@ const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     } catch {
       /* ignore */
     }
+
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+
+    const root = document.documentElement;
+    // Remove-then-add in a rAF so the browser actually restarts the animation
+    // if the attribute was still present from a rapid re-toggle.
+    root.removeAttribute('data-theme-flash');
+    const raf = requestAnimationFrame(() => {
+      root.setAttribute('data-theme-flash', '');
+    });
+    const timer = window.setTimeout(() => {
+      root.removeAttribute('data-theme-flash');
+    }, THEME_FLASH_MS);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      window.clearTimeout(timer);
+    };
   }, [theme]);
 
   const toggle = useCallback(() => {
