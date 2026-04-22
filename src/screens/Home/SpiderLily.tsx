@@ -346,9 +346,6 @@ const WIND_SPEED = 0.0008;
 const WIND_STRENGTH_X = 4.5;
 const WIND_STRENGTH_Y = 2.0;
 
-const PRESS_RADIUS = 160;
-const PRESS_STRENGTH = 20;
-
 type Vec2 = { x: number; y: number };
 
 const SpiderLily = ({ className }: { className?: string }) => {
@@ -364,14 +361,12 @@ const SpiderLily = ({ className }: { className?: string }) => {
     x: number;
     y: number;
     active: boolean;
-    pressed: boolean;
-  }>({ x: 0, y: 0, active: false, pressed: false });
+  }>({ x: 0, y: 0, active: false });
   const petalOffsetsRef = useRef<Vec2[]>(petals.map(() => ({ x: 0, y: 0 })));
   const stamenOffsetsRef = useRef<Vec2[]>(stamens.map(() => ({ x: 0, y: 0 })));
   const petalElsRef = useRef<(SVGPathElement | null)[]>([]);
   const stamenGroupElsRef = useRef<(SVGGElement | null)[]>([]);
   const wholeFlowerRef = useRef<SVGGElement>(null);
-  const leanRef = useRef(0);
   const rafRef = useRef<number>(0);
 
   useEffect(() => {
@@ -418,38 +413,9 @@ const SpiderLily = ({ className }: { className?: string }) => {
     [toSVGCoords],
   );
 
-  const handleMouseDown = useCallback(
-    (e: React.MouseEvent<SVGSVGElement>) => {
-      const coords = toSVGCoords(e.clientX, e.clientY);
-      mouseRef.current.x = coords.x;
-      mouseRef.current.y = coords.y;
-      mouseRef.current.active = true;
-      mouseRef.current.pressed = true;
-    },
-    [toSVGCoords],
-  );
-
-  const handleMouseUp = useCallback(() => {
-    mouseRef.current.pressed = false;
-  }, []);
-
   const handleMouseLeave = useCallback(() => {
     mouseRef.current.active = false;
-    mouseRef.current.pressed = false;
   }, []);
-
-  const handleTouchStart = useCallback(
-    (e: React.TouchEvent<SVGSVGElement>) => {
-      const touch = e.touches[0];
-      if (!touch) return;
-      const coords = toSVGCoords(touch.clientX, touch.clientY);
-      mouseRef.current.x = coords.x;
-      mouseRef.current.y = coords.y;
-      mouseRef.current.active = true;
-      mouseRef.current.pressed = true;
-    },
-    [toSVGCoords],
-  );
 
   const handleTouchMove = useCallback(
     (e: React.TouchEvent<SVGSVGElement>) => {
@@ -465,7 +431,6 @@ const SpiderLily = ({ className }: { className?: string }) => {
 
   const handleTouchEnd = useCallback(() => {
     mouseRef.current.active = false;
-    mouseRef.current.pressed = false;
   }, []);
 
   const handleClick = useCallback(() => {
@@ -494,8 +459,8 @@ const SpiderLily = ({ className }: { className?: string }) => {
       const mouse = mouseRef.current;
       const petalOffsets = petalOffsetsRef.current;
       const stamenOffsets = stamenOffsetsRef.current;
-      const strength = mouse.pressed ? PRESS_STRENGTH : HOVER_STRENGTH;
-      const radius = mouse.pressed ? PRESS_RADIUS : HOVER_RADIUS;
+      const strength = HOVER_STRENGTH;
+      const radius = HOVER_RADIUS;
 
       for (let i = 0; i < petals.length; i++) {
         const phase = petalPhases[i];
@@ -571,24 +536,9 @@ const SpiderLily = ({ className }: { className?: string }) => {
         }
       }
 
-      let leanTarget = 0;
-      if (mouse.active && mouse.pressed) {
-        const side = mouse.x < CX ? -1 : 1;
-        const dx = Math.abs(mouse.x - CX);
-        const dy = Math.abs(mouse.y - CY);
-        const proximity = Math.max(
-          0,
-          1 - Math.sqrt(dx * dx + dy * dy) / PRESS_RADIUS,
-        );
-        leanTarget = side * proximity * 3.5;
-      }
-      leanRef.current +=
-        (leanTarget - leanRef.current) * (mouse.active ? 0.03 : 0.015);
-
       const flowerEl = wholeFlowerRef.current;
       if (flowerEl) {
-        const swayAngle =
-          Math.sin(t * 0.8) * 0.8 + Math.sin(t * 1.3) * 0.35 + leanRef.current;
+        const swayAngle = Math.sin(t * 0.8) * 0.8 + Math.sin(t * 1.3) * 0.35;
         flowerEl.setAttribute(
           'transform',
           `rotate(${swayAngle.toFixed(3)} ${CX} 465)`,
@@ -613,10 +563,7 @@ const SpiderLily = ({ className }: { className?: string }) => {
       tabIndex={0}
       aria-label='Toggle color scheme'
       onMouseMove={handleMouseMove}
-      onMouseDown={handleMouseDown}
-      onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseLeave}
-      onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
       onClick={handleClick}
