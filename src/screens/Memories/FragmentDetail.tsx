@@ -322,7 +322,7 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
 
         {fragment.description && (
           <div
-            className='bio-glitch transmission-prose text-white/70 text-xs sm:text-sm font-mono leading-loose mb-12'
+            className='bio-glitch signal-prose text-white/70 text-xs sm:text-sm font-mono leading-loose mb-12'
             style={jitter()}
           >
             <Markdown>{fragment.description}</Markdown>

@@ -518,124 +518,124 @@ html[data-theme-flash-reset] .nav-glitch-active {
   }
 }
 
-.transmission-prose p {
+.signal-prose p {
   margin-bottom: 0.75em;
 }
-.transmission-prose p:last-child {
+.signal-prose p:last-child {
   margin-bottom: 0;
 }
 
-/* Transmission entries only — long-form rhythm (generous paragraph gaps like overreacted-style blogs) */
-.transmission-prose.transmission-entry {
+/* Signal entries only — long-form rhythm (generous paragraph gaps like overreacted-style blogs) */
+.signal-prose.signal-entry {
   line-height: 1.78;
 }
-.transmission-prose.transmission-entry p {
+.signal-prose.signal-entry p {
   margin-bottom: 1.45em;
 }
-.transmission-prose.transmission-entry p:last-child {
+.signal-prose.signal-entry p:last-child {
   margin-bottom: 0;
 }
-.transmission-prose.transmission-entry h1,
-.transmission-prose.transmission-entry h2,
-.transmission-prose.transmission-entry h3 {
+.signal-prose.signal-entry h1,
+.signal-prose.signal-entry h2,
+.signal-prose.signal-entry h3 {
   margin-top: 1.85em;
   margin-bottom: 0.65em;
 }
-.transmission-prose.transmission-entry h1:first-child,
-.transmission-prose.transmission-entry h2:first-child,
-.transmission-prose.transmission-entry h3:first-child {
+.signal-prose.signal-entry h1:first-child,
+.signal-prose.signal-entry h2:first-child,
+.signal-prose.signal-entry h3:first-child {
   margin-top: 0;
 }
-.transmission-prose.transmission-entry hr {
+.signal-prose.signal-entry hr {
   margin: 2.25em 0;
 }
-.transmission-prose.transmission-entry blockquote {
+.signal-prose.signal-entry blockquote {
   margin: 1.5em 0;
 }
-.transmission-prose.transmission-entry ul,
-.transmission-prose.transmission-entry ol {
+.signal-prose.signal-entry ul,
+.signal-prose.signal-entry ol {
   margin: 1.15em 0;
 }
-.transmission-prose.transmission-entry li {
+.signal-prose.signal-entry li {
   margin-bottom: 0.45em;
 }
-.transmission-prose.transmission-entry li:last-child {
+.signal-prose.signal-entry li:last-child {
   margin-bottom: 0;
 }
-.transmission-prose.transmission-entry img,
-.transmission-prose.transmission-entry .construct-body-img {
+.signal-prose.signal-entry img,
+.signal-prose.signal-entry .construct-body-img {
   margin-top: 1.65em;
   margin-bottom: 1.65em;
 }
-.transmission-prose.transmission-entry section[data-footnotes] {
+.signal-prose.signal-entry section[data-footnotes] {
   margin-top: 2.5rem;
 }
-.transmission-prose.transmission-list section[data-footnotes] {
+.signal-prose.signal-list section[data-footnotes] {
   margin-top: 0.75rem;
   padding-top: 0.5rem;
   border-top: none;
 }
-.transmission-prose.transmission-entry pre {
+.signal-prose.signal-entry pre {
   margin: 1.35em 0;
 }
-.transmission-prose strong {
+.signal-prose strong {
   color: var(--color-ink);
   font-weight: 600;
 }
-.transmission-prose em {
+.signal-prose em {
   font-style: italic;
   color: var(--color-ink-muted);
 }
-.transmission-prose a {
+.signal-prose a {
   text-decoration: underline;
   text-decoration-color: var(--color-ink-faint);
   transition: all 300ms;
 }
-.transmission-prose a:hover {
+.signal-prose a:hover {
   color: var(--color-ink);
   text-decoration-color: var(--color-ink);
   text-shadow: 0 0 6px var(--color-glow);
 }
-.transmission-prose code {
+.signal-prose code {
   background: var(--color-ink-hair);
   padding: 0.1em 0.4em;
   border-radius: 2px;
   font-size: 0.9em;
 }
-.transmission-prose pre {
+.signal-prose pre {
   background: var(--color-ink-hair);
   border: 1px solid var(--color-ink-hair);
   padding: 1em;
   margin: 0.75em 0;
   overflow-x: auto;
 }
-.transmission-prose pre code {
+.signal-prose pre code {
   background: none;
   padding: 0;
 }
-.transmission-prose ul,
-.transmission-prose ol {
+.signal-prose ul,
+.signal-prose ol {
   padding-left: 1.5em;
   margin: 0.5em 0;
 }
-.transmission-prose ul {
+.signal-prose ul {
   list-style-type: '— ';
 }
-.transmission-prose ol {
+.signal-prose ol {
   list-style-type: decimal;
 }
-.transmission-prose li {
+.signal-prose li {
   margin-bottom: 0.25em;
 }
-.transmission-prose blockquote {
+.signal-prose blockquote {
   border-left: 2px solid var(--color-ink-trace);
   padding-left: 1em;
   color: var(--color-ink-faint);
   margin: 0.75em 0;
 }
-.transmission-prose h1,
-.transmission-prose h2,
-.transmission-prose h3 {
+.signal-prose h1,
+.signal-prose h2,
+.signal-prose h3 {
   color: var(--color-ink);
   font-family: var(--font-pixel);
   font-weight: 600;
@@ -643,30 +643,30 @@ html[data-theme-flash-reset] .nav-glitch-active {
   letter-spacing: 0.05em;
   margin: 1em 0 0.5em;
 }
-.transmission-prose h1 {
+.signal-prose h1 {
   font-size: 1.5em;
 }
-.transmission-prose h2 {
+.signal-prose h2 {
   font-size: 1.25em;
 }
-.transmission-prose h3 {
+.signal-prose h3 {
   font-size: 1.1em;
 }
-.transmission-prose hr {
+.signal-prose hr {
   border: none;
   border-top: 1px solid var(--color-ink-hair);
   margin: 1em 0;
 }
 
 /* GFM footnotes — relay-style */
-.transmission-prose section[data-footnotes] {
+.signal-prose section[data-footnotes] {
   margin-top: 1.75rem;
   padding-top: 1rem;
   border-top: 1px solid var(--color-ink-hair);
 }
 
-.transmission-prose section[data-footnotes]::before {
-  content: '// ref nodes';
+.signal-prose section[data-footnotes]::before {
+  content: '// refs';
   display: block;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 0.625rem;
@@ -676,7 +676,7 @@ html[data-theme-flash-reset] .nav-glitch-active {
   margin-bottom: 0.65rem;
 }
 
-.transmission-prose section[data-footnotes] > h2#footnote-label {
+.signal-prose section[data-footnotes] > h2#footnote-label {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -688,7 +688,7 @@ html[data-theme-flash-reset] .nav-glitch-active {
   border: 0;
 }
 
-.transmission-prose section[data-footnotes] ol {
+.signal-prose section[data-footnotes] ol {
   list-style-type: decimal;
   padding-left: 1.25rem;
   margin: 0;
@@ -696,54 +696,54 @@ html[data-theme-flash-reset] .nav-glitch-active {
   color: var(--color-ink-muted);
 }
 
-.transmission-prose section[data-footnotes] li {
+.signal-prose section[data-footnotes] li {
   margin-bottom: 0.35em;
 }
 
-.transmission-prose section[data-footnotes] li p {
+.signal-prose section[data-footnotes] li p {
   margin: 0;
   display: inline;
 }
 
-.transmission-prose a[data-footnote-ref],
-.transmission-prose a.data-footnote-backref {
+.signal-prose a[data-footnote-ref],
+.signal-prose a.data-footnote-backref {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 0.7em;
   text-decoration: none;
   color: var(--color-ink-muted);
 }
 
-.transmission-prose a[data-footnote-ref]:hover,
-.transmission-prose a.data-footnote-backref:hover {
+.signal-prose a[data-footnote-ref]:hover,
+.signal-prose a.data-footnote-backref:hover {
   color: var(--color-ink);
   text-shadow: 0 0 6px var(--color-glow-soft);
 }
-.transmission-prose img {
+.signal-prose img {
   max-width: 100%;
   border-radius: 2px;
   margin: 1em 0;
   opacity: 0.85;
   filter: grayscale(0.2);
 }
-.transmission-prose .construct-body-img {
+.signal-prose .construct-body-img {
   max-width: 100%;
   border-radius: 2px;
   margin: 1em 0;
   opacity: 0.85;
   filter: grayscale(0.2);
 }
-.transmission-prose .construct-body-img img {
+.signal-prose .construct-body-img img {
   opacity: 1;
   filter: none;
   margin: 0;
   border-radius: 0;
 }
-.transmission-prose .img-row {
+.signal-prose .img-row {
   display: flex;
   gap: 0.5em;
   margin: 1em 0;
 }
-.transmission-prose .img-row > * {
+.signal-prose .img-row > * {
   flex: 1;
   min-width: 0;
   margin: 0;
@@ -874,12 +874,19 @@ html[data-theme-flash-reset] .nav-glitch-active {
   background-color: var(--color-ink-hair);
 }
 
-/* Focus ring (used on transmission list previews) */
+/* Focus ring (used on signal list previews) */
 [data-theme='light'] .focus-visible\:ring-white\/25:focus-visible {
   --tw-ring-color: var(--color-ink-ghost);
 }
 [data-theme='light'] .focus-visible\:ring-offset-black:focus-visible {
   --tw-ring-offset-color: var(--color-surface);
+}
+
+/* Scroll-to-top glow reads as a muddy halo around the black icon on white;
+   drop it in light mode the same way we do for active-nav text-shadows. */
+[data-theme='light'] .scroll-to-top,
+[data-theme='light'] .scroll-to-top:hover {
+  filter: none;
 }
 
 /*

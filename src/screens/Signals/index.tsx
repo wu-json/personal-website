@@ -4,12 +4,12 @@ import { useState } from 'react';
 import { useInfiniteList } from 'src/hooks/useInfiniteList';
 import { useLocation } from 'wouter';
 
-import { transmissions } from './data';
+import { signals } from './data';
 import { MarkdownBody } from './MarkdownBody';
 import {
-  parseFirstImgFromTransmissionBody,
-  shouldCollapseTransmissionList,
-  transmissionPlainExcerpt,
+  parseFirstImgFromSignalBody,
+  shouldCollapseSignalList,
+  signalPlainExcerpt,
 } from './preview';
 
 const jitter = () => ({ animationDelay: `${Math.random() * 120}ms` });
@@ -43,12 +43,11 @@ const CollapsedListHeroImage = ({ src, alt }: { src: string; alt: string }) => {
   );
 };
 
-const TransmissionsScreen = () => {
+const SignalsScreen = () => {
   const [, navigate] = useLocation();
-  const { visibleCount, sentinelRef, done } = useInfiniteList(
-    transmissions.length,
-    { pageSize: 6 },
-  );
+  const { visibleCount, sentinelRef, done } = useInfiniteList(signals.length, {
+    pageSize: 6,
+  });
 
   return (
     <div className='w-full min-h-screen bg-black md:pr-40'>
@@ -58,26 +57,23 @@ const TransmissionsScreen = () => {
             className='bio-glitch text-white text-2xl sm:text-4xl font-pixel mb-2'
             style={jitter()}
           >
-            Transmissions
+            Signals
           </h1>
           <p
             className='bio-glitch text-white/30 text-xs font-mono uppercase tracking-widest'
             style={jitter()}
           >
-            {'// stream open'}
+            {'// live'}
           </p>
         </header>
 
         <div className='flex flex-col gap-px'>
-          {transmissions.slice(0, visibleCount).map((t, i) => {
-            const collapsed = shouldCollapseTransmissionList(
-              t.expanded,
-              t.body,
-            );
-            const hero = parseFirstImgFromTransmissionBody(t.body);
-            const excerpt = transmissionPlainExcerpt(t.body);
+          {signals.slice(0, visibleCount).map((s, i) => {
+            const collapsed = shouldCollapseSignalList(s.expanded, s.body);
+            const hero = parseFirstImgFromSignalBody(s.body);
+            const excerpt = signalPlainExcerpt(s.body);
 
-            const go = () => navigate(`/transmissions/${t.id}`);
+            const go = () => navigate(`/signals/${s.id}`);
 
             const onPreviewClick = (e: MouseEvent<HTMLDivElement>) => {
               if ((e.target as HTMLElement).closest('a, button')) return;
@@ -93,40 +89,40 @@ const TransmissionsScreen = () => {
 
             return (
               <article
-                key={t.id}
+                key={s.id}
                 className='bio-glitch group border-t border-white/5 py-6'
                 style={{ animationDelay: `${i * 40}ms` }}
               >
                 <div
                   tabIndex={0}
-                  aria-label={`View full transmission${t.title ? `: ${t.title}` : ` ${t.id}`}`}
+                  aria-label={`View full signal${s.title ? `: ${s.title}` : ` ${s.id}`}`}
                   className='cursor-pointer rounded-sm -mx-2 px-2 py-1 -my-1 transition-colors hover:bg-white/[0.03] outline-none focus-visible:ring-1 focus-visible:ring-white/25 focus-visible:ring-offset-2 focus-visible:ring-offset-black'
                   onClick={onPreviewClick}
                   onKeyDown={onPreviewKeyDown}
                 >
                   <div
-                    className={`flex items-baseline gap-3 flex-wrap ${t.title ? 'mb-2' : 'mb-1'}`}
+                    className={`flex items-baseline gap-3 flex-wrap ${s.title ? 'mb-2' : 'mb-1'}`}
                   >
                     <span className='text-white/20 text-[10px] font-mono shrink-0'>
-                      [{t.id}]
+                      [{s.id}]
                     </span>
                     <span className='text-white/30 text-[10px] font-mono shrink-0'>
-                      {t.timestamp}
+                      {s.timestamp}
                     </span>
-                    {t.location && (
+                    {s.location && (
                       <span className='text-white/20 text-[10px] font-mono shrink-0'>
-                        — {t.location}
+                        — {s.location}
                       </span>
                     )}
                   </div>
 
-                  {t.title && (
+                  {s.title && (
                     <h2 className='text-white text-xs sm:text-sm font-pixel uppercase tracking-wide mb-2'>
-                      {t.title}
+                      {s.title}
                     </h2>
                   )}
 
-                  <div className='transmission-prose transmission-entry transmission-list text-white/60 text-xs sm:text-sm font-mono'>
+                  <div className='signal-prose signal-entry signal-list text-white/60 text-xs sm:text-sm font-mono'>
                     {collapsed ? (
                       <>
                         {hero && (
@@ -146,7 +142,7 @@ const TransmissionsScreen = () => {
                         )}
                       </>
                     ) : (
-                      <MarkdownBody>{t.body}</MarkdownBody>
+                      <MarkdownBody>{s.body}</MarkdownBody>
                     )}
                   </div>
                 </div>
@@ -171,4 +167,4 @@ const TransmissionsScreen = () => {
   );
 };
 
-export { TransmissionsScreen };
+export { SignalsScreen };

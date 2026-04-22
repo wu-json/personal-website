@@ -4,7 +4,7 @@ A working directory of myself.
 
 ```
 ├── Memories       — photo albums (fragments)
-├── Transmissions  — writing and thoughts
+├── Signals        — writing and thoughts
 ├── Constructs     — projects and tools
 └── Heroes         — people and influences
 ```
@@ -35,4 +35,4 @@ Git hooks are installed with [prek](https://github.com/j178/prek) on `bun instal
 
 ## Adding content
 
-Agent-oriented workflows live under `.cursor/skills/` (e.g. **add-fragment**, **add-transmission**, **add-construct**): image optimization and frontmatter paths for each section. In Claude Code, the matching slash commands (such as `/add-fragment`) follow the same workflows.
+Agent-oriented workflows live under `.cursor/skills/` (e.g. **add-fragment**, **add-signal**, **add-construct**): image optimization and frontmatter paths for each section. In Claude Code, the matching slash commands (such as `/add-fragment`) follow the same workflows.

@@ -87,11 +87,11 @@ const Sidebar = ({
         Constructs
       </NavLink>
       <NavLink
-        to='/transmissions'
-        active={pathname.startsWith('/transmissions')}
+        to='/signals'
+        active={pathname.startsWith('/signals')}
         onClick={onClick}
       >
-        Transmissions
+        Signals
       </NavLink>
       <NavLink
         to='/heroes'

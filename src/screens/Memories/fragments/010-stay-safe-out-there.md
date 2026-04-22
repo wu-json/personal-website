@@ -47,4 +47,4 @@ photos:
     caption: Untitled
 ---
 
-[Stay Safe Out There](/transmissions/004).
+[Stay Safe Out There](/signals/004).

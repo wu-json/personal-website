@@ -120,7 +120,7 @@ const Lightbox = ({
           >
             <span className='text-white/30 shrink-0'>{counter}</span>
             {photo.caption && (
-              <span className='text-white/50 transmission-prose min-w-0'>
+              <span className='text-white/50 signal-prose min-w-0'>
                 <Markdown
                   components={{
                     a: ({ children, href }) => (
