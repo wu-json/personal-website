@@ -38,16 +38,12 @@ function readInitialTheme(): Theme {
   return 'dark';
 }
 
-// Must exceed the longest glitch-replay animation duration so the attribute
-// stays on long enough for every `.bio-glitch` / `.nav-glitch-active` element
-// to play through fresh.
-const THEME_FLASH_MS = 400;
-
 /**
  * Theme coordination: `theme` state and the `data-theme` attribute on <html>
  * are kept in lockstep. Flipping is instantaneous. On every change we also
- * set `data-theme-flash` on <html> for a brief window so the page-load glitch
- * effects replay — see index.css `nav-glitch-replay`.
+ * briefly set `data-theme-flash-reset` on <html> for a single frame so every
+ * `.bio-glitch` / `.nav-glitch-active` element on the page replays its
+ * entrance glitch — see index.css.
  */
 const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   const [theme, setThemeState] = useState<Theme>(readInitialTheme);
@@ -68,20 +64,21 @@ const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
       return;
     }
 
+    // Canonical CSS animation restart: apply `animation: none` via the
+    // reset attribute, force a reflow so the browser commits the cleared
+    // state, then drop the attribute on the next frame — the base
+    // animation rules re-apply with a fresh animation-start time and play
+    // exactly once.
     const root = document.documentElement;
-    // Remove-then-add in a rAF so the browser actually restarts the animation
-    // if the attribute was still present from a rapid re-toggle.
-    root.removeAttribute('data-theme-flash');
+    root.setAttribute('data-theme-flash-reset', '');
+    void root.offsetWidth;
     const raf = requestAnimationFrame(() => {
-      root.setAttribute('data-theme-flash', '');
+      root.removeAttribute('data-theme-flash-reset');
     });
-    const timer = window.setTimeout(() => {
-      root.removeAttribute('data-theme-flash');
-    }, THEME_FLASH_MS);
 
     return () => {
       cancelAnimationFrame(raf);
-      window.clearTimeout(timer);
+      root.removeAttribute('data-theme-flash-reset');
     };
   }, [theme]);
 

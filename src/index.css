@@ -184,61 +184,13 @@
   animation: nav-glitch 350ms steps(1, end) forwards;
 }
 
-/* Replay the glitch whenever the theme flips. We use a duplicate keyframe
-   (identical to nav-glitch) so the animation-name differs from the initial
-   mount animation — that's what forces browsers to run the animation fresh
-   rather than ignoring it as "already completed". The `data-theme-flash`
-   attribute is toggled on <html> by ThemeProvider for ~400ms after every
-   theme change. */
-@keyframes nav-glitch-replay {
-  0% {
-    opacity: 1;
-    transform: translateX(0);
-  }
-  8% {
-    opacity: 0;
-    transform: translateX(3px);
-  }
-  16% {
-    opacity: 1;
-    transform: translateX(-2px);
-  }
-  24% {
-    opacity: 0.3;
-    transform: translateX(1px);
-  }
-  32% {
-    opacity: 1;
-    transform: translateX(0);
-  }
-  44% {
-    opacity: 0;
-    transform: translateX(-3px);
-  }
-  52% {
-    opacity: 0.7;
-    transform: translateX(2px);
-  }
-  60% {
-    opacity: 1;
-    transform: translateX(0);
-  }
-  100% {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-html[data-theme-flash] .bio-glitch,
-html[data-theme-flash] .nav-glitch-active {
-  animation: nav-glitch-replay 350ms steps(1, end) forwards;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  html[data-theme-flash] .bio-glitch,
-  html[data-theme-flash] .nav-glitch-active {
-    animation: none;
-  }
+/* Replay the glitch whenever the theme flips. The canonical CSS animation
+   restart: clear `animation` on every element, let the browser commit a
+   frame, then drop the attribute — the base rules above re-apply with a
+   fresh animation-start time. ThemeProvider owns the attribute timing. */
+html[data-theme-flash-reset] .bio-glitch,
+html[data-theme-flash-reset] .nav-glitch-active {
+  animation: none;
 }
 
 .lunar-tear-active {
