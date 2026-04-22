@@ -903,17 +903,27 @@ html[data-theme-flash-reset] .nav-glitch-active {
   0\.3\)\]:hover {
   text-shadow: 0 0 6px var(--color-glow-soft);
 }
+/* The active-nav and hover glows are luminous white on black in dark mode,
+   but in light mode the equivalent "black glow around black text" reads as
+   a muddy halo on small pixel-font labels rather than as emphasis. Pure
+   black on white is already strong enough to signal active/hover — drop
+   the shadow. */
 [data-theme='light']
   .\[text-shadow\:0_0_8px_rgba\(255\2c
   255\2c
   255\2c
   0\.6\)\] {
-  text-shadow: 0 0 8px var(--color-glow-strong);
+  text-shadow: none;
 }
+[data-theme='light']
+  .hover\:\[text-shadow\:0_0_6px_rgba\(255\2c
+  255\2c
+  255\2c
+  0\.3\)\]:hover,
 [data-theme='light']
   .group-hover\:\[text-shadow\:0_0_6px_rgba\(255\2c
   255\2c
   255\2c
   0\.3\)\]:is(:where(.group):hover *) {
-  text-shadow: 0 0 6px var(--color-glow-soft);
+  text-shadow: none;
 }
