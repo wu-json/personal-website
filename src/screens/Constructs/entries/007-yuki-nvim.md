@@ -6,7 +6,7 @@ date: '2026.04'
 cover: cover
 coverWidth: 920
 coverHeight: 1000
-coverPosition: center top
+coverPosition: center 70%
 linkLabel: source code
 link: https://github.com/wu-json/yuki.nvim
 ---
