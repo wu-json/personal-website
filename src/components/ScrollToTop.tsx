@@ -38,22 +38,11 @@ const ScrollToTop = ({
     <button
       type='button'
       aria-label='Scroll to top'
-      className={`fixed bottom-4 right-4 z-50 w-10 h-10 flex items-center justify-center rounded-full cursor-pointer transition-all duration-300 ${
+      className={`scroll-to-top fixed bottom-4 right-4 z-50 w-10 h-10 flex items-center justify-center rounded-full cursor-pointer transition-all duration-300 ${
         visible
           ? 'opacity-60 pointer-events-auto hover:opacity-100'
           : 'opacity-0 pointer-events-none'
       }`}
-      style={{
-        filter: 'drop-shadow(0 0 2px rgba(255, 255, 255, 0.4))',
-      }}
-      onMouseEnter={e => {
-        e.currentTarget.style.filter =
-          'drop-shadow(0 0 6px rgba(255, 255, 255, 0.6))';
-      }}
-      onMouseLeave={e => {
-        e.currentTarget.style.filter =
-          'drop-shadow(0 0 2px rgba(255, 255, 255, 0.4))';
-      }}
       onClick={() => {
         scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
       }}

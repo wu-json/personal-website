@@ -66,7 +66,7 @@ const MenuToggle = ({
       height='22'
       viewBox='0 0 100 100'
       fill='none'
-      className={`menu-flower ${open ? '' : 'menu-flower-glow'}`}
+      className={`menu-flower text-[var(--color-ink)] ${open ? '' : 'menu-flower-glow'}`}
     >
       {PETAL_ANGLES.map((angle, i) => {
         const o = OPEN_TRANSFORMS[i];
@@ -77,7 +77,7 @@ const MenuToggle = ({
             cy='22'
             rx='10'
             ry='22'
-            fill='white'
+            fill='currentColor'
             className='menu-petal'
             style={{
               transform: open ? o.transform : `rotate(${angle}deg)`,
@@ -91,7 +91,7 @@ const MenuToggle = ({
         cx='50'
         cy='50'
         r='8'
-        fill='white'
+        fill='currentColor'
         className='menu-center'
         style={{
           transform: open ? 'scale(0)' : 'scale(1)',
