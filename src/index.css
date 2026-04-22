@@ -464,6 +464,37 @@ html[data-theme-flash-reset] .nav-glitch-active {
     lily-breathe 7s ease-in-out 4s infinite;
 }
 
+/* Mobile / reduced-motion fallback.
+   iOS Safari can't composite the stacked SVG filters (feTurbulence + two
+   Gaussian blurs + per-stamen glow) at 60fps while the lily is animating.
+   SpiderLily.tsx drops those filters and the wind/sway rAF loop on coarse
+   pointers; here we also skip the infinite breathing drop-shadow (which
+   layers on top of those filters) and stop the bio-glitch text animation
+   across the site. Desktop behavior is unchanged. */
+@media (prefers-reduced-motion: reduce), (pointer: coarse) {
+  .spider-lily-container {
+    animation: lily-glow-in 2.5s ease-out 1.2s forwards;
+  }
+
+  /* Soft CSS drop-shadow to replace the removed #petal-glow SVG filter.
+     Composited by the browser, so it doesn't re-rasterize on any transform. */
+  .spider-lily-head-lite {
+    filter: drop-shadow(0 0 4px var(--color-glow-soft));
+  }
+
+  .bio-glitch,
+  .nav-glitch-active {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  html[data-theme-flash-reset] .bio-glitch,
+  html[data-theme-flash-reset] .nav-glitch-active {
+    animation: none;
+  }
+}
+
 @keyframes lily-glitch {
   0% {
     translate: 0 0;
