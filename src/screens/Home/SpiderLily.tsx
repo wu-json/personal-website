@@ -582,7 +582,7 @@ const SpiderLily = ({ className }: { className?: string }) => {
       onClick={handleClick}
       onKeyDown={handleKeyDown}
     >
-      {heavyEffectsEnabled && (
+      {heavyEffectsEnabled ? (
         <defs>
           <filter id='ink-texture'>
             <feTurbulence
@@ -624,6 +624,31 @@ const SpiderLily = ({ className }: { className?: string }) => {
             </feMerge>
           </filter>
         </defs>
+      ) : (
+        /* Mobile / reduced-motion path. A single `<feDropShadow>` is cheap
+           for Safari to composite (one pass, no per-frame rasterization)
+           and — unlike CSS `filter: drop-shadow(...)` on an inline SVG
+           subtree — actually renders on iOS (WebKit bug 261806). This
+           replaces the removed #petal-glow so the flower still reads as
+           luminous on mobile. */
+        <defs>
+          <filter
+            id='petal-glow-lite'
+            x='-30%'
+            y='-30%'
+            width='160%'
+            height='160%'
+          >
+            {/* flood-color is themed via CSS (see .spider-lily-petal-glow
+                rule in index.css) so the glow tracks the active palette. */}
+            <feDropShadow
+              className='spider-lily-petal-glow'
+              dx='0'
+              dy='0'
+              stdDeviation='3'
+            />
+          </filter>
+        </defs>
       )}
 
       <g ref={wholeFlowerRef}>
@@ -642,9 +667,8 @@ const SpiderLily = ({ className }: { className?: string }) => {
           {/* Flower head */}
           <g
             transform={`rotate(-4 ${CX} ${CY})`}
-            filter={heavyEffectsEnabled ? 'url(#petal-glow)' : undefined}
-            className={
-              heavyEffectsEnabled ? undefined : 'spider-lily-head-lite'
+            filter={
+              heavyEffectsEnabled ? 'url(#petal-glow)' : 'url(#petal-glow-lite)'
             }
           >
             {/* Petals */}
