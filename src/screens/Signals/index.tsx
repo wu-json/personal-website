@@ -122,7 +122,7 @@ const SignalsScreen = () => {
                     </h2>
                   )}
 
-                  <div className='signal-prose signal-entry signal-list text-white/60 text-xs sm:text-sm font-mono'>
+                  <div className='signal-prose signal-entry signal-list text-white/70 text-xs sm:text-sm font-mono'>
                     {collapsed ? (
                       <>
                         {hero && (
@@ -132,9 +132,7 @@ const SignalsScreen = () => {
                           />
                         )}
                         {excerpt ? (
-                          <p className='text-white/50 leading-relaxed'>
-                            {excerpt}
-                          </p>
+                          <p className='leading-relaxed'>{excerpt}</p>
                         ) : (
                           <p className='text-white/25 text-[10px] font-mono'>
                             {'// preview truncated — open for full signal'}
