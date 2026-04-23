@@ -772,6 +772,20 @@ html[data-theme-flash-reset] .nav-glitch-active {
   margin: 0;
   border-radius: 0;
 }
+
+/* In light mode the 0.85 opacity / grayscale mute applied above reads as
+   "washed out" — especially for the dark-background code screenshots in
+   constructs like yuki.nvim and chainsaw-nvim, where the WebPs sit on the
+   paper surface and blend toward white. Render images at full fidelity on
+   light and skip the wrapper tint behind them. */
+[data-theme='light'] .signal-prose img,
+[data-theme='light'] .signal-prose .construct-body-img {
+  opacity: 1;
+  filter: none;
+}
+[data-theme='light'] .signal-prose .construct-body-img {
+  background-color: transparent;
+}
 .signal-prose .img-row {
   display: flex;
   gap: 0.5em;
