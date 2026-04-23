@@ -4,13 +4,13 @@ title: Curse
 subtitle: Terminal UI for process orchestration
 date: '2025.09'
 cover: cover
-coverWidth: 2292
-coverHeight: 1770
+coverWidth: 1636
+coverHeight: 1278
 linkLabel: source code
 link: https://github.com/wu-json/curse
 ---
 
-<img src="/images/constructs/curse/cover-full.webp" alt="Curse terminal UI" width="2292" height="1770">
+<img src="/images/constructs/curse/cover-full.webp" alt="Curse terminal UI" width="1636" height="1278">
 
 A dead simple Terminal UI for running processes, configured through a single `curse.toml` file. You define your processes, their dependencies, and optional health checks — and curse handles the rest. It shows each process in a table with live status, memory, and CPU usage, and lets you drill into scrollable logs for any of them.
 
