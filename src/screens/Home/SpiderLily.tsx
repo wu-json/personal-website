@@ -572,6 +572,7 @@ const SpiderLily = ({ className }: { className?: string }) => {
       className={`${className ?? ''} cursor-pointer focus:outline-none focus-visible:[filter:drop-shadow(0_0_8px_var(--color-glow))]`}
       fill='none'
       xmlns='http://www.w3.org/2000/svg'
+      // oxlint-disable-next-line prefer-tag-over-role
       role='button'
       tabIndex={0}
       aria-label='Toggle color scheme'
