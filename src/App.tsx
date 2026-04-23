@@ -1,7 +1,7 @@
+import { lazy, Suspense } from 'react';
 import { RootLayout } from 'src/layouts/RootLayout';
 import { ConstructsScreen } from 'src/screens/Constructs';
 import { ConstructDetail } from 'src/screens/Constructs/ConstructDetail';
-import { GalleryScreen } from 'src/screens/Gallery';
 import { HeroesScreen } from 'src/screens/Heroes';
 import { HeroDetail } from 'src/screens/Heroes/HeroDetail';
 import { HomeScreen } from 'src/screens/Home';
@@ -11,13 +11,27 @@ import { SignalsScreen } from 'src/screens/Signals';
 import { SignalDetail } from 'src/screens/Signals/SignalDetail';
 import { Route, Switch } from 'wouter';
 
+const GalleryScreen = lazy(() =>
+  import('src/screens/Gallery').then(m => ({ default: m.GalleryScreen })),
+);
+
 const App = () => (
   <Switch>
     <Route path='/gallery/:fragmentId'>
-      {params => <GalleryScreen fragmentId={params.fragmentId} />}
+      {params => (
+        <Suspense fallback={null}>
+          <GalleryScreen fragmentId={params.fragmentId} />
+        </Suspense>
+      )}
     </Route>
     {/* Dev-only: standalone gallery for testing layout without a fragment */}
-    {import.meta.env.DEV && <Route path='/gallery' component={GalleryScreen} />}
+    {import.meta.env.DEV && (
+      <Route path='/gallery'>
+        <Suspense fallback={null}>
+          <GalleryScreen />
+        </Suspense>
+      </Route>
+    )}
     <Route>
       <RootLayout>
         <Switch>
