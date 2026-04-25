@@ -1,0 +1,10 @@
+{
+  "version": 0,
+  "picks": [
+    {
+      "url": "https://github.com/chenglou/chenglou.github.io",
+      "branch": "master",
+      "commit": "2d0cbf27ea28f70dec52a5e6936be4a175ab1384"
+    }
+  ]
+}
