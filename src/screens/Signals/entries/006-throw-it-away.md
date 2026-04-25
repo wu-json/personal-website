@@ -5,4 +5,4 @@ expanded: false
 location: 'San Francisco, US'
 ---
 
-I'm quickly learning that to be a good engineer in this special time, you must feel really comfortable throwing things away.
+Quickly learning that to thrive as an engineer in this special time, you must feel comfortable letting things go.
