@@ -799,6 +799,75 @@ html[data-theme-flash-reset] .nav-glitch-active {
   object-fit: cover;
 }
 
+/* Progressive image: single-node, CSS-driven blur→crisp transition.
+   The wrapper carries the 20px placeholder as a background-image via the
+   --ph custom property. The real <img> sits on top, starts at opacity 0,
+   and an imperative `load` listener in ProgressiveImage.tsx flips
+   data-loaded="true" on the wrapper. CSS fades the <img> in and the
+   background drops. --ar reserves layout space so tiles don't CLS
+   before the image lands. The rules live down here (past the
+   .signal-prose .construct-body-img img override) so the cascade
+   picks our opacity transition when ProgressiveImage is used inside a
+   signal body — the wrapping class carries through via className. */
+.progressive-image {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: var(--ar, auto);
+  background-color: rgba(255, 255, 255, 0.05);
+  background-image: var(--ph);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* Attribute-qualified selector (0,2,1) to match/beat
+   `.signal-prose .construct-body-img img` (0,2,1). Default state uses
+   `:not([data-loaded='true'])` so both states carry equal specificity. */
+.progressive-image:not([data-loaded='true']) > img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: var(--obj-pos, center);
+  opacity: 0;
+  transition: opacity 500ms;
+}
+
+.progressive-image[data-loaded='true'] > img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: var(--obj-pos, center);
+  opacity: 1;
+  transition: opacity 500ms;
+}
+
+/* Keep the placeholder background-image in place during the 500ms
+   opacity fade so the user never sees the flat wrapper bg-color peeking
+   through a half-transparent crisp photo. `background-image` isn't
+   smoothly animatable, but a `0s 500ms` transition defers when the
+   `none` value takes effect — i.e. exactly when the <img> reaches
+   opacity: 1. */
+.progressive-image {
+  transition: background-image 0s 500ms;
+}
+
+.progressive-image[data-loaded='true'] {
+  background-image: none;
+}
+
+/* Honor explicit data-saver signals — skip decoding the 20px placeholder
+   entirely on metered connections. Browsers that support this media query
+   will just show the wrapper's bg-color until the real image lands. */
+@media (prefers-reduced-data: reduce) {
+  .progressive-image {
+    background-image: none;
+  }
+}
+
 /* Scroll-to-top — ink-colored glow that tracks the active theme */
 .scroll-to-top {
   filter: drop-shadow(0 0 2px var(--color-glow));

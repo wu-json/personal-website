@@ -1,5 +1,24 @@
-import { useState } from 'react';
+import type { CSSProperties } from 'react';
 
+import { useEffect, useRef } from 'react';
+
+type CSSVars = CSSProperties & Record<string, string>;
+
+/**
+ * Single-node progressive image.
+ *
+ * The wrapper <div> carries the 20px placeholder as a CSS background-image
+ * (via --ph), so there's only one real <img> per tile instead of the two
+ * stacked <img>s we used to render. The blur→crisp transition is driven
+ * purely by CSS: an imperative `load` listener flips
+ * data-loaded="true" on the wrapper, which fades the <img> in and drops
+ * the background. No React state, no reconciler re-render on load.
+ *
+ * Layout: --ar (width / height) drives `aspect-ratio` on the wrapper so
+ * we reserve space before the image lands (no CLS).
+ *
+ * See src/index.css → `.progressive-image` for the rules.
+ */
 const ProgressiveImage = ({
   placeholderSrc,
   src,
@@ -27,35 +46,78 @@ const ProgressiveImage = ({
   className?: string;
   onClick?: () => void;
 }) => {
-  const [loaded, setLoaded] = useState(false);
+  const imgRef = useRef<HTMLImageElement>(null);
+
+  useEffect(() => {
+    const img = imgRef.current;
+    if (!img) return;
+    const wrapper = img.parentElement;
+    if (!wrapper) return;
+
+    // Already cached — `load`/`error` may never fire again.
+    if (img.complete) {
+      if (img.naturalWidth > 0) {
+        wrapper.dataset.loaded = 'true';
+      } else {
+        // Cached error: the request already failed and no event will
+        // fire on this reused <img>. Stamp loaded+error directly so the
+        // tile doesn't sit at opacity:0 behind a broken glyph forever.
+        wrapper.dataset.loaded = 'true';
+        wrapper.dataset.error = 'true';
+      }
+      return;
+    }
+
+    const onLoad = () => {
+      wrapper.dataset.loaded = 'true';
+    };
+    // If the thumbnail 404s or otherwise fails, surface it instead of
+    // leaving the <img> stuck at opacity:0 over the placeholder forever.
+    // We flip data-loaded='true' (so the broken-image glyph fades in) and
+    // also stamp data-error so callers/styles can react if they want.
+    const onError = () => {
+      wrapper.dataset.loaded = 'true';
+      wrapper.dataset.error = 'true';
+    };
+    img.addEventListener('load', onLoad, { once: true });
+    img.addEventListener('error', onError, { once: true });
+    return () => {
+      img.removeEventListener('load', onLoad);
+      img.removeEventListener('error', onError);
+    };
+  }, []);
+
+  // Escape so paths with `"`, `\`, `)`, whitespace, etc. don't break the
+  // CSS `url(...)` token. Backslash first, then double-quote.
+  const escapedPlaceholder = placeholderSrc
+    .replace(/\\/g, '\\\\')
+    .replace(/"/g, '\\"');
+  const style: CSSVars = {
+    '--ar': `${width} / ${height}`,
+    '--ph': `url("${escapedPlaceholder}")`,
+    '--obj-pos': objectPosition ?? 'center',
+  };
 
   return (
     <div
-      className={`relative overflow-hidden bg-white/5 ${className}`}
-      style={{ aspectRatio: `${width} / ${height}` }}
+      className={`progressive-image ${className}`}
+      style={style}
       onClick={onClick}
       onKeyDown={onClick ? e => e.key === 'Enter' && onClick() : undefined}
       role={onClick ? 'button' : undefined}
       tabIndex={onClick ? 0 : undefined}
     >
       <img
-        src={placeholderSrc}
-        alt=''
-        aria-hidden
-        className={`absolute inset-0 w-full h-full object-cover scale-110 blur-md transition-opacity duration-500 ${loaded ? 'opacity-0' : 'opacity-100'}`}
-        style={objectPosition ? { objectPosition } : undefined}
-      />
-      <img
+        ref={imgRef}
         src={src}
         srcSet={srcSet}
         sizes={sizes}
         alt={alt}
+        width={width}
+        height={height}
         loading={loading}
         decoding='async'
         fetchPriority={fetchPriority}
-        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${loaded ? 'opacity-100' : 'opacity-0'}`}
-        style={objectPosition ? { objectPosition } : undefined}
-        onLoad={() => setLoaded(true)}
       />
     </div>
   );

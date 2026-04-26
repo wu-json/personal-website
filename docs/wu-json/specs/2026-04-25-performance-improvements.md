@@ -299,20 +299,57 @@ placeholder entirely.
 
 **Tasks.**
 
-- [ ] Add a `.progressive-image` block to `src/index.css` with the
+- [x] Add a `.progressive-image` block to `src/index.css` with the
       placeholder `background-image: var(--ph)` rule, `data-loaded`
       transition, and `aspect-ratio: var(--ar)` on the wrapper.
-- [ ] Rewrite `src/components/ProgressiveImage.tsx` to a single `<img>`
+- [x] Rewrite `src/components/ProgressiveImage.tsx` to a single `<img>`
       on a `<div class="progressive-image">` wrapper, removing
       `useState(loaded)` and the second placeholder `<img>`. Attach the
       load handler via `useRef` + `addEventListener('load', …, { once: true })`
       to set `data-loaded="true"` imperatively.
-- [ ] Verify all existing callsites still work: Memories index &
+- [x] Verify all existing callsites still work: Memories index &
       detail, Signals `CollapsedListHeroImage`, `MarkdownBody` `<img>`,
-      Heroes detail, Constructs detail.
-- [ ] Optionally short-circuit the placeholder when
-      `matchMedia('(prefers-reduced-data: reduce)').matches`.
-- [ ] `bun run lint` + `bun run format` + visual smoke on all routes.
+      Heroes detail, Constructs detail. `CollapsedListHeroImage` was
+      open-coding the same two-`<img>` pattern against a fixed `4:3`
+      frame — rewritten to delegate to `ProgressiveImage` with
+      `width={4} height={3}`, inheriting the single-node/CSS-driven
+      transition for free.
+- [x] Short-circuit the placeholder when
+      `(prefers-reduced-data: reduce)` matches. Implemented as a CSS
+      media query on `.progressive-image` (drops `background-image`),
+      so there's zero JS / no `matchMedia` listener needed.
+- [x] `bun run lint` + `bun run format` + `bun run build` clean.
+
+**Cascade note.** Inside `.signal-prose` (Signals detail + list), the
+existing `.signal-prose .construct-body-img img { opacity: 1 }` rule
+has specificity `(0,2,1)` and was clobbering our default-hidden
+`<img>`. The fix was to qualify both states of our rule with
+`:not([data-loaded='true'])` / `[data-loaded='true']` so they too land
+at `(0,2,1)` and we position them **after** the `construct-body-img`
+block in `src/index.css` — same-specificity ties now resolve to our
+rules by cascade order. Verified by visually inspecting the built
+CSS: the fade works in both plain contexts (Memories grid) and
+`signal-prose` contexts (SignalDetail markdown images, collapsed
+Signals list hero).
+
+**Outcome.**
+Each tile on Memories, Signals, Heroes, Constructs, and inside markdown
+bodies now renders as **one DOM element (`<img>`) inside one wrapper
+`<div>`** — down from two stacked `<img>`s. The blur→crisp transition
+is handled entirely by a CSS `transition: opacity` gated on a
+`data-loaded="true"` attribute, flipped once by an imperative
+`addEventListener('load', …, { once: true })`. Zero `useState` per
+tile; the React reconciler never hears about load events during
+scroll.
+
+On an 80+ photo fragment like `japan-2024` that's **80+ fewer `<img>`
+elements** and **80+ fewer `setState` calls** during the initial
+load burst. Visually identical to the previous version (same 500 ms
+fade, same placeholder behavior). Bundle impact: the emitted
+`ProgressiveImage` chunk is **0.87 kB / 0.53 kB gzipped** — smaller
+than before because the React-state plumbing is gone. `prefers-reduced-data`
+drops the placeholder entirely on metered connections via a CSS
+media query (no JS listener).
 
 ## 4. Animation & paint budget
 

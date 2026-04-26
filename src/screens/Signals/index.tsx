@@ -1,6 +1,6 @@
 import type { KeyboardEvent, MouseEvent } from 'react';
 
-import { useState } from 'react';
+import { ProgressiveImage } from 'src/components/ProgressiveImage';
 import { useInfiniteList } from 'src/hooks/useInfiniteList';
 import { useLocation } from 'wouter';
 
@@ -14,36 +14,26 @@ import {
 
 const jitter = () => ({ animationDelay: `${Math.random() * 120}ms` });
 
-/** Fixed 4:3 frame + centered cover — avoids max-height clipping that made previews a thin strip. */
+/** Fixed 4:3 frame + centered cover — avoids max-height clipping that made
+ *  previews a thin strip. Width=4/Height=3 drives ProgressiveImage's
+ *  --ar so the wrapper is a 4:3 box regardless of the photo's natural
+ *  aspect; the single <img> inside `object-cover`s to fit. */
 const CollapsedListHeroImage = ({ src, alt }: { src: string; alt: string }) => {
-  const [loaded, setLoaded] = useState(false);
   const placeholderSrc = src.replace(/-full\.webp$/, '-placeholder.webp');
   const smallSrc = src.replace(/-full\.webp$/, '-small.webp');
   const thumbSrc = src.replace(/-full\.webp$/, '-thumb.webp');
-
   return (
-    <div className='construct-body-img relative aspect-[4/3] w-full overflow-hidden rounded-sm border border-white/5 bg-white/5 !my-3'>
-      <img
-        src={placeholderSrc}
-        alt=''
-        aria-hidden
-        className={`absolute inset-0 h-full w-full object-cover object-center blur-md transition-opacity duration-500 ${
-          loaded ? 'opacity-0' : 'opacity-100'
-        }`}
-      />
-      <img
-        src={thumbSrc}
-        srcSet={`${smallSrc} 480w, ${thumbSrc} 800w`}
-        sizes='(min-width: 768px) 672px, 100vw'
-        alt={alt}
-        loading='lazy'
-        decoding='async'
-        className={`absolute inset-0 h-full w-full object-cover object-center transition-opacity duration-500 ${
-          loaded ? 'opacity-100' : 'opacity-0'
-        }`}
-        onLoad={() => setLoaded(true)}
-      />
-    </div>
+    <ProgressiveImage
+      placeholderSrc={placeholderSrc}
+      src={thumbSrc}
+      srcSet={`${smallSrc} 480w, ${thumbSrc} 800w`}
+      sizes='(min-width: 768px) 672px, 100vw'
+      alt={alt}
+      width={4}
+      height={3}
+      loading='lazy'
+      className='construct-body-img w-full rounded-sm border border-white/5 !my-3'
+    />
   );
 };
 
