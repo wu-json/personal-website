@@ -1,8 +1,10 @@
-import type { KeyboardEvent, MouseEvent } from 'react';
+import type { KeyboardEvent, MouseEvent, ReactNode } from 'react';
 
+import { useEffect, useRef } from 'react';
 import { ProgressiveImage } from 'src/components/ProgressiveImage';
 import { useInfiniteList } from 'src/hooks/useInfiniteList';
 import { useJitter } from 'src/hooks/useJitter';
+import { useNearViewport } from 'src/hooks/useNearViewport';
 import { useLocation } from 'wouter';
 
 import { signals } from './data';
@@ -32,6 +34,63 @@ const CollapsedListHeroImage = ({ src, alt }: { src: string; alt: string }) => {
       height={3}
       loading='lazy'
       className='construct-body-img w-full rounded-sm border border-white/5 !my-3'
+    />
+  );
+};
+
+/**
+ * Unmount a signal card's heavy body once it's scrolled past by more than a
+ * viewport, and swap back to a sized placeholder that preserves the scroll
+ * offset. Uses `ResizeObserver` on the live node so the cached height
+ * tracks images as they load — guarantees the placeholder never collapses
+ * the article underneath the user's scroll position.
+ *
+ * `initialVisible` keeps the first batch mounted live on first paint so the
+ * user never sees placeholders flash in as the IO observer bootstraps.
+ */
+const CullableBody = ({
+  initialVisible,
+  children,
+}: {
+  initialVisible: boolean;
+  children: ReactNode;
+}) => {
+  const [ioRef, visible] = useNearViewport<HTMLDivElement>({
+    initial: initialVisible,
+  });
+  const heightRef = useRef<number | null>(null);
+  const liveRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!visible) return;
+    const node = liveRef.current;
+    if (!node || typeof ResizeObserver === 'undefined') {
+      if (node) heightRef.current = node.offsetHeight || heightRef.current;
+      return;
+    }
+    const ro = new ResizeObserver(() => {
+      const h = node.offsetHeight;
+      if (h > 0) heightRef.current = h;
+    });
+    ro.observe(node);
+    heightRef.current = node.offsetHeight || heightRef.current;
+    return () => ro.disconnect();
+  }, [visible]);
+
+  const composedRef = (node: HTMLDivElement | null) => {
+    ioRef(node);
+    liveRef.current = node;
+  };
+
+  if (visible) {
+    return <div ref={composedRef}>{children}</div>;
+  }
+
+  return (
+    <div
+      ref={ioRef}
+      style={{ height: heightRef.current ?? undefined }}
+      aria-hidden='true'
     />
   );
 };
@@ -117,25 +176,27 @@ const SignalsScreen = () => {
                   )}
 
                   <div className='signal-prose signal-entry signal-list text-white/70 text-xs sm:text-sm font-mono'>
-                    {collapsed ? (
-                      <>
-                        {hero && (
-                          <CollapsedListHeroImage
-                            src={hero.src}
-                            alt={hero.alt}
-                          />
-                        )}
-                        {excerpt ? (
-                          <p className='leading-relaxed'>{excerpt}</p>
-                        ) : (
-                          <p className='text-white/25 text-[10px] font-mono'>
-                            {'// preview truncated — open for full signal'}
-                          </p>
-                        )}
-                      </>
-                    ) : (
-                      <MarkdownBody>{s.body}</MarkdownBody>
-                    )}
+                    <CullableBody initialVisible={true}>
+                      {collapsed ? (
+                        <>
+                          {hero && (
+                            <CollapsedListHeroImage
+                              src={hero.src}
+                              alt={hero.alt}
+                            />
+                          )}
+                          {excerpt ? (
+                            <p className='leading-relaxed'>{excerpt}</p>
+                          ) : (
+                            <p className='text-white/25 text-[10px] font-mono'>
+                              {'// preview truncated — open for full signal'}
+                            </p>
+                          )}
+                        </>
+                      ) : (
+                        <MarkdownBody>{s.body}</MarkdownBody>
+                      )}
+                    </CullableBody>
                   </div>
                 </div>
               </article>

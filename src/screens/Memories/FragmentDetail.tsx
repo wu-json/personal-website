@@ -1,7 +1,10 @@
+import type { ReactNode } from 'react';
+
 import { useMemo } from 'react';
 import Markdown from 'react-markdown';
 import { ProgressiveImage } from 'src/components/ProgressiveImage';
 import { useJitter } from 'src/hooks/useJitter';
+import { useNearViewport } from 'src/hooks/useNearViewport';
 import { Link, useLocation } from 'wouter';
 
 import type { Grouping, PhotoMeta } from './types';
@@ -80,6 +83,54 @@ function filesFromGridItem(item: GridItem): string[] {
     ? [item.photo.file]
     : item.photos.map(p => p.file);
 }
+
+/**
+ * Occlusion-cull a masonry tile. Renders `children` when within (or near) the
+ * viewport, and a same-sized `<div>` placeholder otherwise — preserves the
+ * `columns-*` masonry flow either way because the wrapper keeps its classes
+ * and aspect ratio. Eager tiles (above-the-fold) skip the placeholder on
+ * first render via `initialVisible` so there's no first-paint flicker.
+ *
+ * Decoupled from `<ProgressiveImage>` because group tiles render multiple
+ * images inside a flex wrapper; this shell culls the whole cell.
+ */
+const CullableTile = ({
+  className,
+  style,
+  aspectRatio,
+  initialVisible,
+  onClick,
+  children,
+}: {
+  className: string;
+  style?: React.CSSProperties;
+  aspectRatio: number;
+  initialVisible: boolean;
+  onClick?: () => void;
+  children: ReactNode;
+}) => {
+  const [ref, visible] = useNearViewport<HTMLDivElement>({
+    initial: initialVisible,
+  });
+
+  if (visible) {
+    return (
+      // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
+      <div ref={ref} className={className} style={style} onClick={onClick}>
+        {children}
+      </div>
+    );
+  }
+
+  return (
+    <div
+      ref={ref}
+      className={className}
+      style={{ ...style, aspectRatio: `${aspectRatio}` }}
+      aria-hidden='true'
+    />
+  );
+};
 
 const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
   const [, navigate] = useLocation();
@@ -337,10 +388,16 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
               const { photo: p, index: i } = item;
               const smallUrl = photoUrl(fragment.id, p.file, 'small');
               const thumbUrl = photoUrl(fragment.id, p.file, 'thumb');
+              const eager = i < 6;
               return (
-                <div
+                <CullableTile
                   key={p.file}
                   className='cursor-pointer mb-3 break-inside-avoid'
+                  aspectRatio={p.width / p.height}
+                  initialVisible={eager}
+                  onClick={() =>
+                    navigate(`/memories/${id}/${p.file}`, { replace: true })
+                  }
                 >
                   <ProgressiveImage
                     placeholderSrc={photoUrl(
@@ -353,14 +410,11 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
                     sizes='(min-width: 1024px) 260px, (min-width: 640px) 50vw, 100vw'
                     width={p.width}
                     height={p.height}
-                    loading={i < 6 ? 'eager' : 'lazy'}
+                    loading={eager ? 'eager' : 'lazy'}
                     fetchPriority={i < 2 ? 'high' : undefined}
                     className='rounded-sm'
-                    onClick={() =>
-                      navigate(`/memories/${id}/${p.file}`, { replace: true })
-                    }
                   />
-                </div>
+                </CullableTile>
               );
             }
 
@@ -376,12 +430,18 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
               ? 'flex flex-col sm:flex-row gap-1'
               : base.wrapper;
             const itemCls = shouldStack ? 'sm:flex-1 sm:min-w-0' : base.item;
+            const groupAR = isRow
+              ? combinedAR
+              : 1 / item.photos.reduce((sum, p) => sum + p.height / p.width, 0);
+            const firstIdx = item.indices[0];
+            const eager = firstIdx < 6;
 
             return (
-              // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
-              <div
+              <CullableTile
                 key={item.groupId}
                 className={`cursor-pointer mb-3 break-inside-avoid ${wrapperCls}`}
+                aspectRatio={groupAR}
+                initialVisible={eager}
                 onClick={() =>
                   navigate(`/memories/${id}/${item.groupId}`, {
                     replace: true,
@@ -412,7 +472,7 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
                     </div>
                   );
                 })}
-              </div>
+              </CullableTile>
             );
           })}
         </div>
