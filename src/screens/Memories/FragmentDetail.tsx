@@ -519,9 +519,21 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
               ? 'flex flex-col sm:flex-row gap-1'
               : base.wrapper;
             const itemCls = shouldStack ? 'sm:flex-1 sm:min-w-0' : base.item;
-            const groupAR = isRow
-              ? combinedAR
-              : 1 / item.photos.reduce((sum, p) => sum + p.height / p.width, 0);
+            // For `flex` rows with `flex-1 min-w-0` (equal-width children),
+            // the row's aspect = n / max(h_i/w_i) — the tallest child sets the
+            // row height once widths are equalized. `combinedAR` (Σ w_i/h_i)
+            // is the natural-width-row aspect and would mis-reserve space.
+            // For column groups the aspect is 1 / Σ(h_i/w_i). For the
+            // responsive `shouldStack` case we keep `combinedAR` as a rough
+            // approximation since the layout flips between stacked and row.
+            const groupAR =
+              isRow && !shouldStack
+                ? item.photos.length /
+                  Math.max(...item.photos.map(p => p.height / p.width))
+                : isRow
+                  ? combinedAR
+                  : 1 /
+                    item.photos.reduce((sum, p) => sum + p.height / p.width, 0);
             const firstIdx = item.indices[0];
             const eager = firstIdx < 6;
 
