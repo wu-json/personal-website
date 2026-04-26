@@ -100,6 +100,12 @@ function filesFromGridItem(item: GridItem): string[] {
  * (an approximation that ignores `gap-*` between flex children, and for
  * `flex-1` rows mis-estimates the equal-width row height) to the exact
  * `min-height` of the live element. Mirrors `CullableBody` in `Signals/`.
+ *
+ * On viewport-width changes (window resize, mobile rotation, devtools
+ * toggle) the cached pixel height is stale because the masonry column
+ * widths reflow, so we invalidate `heightRef` on `resize`/
+ * `orientationchange` and let the placeholder fall back to the computed
+ * `aspectRatio` until the tile is re-measured.
  */
 const CullableTile = ({
   className,
@@ -137,6 +143,26 @@ const CullableTile = ({
     heightRef.current = node.offsetHeight || heightRef.current;
     return () => ro.disconnect();
   }, [visible]);
+
+  // Invalidate the cached pixel height whenever the viewport width changes
+  // — masonry columns reflow at different widths, so the prior measurement
+  // no longer matches. Falls back to the computed `aspectRatio` until the
+  // tile re-enters the observer's expanded root rect and gets remeasured.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    let lastWidth = window.innerWidth;
+    const onResize = () => {
+      if (window.innerWidth === lastWidth) return;
+      lastWidth = window.innerWidth;
+      heightRef.current = null;
+    };
+    window.addEventListener('resize', onResize);
+    window.addEventListener('orientationchange', onResize);
+    return () => {
+      window.removeEventListener('resize', onResize);
+      window.removeEventListener('orientationchange', onResize);
+    };
+  }, []);
 
   const composedRef = useCallback(
     (node: HTMLDivElement | null) => {

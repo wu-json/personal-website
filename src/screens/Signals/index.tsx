@@ -39,7 +39,7 @@ const CollapsedListHeroImage = ({ src, alt }: { src: string; alt: string }) => {
 };
 
 /**
- * Unmount a signal card's heavy body once it's scrolled past by more than a
+ * Unmount a signal card's heavy body once it's scrolled well past the
  * viewport, and swap back to a sized placeholder that preserves the scroll
  * offset. Uses `ResizeObserver` on the live node so the cached height
  * tracks images as they load — guarantees the placeholder never collapses
@@ -47,6 +47,18 @@ const CollapsedListHeroImage = ({ src, alt }: { src: string; alt: string }) => {
  *
  * `initialVisible` keeps the first batch mounted live on first paint so the
  * user never sees placeholders flash in as the IO observer bootstraps.
+ *
+ * `rootMargin` is widened to ~3 viewports on each side so browser
+ * find-in-page (Cmd+F) still matches text in nearby culled entries — the
+ * pre-cull `/signals` page was greppable as a single page; this keeps that
+ * affordance for the bulk of typical scroll positions while still
+ * unmounting bodies that are far away.
+ *
+ * On viewport-width changes (window resize, mobile rotation, devtools
+ * toggle) the cached pixel height is stale — text reflows at a different
+ * width — so we invalidate `heightRef` on `resize`/`orientationchange`.
+ * The placeholder will be remeasured next time the article enters the
+ * observer's expanded root rect.
  */
 const CullableBody = ({
   initialVisible,
@@ -57,6 +69,7 @@ const CullableBody = ({
 }) => {
   const [ioRef, visible] = useNearViewport<HTMLDivElement>({
     initial: initialVisible,
+    rootMargin: '300% 0px',
   });
   const heightRef = useRef<number | null>(null);
   const liveRef = useRef<HTMLDivElement | null>(null);
@@ -76,6 +89,24 @@ const CullableBody = ({
     heightRef.current = node.offsetHeight || heightRef.current;
     return () => ro.disconnect();
   }, [visible]);
+
+  // Invalidate the cached pixel height whenever the viewport width changes
+  // — the previously-measured height was for a different reflow width.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    let lastWidth = window.innerWidth;
+    const onResize = () => {
+      if (window.innerWidth === lastWidth) return;
+      lastWidth = window.innerWidth;
+      heightRef.current = null;
+    };
+    window.addEventListener('resize', onResize);
+    window.addEventListener('orientationchange', onResize);
+    return () => {
+      window.removeEventListener('resize', onResize);
+      window.removeEventListener('orientationchange', onResize);
+    };
+  }, []);
 
   const composedRef = useCallback(
     (node: HTMLDivElement | null) => {
