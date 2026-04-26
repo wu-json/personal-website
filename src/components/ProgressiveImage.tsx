@@ -63,13 +63,30 @@ const ProgressiveImage = ({
     const onLoad = () => {
       wrapper.dataset.loaded = 'true';
     };
+    // If the thumbnail 404s or otherwise fails, surface it instead of
+    // leaving the <img> stuck at opacity:0 over the placeholder forever.
+    // We flip data-loaded='true' (so the broken-image glyph fades in) and
+    // also stamp data-error so callers/styles can react if they want.
+    const onError = () => {
+      wrapper.dataset.loaded = 'true';
+      wrapper.dataset.error = 'true';
+    };
     img.addEventListener('load', onLoad, { once: true });
-    return () => img.removeEventListener('load', onLoad);
+    img.addEventListener('error', onError, { once: true });
+    return () => {
+      img.removeEventListener('load', onLoad);
+      img.removeEventListener('error', onError);
+    };
   }, []);
 
+  // Escape so paths with `"`, `\`, `)`, whitespace, etc. don't break the
+  // CSS `url(...)` token. Backslash first, then double-quote.
+  const escapedPlaceholder = placeholderSrc
+    .replace(/\\/g, '\\\\')
+    .replace(/"/g, '\\"');
   const style: CSSVars = {
     '--ar': `${width} / ${height}`,
-    '--ph': `url(${placeholderSrc})`,
+    '--ph': `url("${escapedPlaceholder}")`,
     '--obj-pos': objectPosition ?? 'center',
   };
 
