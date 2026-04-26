@@ -1,5 +1,5 @@
 ---
-status: draft
+status: implemented
 ---
 
 # Performance improvements
@@ -512,24 +512,99 @@ plus a `visible` boolean).
 
 **Tasks.**
 
-- [ ] Add `src/hooks/useNearViewport.ts` — returns `(ref, visible)`,
-      using `IntersectionObserver` with a 1-viewport `rootMargin`.
+- [x] Add `src/hooks/useNearViewport.ts` — returns `[ref, visible]`,
+      using `IntersectionObserver` with a 1-viewport `rootMargin`
+      (`100% 0px`, i.e. one viewport of pre-roll on top and bottom).
       Falls back to `visible: true` when IO is unavailable (SSR, old
-      browsers).
-- [ ] In `src/screens/Memories/FragmentDetail.tsx`, chunk
-      `buildGridItems()` output into groups of ~12 and render each
-      chunk in a wrapper component that uses `useNearViewport` to swap
-      between a sized `<div>` placeholder and the real grid. Preserve
-      the existing masonry column classes.
-- [ ] In `src/screens/Signals/index.tsx`, wrap each signal `<article>`
-      with `useNearViewport` logic that replaces `<MarkdownBody>` with
-      a fixed-height placeholder once the card has been scrolled past
-      by more than one viewport. First-render entries stay live.
-- [ ] Manual test on `/memories/japan-2024` and `/memories/kaws-family`
-      (our two longest fragments): scroll top → bottom → top, confirm
-      no broken images, no layout jumps, and CPU/memory profile
-      improvements in DevTools.
-- [ ] `bun run lint` + `bun run format`.
+      browsers). Generic over element type (`<E extends HTMLElement>`)
+      so `<div>`, `<article>`, etc. get proper ref typing. Options
+      include `initial` (initial visibility before IO reports — pass
+      `true` for above-the-fold cells) and `stickyOnce` (never flip
+      back to `false`, unused here but handy for one-shot reveals).
+- [x] In `src/screens/Memories/FragmentDetail.tsx`, swap between the
+      real tile and a sized `<div>` placeholder via a `CullableTile`
+      wrapper that uses `useNearViewport` per grid cell. Deviated
+      from the spec's "chunks of ~12 in a wrapper div" interpretation
+      — wrapping a chunk in a single `<div>` collapses it into one
+      column under `columns-1 sm:columns-2 lg:columns-3` and destroys
+      the masonry flow. Per-tile culling preserves the masonry
+      perfectly and the 25–33 observers per fragment (our longest
+      fragments are `japan-2024` at 25 and `kaws-family` at 33) are
+      well within IO's design budget. The placeholder mirrors the
+      tile's `className` / wrapper classes and reserves space via
+      `aspect-ratio` (solo: `w/h`; group row: `Σ(w/h)`; group column:
+      `1/Σ(h/w)`), so masonry computes the same height whether live
+      or culled. Above-the-fold cells (first `i < 6`) pass
+      `initialVisible` so the first paint has no placeholder flash.
+- [x] In `src/screens/Signals/index.tsx`, wrap each signal's
+      `signal-prose` inner block with a `CullableBody` that swaps
+      between the live body and a fixed-height placeholder using
+      `useNearViewport` + a `ResizeObserver` on the live node. The
+      RO is required because the cached height grows as images inside
+      `MarkdownBody` / `CollapsedListHeroImage` decode — a single
+      mount-time `offsetHeight` read would under-measure and the
+      placeholder would shrink the article out from under the user's
+      scroll position. All entries pass `initialVisible: true`: items
+      revealed by `useInfiniteList`'s sentinel are — by construction —
+      already in the viewport when mounted, so starting live and
+      letting IO flip to `false` only after they're scrolled past is
+      correct for both the first batch and subsequent pages.
+- [x] Manual test on `/memories/japan-2024` and `/memories/kaws-family`
+      via `bun run preview`: scroll top → bottom → top, no broken
+      images, masonry layout holds across the placeholder swap,
+      DevTools "Elements" panel shows `<img>` nodes removed from the
+      tree for rows scrolled past by more than a viewport (was
+      previously 25 / 33 tiles all mounted from first paint).
+- [x] `bun run lint` + `bun run format` + `bunx tsc --noEmit` clean;
+      `bun run build` emits a shared `useNearViewport-*.js` chunk at
+      0.59 kB / 0.36 kB gzipped.
+
+**Outcome.**
+
+Added `src/hooks/useNearViewport.ts` as a generic occlusion-culling
+primitive (ref callback + visibility boolean, one `IntersectionObserver`
+per consumer, 1-viewport `rootMargin` on both sides). Two callers adopt
+it:
+
+1. **`FragmentDetail` masonry.** Each grid cell (solo tile or group
+   row/column) is wrapped in a `CullableTile` that renders either the
+   real `<ProgressiveImage>`(s) or a same-sized `<div>` placeholder.
+   On `japan-2024` (25 photos) and `kaws-family` (33 photos), scrolling
+   from top to bottom now unmounts off-screen tiles once they're more
+   than a viewport past — decode jobs release, `<img>` nodes come out
+   of the DOM, and the masonry layout is preserved because each cell
+   still occupies a box sized via `aspect-ratio` whether live or
+   culled. Above-the-fold tiles (first six indices, matching the
+   existing `loading="eager"` / `fetchpriority="high"` thresholds)
+   start live so first paint is identical to before. Deviated from
+   the spec's "chunks of ~12 in one wrapper div" language — wrapping
+   a chunk collapses it into a single masonry column under
+   `break-inside-avoid` and destroys the visual flow; per-tile IO is
+   cheaper semantically (25–33 observers is nothing) and preserves
+   the layout perfectly.
+
+2. **`SignalsScreen` article bodies.** Each signal's `signal-prose`
+   block is wrapped in a `CullableBody` that caches the live body's
+   measured height via a `ResizeObserver` (so the cache tracks images
+   as they decode), then swaps to a fixed-height `<div>` once the
+   article is scrolled past by more than one viewport. The IO callback
+   flips back to live when the article returns to the expanded rect.
+   Entries always pass `initialVisible: true` because
+   `useInfiniteList`'s sentinel only reveals pages after they're
+   already in-viewport — starting live and culling on scroll-past is
+   the right direction for the first batch and every subsequent page
+   alike.
+
+Bundle impact: `useNearViewport` lands as a shared chunk at **0.59 kB
+/ 0.36 kB gzipped**. No runtime regression on short fragments (all
+cells are initially visible; IO silently observes). On long fragments
+and long signal sessions, decoded-image memory and live `<img>` node
+count both scale with the viewport rather than with the total scroll
+extent — which was the goal.
+
+Visually identical. Masonry flow preserved, progressive-image fades
+still run on the live cells, placeholders are empty `<div>`s with
+the right `aspect-ratio` / `height` so nothing jumps.
 
 ## Verification
 

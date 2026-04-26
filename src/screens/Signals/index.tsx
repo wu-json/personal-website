@@ -1,8 +1,10 @@
-import type { KeyboardEvent, MouseEvent } from 'react';
+import type { KeyboardEvent, MouseEvent, ReactNode } from 'react';
 
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ProgressiveImage } from 'src/components/ProgressiveImage';
 import { useInfiniteList } from 'src/hooks/useInfiniteList';
 import { useJitter } from 'src/hooks/useJitter';
+import { useNearViewport } from 'src/hooks/useNearViewport';
 import { useLocation } from 'wouter';
 
 import { signals } from './data';
@@ -32,6 +34,117 @@ const CollapsedListHeroImage = ({ src, alt }: { src: string; alt: string }) => {
       height={3}
       loading='lazy'
       className='construct-body-img w-full rounded-sm border border-white/5 !my-3'
+    />
+  );
+};
+
+/**
+ * Unmount a signal card's heavy body once it's scrolled well past the
+ * viewport, and swap back to a sized placeholder that preserves the scroll
+ * offset. Uses `ResizeObserver` on the live node so the cached height
+ * tracks images as they load — guarantees the placeholder never collapses
+ * the article underneath the user's scroll position.
+ *
+ * `initialVisible` keeps the first batch mounted live on first paint so the
+ * user never sees placeholders flash in as the IO observer bootstraps.
+ *
+ * `rootMargin` is widened to ~3 viewports on each side so browser
+ * find-in-page (Cmd+F) still matches text in nearby culled entries — the
+ * pre-cull `/signals` page was greppable as a single page; this keeps that
+ * affordance for the bulk of typical scroll positions while still
+ * unmounting bodies that are far away.
+ *
+ * On viewport-width changes (window resize, mobile rotation, devtools
+ * toggle) the cached pixel height is stale — text reflows at a different
+ * width — so we invalidate `heightRef` on `resize`/`orientationchange`.
+ * The placeholder will be remeasured next time the article enters the
+ * observer's expanded root rect.
+ */
+const CullableBody = ({
+  initialVisible,
+  children,
+}: {
+  initialVisible: boolean;
+  children: ReactNode;
+}) => {
+  const [ioRef, visible] = useNearViewport<HTMLDivElement>({
+    initial: initialVisible,
+    rootMargin: '300% 0px',
+  });
+  // `height` drives the placeholder; storing in state ensures resize
+  // invalidations actually trigger a re-render. `lastHeightRef` survives
+  // invalidations so a stale (but non-zero) measurement is still available
+  // as a `min-height` floor — without it, a culled placeholder rendered
+  // with `height: undefined` would collapse to ~0 px and shift every
+  // subsequent entry up by the article's height during the timing window
+  // between resize and the next IO/RO measurement.
+  const [height, setHeight] = useState<number | null>(null);
+  const lastHeightRef = useRef<number | null>(null);
+  const liveRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!visible) return;
+    const node = liveRef.current;
+    if (!node) return;
+    const apply = () => {
+      const h = node.offsetHeight;
+      if (h > 0) {
+        lastHeightRef.current = h;
+        setHeight(h);
+      }
+    };
+    if (typeof ResizeObserver === 'undefined') {
+      apply();
+      return;
+    }
+    const ro = new ResizeObserver(apply);
+    ro.observe(node);
+    apply();
+    return () => ro.disconnect();
+  }, [visible]);
+
+  // Invalidate the cached pixel height whenever the viewport width changes
+  // — the previously-measured height was for a different reflow width.
+  // `setHeight(null)` triggers a re-render so any culled placeholder drops
+  // its stale inline height; `lastHeightRef` is intentionally preserved
+  // as a soft `min-height` floor (better than collapsing to 0) until the
+  // tile is remeasured.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    let lastWidth = window.innerWidth;
+    const onResize = () => {
+      if (window.innerWidth === lastWidth) return;
+      lastWidth = window.innerWidth;
+      setHeight(null);
+    };
+    window.addEventListener('resize', onResize);
+    window.addEventListener('orientationchange', onResize);
+    return () => {
+      window.removeEventListener('resize', onResize);
+      window.removeEventListener('orientationchange', onResize);
+    };
+  }, []);
+
+  const composedRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      ioRef(node);
+      liveRef.current = node;
+    },
+    [ioRef],
+  );
+
+  if (visible) {
+    return <div ref={composedRef}>{children}</div>;
+  }
+
+  return (
+    <div
+      ref={ioRef}
+      style={{
+        height: height ?? undefined,
+        minHeight: lastHeightRef.current ?? undefined,
+      }}
+      aria-hidden='true'
     />
   );
 };
@@ -117,25 +230,27 @@ const SignalsScreen = () => {
                   )}
 
                   <div className='signal-prose signal-entry signal-list text-white/70 text-xs sm:text-sm font-mono'>
-                    {collapsed ? (
-                      <>
-                        {hero && (
-                          <CollapsedListHeroImage
-                            src={hero.src}
-                            alt={hero.alt}
-                          />
-                        )}
-                        {excerpt ? (
-                          <p className='leading-relaxed'>{excerpt}</p>
-                        ) : (
-                          <p className='text-white/25 text-[10px] font-mono'>
-                            {'// preview truncated — open for full signal'}
-                          </p>
-                        )}
-                      </>
-                    ) : (
-                      <MarkdownBody>{s.body}</MarkdownBody>
-                    )}
+                    <CullableBody initialVisible={true}>
+                      {collapsed ? (
+                        <>
+                          {hero && (
+                            <CollapsedListHeroImage
+                              src={hero.src}
+                              alt={hero.alt}
+                            />
+                          )}
+                          {excerpt ? (
+                            <p className='leading-relaxed'>{excerpt}</p>
+                          ) : (
+                            <p className='text-white/25 text-[10px] font-mono'>
+                              {'// preview truncated — open for full signal'}
+                            </p>
+                          )}
+                        </>
+                      ) : (
+                        <MarkdownBody>{s.body}</MarkdownBody>
+                      )}
+                    </CullableBody>
                   </div>
                 </div>
               </article>
