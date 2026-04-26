@@ -54,9 +54,17 @@ const ProgressiveImage = ({
     const wrapper = img.parentElement;
     if (!wrapper) return;
 
-    // Already cached — `load` may never fire again.
-    if (img.complete && img.naturalWidth > 0) {
-      wrapper.dataset.loaded = 'true';
+    // Already cached — `load`/`error` may never fire again.
+    if (img.complete) {
+      if (img.naturalWidth > 0) {
+        wrapper.dataset.loaded = 'true';
+      } else {
+        // Cached error: the request already failed and no event will
+        // fire on this reused <img>. Stamp loaded+error directly so the
+        // tile doesn't sit at opacity:0 behind a broken glyph forever.
+        wrapper.dataset.loaded = 'true';
+        wrapper.dataset.error = 'true';
+      }
       return;
     }
 
