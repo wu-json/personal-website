@@ -10,11 +10,6 @@ type Options = {
    */
   rootMargin?: string;
   /**
-   * Once `true`, never flip back to `false`. Useful for one-shot lazy
-   * reveals where unmounting would cause a flash.
-   */
-  stickyOnce?: boolean;
-  /**
    * Initial visibility before the observer has reported. Defaults to
    * `false` so the first render is the cheap placeholder; pass `true`
    * for above-the-fold tiles that should render live on first paint.
@@ -39,15 +34,9 @@ type Result<E extends HTMLElement> = [RefCallback<E>, boolean];
 function useNearViewport<E extends HTMLElement = HTMLElement>(
   options: Options = {},
 ): Result<E> {
-  const {
-    rootMargin = '100% 0px',
-    stickyOnce = false,
-    initial = false,
-  } = options;
+  const { rootMargin = '100% 0px', initial = false } = options;
   const [visible, setVisible] = useState(initial);
   const observerRef = useRef<IntersectionObserver | null>(null);
-  const stickyRef = useRef(stickyOnce);
-  stickyRef.current = stickyOnce;
 
   const ref = useCallback<RefCallback<E>>(
     node => {
@@ -69,11 +58,7 @@ function useNearViewport<E extends HTMLElement = HTMLElement>(
       const observer = new IntersectionObserver(
         entries => {
           for (const entry of entries) {
-            if (entry.isIntersecting) {
-              setVisible(true);
-            } else if (!stickyRef.current) {
-              setVisible(false);
-            }
+            setVisible(entry.isIntersecting);
           }
         },
         { rootMargin },
