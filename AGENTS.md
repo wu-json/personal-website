@@ -4,7 +4,7 @@ Context and guidelines for AI assistants and coding agents working on this proje
 
 ## Project overview
 
-Personal site for Jason Wu ([jasonwu.io](https://jasonwu.io)): React + TypeScript app with **Memories** (photo fragments), **Signals** (markdown posts), **Constructs** (project entries), and **Heroes** (people). The **Gallery** screen is a first-person Three.js space built with React Three Fiber.
+Personal site for Jason Wu ([jasonwu.ink](https://jasonwu.ink)): React + TypeScript app with **Memories** (photo fragments), **Signals** (markdown posts), **Constructs** (project entries), and **Heroes** (people). The **Gallery** screen is a first-person Three.js space built with React Three Fiber.
 
 ## Tech stack
 
