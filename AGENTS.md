@@ -14,7 +14,7 @@ Personal site for Jason Wu ([jasonwu.ink](https://jasonwu.ink)): React + TypeScr
 - **Styling**: Tailwind CSS v4 (`@tailwindcss/vite`)
 - **3D**: `three`, `@react-three/fiber`, `@react-three/drei`
 - **Markdown**: `react-markdown`, `remark-gfm`, `rehype-raw`
-- **Package manager**: Bun (>=1.3.4); **Node**: 22.x (`engines` in `package.json`)
+- **Runtime**: Bun (>=1.3.4)
 - **Lint / format**: Oxlint, Oxfmt
 - **Git hooks**: [prek](https://github.com/j178/prek) (runs on `bun install`, skipped in CI)
 
