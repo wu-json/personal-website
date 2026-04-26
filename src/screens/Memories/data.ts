@@ -37,7 +37,7 @@ export const fragments: Fragment[] = Object.entries(modules)
 export function photoUrl(
   fragmentId: string,
   file: string,
-  size: 'placeholder' | 'thumb' | 'full',
+  size: 'placeholder' | 'small' | 'thumb' | 'full',
 ): string {
   return `/images/fragments/${fragmentId}/${file}-${size}.webp`;
 }

@@ -335,6 +335,8 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
           {gridItems.map(item => {
             if (item.kind === 'solo') {
               const { photo: p, index: i } = item;
+              const smallUrl = photoUrl(fragment.id, p.file, 'small');
+              const thumbUrl = photoUrl(fragment.id, p.file, 'thumb');
               return (
                 <div
                   key={p.file}
@@ -346,10 +348,13 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
                       p.file,
                       'placeholder',
                     )}
-                    src={photoUrl(fragment.id, p.file, 'thumb')}
+                    src={thumbUrl}
+                    srcSet={`${smallUrl} 480w, ${thumbUrl} 800w`}
+                    sizes='(min-width: 1024px) 260px, (min-width: 640px) 50vw, 100vw'
                     width={p.width}
                     height={p.height}
                     loading={i < 6 ? 'eager' : 'lazy'}
+                    fetchPriority={i < 2 ? 'high' : undefined}
                     className='rounded-sm'
                     onClick={() =>
                       navigate(`/memories/${id}/${p.file}`, { replace: true })
@@ -385,6 +390,8 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
               >
                 {item.photos.map((p, j) => {
                   const idx = item.indices[j];
+                  const smallUrl = photoUrl(fragment.id, p.file, 'small');
+                  const thumbUrl = photoUrl(fragment.id, p.file, 'thumb');
                   return (
                     <div key={p.file} className={itemCls}>
                       <ProgressiveImage
@@ -393,10 +400,13 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
                           p.file,
                           'placeholder',
                         )}
-                        src={photoUrl(fragment.id, p.file, 'thumb')}
+                        src={thumbUrl}
+                        srcSet={`${smallUrl} 480w, ${thumbUrl} 800w`}
+                        sizes='(min-width: 1024px) 260px, (min-width: 640px) 50vw, 100vw'
                         width={p.width}
                         height={p.height}
                         loading={idx < 6 ? 'eager' : 'lazy'}
+                        fetchPriority={idx < 2 ? 'high' : undefined}
                         className='rounded-sm'
                       />
                     </div>

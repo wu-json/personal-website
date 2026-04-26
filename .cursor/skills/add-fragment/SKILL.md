@@ -16,7 +16,7 @@ description: >-
 bun scripts/optimize-photos.ts <source-dir> <slug>
 ```
 
-Default category is `fragments`. Output goes to `public/images/fragments/<slug>/` (WebP variants: `placeholder`, `thumb`, `full`). Capture the printed `photos:` YAML for frontmatter.
+Default category is `fragments`. Output goes to `public/images/fragments/<slug>/` (WebP variants: `placeholder` 20 px, `small` 480 px, `thumb` 800 px, `full` 2400 px). Capture the printed `photos:` YAML for frontmatter. Variants are authoritatively defined in `scripts/optimize-photos.ts` — that file is the source of truth if this list drifts.
 
 ## 2. Create the fragment markdown file
 

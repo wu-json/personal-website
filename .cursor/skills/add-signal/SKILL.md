@@ -25,7 +25,7 @@ bun scripts/optimize-photos.ts /tmp/signal-stage <id> signals
 rm -rf /tmp/signal-stage
 ```
 
-Output: `public/images/signals/<id>/`. Capture printed `photos:` YAML if useful for dimensions.
+Output: `public/images/signals/<id>/` (WebP variants defined in `scripts/optimize-photos.ts`: `placeholder`, `small`, `thumb`, `full`). Capture printed `photos:` YAML if useful for dimensions.
 
 ## 3. Create the entry file
 

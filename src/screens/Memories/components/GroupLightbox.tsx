@@ -60,6 +60,7 @@ const GroupLightbox = ({
   useEffect(() => {
     for (const file of preloadFiles) {
       const img = new Image();
+      img.fetchPriority = 'low';
       img.src = photoUrl(fragmentId, file, 'full');
     }
   }, [preloadFiles, fragmentId]);

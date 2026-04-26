@@ -3,20 +3,26 @@ import { useState } from 'react';
 const ProgressiveImage = ({
   placeholderSrc,
   src,
+  srcSet,
+  sizes,
   alt = '',
   width,
   height,
   loading = 'lazy',
+  fetchPriority,
   objectPosition,
   className = '',
   onClick,
 }: {
   placeholderSrc: string;
   src: string;
+  srcSet?: string;
+  sizes?: string;
   alt?: string;
   width: number;
   height: number;
   loading?: 'lazy' | 'eager';
+  fetchPriority?: 'high' | 'low' | 'auto';
   objectPosition?: string;
   className?: string;
   onClick?: () => void;
@@ -41,9 +47,12 @@ const ProgressiveImage = ({
       />
       <img
         src={src}
+        srcSet={srcSet}
+        sizes={sizes}
         alt={alt}
         loading={loading}
         decoding='async'
+        fetchPriority={fetchPriority}
         className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${loaded ? 'opacity-100' : 'opacity-0'}`}
         style={objectPosition ? { objectPosition } : undefined}
         onLoad={() => setLoaded(true)}

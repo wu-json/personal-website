@@ -18,6 +18,8 @@ const jitter = () => ({ animationDelay: `${Math.random() * 120}ms` });
 const CollapsedListHeroImage = ({ src, alt }: { src: string; alt: string }) => {
   const [loaded, setLoaded] = useState(false);
   const placeholderSrc = src.replace(/-full\.webp$/, '-placeholder.webp');
+  const smallSrc = src.replace(/-full\.webp$/, '-small.webp');
+  const thumbSrc = src.replace(/-full\.webp$/, '-thumb.webp');
 
   return (
     <div className='construct-body-img relative aspect-[4/3] w-full overflow-hidden rounded-sm border border-white/5 bg-white/5 !my-3'>
@@ -30,7 +32,9 @@ const CollapsedListHeroImage = ({ src, alt }: { src: string; alt: string }) => {
         }`}
       />
       <img
-        src={src}
+        src={thumbSrc}
+        srcSet={`${smallSrc} 480w, ${thumbSrc} 800w`}
+        sizes='(min-width: 768px) 672px, 100vw'
         alt={alt}
         loading='lazy'
         decoding='async'
