@@ -1,6 +1,6 @@
 import type { KeyboardEvent, MouseEvent, ReactNode } from 'react';
 
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ProgressiveImage } from 'src/components/ProgressiveImage';
 import { useInfiniteList } from 'src/hooks/useInfiniteList';
 import { useJitter } from 'src/hooks/useJitter';
@@ -71,34 +71,51 @@ const CullableBody = ({
     initial: initialVisible,
     rootMargin: '300% 0px',
   });
-  const heightRef = useRef<number | null>(null);
+  // `height` drives the placeholder; storing in state ensures resize
+  // invalidations actually trigger a re-render. `lastHeightRef` survives
+  // invalidations so a stale (but non-zero) measurement is still available
+  // as a `min-height` floor — without it, a culled placeholder rendered
+  // with `height: undefined` would collapse to ~0 px and shift every
+  // subsequent entry up by the article's height during the timing window
+  // between resize and the next IO/RO measurement.
+  const [height, setHeight] = useState<number | null>(null);
+  const lastHeightRef = useRef<number | null>(null);
   const liveRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (!visible) return;
     const node = liveRef.current;
-    if (!node || typeof ResizeObserver === 'undefined') {
-      if (node) heightRef.current = node.offsetHeight || heightRef.current;
+    if (!node) return;
+    const apply = () => {
+      const h = node.offsetHeight;
+      if (h > 0) {
+        lastHeightRef.current = h;
+        setHeight(h);
+      }
+    };
+    if (typeof ResizeObserver === 'undefined') {
+      apply();
       return;
     }
-    const ro = new ResizeObserver(() => {
-      const h = node.offsetHeight;
-      if (h > 0) heightRef.current = h;
-    });
+    const ro = new ResizeObserver(apply);
     ro.observe(node);
-    heightRef.current = node.offsetHeight || heightRef.current;
+    apply();
     return () => ro.disconnect();
   }, [visible]);
 
   // Invalidate the cached pixel height whenever the viewport width changes
   // — the previously-measured height was for a different reflow width.
+  // `setHeight(null)` triggers a re-render so any culled placeholder drops
+  // its stale inline height; `lastHeightRef` is intentionally preserved
+  // as a soft `min-height` floor (better than collapsing to 0) until the
+  // tile is remeasured.
   useEffect(() => {
     if (typeof window === 'undefined') return;
     let lastWidth = window.innerWidth;
     const onResize = () => {
       if (window.innerWidth === lastWidth) return;
       lastWidth = window.innerWidth;
-      heightRef.current = null;
+      setHeight(null);
     };
     window.addEventListener('resize', onResize);
     window.addEventListener('orientationchange', onResize);
@@ -123,7 +140,10 @@ const CullableBody = ({
   return (
     <div
       ref={ioRef}
-      style={{ height: heightRef.current ?? undefined }}
+      style={{
+        height: height ?? undefined,
+        minHeight: lastHeightRef.current ?? undefined,
+      }}
       aria-hidden='true'
     />
   );

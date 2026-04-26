@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Markdown from 'react-markdown';
 import { ProgressiveImage } from 'src/components/ProgressiveImage';
 import { useJitter } from 'src/hooks/useJitter';
@@ -125,22 +125,27 @@ const CullableTile = ({
   const [ioRef, visible] = useNearViewport<HTMLDivElement>({
     initial: initialVisible,
   });
-  const heightRef = useRef<number | null>(null);
+  // Stored in state (not just a ref) so width invalidations re-render the
+  // placeholder — otherwise a culled tile would keep its stale pre-resize
+  // inline `min-height` until visibility flipped again.
+  const [height, setHeight] = useState<number | null>(null);
   const liveRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (!visible) return;
     const node = liveRef.current;
-    if (!node || typeof ResizeObserver === 'undefined') {
-      if (node) heightRef.current = node.offsetHeight || heightRef.current;
+    if (!node) return;
+    const apply = () => {
+      const h = node.offsetHeight;
+      if (h > 0) setHeight(h);
+    };
+    if (typeof ResizeObserver === 'undefined') {
+      apply();
       return;
     }
-    const ro = new ResizeObserver(() => {
-      const h = node.offsetHeight;
-      if (h > 0) heightRef.current = h;
-    });
+    const ro = new ResizeObserver(apply);
     ro.observe(node);
-    heightRef.current = node.offsetHeight || heightRef.current;
+    apply();
     return () => ro.disconnect();
   }, [visible]);
 
@@ -148,13 +153,14 @@ const CullableTile = ({
   // — masonry columns reflow at different widths, so the prior measurement
   // no longer matches. Falls back to the computed `aspectRatio` until the
   // tile re-enters the observer's expanded root rect and gets remeasured.
+  // `setHeight(null)` triggers the re-render that drops the stale value.
   useEffect(() => {
     if (typeof window === 'undefined') return;
     let lastWidth = window.innerWidth;
     const onResize = () => {
       if (window.innerWidth === lastWidth) return;
       lastWidth = window.innerWidth;
-      heightRef.current = null;
+      setHeight(null);
     };
     window.addEventListener('resize', onResize);
     window.addEventListener('orientationchange', onResize);
@@ -197,13 +203,12 @@ const CullableTile = ({
   }
 
   // Prefer the measured `min-height` once the tile has been visible; before
-  // first measurement, fall back to the computed `aspectRatio` so the
-  // masonry column reserves roughly-correct space and the page doesn't jump
-  // when off-screen tiles get IO'd in.
-  const cachedHeight = heightRef.current;
+  // first measurement (or after a width invalidation), fall back to the
+  // computed `aspectRatio` so the masonry column reserves roughly-correct
+  // space and the page doesn't jump when off-screen tiles get IO'd in.
   const placeholderStyle: React.CSSProperties =
-    cachedHeight != null
-      ? { ...style, minHeight: cachedHeight }
+    height != null
+      ? { ...style, minHeight: height }
       : { ...style, aspectRatio: `${aspectRatio}` };
 
   return (
