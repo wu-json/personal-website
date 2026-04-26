@@ -211,10 +211,17 @@ const CullableTile = ({
       ? { ...style, minHeight: height }
       : { ...style, aspectRatio: `${aspectRatio}` };
 
+  // Strip interactive cursor classes from the placeholder so the inert,
+  // aria-hidden div doesn't show a pointer/hand cursor on hover.
+  const placeholderClassName = className
+    .split(/\s+/)
+    .filter(c => c && c !== 'cursor-pointer')
+    .join(' ');
+
   return (
     <div
       ref={ioRef}
-      className={className}
+      className={placeholderClassName}
       style={placeholderStyle}
       aria-hidden='true'
     />
