@@ -466,6 +466,9 @@ const SpiderLily = ({ className }: { className?: string }) => {
       (_, i) => i * 0.9 + Math.cos(i * 1.7) * 0.6,
     );
 
+    // Gate the rAF tail-schedule on document visibility. Backgrounded tabs
+    // otherwise burn CPU running the wind/sway loop no one's looking at. The
+    // `visibilitychange` listener below re-schedules when the tab comes back.
     const animate = () => {
       const now = performance.now();
       const t = (now - t0) * WIND_SPEED;
@@ -558,11 +561,25 @@ const SpiderLily = ({ className }: { className?: string }) => {
         );
       }
 
+      if (document.visibilityState === 'hidden') {
+        rafRef.current = 0;
+        return;
+      }
       rafRef.current = requestAnimationFrame(animate);
     };
 
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && !rafRef.current) {
+        rafRef.current = requestAnimationFrame(animate);
+      }
+    };
+
     rafRef.current = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(rafRef.current);
+    document.addEventListener('visibilitychange', onVisibilityChange);
+    return () => {
+      cancelAnimationFrame(rafRef.current);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+    };
   }, []);
 
   return (

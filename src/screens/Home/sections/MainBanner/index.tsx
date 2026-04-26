@@ -1,3 +1,5 @@
+import { useJitter } from 'src/hooks/useJitter';
+
 import { SpiderLily } from '../../SpiderLily';
 
 const linkClass =
@@ -6,9 +8,8 @@ const linkClass =
 const bioClass =
   'bio-glitch text-white text-xs sm:text-sm font-pixel text-left leading-relaxed';
 
-const jitter = () => ({ animationDelay: `${Math.random() * 120}ms` });
-
 const MainBanner = () => {
+  const jitter = useJitter();
   return (
     <div className='w-full h-screen bg-black flex items-center justify-center md:pr-40'>
       <div className='flex flex-col items-start gap-6 md:gap-8 max-w-md lg:max-w-lg px-6'>

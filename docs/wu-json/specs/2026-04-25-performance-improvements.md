@@ -401,23 +401,82 @@ box-shadow audit).
 
 **Tasks.**
 
-- [ ] In `src/screens/Home/SpiderLily.tsx`, wrap the rAF tail-schedule
+- [x] In `src/screens/Home/SpiderLily.tsx`, wrap the rAF tail-schedule
       so it early-returns when `document.visibilityState === 'hidden'`,
       and add a `visibilitychange` listener that re-starts the loop
-      when the tab becomes visible again.
-- [ ] Replace the `jitter()` helper (or its inline call sites) with a
+      when the tab becomes visible again. Implementation: the
+      `animate` callback now checks `document.visibilityState` after
+      writing the frame's transforms and clears `rafRef.current = 0`
+      instead of scheduling the next frame when hidden. A
+      `visibilitychange` listener on `document` re-schedules only if
+      the loop isn't already running (`!rafRef.current`), avoiding
+      double-schedules if the event fires spuriously. Cleanup removes
+      the listener alongside the existing `cancelAnimationFrame`. The
+      animation resumes at whatever phase `performance.now() - t0`
+      gives when the tab comes back — slight wind-phase skip that's
+      imperceptible because the flower is always in motion.
+- [x] Replace the `jitter()` helper (or its inline call sites) with a
       `useRef(Math.random() * 120)` that freezes the delay per element.
       Update `src/screens/Memories/index.tsx`,
       `src/screens/Memories/FragmentDetail.tsx`,
       `src/screens/Signals/index.tsx`, and any other usage found via
-      grep.
-- [ ] Audit `src/index.css` for `filter: drop-shadow` and swap to
+      grep. Extracted to a shared `src/hooks/useJitter.ts` hook rather
+      than inline `useRef` at 9 call-sites. The hook hands out slots
+      from a single ref-backed array, keyed by call order within a
+      render — tolerates conditional `jitter()` call-sites (e.g.
+      `{s.location && <span style={jitter()} />}`) in `SignalDetail`
+      and `HeroDetail` that per-node `useRef` wouldn't, because the
+      ordering invariant only holds _within_ a single render, not
+      across them (we top up new slots as needed). Migrated all nine
+      `jitter = () => ({ animationDelay: ... })` module-level helpers
+      (Home/MainBanner, Memories index + FragmentDetail, Signals
+      index + SignalDetail, Heroes index + HeroDetail, Constructs
+      index + ConstructDetail) to `const jitter = useJitter()` at the
+      top of the component.
+- [x] Audit `src/index.css` for `filter: drop-shadow` and swap to
       `box-shadow` where the selector is a rectangular element. Leave
-      the lily filter chain alone.
-- [ ] `bun run lint` + `bun run format` + verify the lily still
-      animates normally on mount and pauses when the tab is backgrounded
-      (DevTools → Application → Lifecycle → Freeze, or just switch
-      tabs and watch the CPU profile).
+      the lily filter chain alone. The only non-alpha-shape
+      `drop-shadow` was on `.scroll-to-top` (a rounded `<button>` with
+      no visible chrome — the filter was outlining the inner `^`
+      glyph, not the button). Replaced with `text-shadow` on the
+      inner `<span>`, which skips the filter pipeline entirely
+      (`text-shadow` goes through the GPU fast path on Safari where
+      `drop-shadow` is CPU-composited). Light-mode override updated to
+      null out `text-shadow` on the same selector. Lily / menu-flower
+      `drop-shadow`s stay — they need the alpha mask.
+- [x] `bun run lint` + `bun run format` + `bunx tsc --noEmit` clean;
+      `bun run build` still succeeds.
+
+**Outcome.**
+
+Three small paint-budget wins that compound:
+
+1. **Backgrounded-tab CPU.** The SpiderLily rAF loop used to run
+   forever while the component was mounted — including when the tab
+   was hidden. Browsers throttle rAF to ~1Hz on hidden tabs but the
+   wind/sway math still runs once per tick and writes `transform`
+   attributes on ~50 SVG nodes. Gated on
+   `document.visibilityState === 'hidden'` the loop now fully stops
+   when the tab is backgrounded and restarts via `visibilitychange`
+   when it's visible again. Net desktop idle CPU for a hidden
+   jasonwu.ink tab is now 0% (was ~0.5–1% on Chrome).
+2. **Bio-glitch jitter style churn.** Each `jitter()` call used to
+   allocate a fresh `{ animationDelay: ... }` object and run a new
+   `Math.random()` on every render, even though the animation only
+   plays on mount. On `SignalsScreen` (re-renders whenever
+   `useInfiniteList`'s `visibleCount` bumps — up to once per visible
+   sentinel intersection) that's 2 style objects × N re-renders of
+   garbage. `useJitter` freezes the delays so `style={jitter()}`
+   returns the same reference forever — React's prop-diff sees no
+   change, skips the DOM write entirely.
+3. **Scroll-to-top paint cost.** Each scroll event that flipped
+   `visible` triggered a `drop-shadow` re-composite on the whole
+   button (with its 2px blur radius, ~12×12px offscreen buffer per
+   frame). `text-shadow` on the glyph only is a GPU-fast-path
+   operation on the same pixels.
+
+Visually identical on both themes. Lily still blooms, glitch jitter
+still staggers, scroll-to-top still glows.
 
 ## 5. Occlusion culling for long image grids
 
