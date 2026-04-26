@@ -28,8 +28,8 @@ when all its boxes are checked.
   measurably faster, especially on mid-tier iPhones (the same ones the
   previous mobile-perf spec targeted).
 - Cut bytes shipped per route. Our initial bundle pulls in `react-markdown`
-  - all remark/rehype plugins on every route because every Detail screen
-    is imported eagerly at the top of `src/App.tsx`.
+  + all remark/rehype plugins on every route because every Detail screen
+  is imported eagerly at the top of `src/App.tsx`.
 - Make the Memories detail page smooth while scrolling long fragments —
   currently every `<img>` in the masonry mounts with its own React state
   via `ProgressiveImage`, which is fine for 20 tiles and expensive for
@@ -194,7 +194,7 @@ Extend `photoUrl()` in `src/screens/Memories/data.ts` to accept it.
 Adopt where it measurably helps:
 
 - Fragment detail masonry: `<img srcset="…-small.webp 480w, …-thumb.webp
-800w" sizes="(min-width: 1024px) 260px, (min-width: 640px) 50vw, 100vw">`.
+  800w" sizes="(min-width: 1024px) 260px, (min-width: 640px) 50vw, 100vw">`.
   Browser picks correctly by DPR × CSS width.
 - Signals `CollapsedListHeroImage`: same `srcset`.
 - Memories / Constructs / Heroes index cards: keep `thumb` (it's already
@@ -284,7 +284,7 @@ placeholder entirely.
       on a `<div class="progressive-image">` wrapper, removing
       `useState(loaded)` and the second placeholder `<img>`. Attach the
       load handler via `useRef` + `addEventListener('load', …, { once:
-  true })` to set `data-loaded="true"` imperatively.
+      true })` to set `data-loaded="true"` imperatively.
 - [ ] Verify all existing callsites still work: Memories index &
       detail, Signals `CollapsedListHeroImage`, `MarkdownBody` `<img>`,
       Heroes detail, Constructs detail.
@@ -303,11 +303,12 @@ deliver.
   the tab is backgrounded. Per the previous mobile spec, the loop is
   already skipped on `heavyEffectsEnabled=false`, so this is a desktop
   concern: backgrounded tabs consume CPU they don't need to.
-- `style={{ animationDelay: \`${Math.random() \* 120}ms\` }}`is applied
-inline via`jitter()`in`Memories/index.tsx`, `FragmentDetail.tsx`,
-`Signals/index.tsx`, and elsewhere. The cost is inline-style object
-churn + a `Math.random()`call per node per render, not a re-triggered
-animation (CSS animations only restart via the`data-theme-flash-reset`attribute dance in`ThemeContext.tsx`). Still, it's pointless
+- `style={{ animationDelay: \`${Math.random() * 120}ms\` }}` is applied
+  inline via `jitter()` in `Memories/index.tsx`, `FragmentDetail.tsx`,
+  `Signals/index.tsx`, and elsewhere. The cost is inline-style object
+  churn + a `Math.random()` call per node per render, not a re-triggered
+  animation (CSS animations only restart via the `data-theme-flash-reset`
+  attribute dance in `ThemeContext.tsx`). Still, it's pointless
   recalculation on every render.
 - `filter: drop-shadow(...)` on a handful of selectors falls back to CPU
   compositing on Safari. Where the blur radius allows, `box-shadow` is
@@ -386,8 +387,7 @@ placeholder. Same `IntersectionObserver` trick, scoped to the
 `<article>` wrapper.
 
 Extract the IO logic into `src/hooks/useNearViewport.ts` (returns a ref
-
-- `visible` boolean).
++ `visible` boolean).
 
 **Files touched.** `src/screens/Memories/FragmentDetail.tsx`,
 `src/screens/Signals/index.tsx`, new `src/hooks/useNearViewport.ts`.
