@@ -16,7 +16,7 @@ description: >-
 bun scripts/optimize-photos.ts <source-dir> <slug> constructs
 ```
 
-Output: `public/images/constructs/<slug>/` with WebP variants. Capture printed dimensions for `coverWidth` / `coverHeight`.
+Output: `public/images/constructs/<slug>/` with WebP variants (defined in `scripts/optimize-photos.ts`: `placeholder`, `small`, `thumb`, `full`). Capture printed dimensions for `coverWidth` / `coverHeight`.
 
 ## 2. Create the construct entry file
 
