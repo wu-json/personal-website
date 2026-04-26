@@ -114,9 +114,24 @@ const CullableTile = ({
   });
 
   if (visible) {
+    const onKeyDown = onClick
+      ? (e: React.KeyboardEvent<HTMLDivElement>) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            onClick();
+          }
+        }
+      : undefined;
     return (
-      // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
-      <div ref={ref} className={className} style={style} onClick={onClick}>
+      <div
+        ref={ref}
+        className={className}
+        style={style}
+        onClick={onClick}
+        onKeyDown={onKeyDown}
+        role={onClick ? 'button' : undefined}
+        tabIndex={onClick ? 0 : undefined}
+      >
         {children}
       </div>
     );

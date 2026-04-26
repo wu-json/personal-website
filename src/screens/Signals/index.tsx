@@ -1,6 +1,6 @@
 import type { KeyboardEvent, MouseEvent, ReactNode } from 'react';
 
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { ProgressiveImage } from 'src/components/ProgressiveImage';
 import { useInfiniteList } from 'src/hooks/useInfiniteList';
 import { useJitter } from 'src/hooks/useJitter';
@@ -77,10 +77,13 @@ const CullableBody = ({
     return () => ro.disconnect();
   }, [visible]);
 
-  const composedRef = (node: HTMLDivElement | null) => {
-    ioRef(node);
-    liveRef.current = node;
-  };
+  const composedRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      ioRef(node);
+      liveRef.current = node;
+    },
+    [ioRef],
+  );
 
   if (visible) {
     return <div ref={composedRef}>{children}</div>;
