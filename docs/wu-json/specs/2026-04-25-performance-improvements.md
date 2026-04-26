@@ -28,8 +28,8 @@ when all its boxes are checked.
   measurably faster, especially on mid-tier iPhones (the same ones the
   previous mobile-perf spec targeted).
 - Cut bytes shipped per route. Our initial bundle pulls in `react-markdown`
-  + all remark/rehype plugins on every route because every Detail screen
-  is imported eagerly at the top of `src/App.tsx`.
+  - all remark/rehype plugins on every route because every Detail screen
+    is imported eagerly at the top of `src/App.tsx`.
 - Make the Memories detail page smooth while scrolling long fragments —
   currently every `<img>` in the masonry mounts with its own React state
   via `ProgressiveImage`, which is fine for 20 tiles and expensive for
@@ -91,7 +91,7 @@ Ideas we're _not_ taking:
   shape of chenglou's whole app; we're a component tree, not a single
   render loop.
 
-## 1. Route-level code splitting *(highest priority)*
+## 1. Route-level code splitting _(highest priority)_
 
 **Problem.** `src/App.tsx` eagerly imports every screen (Home, Memories,
 FragmentDetail, Signals, SignalDetail, Constructs, Heroes, …). Only
@@ -137,19 +137,31 @@ the `markdown` chunk is not in the network waterfall for `/` or
 
 **Tasks.**
 
-- [ ] Convert `MemoriesScreen`, `FragmentDetail`, `SignalsScreen`,
+- [x] Convert `MemoriesScreen`, `FragmentDetail`, `SignalsScreen`,
       `SignalDetail`, `ConstructsScreen`, `ConstructDetail`,
       `HeroesScreen`, `HeroDetail` to `lazy()` imports in `src/App.tsx`
       (match the existing `GalleryScreen` pattern).
-- [ ] Wrap the inner `<Switch>` inside `RootLayout` in a `<Suspense>`
+- [x] Wrap the inner `<Switch>` inside `RootLayout` in a `<Suspense>`
       with a `bg-black` full-viewport fallback so there's no white flash
       during chunk fetch.
-- [ ] Run `bun run build` and confirm from `build/assets/` that the
+- [x] Run `bun run build` and confirm from `build/assets/` that the
       `markdown` chunk is emitted as a separate file and that the `/`
       and `/memories` entry HTML no longer references it. Record
       before/after sizes in the PR description.
-- [ ] `bun run lint` + `bun run format` + smoke-test each route in
+- [x] `bun run lint` + `bun run format` + smoke-test each route in
       `bun run preview`.
+
+**Outcome.**
+`index.html` before → preloaded 4 chunks (`index` 194 kB, `react` 192 kB,
+`markdown` 329 kB, `three` 887 kB = ~471 kB gzipped downloaded on every
+route). After → preloads only the entry (`index-*.js` 222 kB / 71 kB
+gzipped). The `markdown`, `three`, and per-screen chunks now load only
+when the relevant route is visited. `/` initial JS dropped ~6×.
+Also removed the `rollupOptions.output.manualChunks` config in
+`vite.config.mts`: with `lazy()` imports in place, Vite's default
+per-dynamic-import chunking is strictly better — the named manual
+chunks were being preloaded unconditionally even when nothing on the
+current route needed them.
 
 ## 2. Image pipeline: add a `small` variant + `fetchpriority` hints
 
@@ -182,7 +194,7 @@ Extend `photoUrl()` in `src/screens/Memories/data.ts` to accept it.
 Adopt where it measurably helps:
 
 - Fragment detail masonry: `<img srcset="…-small.webp 480w, …-thumb.webp
-  800w" sizes="(min-width: 1024px) 260px, (min-width: 640px) 50vw, 100vw">`.
+800w" sizes="(min-width: 1024px) 260px, (min-width: 640px) 50vw, 100vw">`.
   Browser picks correctly by DPR × CSS width.
 - Signals `CollapsedListHeroImage`: same `srcset`.
 - Memories / Constructs / Heroes index cards: keep `thumb` (it's already
@@ -272,7 +284,7 @@ placeholder entirely.
       on a `<div class="progressive-image">` wrapper, removing
       `useState(loaded)` and the second placeholder `<img>`. Attach the
       load handler via `useRef` + `addEventListener('load', …, { once:
-      true })` to set `data-loaded="true"` imperatively.
+  true })` to set `data-loaded="true"` imperatively.
 - [ ] Verify all existing callsites still work: Memories index &
       detail, Signals `CollapsedListHeroImage`, `MarkdownBody` `<img>`,
       Heroes detail, Constructs detail.
@@ -291,12 +303,11 @@ deliver.
   the tab is backgrounded. Per the previous mobile spec, the loop is
   already skipped on `heavyEffectsEnabled=false`, so this is a desktop
   concern: backgrounded tabs consume CPU they don't need to.
-- `style={{ animationDelay: \`${Math.random() * 120}ms\` }}` is applied
-  inline via `jitter()` in `Memories/index.tsx`, `FragmentDetail.tsx`,
-  `Signals/index.tsx`, and elsewhere. The cost is inline-style object
-  churn + a `Math.random()` call per node per render, not a re-triggered
-  animation (CSS animations only restart via the `data-theme-flash-reset`
-  attribute dance in `ThemeContext.tsx`). Still, it's pointless
+- `style={{ animationDelay: \`${Math.random() \* 120}ms\` }}`is applied
+inline via`jitter()`in`Memories/index.tsx`, `FragmentDetail.tsx`,
+`Signals/index.tsx`, and elsewhere. The cost is inline-style object
+churn + a `Math.random()`call per node per render, not a re-triggered
+animation (CSS animations only restart via the`data-theme-flash-reset`attribute dance in`ThemeContext.tsx`). Still, it's pointless
   recalculation on every render.
 - `filter: drop-shadow(...)` on a handful of selectors falls back to CPU
   compositing on Safari. Where the blur radius allows, `box-shadow` is
@@ -375,7 +386,8 @@ placeholder. Same `IntersectionObserver` trick, scoped to the
 `<article>` wrapper.
 
 Extract the IO logic into `src/hooks/useNearViewport.ts` (returns a ref
-+ `visible` boolean).
+
+- `visible` boolean).
 
 **Files touched.** `src/screens/Memories/FragmentDetail.tsx`,
 `src/screens/Signals/index.tsx`, new `src/hooks/useNearViewport.ts`.
