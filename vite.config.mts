@@ -8,28 +8,6 @@ export default defineConfig({
   build: {
     outDir: 'build',
     chunkSizeWarningLimit: 1000,
-    rollupOptions: {
-      output: {
-        manualChunks: id => {
-          if (!id.includes('node_modules')) return;
-          if (/[\\/]node_modules[\\/](three|@react-three)[\\/]/.test(id)) {
-            return 'three';
-          }
-          if (
-            /[\\/]node_modules[\\/](react|react-dom|scheduler)[\\/]/.test(id)
-          ) {
-            return 'react';
-          }
-          if (
-            /[\\/]node_modules[\\/](react-markdown|remark-.*|rehype-.*|micromark.*|mdast-.*|unist-.*|hast-.*|unified|vfile.*|bail|trough|devlop|decode-named-character-reference|character-entities.*|property-information|space-separated-tokens|comma-separated-tokens|ccount|escape-string-regexp|longest-streak|markdown-table|zwitch)[\\/]/.test(
-              id,
-            )
-          ) {
-            return 'markdown';
-          }
-        },
-      },
-    },
   },
   plugins: [react(), tailwindcss()],
   server: {
