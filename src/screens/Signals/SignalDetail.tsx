@@ -1,11 +1,11 @@
+import { useJitter } from 'src/hooks/useJitter';
 import { Link } from 'wouter';
 
 import { signals } from './data';
 import { MarkdownBody } from './MarkdownBody';
 
-const jitter = () => ({ animationDelay: `${Math.random() * 120}ms` });
-
 const SignalDetail = ({ id }: { id: string }) => {
+  const jitter = useJitter();
   const s = signals.find(sx => sx.id === id);
 
   if (!s) {

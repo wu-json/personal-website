@@ -868,12 +868,19 @@ html[data-theme-flash-reset] .nav-glitch-active {
   }
 }
 
-/* Scroll-to-top — ink-colored glow that tracks the active theme */
-.scroll-to-top {
-  filter: drop-shadow(0 0 2px var(--color-glow));
+/* Scroll-to-top — ink-colored glow that tracks the active theme. Uses
+   `text-shadow` on the `^` glyph rather than `filter: drop-shadow` on the
+   button: the button has no visible chrome (no background / border), so
+   only the text needs the glow. `text-shadow` skips the filter pipeline
+   (no offscreen buffer, no alpha-mask reblur on every paint) — on Safari
+   especially, `drop-shadow` is composited on the CPU where `text-shadow`
+   goes through the fast GPU path. */
+.scroll-to-top > span {
+  text-shadow: 0 0 2px var(--color-glow);
+  transition: text-shadow 300ms;
 }
-.scroll-to-top:hover {
-  filter: drop-shadow(0 0 6px var(--color-glow-strong));
+.scroll-to-top:hover > span {
+  text-shadow: 0 0 6px var(--color-glow-strong);
 }
 
 /* Signal list item hover. Gated behind `(hover: hover)` so iOS Safari
@@ -1008,9 +1015,9 @@ html[data-theme-flash-reset] .nav-glitch-active {
 
 /* Scroll-to-top glow reads as a muddy halo around the black icon on white;
    drop it in light mode the same way we do for active-nav text-shadows. */
-[data-theme='light'] .scroll-to-top,
-[data-theme='light'] .scroll-to-top:hover {
-  filter: none;
+[data-theme='light'] .scroll-to-top > span,
+[data-theme='light'] .scroll-to-top:hover > span {
+  text-shadow: none;
 }
 
 /* Same story for the mobile menu flower: the breathing drop-shadow reads as a

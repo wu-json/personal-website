@@ -2,6 +2,7 @@ import type { KeyboardEvent, MouseEvent } from 'react';
 
 import { ProgressiveImage } from 'src/components/ProgressiveImage';
 import { useInfiniteList } from 'src/hooks/useInfiniteList';
+import { useJitter } from 'src/hooks/useJitter';
 import { useLocation } from 'wouter';
 
 import { signals } from './data';
@@ -11,8 +12,6 @@ import {
   shouldCollapseSignalList,
   signalPlainExcerpt,
 } from './preview';
-
-const jitter = () => ({ animationDelay: `${Math.random() * 120}ms` });
 
 /** Fixed 4:3 frame + centered cover — avoids max-height clipping that made
  *  previews a thin strip. Width=4/Height=3 drives ProgressiveImage's
@@ -39,6 +38,7 @@ const CollapsedListHeroImage = ({ src, alt }: { src: string; alt: string }) => {
 
 const SignalsScreen = () => {
   const [, navigate] = useLocation();
+  const jitter = useJitter();
   const { visibleCount, sentinelRef, done } = useInfiniteList(signals.length, {
     pageSize: 6,
   });

@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import Markdown from 'react-markdown';
 import { ProgressiveImage } from 'src/components/ProgressiveImage';
+import { useJitter } from 'src/hooks/useJitter';
 import { Link, useLocation } from 'wouter';
 
 import type { Grouping, PhotoMeta } from './types';
@@ -80,10 +81,9 @@ function filesFromGridItem(item: GridItem): string[] {
     : item.photos.map(p => p.file);
 }
 
-const jitter = () => ({ animationDelay: `${Math.random() * 120}ms` });
-
 const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
   const [, navigate] = useLocation();
+  const jitter = useJitter();
   const fragment = fragments.find(f => f.id === id);
 
   const gridItems = useMemo(

@@ -1,13 +1,13 @@
 import Markdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
+import { useJitter } from 'src/hooks/useJitter';
 import { Link } from 'wouter';
 
 import { ProgressiveImage } from '../../components/ProgressiveImage';
 import { constructs } from './data';
 
-const jitter = () => ({ animationDelay: `${Math.random() * 120}ms` });
-
 const ConstructDetail = ({ id }: { id: string }) => {
+  const jitter = useJitter();
   const c = constructs.find(x => x.id === id);
 
   if (!c) {
