@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 
-import { useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import Markdown from 'react-markdown';
 import { ProgressiveImage } from 'src/components/ProgressiveImage';
 import { useJitter } from 'src/hooks/useJitter';
@@ -88,11 +88,18 @@ function filesFromGridItem(item: GridItem): string[] {
  * Occlusion-cull a masonry tile. Renders `children` when within (or near) the
  * viewport, and a same-sized `<div>` placeholder otherwise — preserves the
  * `columns-*` masonry flow either way because the wrapper keeps its classes
- * and aspect ratio. Eager tiles (above-the-fold) skip the placeholder on
- * first render via `initialVisible` so there's no first-paint flicker.
+ * and (initially) aspect ratio. Eager tiles (above-the-fold) skip the
+ * placeholder on first render via `initialVisible` so there's no first-paint
+ * flicker.
  *
  * Decoupled from `<ProgressiveImage>` because group tiles render multiple
  * images inside a flex wrapper; this shell culls the whole cell.
+ *
+ * Once a tile has been visible, a `ResizeObserver` caches its measured
+ * `offsetHeight` and the placeholder switches from a computed `aspectRatio`
+ * (an approximation that ignores `gap-*` between flex children, and for
+ * `flex-1` rows mis-estimates the equal-width row height) to the exact
+ * `min-height` of the live element. Mirrors `CullableBody` in `Signals/`.
  */
 const CullableTile = ({
   className,
@@ -109,9 +116,35 @@ const CullableTile = ({
   onClick?: () => void;
   children: ReactNode;
 }) => {
-  const [ref, visible] = useNearViewport<HTMLDivElement>({
+  const [ioRef, visible] = useNearViewport<HTMLDivElement>({
     initial: initialVisible,
   });
+  const heightRef = useRef<number | null>(null);
+  const liveRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!visible) return;
+    const node = liveRef.current;
+    if (!node || typeof ResizeObserver === 'undefined') {
+      if (node) heightRef.current = node.offsetHeight || heightRef.current;
+      return;
+    }
+    const ro = new ResizeObserver(() => {
+      const h = node.offsetHeight;
+      if (h > 0) heightRef.current = h;
+    });
+    ro.observe(node);
+    heightRef.current = node.offsetHeight || heightRef.current;
+    return () => ro.disconnect();
+  }, [visible]);
+
+  const composedRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      ioRef(node);
+      liveRef.current = node;
+    },
+    [ioRef],
+  );
 
   if (visible) {
     const onKeyDown = onClick
@@ -124,7 +157,7 @@ const CullableTile = ({
       : undefined;
     return (
       <div
-        ref={ref}
+        ref={composedRef}
         className={className}
         style={style}
         onClick={onClick}
@@ -137,11 +170,21 @@ const CullableTile = ({
     );
   }
 
+  // Prefer the measured `min-height` once the tile has been visible; before
+  // first measurement, fall back to the computed `aspectRatio` so the
+  // masonry column reserves roughly-correct space and the page doesn't jump
+  // when off-screen tiles get IO'd in.
+  const cachedHeight = heightRef.current;
+  const placeholderStyle: React.CSSProperties =
+    cachedHeight != null
+      ? { ...style, minHeight: cachedHeight }
+      : { ...style, aspectRatio: `${aspectRatio}` };
+
   return (
     <div
-      ref={ref}
+      ref={ioRef}
       className={className}
-      style={{ ...style, aspectRatio: `${aspectRatio}` }}
+      style={placeholderStyle}
       aria-hidden='true'
     />
   );
