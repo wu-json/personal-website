@@ -154,7 +154,7 @@ const DEFAULT_COUNT = 19;
 const makeImages = (count: number): ImageSpec[] =>
   Array.from({ length: count }, (_, i) => ({
     id: `untitled ${String.fromCharCode(65 + (i % 26))}${i >= 26 ? String(i) : ''}`,
-    orientation: (i % 3 === 0 ? 'portrait' : 'landscape') as const,
+    orientation: i % 3 === 0 ? 'portrait' : 'landscape',
   }));
 
 const MOVE_SPEED = 16;
@@ -1272,7 +1272,7 @@ const GalleryScreen = ({ fragmentId }: { fragmentId?: string }) => {
       const images: ImageSpec[] = fragment.photos.map(p => ({
         id: p.file,
         label: p.caption || 'Untitled',
-        orientation: (p.width > p.height ? 'landscape' : 'portrait') as const,
+        orientation: p.width > p.height ? 'landscape' : 'portrait',
         aspectRatio: p.width / p.height,
         imageUrl: photoUrl(fragment.id, p.file, 'thumb'),
         groupId: p.group,

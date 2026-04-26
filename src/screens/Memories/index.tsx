@@ -37,6 +37,7 @@ const MemoriesScreen = () => (
               width={3}
               height={2}
               loading={i < 4 ? 'eager' : 'lazy'}
+              fetchPriority={i < 2 ? 'high' : undefined}
               className={`rounded-sm ${f.coverClassName ?? ''}`}
             />
             <div className='mt-3'>

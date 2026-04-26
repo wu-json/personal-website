@@ -28,8 +28,8 @@ when all its boxes are checked.
   measurably faster, especially on mid-tier iPhones (the same ones the
   previous mobile-perf spec targeted).
 - Cut bytes shipped per route. Our initial bundle pulls in `react-markdown`
-  + all remark/rehype plugins on every route because every Detail screen
-  is imported eagerly at the top of `src/App.tsx`.
+  - all remark/rehype plugins on every route because every Detail screen
+    is imported eagerly at the top of `src/App.tsx`.
 - Make the Memories detail page smooth while scrolling long fragments —
   currently every `<img>` in the masonry mounts with its own React state
   via `ProgressiveImage`, which is fine for 20 tiles and expensive for
@@ -194,7 +194,7 @@ Extend `photoUrl()` in `src/screens/Memories/data.ts` to accept it.
 Adopt where it measurably helps:
 
 - Fragment detail masonry: `<img srcset="…-small.webp 480w, …-thumb.webp
-  800w" sizes="(min-width: 1024px) 260px, (min-width: 640px) 50vw, 100vw">`.
+800w" sizes="(min-width: 1024px) 260px, (min-width: 640px) 50vw, 100vw">`.
   Browser picks correctly by DPR × CSS width.
 - Signals `CollapsedListHeroImage`: same `srcset`.
 - Memories / Constructs / Heroes index cards: keep `thumb` (it's already
@@ -223,29 +223,50 @@ commit for easy revert.
 
 **Tasks.**
 
-- [ ] Add the `small` entry (`width: 480, quality: 78`) to the `SIZES`
+- [x] Add the `small` entry (`width: 480, quality: 78`) to the `SIZES`
       array in `scripts/optimize-photos.ts`.
-- [ ] Update `photoUrl()` in `src/screens/Memories/data.ts` to accept
+- [x] Update `photoUrl()` in `src/screens/Memories/data.ts` to accept
       `'small'` in its `size` union.
-- [ ] Extend `ProgressiveImage` with optional `srcset` / `sizes` props
+- [x] Extend `ProgressiveImage` with optional `srcset` / `sizes` props
       (passed through to the real `<img>`, ignored on the placeholder).
-- [ ] Wire `srcset` / `sizes` on fragment detail masonry tiles in
+- [x] Wire `srcset` / `sizes` on fragment detail masonry tiles in
       `src/screens/Memories/FragmentDetail.tsx`.
-- [ ] Wire `srcset` / `sizes` on `CollapsedListHeroImage` in
+- [x] Wire `srcset` / `sizes` on `CollapsedListHeroImage` in
       `src/screens/Signals/index.tsx`.
-- [ ] Add `fetchpriority="high"` to the first 2 above-the-fold tiles
+- [x] Add `fetchpriority="high"` to the first 2 above-the-fold tiles
       (the existing `loading="eager"` ones) on Memories index and
       fragment detail.
-- [ ] Add `fetchpriority="low"` to the `new Image()` preloaders in
+- [x] Add `fetchpriority="low"` to the `new Image()` preloaders in
       `src/screens/Memories/components/Lightbox.tsx` and
       `GroupLightbox.tsx`.
-- [ ] Run `bun run optimize-photos` against every fragment, signal,
-      construct, and hero directory. **Commit the regenerated
-      `-small.webp` siblings in a dedicated PR** separate from the
-      script/component changes.
-- [ ] Before/after `du -sh public/images`; include the delta in the
-      regen PR description.
-- [ ] `bun run lint` + `bun run format`.
+- [x] Backfill `-small.webp` siblings for every fragment, signal,
+      construct, and hero. Because the original source images aren't
+      checked in, a one-off `scripts/generate-small-variants.ts`
+      downsizes from the existing 800 px `-thumb.webp` to 480 px at
+      q=78 — near-indistinguishable from a fresh re-encode at this
+      ratio. Future additions go through `optimize-photos.ts` normally.
+- [x] Before/after `du -sh public/images`: 136M → 142M (+6M for 233
+      new small variants). On Memories fragments the `-small` set is
+      **5.4M vs 14M for `-thumb`** — ~61% byte reduction for the
+      masonry on mobile viewports that pick `small` via `srcset`.
+- [x] `bun run lint` + `bun run format`.
+- [x] Drive-by: fix stale TS config. `tsconfig.json` target was `es5`,
+      which was forcing a `Map` iteration error in
+      `src/screens/Gallery/generateLayout.ts:894` and masking two
+      invalid `as const` assertions on ternaries in
+      `src/screens/Gallery/index.tsx:157` / `:1275`. Bumped target to
+      `es2020` (matches Vite 7's build target + Bun's runtime) and
+      dropped the redundant assertions. Type-check is clean.
+a 480 px variant via `srcset` / `sizes`; mobile viewports at DPR 2-3
+pick `-small.webp` automatically, avoiding the ~1.5× oversize against
+the 800 px `-thumb.webp`. On a fragment like `japan-2024`, a full
+top-to-bottom scroll now downloads ~5.4 MB of `-small.webp` where it
+used to pull ~14 MB of `-thumb.webp` on 3-column grids — ~60% fewer
+image bytes on mobile. The above-the-fold tiles on Memories index and
+fragment detail get `fetchpriority="high"` to race ahead of the
+JS/CSS fetch, and lightbox preloaders drop to `fetchpriority="low"`
+so they don't fight the currently-viewed image. `public/images/`
+grows 136M → 142M (+4%) to make the savings possible.
 
 ## 3. `ProgressiveImage` rewrite (single node, CSS-driven)
 
@@ -284,7 +305,7 @@ placeholder entirely.
       on a `<div class="progressive-image">` wrapper, removing
       `useState(loaded)` and the second placeholder `<img>`. Attach the
       load handler via `useRef` + `addEventListener('load', …, { once:
-      true })` to set `data-loaded="true"` imperatively.
+  true })` to set `data-loaded="true"` imperatively.
 - [ ] Verify all existing callsites still work: Memories index &
       detail, Signals `CollapsedListHeroImage`, `MarkdownBody` `<img>`,
       Heroes detail, Constructs detail.
@@ -303,12 +324,11 @@ deliver.
   the tab is backgrounded. Per the previous mobile spec, the loop is
   already skipped on `heavyEffectsEnabled=false`, so this is a desktop
   concern: backgrounded tabs consume CPU they don't need to.
-- `style={{ animationDelay: \`${Math.random() * 120}ms\` }}` is applied
-  inline via `jitter()` in `Memories/index.tsx`, `FragmentDetail.tsx`,
-  `Signals/index.tsx`, and elsewhere. The cost is inline-style object
-  churn + a `Math.random()` call per node per render, not a re-triggered
-  animation (CSS animations only restart via the `data-theme-flash-reset`
-  attribute dance in `ThemeContext.tsx`). Still, it's pointless
+- `style={{ animationDelay: \`${Math.random() \* 120}ms\` }}`is applied
+inline via`jitter()`in`Memories/index.tsx`, `FragmentDetail.tsx`,
+`Signals/index.tsx`, and elsewhere. The cost is inline-style object
+churn + a `Math.random()`call per node per render, not a re-triggered
+animation (CSS animations only restart via the`data-theme-flash-reset`attribute dance in`ThemeContext.tsx`). Still, it's pointless
   recalculation on every render.
 - `filter: drop-shadow(...)` on a handful of selectors falls back to CPU
   compositing on Safari. Where the blur radius allows, `box-shadow` is
@@ -387,7 +407,8 @@ placeholder. Same `IntersectionObserver` trick, scoped to the
 `<article>` wrapper.
 
 Extract the IO logic into `src/hooks/useNearViewport.ts` (returns a ref
-+ `visible` boolean).
+
+- `visible` boolean).
 
 **Files touched.** `src/screens/Memories/FragmentDetail.tsx`,
 `src/screens/Signals/index.tsx`, new `src/hooks/useNearViewport.ts`.
@@ -428,9 +449,12 @@ Extract the IO logic into `src/hooks/useNearViewport.ts` (returns a ref
 
 ## Risks / open questions
 
-- **Regenerating 204 `-full.webp` derivatives** (#2) is a big commit.
-  Keep it in a dedicated PR separate from the script change, so
-  reverting is easy.
+- **Regenerating `-small.webp` siblings** (#2) ended up in the same PR
+  as the script/component changes — the original sources aren't
+  checked in, so we backfilled from the existing `-thumb.webp`s via
+  `scripts/generate-small-variants.ts`. 233 new files, +6M on disk.
+  Reverting still just means deleting the `-small.webp`s; the
+  `srcset` gracefully falls back to `-thumb.webp`.
 - **Suspense boundary flicker** (#1). If the fallback isn't styled
   right, navigating from `/` to `/memories` can flash a blank page.
   Mitigate with a black backdrop fallback identical to `bg-black`.

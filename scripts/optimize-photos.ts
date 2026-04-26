@@ -4,6 +4,7 @@ import sharp from 'sharp';
 
 const SIZES = [
   { name: 'placeholder', width: 20, quality: 30 },
+  { name: 'small', width: 480, quality: 78 },
   { name: 'thumb', width: 800, quality: 80 },
   { name: 'full', width: 2400, quality: 85 },
 ] as const;
