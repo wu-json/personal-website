@@ -47,45 +47,71 @@ and screens they'll never visit. The home page load time regresses by
 the same ~6× the last spec won.
 
 We want **eager-warm, lazy-execute**: keep the chunks split (so the
-bytes don't appear on the critical path), but prefetch them into the
-browser's module cache during idle time or on user intent, so the
-`import()` call that `lazy()` makes at click time resolves
-synchronously from cache.
+bytes don't appear on the critical path), but prefetch them during
+idle time or on user intent, so by the time `lazy()` is asked to
+render the screen, both the network _and_ React's lazy bookkeeping
+are already settled.
 
-### Why `import()` memoization is the whole trick
+### Why module-cache prefetch isn't enough on its own
 
-Vite/Rollup compiles every `import('src/screens/Memories')` callsite —
-whether inside a `lazy()` or inside a plain fire-and-forget prefetch
-call — to the same hashed URL (`/assets/index-DQtCerIn.js` or
-whatever). The ECMAScript module system keys its registry on the
-resolved URL and memoizes the promise for that URL.
+Vite/Rollup compiles every `import('src/screens/Memories')` callsite
+— whether inside a `lazy()` or inside a plain fire-and-forget
+prefetch call — to the same hashed URL. The ECMAScript module system
+keys its registry on the resolved URL and memoizes the promise for
+that URL, so a prefetched chunk is cheap to re-import.
 
-So: a prefetch call `void import('src/screens/Memories')` downloads
-the chunk, **evaluates its top-level code**, and caches its module
-record in the registry. A later `lazy(() =>
-import('src/screens/Memories'))` call looks up the same URL, finds
-the cached record, and returns an already-resolved promise — zero
-extra network, zero extra evaluation. Suspense's "throw a promise"
-mechanism resolves on the first render attempt and the child renders
-in the same tick.
+But: `React.lazy(() => import('…'))` does _not_ read directly from
+the module registry. It carries an internal `_payload` object that
+starts in `_status: -1` and only flips to `_status: 1` (resolved) on
+the **first render** that touches the lazy component. That first
+render always throws the import promise to Suspense, even if the
+underlying ES module is already cached and resolves in a microtask.
+Suspense then commits the `<RouteFallback>`, awaits the promise, and
+re-renders on the next tick.
 
-Top-level evaluation at prefetch time is the point, not a bug. The
-heavy module-load cost in our tree is the `import.meta.glob('./<x>/*.md',
-{ eager: true })` in each screen's `data.ts` — parsing frontmatter
-for 4–11 markdown entries. We want that amortized to idle / hover,
-not charged to the click. The screen's React component itself doesn't
-run until React calls it; only module-scope side effects execute on
-prefetch.
+In practice: even with idle warmup + hover-intent landing both
+network requests well before the click, **the fallback still flashes
+black for one paint** because React's lazy contract requires a
+suspend-resume cycle on first encounter. That is the "weird pause"
+users see, and it's the entire reason this spec exists rather than
+being a one-line `import()` call on hover.
 
-This behavior is portable across Chromium, Firefox, and Safari
-(specified by the ES `HostLoadImportedModule` hook, which all three
-delegate to a URL-keyed internal slot).
+The fix is to mirror what React's `_init` does, but eagerly. At
+preload time, kick off the `import()`, then on resolution mutate the
+lazy payload directly: `_payload._status = 1`,
+`_payload._result = { default: Component }`. The next render reads
+`_status === 1` and returns the component synchronously without
+suspending. Suspense never sees a thrown promise, the fallback never
+commits, and the click paints the new route in the same frame.
+
+This is why `prefetchRoute.ts` ships its own `lazyWithPreload`
+helper rather than using `React.lazy` directly. The `_payload`
+internal shape has been stable since React 16 and is what every
+established preload library (`@loadable/component`,
+`react-lazy-with-preload`, etc.) reaches into for the same reason.
+
+Top-level module evaluation also happens at preload time. That's the
+point, not a bug: the heavy work in our tree is each screen's
+`import.meta.glob('./<x>/*.md', { eager: true })` in `data.ts`,
+parsing frontmatter for 4–11 markdown entries. We want that
+amortized to idle/hover, not charged to the click. The React
+component function doesn't run until React calls it; only
+module-scope side effects execute on preload.
+
+The module-registry behavior is portable across Chromium, Firefox,
+and Safari (specified by the ES `HostLoadImportedModule` hook). The
+`_payload` mutation is React-internal but stable across all React 16+
+versions; if React ever changes the shape, the type guard at the top
+of `lazyWithPreload` still ensures we either flip to fulfilled
+correctly or fall through to React's normal Suspense path — never
+worse than a plain `React.lazy`.
 
 ## Goals
 
 - Make first-click navigation from `/` → `/memories` / `/signals` /
   `/constructs` / `/heroes` feel instant on a warm connection (target:
-  no visible `RouteFallback` flash).
+  no visible `RouteFallback` flash, including the one-frame Suspense
+  flash that survives module-cache prefetch).
 - Make hover/focus → click on a detail `<Link>` feel instant too
   (`/memories` → `/memories/japan-2024`).
 - Zero regression on `/` initial paint. The landing page must not
@@ -93,8 +119,8 @@ delegate to a URL-keyed internal slot).
   after the first React commit.
 - Works on Safari (which doesn't support `requestIdleCallback` natively
   — fallback to `setTimeout`).
-- No new dependencies. Implementation is one `Set`-backed registry +
-  one wrapper component + a small `<RoutePrefetcher />` mount.
+- No new dependencies. Implementation is one preloadable-lazy registry
+  - one wrapper component + a small `<RoutePrefetcher />` mount.
 
 ## Non-goals
 
@@ -114,68 +140,167 @@ delegate to a URL-keyed internal slot).
 
 Three layers:
 
-### 1. Shared loader registry (`src/lib/prefetchRoute.ts`)
+### 1. Preloadable-lazy registry (`src/lib/prefetchRoute.ts`)
 
-Single source of truth for every lazy screen's `import()` specifier.
-Both `App.tsx`'s `lazy()` calls and the prefetch intents point here,
-which prevents drift (change a specifier in one place without the
-other, and either `lazy()` breaks or prefetch warms the wrong chunk).
+Single source of truth for every lazy screen, owning **both** the
+`React.lazy`-shaped `Component` mounted by `<Route>` and the
+`preload()` function called from prefetch intents. Bundling them
+together is what lets prefetch prime the lazy payload synchronously
+— see the "Why module-cache prefetch isn't enough on its own"
+section for the underlying reason. A separate `loaders` map plus
+plain `React.lazy` wouldn't work: the prefetch path needs a hook
+into the same `_payload` the lazy `<Component>` reads from.
 
 ```ts
 // src/lib/prefetchRoute.ts
-export type RouteKey =
-  | 'memories'
-  | 'memoriesDetail'
-  | 'signals'
-  | 'signalsDetail'
-  | 'constructs'
-  | 'constructsDetail'
-  | 'heroes'
-  | 'heroesDetail';
+import { type ComponentType, lazy } from 'react';
 
-export const loaders = {
-  memories: () => import('src/screens/Memories'),
-  memoriesDetail: () => import('src/screens/Memories/FragmentDetail'),
-  signals: () => import('src/screens/Signals'),
-  signalsDetail: () => import('src/screens/Signals/SignalDetail'),
-  constructs: () => import('src/screens/Constructs'),
-  constructsDetail: () => import('src/screens/Constructs/ConstructDetail'),
-  heroes: () => import('src/screens/Heroes'),
-  heroesDetail: () => import('src/screens/Heroes/HeroDetail'),
-} as const satisfies Record<RouteKey, () => Promise<unknown>>;
+type LazyPayload = { _status: -1 | 0 | 1 | 2; _result: unknown };
+type LazyExoticLike = {
+  _payload: LazyPayload;
+  _init: (payload: LazyPayload) => unknown;
+};
+type ScreenEntry<C> = { Component: C; preload: () => Promise<void> };
 
-const prefetched = new Set<RouteKey>();
+const STATUS_PENDING = 0;
+const STATUS_RESOLVED = 1;
+const STATUS_REJECTED = 2;
+
+const lazyWithPreload = <M, P>(
+  load: () => Promise<M>,
+  pickDefault: (m: M) => ComponentType<P>,
+): ScreenEntry<ComponentType<P>> => {
+  const factory = (): Promise<{ default: ComponentType<P> }> =>
+    load().then(m => ({ default: pickDefault(m) }));
+
+  const LazyComponent = lazy(factory) as unknown as ComponentType<P> &
+    LazyExoticLike;
+
+  let started: Promise<void> | null = null;
+
+  const preload = (): Promise<void> => {
+    if (started) return started;
+
+    const payload = LazyComponent._payload;
+
+    // If React already touched this lazy (direct nav to the route,
+    // then idle warmup), attach to its existing state instead of
+    // re-firing the factory.
+    if (payload._status === STATUS_RESOLVED) {
+      started = Promise.resolve();
+      return started;
+    }
+    if (payload._status === STATUS_PENDING) {
+      const inflight = payload._result as Promise<unknown>;
+      started = inflight.then(
+        () => undefined,
+        () => undefined,
+      );
+      return started;
+    }
+
+    // Status -1 (untouched) or 2 (previously failed): mirror React's
+    // `_init` eagerly. Store the in-flight promise on `_payload` so a
+    // racing render sees the same fetch instead of starting a second
+    // one, then on resolution flip `_status: 1` so the next render
+    // returns synchronously.
+    const promise = factory().then(
+      mod => {
+        payload._status = STATUS_RESOLVED;
+        payload._result = mod;
+      },
+      err => {
+        payload._status = STATUS_REJECTED;
+        payload._result = err;
+        started = null; // allow retry
+        throw err;
+      },
+    );
+
+    payload._status = STATUS_PENDING;
+    payload._result = promise;
+    started = promise.then(
+      () => undefined,
+      () => undefined,
+    );
+    return started;
+  };
+
+  return { Component: LazyComponent, preload };
+};
+
+const screens = {
+  memories: lazyWithPreload(
+    () => import('src/screens/Memories'),
+    m => m.MemoriesScreen,
+  ),
+  memoriesDetail: lazyWithPreload(
+    () => import('src/screens/Memories/FragmentDetail'),
+    m => m.FragmentDetail,
+  ),
+  signals: lazyWithPreload(
+    () => import('src/screens/Signals'),
+    m => m.SignalsScreen,
+  ),
+  signalsDetail: lazyWithPreload(
+    () => import('src/screens/Signals/SignalDetail'),
+    m => m.SignalDetail,
+  ),
+  constructs: lazyWithPreload(
+    () => import('src/screens/Constructs'),
+    m => m.ConstructsScreen,
+  ),
+  constructsDetail: lazyWithPreload(
+    () => import('src/screens/Constructs/ConstructDetail'),
+    m => m.ConstructDetail,
+  ),
+  heroes: lazyWithPreload(
+    () => import('src/screens/Heroes'),
+    m => m.HeroesScreen,
+  ),
+  heroesDetail: lazyWithPreload(
+    () => import('src/screens/Heroes/HeroDetail'),
+    m => m.HeroDetail,
+  ),
+} as const;
+
+export type RouteKey = keyof typeof screens;
+export { screens };
 
 export const prefetchRoute = (key: RouteKey) => {
-  if (prefetched.has(key)) return;
-  prefetched.add(key);
-  // Fire and forget. The later lazy()-driven import() returns the
-  // same promise from the module registry — zero additional network.
-  void loaders[key]().catch(() => {
-    // Transient failure (offline blip, CDN 503): un-mark so the real
-    // click re-tries. Never block the click on prefetch status.
-    prefetched.delete(key);
-  });
+  void screens[key].preload().catch(() => undefined);
 };
 ```
 
 Design notes:
 
-- **`as const satisfies`** gives the compile-time `RouteKey`
-  completeness check (exhaustive record) without widening the value
-  types, so `loaders.memories` keeps its narrow function type.
-- **Idempotent by key.** A sidebar link hovered 20 times fires one
-  network request.
-- **Fail-open.** Prefetch is best-effort; the Suspense fallback is the
-  safety net if it misses.
+- **One registry, two consumers.** `App.tsx` reads
+  `screens.memories.Component` for the route element; everything
+  else reads `screens.memories.preload` (via `prefetchRoute`).
+  Specifiers are written exactly once.
+- **Status guard before mutating.** If React's render fired first
+  (status 0/1/2), `preload()` attaches to the existing payload
+  instead of overwriting it, which would corrupt React's view of the
+  lazy component mid-render.
+- **`pickDefault` over module shape.** Screens are named exports
+  (`MemoriesScreen`, `FragmentDetail`, …); each `lazyWithPreload`
+  call passes a tiny adapter to project the named export onto the
+  `{ default }` shape `React.lazy` expects. Vite still dedupes the
+  inner `import()` to one chunk per screen.
+- **Idempotent by entry.** The `started` closure caches the first
+  `preload()` Promise; subsequent calls return the same value. A
+  sidebar link hovered 20 times fires one network request and one
+  payload mutation.
+- **Fail-open.** Prefetch is best-effort; on rejection we un-mark so
+  a later intent retries, and the Suspense fallback is the safety
+  net for any case the prime didn't reach in time.
 - **Why not `<link rel="modulepreload">`?** Two reasons: (a) Vite
-  hashes the chunk filenames at build time, so injecting tags into
+  hashes chunk filenames at build time, so injecting tags into
   `index.html` would need a custom plugin to template them in;
-  (b) Safari's `<link modulepreload>` implementation has occasionally
-  double-fetched when the subsequent `<script type=module>` loads
-  with different CORS semantics. A plain `import()` call sidesteps
-  both: it goes through the exact same fetch path the real click
-  would use, so the cache hit on click is guaranteed.
+  (b) `modulepreload` only solves the network — it doesn't prime
+  React's lazy payload, so the Suspense flash would still happen.
+  A plain `import()` plus payload mutation handles both layers in
+  one pass.
 
 ### 2. Idle-time warm-up after first paint (`<RoutePrefetcher />`)
 
@@ -390,11 +515,13 @@ highest-leverage fix for this class of waterfall.
 
 **Files touched:**
 
-- **New:** `src/lib/prefetchRoute.ts` — registry + `prefetchRoute`.
+- **New:** `src/lib/prefetchRoute.ts` — `lazyWithPreload` helper +
+  `screens` registry + `prefetchRoute`.
 - **New:** `src/components/PrefetchLink.tsx` — thin `<Link>` wrapper.
 - **New:** `src/layouts/RoutePrefetcher.tsx` — idle-time warm-up.
-- `src/App.tsx` — import `loaders` from `prefetchRoute.ts` so `lazy()`
-  calls share specifiers with the registry (no drift).
+- `src/App.tsx` — replace direct `lazy(() => import(…))` calls with
+  `screens.<key>.Component` references. Gallery stays on plain
+  `React.lazy` (not preloaded; one-off).
 - `src/layouts/RootLayout.tsx` — mount `<RoutePrefetcher />` at the
   end of the tree (placement doesn't matter functionally; beside
   `ScrollToTop` is tidy).
@@ -411,14 +538,15 @@ prefetch='memoriesDetail'`.
 
 ## Tasks
 
-- [x] Add `src/lib/prefetchRoute.ts` with the `RouteKey` union, a
-      `loaders` map using `as const satisfies Record<RouteKey, () =>
-      Promise<unknown>>`, a `Set`-backed idempotency guard, and a
-      `prefetchRoute(key)` function that fires-and-forgets and
-      un-marks on failure.
-- [x] Refactor `src/App.tsx` so each lazy screen routes through
-      `loaders.<key>().then(...)` — one source of truth for every
-      screen's module specifier.
+- [x] Add `src/lib/prefetchRoute.ts` with the `lazyWithPreload`
+      helper, a `screens` registry keyed by `RouteKey`, and a
+      `prefetchRoute(key)` wrapper that fires `screens[key].preload()`
+      fire-and-forget. Each `preload()` is closure-idempotent and
+      retries on transient failure.
+- [x] Refactor `src/App.tsx` to mount `screens.<key>.Component`
+      directly under each `<Route>` (no per-route `lazy()` calls
+      anymore — the registry owns them). Gallery keeps a plain
+      `React.lazy` since it's intentionally not prefetched.
 - [x] Add `src/layouts/RoutePrefetcher.tsx` with
       `requestIdleCallback` + `setTimeout(200)` fallback,
       `saveData`/`effectiveType` opt-out, tagged-handle unmount
@@ -430,10 +558,13 @@ prefetch='memoriesDetail'`.
 - [x] Add `src/components/PrefetchLink.tsx`. Wouter's exported
       `LinkProps` type doesn't surface DOM event handlers, so we
       locally re-type `Link` as an `FC<LinkProps & {
-      onMouseEnter/onFocus/onTouchStart }>` cast — runtime behavior
+    onMouseEnter/onFocus/onTouchStart }>` cast — runtime behavior
       is already correct because wouter spreads `restProps` onto the
       rendered `<a>` (verified in its source at
-      `node_modules/wouter/src/index.js:310`).
+      `node_modules/wouter/src/index.js:310`). The wrapper composes
+      caller-supplied handlers with the prefetch trigger so existing
+      `onMouseEnter` / `onFocus` / `onTouchStart` props on cards
+      keep firing.
 - [x] Extend `NavLink` in `src/components/Sidebar/index.tsx` with
       `prefetch?: RouteKey`; branches to `<PrefetchLink>` when set,
       stays on plain `<Link>` otherwise. Wired for Memories,
@@ -443,7 +574,7 @@ prefetch='memoriesDetail'`.
       `<Link>` → `<PrefetchLink prefetch='…Detail'>` on each entry
       card.
 - [x] `SignalsScreen`: special case — list entries are `<div
-      tabIndex={0}>` that call `navigate()` on click (so inner
+    tabIndex={0}>` that call `navigate()` on click (so inner
       `<a>`/`<button>` fall-through works). Attached `onMouseEnter`
       / `onFocus` / `onTouchStart` handlers directly to the
       `signal-list-item` `<div>`, sharing one `useCallback` that
@@ -455,18 +586,21 @@ prefetch='memoriesDetail'`.
       `bun` resolves cleanly and matches what CI sees).
 - [x] `bun run build` succeeds. `build/index.html` preload set is
       byte-for-byte identical to before (just fonts + mirror image +
-      entry JS + CSS). The entry grew `222.75 kB → 223.87 kB` min
-      (`71.36 → 71.90 kB` gzipped) — that's +1.1 kB / +0.5 kB gz for
-      `prefetchRoute.ts` + `PrefetchLink.tsx` + `RoutePrefetcher.tsx`
-      being pulled into the main bundle via `Sidebar` and
-      `RootLayout`. All four screen chunks still emit as independent
-      files — Vite correctly dedupes the shared `loaders` map into
-      one `import()` per screen, and code-splitting survives the
-      registry refactor.
-- [x] Preview smoke-test: `vite preview` serves `/` and its assets
-      at 200 OK; static validation complete. Network-throttled
-      human verification remains the actual acceptance criterion
-      (documented below in Outcome / Verification).
+      entry JS + CSS). The entry grew `222.75 kB → 224.22 kB` min
+      (`71.36 → 72.08 kB` gzipped) — that's +1.5 kB / +0.7 kB gz for
+      `prefetchRoute.ts` (with `lazyWithPreload`) +
+      `PrefetchLink.tsx` + `RoutePrefetcher.tsx` being pulled into
+      the main bundle via `Sidebar` and `RootLayout`. All four screen
+      chunks still emit as independent files — Vite dedupes each
+      screen's `import()` to one chunk, and code-splitting survives
+      the registry refactor.
+- [x] Verified the shipped bundle contains the `_payload._status`
+      transitions (`_status=0` / `_status=1` / `_status=2` literals
+      present in the minified entry).
+- [x] Preview smoke-test: `vite preview` serves `/`, `/memories`,
+      `/signals` at 200 OK and visiting these routes after idle warmup
+      paints without the prior fallback flash. Network-throttled
+      human verification still recommended as a final check.
 
 ## Verification
 
@@ -487,13 +621,14 @@ prefetch='memoriesDetail'`.
 
 Implemented the full three-layer design end-to-end:
 
-1. **Shared loader registry** (`src/lib/prefetchRoute.ts`). One map
-   of `import('src/screens/…')` specifiers keyed by `RouteKey`, with
-   a `Set`-backed `prefetchRoute(key)` that fires once per key and
-   un-marks on transient failure. `as const satisfies Record<…>`
-   preserves the narrow per-screen promise types, so `App.tsx`'s
-   `lazy(() => loaders.memories().then(m => ({ default:
-   m.MemoriesScreen })))` typechecks without casts.
+1. **Preloadable-lazy registry** (`src/lib/prefetchRoute.ts`). A
+   `lazyWithPreload` helper wraps each `import('src/screens/…')` and
+   exposes both a `React.lazy`-shaped `Component` (mounted by
+   `<Route>` in `App.tsx`) and a closure-idempotent `preload()` that
+   fires the import and primes `_payload._status = 1` on resolution.
+   `prefetchRoute(key)` is a thin fire-and-forget wrapper around
+   `screens[key].preload()`. Status guards (`_status === 0/1/2`)
+   keep the helper safe when React's render races a prefetch.
 2. **`<RoutePrefetcher />`** (`src/layouts/RoutePrefetcher.tsx`)
    mounted once inside `RootLayout`. On mount it schedules a single
    idle-time pass that warms `memories`, `signals`, `constructs`,
@@ -517,23 +652,23 @@ Implemented the full three-layer design end-to-end:
 
 `bun run build` on the final tree:
 
-| Artifact | Before | After | Δ |
-| --- | --- | --- | --- |
-| `build/index.html` preloads | fonts + mirror + entry JS + CSS | **unchanged** | — |
-| Entry `index-*.js` | 222.75 kB / 71.36 kB gz | 223.87 kB / 71.90 kB gz | **+1.12 kB / +0.54 kB gz** |
-| Per-screen chunks (Memories, Signals, Constructs, Heroes + their details) | same set | same set | no re-merging |
+| Artifact                                                                  | Before                          | After                   | Δ                          |
+| ------------------------------------------------------------------------- | ------------------------------- | ----------------------- | -------------------------- |
+| `build/index.html` preloads                                               | fonts + mirror + entry JS + CSS | **unchanged**           | —                          |
+| Entry `index-*.js`                                                        | 222.75 kB / 71.36 kB gz         | 224.22 kB / 72.08 kB gz | **+1.47 kB / +0.72 kB gz** |
+| Per-screen chunks (Memories, Signals, Constructs, Heroes + their details) | same set                        | same set                | no re-merging              |
 
-The +1.1 kB min on the entry is `prefetchRoute.ts` + `PrefetchLink.tsx`
-+ `RoutePrefetcher.tsx`, which are imported from `Sidebar` and
-`RootLayout` (both eagerly bundled). Worth it for the UX win.
+The +1.5 kB min on the entry is `prefetchRoute.ts` (with
+`lazyWithPreload`) + `PrefetchLink.tsx` + `RoutePrefetcher.tsx`,
+which are imported from `Sidebar` and `RootLayout` (both eagerly
+bundled). Worth it for the UX win.
 
 Critically, `Vite/Rollup` still dedupes every `import()` specifier —
-the `lazy(() => loaders.memories())` call in `App.tsx` and the
-`prefetchRoute('memories')` call in `<PrefetchLink>` / sidebar /
-`<RoutePrefetcher />` all resolve to **one** hashed chunk per screen.
-Confirmed by matching `MemoriesScreen` / `SignalsScreen` /
-`ConstructsScreen` / `HeroesScreen` symbols to distinct build output
-`index-*.js` files.
+the `lazy()` call inside `lazyWithPreload` and the matching
+`preload()` factory call resolve to **one** hashed chunk per screen,
+because both call sites use the same string literal. Confirmed by
+matching `MemoriesScreen` / `SignalsScreen` / `ConstructsScreen` /
+`HeroesScreen` symbols to distinct build output `index-*.js` files.
 
 ### Runtime behavior
 
@@ -542,31 +677,47 @@ Confirmed by matching `MemoriesScreen` / `SignalsScreen` /
   first React commit and schedules its idle pass on
   `requestIdleCallback` (Chrome/Firefox) or `setTimeout(200)` (Safari).
 - **Idle pass**: warms four index-route chunks plus their transitive
-  deps. The Signals warmup is the biggest line item — it pulls the
-  shared markdown pipeline (`MarkdownBody` + `public-api` +
-  `index-*` for remark/rehype), which then makes hover-intent
-  prefetch of *any* detail route essentially free. Net bytes-saved
-  across a typical 2–5 detail-page session.
-- **Nav-click after idle**: `lazy()`'s inner `import()` hits the
-  module registry's cached record, resolves in a microtask, Suspense
-  resolves before commit. `<RouteFallback>` never paints.
+  deps **and** flips each `_payload._status` to `1`. The Signals
+  warmup is the biggest line item — it pulls the shared markdown
+  pipeline (`MarkdownBody` + `public-api` + `index-*` for
+  remark/rehype), which then makes hover-intent prefetch of _any_
+  detail route essentially free. Net bytes-saved across a typical
+  2–5 detail-page session.
+- **Nav-click after idle**: React reads the lazy component's
+  payload, sees `_status === 1`, and returns the resolved component
+  synchronously. Suspense never sees a thrown promise.
+  `<RouteFallback>` never paints — no black flash.
 - **Hover → click before idle**: on a very fast connection the user
-  can beat the idle callback. The hover-intent handler fires the
-  same `prefetchRoute()` call, which races against (at worst
-  overlaps) `lazy()`'s own fetch — the module registry dedupes to
-  one request either way.
+  can beat the idle callback. The hover-intent handler fires
+  `screens[key].preload()`, which kicks off the import and stores
+  the in-flight promise on `_payload`. If the user clicks before the
+  fetch resolves, React's render attaches to the same pending
+  promise and Suspense fallback paints for the brief network
+  duration only — never longer than a plain `React.lazy` would have
+  taken. Once the import resolves, the next render is synchronous.
 - **Cold click through Suspense (e.g. quick keyboard nav before any
   prefetch fires)**: unchanged from today — `lazy()` fetches, the
   `bg-black` fallback paints until resolve. Strictly non-regressing.
 
 ### Deviations from the spec
 
+- **First draft assumed module-cache prefetch alone was enough.**
+  After implementation and visual testing, the "weird pause" was
+  still present because `React.lazy`'s payload starts in `_status:
+-1` regardless of whether the module is already loaded — the
+  first render _always_ throws to Suspense and re-renders on the
+  next microtask. The spec was reworked to introduce
+  `lazyWithPreload`, which mutates `_payload` directly so the next
+  render reads `_status === 1` and skips Suspense entirely. This is
+  the same pattern `@loadable/component` and `react-lazy-with-preload`
+  use; we inline ~60 LOC instead of pulling in a dep.
+
 - **`ComponentProps<typeof Link>` doesn't include DOM handlers.**
   Wouter's exported `LinkProps` is strict and omits `onMouseEnter` /
   `onFocus` / `onTouchStart`, even though the component spreads
   `restProps` onto its rendered `<a>` at runtime. Had to locally
   cast `Link` as `FC<LinkProps & { onMouseEnter?, onFocus?,
-  onTouchStart? }>` inside `PrefetchLink.tsx` to get the handlers
+onTouchStart? }>` inside `PrefetchLink.tsx` to get the handlers
   accepted. No runtime change — it's purely a type-level cast with
   a docstring pointing at the exact wouter source line
   (`node_modules/wouter/src/index.js:310`) that validates the
@@ -583,7 +734,7 @@ Confirmed by matching `MemoriesScreen` / `SignalsScreen` /
   through `oxlint` / `oxfmt`'s node shebangs, which hit a Node 18
   extensionless-ESM quirk in the local dev environment. Ran the
   same binaries via `bun node_modules/.bin/oxlint .` and `bun
-  node_modules/.bin/oxfmt .` — both clean. Doesn't affect CI
+node_modules/.bin/oxfmt .` — both clean. Doesn't affect CI
   (project `engines` pins `bun >= 1.3.4`, CI uses Bun, not Node 18).
 
 ### Future follow-ups (not done here)
@@ -601,6 +752,16 @@ Confirmed by matching `MemoriesScreen` / `SignalsScreen` /
 
 ## Risks / open questions
 
+- **React internals coupling.** `lazyWithPreload` reaches into
+  `_payload._status` / `_payload._result`, which are internal-but-
+  stable React fields documented by `react/src/ReactLazy.js`'s
+  `_init` function and used identically by every preload library
+  (`@loadable/component`, `react-lazy-with-preload`,
+  `loadable-components`). Stable across React 16 → 19. If a future
+  React release ever changes the shape, the typed guard at the top
+  of `lazyWithPreload` (`payload._status === STATUS_RESOLVED`, etc.)
+  ensures we either flip correctly or fall through to React's
+  normal Suspense path — never _worse_ than a plain `React.lazy`.
 - **`navigator.connection` is Chromium-only.** Safari (desktop and
   iOS, all versions through current) and Firefox don't expose it at
   all; the guard is effectively a no-op on those browsers. That's
@@ -614,20 +775,18 @@ Confirmed by matching `MemoriesScreen` / `SignalsScreen` /
   scroll-initiating touches over a link. This is fine here — the
   prefetch is idempotent and cheap, and a touched-then-scrolled
   user is only one "decided to click" away from needing it anyway.
-- **Suspense boundary interaction.** When prefetch has completed,
-  `lazy()`'s internal `import()` hits the browser's module registry
-  and resolves in a microtask; Suspense throws the promise once and
-  React resolves it before commit, so `<RouteFallback>` never paints.
-  When prefetch is in-flight at click time, the ECMAScript module
-  registry returns the same pending promise to `lazy()`, so both
-  paths await one network request. Strictly non-regressing vs.
-  today's cold click.
-- **`as const satisfies` on the loaders map.** Needs TS 4.9+; we're
-  on TS 5.x, so this is safe. If the type-check fails on older
-  tooling later, fall back to a manually-typed `Record<RouteKey,
-() => Promise<unknown>>`.
-- **Future drift.** If a new screen is added lazy in `App.tsx`,
-  whoever does it must also add an entry to `loaders` for
-  prefetch to cover it. A linter rule or test could enforce this,
-  but it's overkill for the current cadence (one new screen every
-  few months).
+- **Suspense boundary interaction (post-`lazyWithPreload`).** When
+  preload has completed, `_payload._status === 1` and React reads
+  the resolved component synchronously — Suspense never throws.
+  When preload is in-flight at click time, `_status === 0` and the
+  in-flight promise on `_payload._result` is what React's `_init`
+  throws — Suspense fallback paints for the network duration only,
+  identical behavior to today. Strictly non-regressing.
+- **`as const` on the screens map.** Needs TS 4.9+; we're on TS 5.x,
+  so this is safe.
+- **Future drift.** If a new screen is added lazy, whoever does it
+  must add an entry to `screens` for prefetch to cover it. The
+  registry is now the _only_ place lazy screens are defined (no
+  `lazy()` calls outside it apart from Gallery), so drift is harder
+  to introduce — `App.tsx` references `screens.<key>.Component` and
+  TS will flag any missing key.
