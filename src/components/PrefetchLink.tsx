@@ -32,13 +32,32 @@ type Props = LinkProps & { prefetch?: RouteKey };
  * Behavior is identical to `<Link>` when `prefetch` is omitted.
  */
 const PrefetchLink = ({ prefetch, ...rest }: Props) => {
-  const onIntent = prefetch ? () => prefetchRoute(prefetch) : undefined;
+  if (!prefetch) {
+    return <TypedLink {...rest} />;
+  }
+
+  const { onMouseEnter, onFocus, onTouchStart, ...linkProps } = rest;
+  const warm = () => prefetchRoute(prefetch);
+
+  const handleMouseEnter: React.MouseEventHandler = event => {
+    warm();
+    onMouseEnter?.(event);
+  };
+  const handleFocus: React.FocusEventHandler = event => {
+    warm();
+    onFocus?.(event);
+  };
+  const handleTouchStart: React.TouchEventHandler = event => {
+    warm();
+    onTouchStart?.(event);
+  };
+
   return (
     <TypedLink
-      {...rest}
-      onMouseEnter={onIntent}
-      onFocus={onIntent}
-      onTouchStart={onIntent}
+      {...linkProps}
+      onMouseEnter={handleMouseEnter}
+      onFocus={handleFocus}
+      onTouchStart={handleTouchStart}
     />
   );
 };
