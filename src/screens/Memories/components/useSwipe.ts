@@ -75,7 +75,13 @@ const useSwipe = ({
   const phaseRef = useRef<Phase>('idle');
   phaseRef.current = phase;
 
-  const surfaceNodeRef = useRef<HTMLDivElement | null>(null);
+  // Surface node is held in state so the listener-binding layout effect
+  // re-runs if the node is ever swapped — `surfaceRef` is a callback ref
+  // and a plain ref would silently leave listeners bound to a detached
+  // node. The track node is kept as a plain ref since its writes happen
+  // imperatively from inside event handlers and don't need to retrigger
+  // any effect on swap.
+  const [surfaceNode, setSurfaceNode] = useState<HTMLDivElement | null>(null);
   const trackNodeRef = useRef<HTMLDivElement | null>(null);
 
   // Per-gesture state lives in refs to avoid React re-renders during drag.
@@ -92,10 +98,21 @@ const useSwipe = ({
     startTime: 0,
     locked: null as 'h' | 'v' | null,
     dx: 0,
+    // Raw `e.clientX - startX` before any rubber-banding. Used to decide
+    // whether to arm click suppression after a horizontal-locked gesture
+    // — the rubber-banded `dx` underreports travel near no-neighbor
+    // boundaries (factor 0.2) and would let the synthesized click leak
+    // into inner buttons after a deliberate axis-locked swipe.
+    rawDx: 0,
     captured: false,
     rafScheduled: false,
   });
   const consumedClickRef = useRef(false);
+  // Active commit/snap-back animation finalizer so a fresh `pointerdown`
+  // (which `onPointerMove` would silently cancel via `transition: none`)
+  // can tear down the pending `transitionend` listener and timeout
+  // fallback before they fire mid-drag and yank the track to center.
+  const pendingAnimationRef = useRef<{ cancel: () => void } | null>(null);
 
   const setRestingTransform = useCallback(() => {
     const track = trackNodeRef.current;
@@ -128,13 +145,24 @@ const useSwipe = ({
         done = true;
         track.removeEventListener('transitionend', finish);
         clearTimeout(timeoutId);
+        pendingAnimationRef.current = null;
         onDone();
+      };
+      const cancel = () => {
+        if (done) return;
+        done = true;
+        track.removeEventListener('transitionend', finish);
+        clearTimeout(timeoutId);
+        pendingAnimationRef.current = null;
+        // Intentionally does not invoke `onDone` — the new gesture
+        // takes over ownership of the transform.
       };
       track.addEventListener('transitionend', finish);
       // Belt-and-braces: Safari occasionally drops `transitionend` after a
       // rapid sequence of style writes. The +50ms slack is well below
       // human flicker perception.
       const timeoutId = window.setTimeout(finish, durationMs + 50);
+      pendingAnimationRef.current = { cancel };
       track.style.transition = `transform ${durationMs}ms ${EASING}`;
       track.style.transform = targetTransform;
     },
@@ -144,7 +172,7 @@ const useSwipe = ({
   // Set the resting transform whenever the track node is attached or the
   // surface size changes. Layout effect so we run before paint.
   useLayoutEffect(() => {
-    const surface = surfaceNodeRef.current;
+    const surface = surfaceNode;
     if (!surface) return;
     const measure = () => {
       const rect = surface.getBoundingClientRect();
@@ -171,17 +199,26 @@ const useSwipe = ({
     }
     window.addEventListener('resize', measure);
     return () => window.removeEventListener('resize', measure);
-  }, [setRestingTransform]);
+  }, [setRestingTransform, surfaceNode]);
 
   // Bind pointer + click listeners exactly once per surface node mount.
   useLayoutEffect(() => {
-    const surface = surfaceNodeRef.current;
+    const surface = surfaceNode;
     if (!surface) return;
 
     const onPointerDown = (e: PointerEvent) => {
       // Ignore secondary buttons / multi-touch follow-ups.
       if (e.button !== 0 && e.pointerType === 'mouse') return;
       if (dragRef.current.pointerId !== -1) return;
+
+      // Tear down any in-flight commit/snap-back animation. The first
+      // `pointermove` will write `transition: none` and silently cancel
+      // the CSS transition, so the pending `transitionend` will never
+      // fire — but the +50ms timeout fallback would still call `onDone`
+      // mid-drag without this cancel, yanking the track back to center
+      // (and potentially re-firing the navigate callback for commits).
+      pendingAnimationRef.current?.cancel();
+      pendingAnimationRef.current = null;
 
       const rect = surface.getBoundingClientRect();
       if (rect.width > 0) cellWidthRef.current = rect.width;
@@ -193,6 +230,7 @@ const useSwipe = ({
         startTime: performance.now(),
         locked: null,
         dx: 0,
+        rawDx: 0,
         captured: false,
         rafScheduled: false,
       };
@@ -237,6 +275,7 @@ const useSwipe = ({
 
       const { hasPrev, hasNext } = callbacksRef.current;
       const atBoundary = (dx > 0 && !hasPrev) || (dx < 0 && !hasNext);
+      state.rawDx = dx;
       state.dx = atBoundary ? dx * RUBBERBAND_FACTOR : dx;
 
       if (!state.rafScheduled) {
@@ -251,6 +290,7 @@ const useSwipe = ({
 
       const wasHorizontal = state.locked === 'h';
       const dx = state.dx;
+      const rawDx = state.rawDx;
       const elapsed = Math.max(1, performance.now() - state.startTime);
       const cellWidth = cellWidthRef.current;
 
@@ -270,12 +310,22 @@ const useSwipe = ({
         startTime: 0,
         locked: null,
         dx: 0,
+        rawDx: 0,
         captured: false,
         rafScheduled: false,
       };
 
       if (!wasHorizontal) {
-        // Vertical or untriggered tap — leave transform alone.
+        // Vertical or untriggered tap — leave transform alone, but
+        // drain any width parked by a `ResizeObserver` callback that
+        // fired during the locked-vertical drag and re-anchor the
+        // resting transform against it. Otherwise the center cell
+        // sits off-axis until the next `pointerdown` re-measures.
+        if (pendingCellWidthRef.current !== null) {
+          cellWidthRef.current = pendingCellWidthRef.current;
+          pendingCellWidthRef.current = null;
+          setRestingTransform();
+        }
         return;
       }
 
@@ -283,12 +333,16 @@ const useSwipe = ({
       // captured horizontal-locked gesture. Only arm when the
       // gesture actually travelled past the axis-lock threshold —
       // a tiny axis-locked wiggle that settles back near origin
-      // shouldn't eat a subsequent deliberate tap. Keep the window
-      // tight: the synthesized click arrives within a few ms of
-      // pointerup, well under 50ms, but a 350ms blanket would
-      // swallow legitimate taps on `[close]`, prev/next, or a
-      // group photo within the same interaction beat.
-      if (Math.abs(dx) > AXIS_LOCK_THRESHOLD_PX) {
+      // shouldn't eat a subsequent deliberate tap. Use the *raw*
+      // pointer delta, not the rubber-banded `dx`: at no-neighbor
+      // boundaries the rubber-band factor (0.2) shrinks a 50px
+      // swipe to 10px, which would slip past this guard and let
+      // the synthesized click drill into a `GroupPhotoButton`.
+      // Keep the window tight: the synthesized click arrives within
+      // a few ms of pointerup, well under 50ms, but a 350ms blanket
+      // would swallow legitimate taps on `[close]`, prev/next, or
+      // a group photo within the same interaction beat.
+      if (Math.abs(rawDx) > AXIS_LOCK_THRESHOLD_PX) {
         consumedClickRef.current = true;
         window.setTimeout(() => {
           consumedClickRef.current = false;
@@ -352,8 +406,12 @@ const useSwipe = ({
       surface.removeEventListener('pointerup', endGesture);
       surface.removeEventListener('pointercancel', endGesture);
       surface.removeEventListener('click', onClickCapture, true);
+      // Drop any in-flight animation finalizer so it can't fire
+      // against a detached track after unmount.
+      pendingAnimationRef.current?.cancel();
+      pendingAnimationRef.current = null;
     };
-  }, [animateTrackTo, setRestingTransform, writeTrackOffset]);
+  }, [animateTrackTo, setRestingTransform, surfaceNode, writeTrackOffset]);
 
   // Apply resting transform synchronously when the track first attaches.
   useEffect(() => {
@@ -361,7 +419,7 @@ const useSwipe = ({
   }, [setRestingTransform]);
 
   const surfaceRef = useCallback((node: HTMLDivElement | null) => {
-    surfaceNodeRef.current = node;
+    setSurfaceNode(node);
   }, []);
 
   const trackRef = useCallback(
@@ -372,7 +430,11 @@ const useSwipe = ({
     [setRestingTransform],
   );
 
-  return { surfaceRef, trackRef, phase };
+  // `phase` is intentionally not exposed: no consumer disables controls
+  // during commit, and exposing dead API encourages drift. The state is
+  // still tracked internally so the resize handler can defer width
+  // writes that would invalidate an in-flight animation target.
+  return { surfaceRef, trackRef };
 };
 
 export { useSwipe };
