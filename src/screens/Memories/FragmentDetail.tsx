@@ -85,19 +85,6 @@ function filesFromGridItem(item: GridItem): string[] {
 }
 
 /**
- * Cover photo for a grid item: the photo itself for solos, the first
- * photo for groups. Used as the prev/next cell content in the
- * lightbox carousel — when the destination is a group the user sees
- * its first photo during the slide and (on commit) the route flips
- * to `GroupLightbox` which reveals the full group layout. Same
- * concession on the `GroupLightbox` side: its prev/next cells also
- * hold cover photos.
- */
-function coverOf(item: GridItem): PhotoMeta {
-  return item.kind === 'solo' ? item.photo : item.photos[0];
-}
-
-/**
  * Occlusion-cull a masonry tile. Renders `children` when within (or near) the
  * viewport, and a same-sized `<div>` placeholder otherwise — preserves the
  * `columns-*` masonry flow either way because the wrapper keeps its classes
@@ -295,64 +282,15 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
     return null;
   }, [photo, fragment, gridItems]);
 
-  const gridPreloadFiles = useMemo(() => {
-    if (!lightboxView) return [];
-    const gi = lightboxView.gridIndex;
-    const files: string[] = [];
-    for (let dist = 1; dist <= 3; dist++) {
-      const next = (gi + dist) % gridItems.length;
-      const prev = (gi - dist + gridItems.length) % gridItems.length;
-      if (next !== gi) files.push(...filesFromGridItem(gridItems[next]));
-      if (prev !== gi && prev !== next)
-        files.push(...filesFromGridItem(gridItems[prev]));
+  const navigateToGridItem = (gi: number) => {
+    const item = gridItems[gi];
+    if (item.kind === 'group') {
+      navigate(`/memories/${id}/${item.groupId}`, { replace: true });
+    } else {
+      navigate(`/memories/${id}/${item.photo.file}`, { replace: true });
     }
-    return files;
-  }, [lightboxView, gridItems]);
+  };
 
-  // Neighbors shown in the carousel's prev / next cells. Mirrors the
-  // ordering rules used by `onPrev`/`onNext` below so the slide
-  // direction lands on the right destination.
-  const lightboxNeighbors = useMemo(() => {
-    if (!lightboxView) return { prev: null, next: null };
-    const total = gridItems.length;
-    if (lightboxView.kind === 'group') {
-      if (total <= 1) return { prev: null, next: null };
-      const gi = lightboxView.gridIndex;
-      return {
-        prev: coverOf(gridItems[(gi - 1 + total) % total]),
-        next: coverOf(gridItems[(gi + 1) % total]),
-      };
-    }
-    // photo
-    const {
-      gridIndex,
-      fromGroup,
-      indexInGroup,
-      groupPhotos: gPhotos,
-    } = lightboxView;
-    if (fromGroup && gPhotos && indexInGroup !== undefined) {
-      // Intra-group navigation. Boundaries return null — swiping past
-      // the first/last photo of a group does not drill out to the
-      // group cover (preserves the existing `Lightbox.onPrev = null`
-      // boundary behavior).
-      return {
-        prev: indexInGroup > 0 ? gPhotos[indexInGroup - 1] : null,
-        next:
-          indexInGroup < gPhotos.length - 1 ? gPhotos[indexInGroup + 1] : null,
-      };
-    }
-    if (total <= 1) return { prev: null, next: null };
-    return {
-      prev: coverOf(gridItems[(gridIndex - 1 + total) % total]),
-      next: coverOf(gridItems[(gridIndex + 1) % total]),
-    };
-  }, [lightboxView, gridItems]);
-
-  // Early return must come *after* every hook call above so the hook
-  // count is stable across render paths (Rules of Hooks). Today this
-  // only ever toggles via route-level remount, but a future change
-  // that flips `fragment` on the same mount would otherwise reorder
-  // hooks between renders.
   if (!fragment) {
     return (
       <div className='w-full min-h-screen bg-black flex items-center justify-center md:pr-40'>
@@ -374,14 +312,19 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
     );
   }
 
-  const navigateToGridItem = (gi: number) => {
-    const item = gridItems[gi];
-    if (item.kind === 'group') {
-      navigate(`/memories/${id}/${item.groupId}`, { replace: true });
-    } else {
-      navigate(`/memories/${id}/${item.photo.file}`, { replace: true });
+  const gridPreloadFiles = useMemo(() => {
+    if (!lightboxView) return [];
+    const gi = lightboxView.gridIndex;
+    const files: string[] = [];
+    for (let dist = 1; dist <= 3; dist++) {
+      const next = (gi + dist) % gridItems.length;
+      const prev = (gi - dist + gridItems.length) % gridItems.length;
+      if (next !== gi) files.push(...filesFromGridItem(gridItems[next]));
+      if (prev !== gi && prev !== next)
+        files.push(...filesFromGridItem(gridItems[prev]));
     }
-  };
+    return files;
+  }, [lightboxView, gridItems]);
 
   let lightboxElement: React.ReactNode = null;
 
@@ -413,7 +356,6 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
           onPhotoClick={p =>
             navigate(`/memories/${id}/${p.file}`, { replace: true })
           }
-          neighbors={lightboxNeighbors}
           preloadFiles={gridPreloadFiles}
         />
       );
@@ -455,7 +397,6 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
               ? () => navigate(`/memories/${id}/${nextFile}`, { replace: true })
               : null
           }
-          neighbors={lightboxNeighbors}
           preloadFiles={[...preload, ...gridPreloadFiles]}
         />
       );
@@ -479,7 +420,6 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
               ? () => navigateToGridItem((gridIndex + 1) % gridItems.length)
               : null
           }
-          neighbors={lightboxNeighbors}
           preloadFiles={gridPreloadFiles}
         />
       );
