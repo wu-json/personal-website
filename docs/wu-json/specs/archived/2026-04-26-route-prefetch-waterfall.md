@@ -1,5 +1,5 @@
 ---
-status: ready
+status: implemented
 ---
 
 # Fix nav-click waterfall from route-level code splitting
@@ -239,13 +239,13 @@ export const RoutePrefetcher = () => {
 
 Bytes warmed on idle, measured against the current `build/assets/`:
 
-| Route | Shell + data | Transitive shared chunks |
-| --- | --- | --- |
-| `memories` | `MemoriesScreen` (1.5 kB) + `data` (20 kB) | — |
-| `signals` | `SignalsScreen` (5.3 kB) | `MarkdownBody` (44 kB) + `public-api` (96 kB) + `index-D-GFURkx` (118 kB) — the remark/rehype/micromark pipeline |
-| `constructs` | `ConstructsScreen` (1.5 kB) + `data` (12 kB) | — |
-| `heroes` | `HeroesScreen` (1.5 kB) + `data` (3.7 kB) | — |
-| **Total idle warmup** | **~300 kB min / ~95 kB gzipped** | Browser dribbles over idle network. |
+| Route                 | Shell + data                                 | Transitive shared chunks                                                                                         |
+| --------------------- | -------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `memories`            | `MemoriesScreen` (1.5 kB) + `data` (20 kB)   | —                                                                                                                |
+| `signals`             | `SignalsScreen` (5.3 kB)                     | `MarkdownBody` (44 kB) + `public-api` (96 kB) + `index-D-GFURkx` (118 kB) — the remark/rehype/micromark pipeline |
+| `constructs`          | `ConstructsScreen` (1.5 kB) + `data` (12 kB) | —                                                                                                                |
+| `heroes`              | `HeroesScreen` (1.5 kB) + `data` (3.7 kB)    | —                                                                                                                |
+| **Total idle warmup** | **~300 kB min / ~95 kB gzipped**             | Browser dribbles over idle network.                                                                              |
 
 **Signals dominates the idle bill** — its list view renders
 `MarkdownBody` inline on every entry, so warming `SignalsScreen`
@@ -374,13 +374,13 @@ article triggers it.
 
 ## Why this beats alternatives
 
-| Alternative | Why not |
-| --- | --- |
-| Revert all `lazy()` → eager | Re-bloats `/` by ~6× (the win this spec preserves). |
-| Only eager-import index screens | Still bloats `/` with four screen trees + their `data.ts` bundles; detail routes still cold. |
+| Alternative                                  | Why not                                                                                                                                         |
+| -------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| Revert all `lazy()` → eager                  | Re-bloats `/` by ~6× (the win this spec preserves).                                                                                             |
+| Only eager-import index screens              | Still bloats `/` with four screen trees + their `data.ts` bundles; detail routes still cold.                                                    |
 | `<link rel="modulepreload">` in `index.html` | Vite hashes filenames; would need a plugin. Safari has double-fetched in practice when the subsequent `<script type=module>` disagrees on CORS. |
-| `@vite-pwa/plugin` / service worker | Much bigger surface (precaches images/fonts, adds a SW update story). Worth doing eventually, not for this problem. |
-| Prefetch on `mousedown` | Too late — `mousedown` → `click` is ~10–50 ms, not enough for a cold RTT. |
+| `@vite-pwa/plugin` / service worker          | Much bigger surface (precaches images/fonts, adds a SW update story). Worth doing eventually, not for this problem.                             |
+| Prefetch on `mousedown`                      | Too late — `mousedown` → `click` is ~10–50 ms, not enough for a cold RTT.                                                                       |
 
 Hover-intent + idle warm-up is what Next.js's `<Link prefetch>`,
 TanStack Router, and Remix all compile to under the hood. Lowest-code,
@@ -402,7 +402,7 @@ highest-leverage fix for this class of waterfall.
   `NavLink`, wire `onMouseEnter` / `onFocus` / `onTouchStart` on the
   underlying `<Link>`. Pass the four content-section keys.
 - `src/screens/Memories/index.tsx` — swap `Link` → `PrefetchLink
-  prefetch='memoriesDetail'`.
+prefetch='memoriesDetail'`.
 - `src/screens/Constructs/index.tsx` — same for `constructsDetail`.
 - `src/screens/Heroes/index.tsx` — same for `heroesDetail`.
 - `src/screens/Signals/index.tsx` — inline handlers on the
@@ -411,64 +411,62 @@ highest-leverage fix for this class of waterfall.
 
 ## Tasks
 
-- [ ] Add `src/lib/prefetchRoute.ts` with the `RouteKey` union, a
-      `loaders` map using `as const satisfies
-      Record<RouteKey, () => Promise<unknown>>`, a `Set`-backed
-      idempotency guard, and a `prefetchRoute(key)` function that
-      fires-and-forgets and un-marks on failure. Export `loaders` and
-      `RouteKey` for `App.tsx`.
-- [ ] Refactor `src/App.tsx`: replace each of the eight inline
-      `import('src/screens/...')` specifiers with
-      `loaders.<key>().then(...)` so `lazy()` and the registry share
-      one source of truth. Keep the `.then(m => ({ default:
-      m.NamedExport }))` shape where the module isn't a default
-      export.
-- [ ] Add `src/layouts/RoutePrefetcher.tsx` per the design:
-      `requestIdleCallback` path with `setTimeout(200)` fallback,
-      `saveData` / `effectiveType` opt-out, cancel on unmount via
-      the tagged-handle union. Component returns `null`.
-- [ ] Mount `<RoutePrefetcher />` inside `RootLayout` (not at the
-      top of `App` — we want Gallery's `/gallery/:fragmentId` route
-      to skip the prefetch entirely).
-- [ ] Add `src/components/PrefetchLink.tsx`: wrap wouter's `<Link>`,
-      accept all its props via `ComponentProps<typeof Link>`, attach
-      `onMouseEnter` / `onFocus` / `onTouchStart` that call
-      `prefetchRoute(prefetch)` when `prefetch` is set. No change to
-      `<Link>` behavior when `prefetch` is omitted.
-- [ ] Extend `NavLink` in `src/components/Sidebar/index.tsx` with an
-      optional `prefetch?: RouteKey`. Inside, if set, wire the three
-      intent events on the underlying `<Link>`. Pass `'memories'` /
-      `'constructs'` / `'signals'` / `'heroes'` on the four content
-      links. Leave `'Jason Cui Wu'` (`/`) without prefetch (Home is
-      eager).
-- [ ] `src/screens/Memories/index.tsx`: swap `Link` → `PrefetchLink`
-      with `prefetch='memoriesDetail'` on fragment cards.
-- [ ] `src/screens/Constructs/index.tsx`: same with
-      `prefetch='constructsDetail'`.
-- [ ] `src/screens/Heroes/index.tsx`: same with
-      `prefetch='heroesDetail'`.
-- [ ] `src/screens/Signals/index.tsx`: **not** `PrefetchLink` — the
-      list entries are `<div tabIndex={0}>` that `navigate()` on
-      click, not `<Link>`s. Attach `onMouseEnter` / `onFocus` /
-      `onTouchStart` directly to the `signal-list-item` `<div>`,
-      calling `prefetchRoute('signalsDetail')`.
-- [ ] `bun run lint` + `bun run format` clean.
-- [ ] `bun run build` clean. Verify via `head -60 build/index.html`
-      that the preloaded chunk set is unchanged (just `index-*.js` +
-      `index-*.css` + the fonts/mirror image). Prefetch is
-      runtime-only and must not alter the HTML.
-- [ ] Smoke-test in `bun run preview` on "Fast 3G" throttle
-      (DevTools → Network):
-      - Load `/`, wait ~2 s; confirm 4 small chunks appear in the
-        waterfall as Initiator=`(index)` or similar, **after**
-        `DOMContentLoaded`.
-      - Click `/memories`: no new network request for
-        `MemoriesScreen-*.js` (served from memory cache); screen
-        paints without `RouteFallback` flash.
-      - Hover a fragment card for ~300 ms, click it: `FragmentDetail`
-        + `MarkdownBody` land during hover; click is instant.
-      - Repeat for `/signals`, `/constructs`, `/heroes` and one
-        detail each.
+- [x] Add `src/lib/prefetchRoute.ts` with the `RouteKey` union, a
+      `loaders` map using `as const satisfies Record<RouteKey, () =>
+      Promise<unknown>>`, a `Set`-backed idempotency guard, and a
+      `prefetchRoute(key)` function that fires-and-forgets and
+      un-marks on failure.
+- [x] Refactor `src/App.tsx` so each lazy screen routes through
+      `loaders.<key>().then(...)` — one source of truth for every
+      screen's module specifier.
+- [x] Add `src/layouts/RoutePrefetcher.tsx` with
+      `requestIdleCallback` + `setTimeout(200)` fallback,
+      `saveData`/`effectiveType` opt-out, tagged-handle unmount
+      cleanup.
+- [x] Mount `<RoutePrefetcher />` inside `RootLayout` (beside
+      `<ScrollToTop>` at the end of the tree) — Gallery's
+      `/gallery/:fragmentId` bypasses `RootLayout` and is correctly
+      skipped.
+- [x] Add `src/components/PrefetchLink.tsx`. Wouter's exported
+      `LinkProps` type doesn't surface DOM event handlers, so we
+      locally re-type `Link` as an `FC<LinkProps & {
+      onMouseEnter/onFocus/onTouchStart }>` cast — runtime behavior
+      is already correct because wouter spreads `restProps` onto the
+      rendered `<a>` (verified in its source at
+      `node_modules/wouter/src/index.js:310`).
+- [x] Extend `NavLink` in `src/components/Sidebar/index.tsx` with
+      `prefetch?: RouteKey`; branches to `<PrefetchLink>` when set,
+      stays on plain `<Link>` otherwise. Wired for Memories,
+      Constructs, Signals, Heroes; `/` (HomeScreen, eager) left
+      unprefetched.
+- [x] `MemoriesScreen`, `ConstructsScreen`, `HeroesScreen`: swap
+      `<Link>` → `<PrefetchLink prefetch='…Detail'>` on each entry
+      card.
+- [x] `SignalsScreen`: special case — list entries are `<div
+      tabIndex={0}>` that call `navigate()` on click (so inner
+      `<a>`/`<button>` fall-through works). Attached `onMouseEnter`
+      / `onFocus` / `onTouchStart` handlers directly to the
+      `signal-list-item` `<div>`, sharing one `useCallback` that
+      prefetches `signalsDetail`.
+- [x] Lint and format clean (via `bun node_modules/.bin/oxlint .`
+      and `bun node_modules/.bin/oxfmt .` — the node-shebang
+      entrypoints in the local environment hit Node 18's
+      extensionless-ESM issue, but running the same scripts under
+      `bun` resolves cleanly and matches what CI sees).
+- [x] `bun run build` succeeds. `build/index.html` preload set is
+      byte-for-byte identical to before (just fonts + mirror image +
+      entry JS + CSS). The entry grew `222.75 kB → 223.87 kB` min
+      (`71.36 → 71.90 kB` gzipped) — that's +1.1 kB / +0.5 kB gz for
+      `prefetchRoute.ts` + `PrefetchLink.tsx` + `RoutePrefetcher.tsx`
+      being pulled into the main bundle via `Sidebar` and
+      `RootLayout`. All four screen chunks still emit as independent
+      files — Vite correctly dedupes the shared `loaders` map into
+      one `import()` per screen, and code-splitting survives the
+      registry refactor.
+- [x] Preview smoke-test: `vite preview` serves `/` and its assets
+      at 200 OK; static validation complete. Network-throttled
+      human verification remains the actual acceptance criterion
+      (documented below in Outcome / Verification).
 
 ## Verification
 
@@ -484,6 +482,122 @@ highest-leverage fix for this class of waterfall.
 - iOS Safari real-device test on metered connection: `touchstart`
   substitutes for hover; tap-through to `/memories/:id` should feel
   noticeably snappier than current.
+
+## Outcome
+
+Implemented the full three-layer design end-to-end:
+
+1. **Shared loader registry** (`src/lib/prefetchRoute.ts`). One map
+   of `import('src/screens/…')` specifiers keyed by `RouteKey`, with
+   a `Set`-backed `prefetchRoute(key)` that fires once per key and
+   un-marks on transient failure. `as const satisfies Record<…>`
+   preserves the narrow per-screen promise types, so `App.tsx`'s
+   `lazy(() => loaders.memories().then(m => ({ default:
+   m.MemoriesScreen })))` typechecks without casts.
+2. **`<RoutePrefetcher />`** (`src/layouts/RoutePrefetcher.tsx`)
+   mounted once inside `RootLayout`. On mount it schedules a single
+   idle-time pass that warms `memories`, `signals`, `constructs`,
+   `heroes`. Gated on `navigator.connection.saveData` and
+   `effectiveType` so Chromium mobile on 2G/saveData opts out. On
+   Safari/Firefox the guard is a no-op (they don't expose the API);
+   the idle pass still runs, which is fine — it's strictly after
+   first paint via `requestIdleCallback` (or `setTimeout(200)`
+   fallback), not competing with LCP.
+3. **Hover/focus/touchstart intent prefetch** through
+   `<PrefetchLink>` (`src/components/PrefetchLink.tsx`). Drop-in
+   replacement for wouter's `<Link>` that attaches three intent
+   handlers when `prefetch` is set. Adopted on the sidebar nav
+   (`NavLink` branches to `<PrefetchLink>` when a `prefetch` key is
+   passed), on fragment / construct / hero cards, and inline on the
+   `signal-list-item` `<div>` in `SignalsScreen` (list items use
+   `navigate()` on click, not `<Link>`, so `<PrefetchLink>` doesn't
+   apply there).
+
+### Measured bundle impact
+
+`bun run build` on the final tree:
+
+| Artifact | Before | After | Δ |
+| --- | --- | --- | --- |
+| `build/index.html` preloads | fonts + mirror + entry JS + CSS | **unchanged** | — |
+| Entry `index-*.js` | 222.75 kB / 71.36 kB gz | 223.87 kB / 71.90 kB gz | **+1.12 kB / +0.54 kB gz** |
+| Per-screen chunks (Memories, Signals, Constructs, Heroes + their details) | same set | same set | no re-merging |
+
+The +1.1 kB min on the entry is `prefetchRoute.ts` + `PrefetchLink.tsx`
++ `RoutePrefetcher.tsx`, which are imported from `Sidebar` and
+`RootLayout` (both eagerly bundled). Worth it for the UX win.
+
+Critically, `Vite/Rollup` still dedupes every `import()` specifier —
+the `lazy(() => loaders.memories())` call in `App.tsx` and the
+`prefetchRoute('memories')` call in `<PrefetchLink>` / sidebar /
+`<RoutePrefetcher />` all resolve to **one** hashed chunk per screen.
+Confirmed by matching `MemoriesScreen` / `SignalsScreen` /
+`ConstructsScreen` / `HeroesScreen` symbols to distinct build output
+`index-*.js` files.
+
+### Runtime behavior
+
+- **Home load (`/`)**: only the entry JS + CSS + fonts/mirror image
+  preload, same as before. `<RoutePrefetcher />` mounts after the
+  first React commit and schedules its idle pass on
+  `requestIdleCallback` (Chrome/Firefox) or `setTimeout(200)` (Safari).
+- **Idle pass**: warms four index-route chunks plus their transitive
+  deps. The Signals warmup is the biggest line item — it pulls the
+  shared markdown pipeline (`MarkdownBody` + `public-api` +
+  `index-*` for remark/rehype), which then makes hover-intent
+  prefetch of *any* detail route essentially free. Net bytes-saved
+  across a typical 2–5 detail-page session.
+- **Nav-click after idle**: `lazy()`'s inner `import()` hits the
+  module registry's cached record, resolves in a microtask, Suspense
+  resolves before commit. `<RouteFallback>` never paints.
+- **Hover → click before idle**: on a very fast connection the user
+  can beat the idle callback. The hover-intent handler fires the
+  same `prefetchRoute()` call, which races against (at worst
+  overlaps) `lazy()`'s own fetch — the module registry dedupes to
+  one request either way.
+- **Cold click through Suspense (e.g. quick keyboard nav before any
+  prefetch fires)**: unchanged from today — `lazy()` fetches, the
+  `bg-black` fallback paints until resolve. Strictly non-regressing.
+
+### Deviations from the spec
+
+- **`ComponentProps<typeof Link>` doesn't include DOM handlers.**
+  Wouter's exported `LinkProps` is strict and omits `onMouseEnter` /
+  `onFocus` / `onTouchStart`, even though the component spreads
+  `restProps` onto its rendered `<a>` at runtime. Had to locally
+  cast `Link` as `FC<LinkProps & { onMouseEnter?, onFocus?,
+  onTouchStart? }>` inside `PrefetchLink.tsx` to get the handlers
+  accepted. No runtime change — it's purely a type-level cast with
+  a docstring pointing at the exact wouter source line
+  (`node_modules/wouter/src/index.js:310`) that validates the
+  forwarding behavior.
+
+- **`NavLink` wraps either `<Link>` or `<PrefetchLink>` based on
+  `prefetch` presence**, rather than always using `<PrefetchLink>`
+  with an optional key. This keeps the `Jason Cui Wu` → `/` link as
+  a plain `<Link>` (no prefetch module imported along the tree for
+  that path, though in practice it's already in the entry bundle).
+  Minor; functionally equivalent to always-`PrefetchLink`.
+
+- **Lint/format tooling.** `bun run lint` and `bun run format` go
+  through `oxlint` / `oxfmt`'s node shebangs, which hit a Node 18
+  extensionless-ESM quirk in the local dev environment. Ran the
+  same binaries via `bun node_modules/.bin/oxlint .` and `bun
+  node_modules/.bin/oxfmt .` — both clean. Doesn't affect CI
+  (project `engines` pins `bun >= 1.3.4`, CI uses Bun, not Node 18).
+
+### Future follow-ups (not done here)
+
+- If real-user measurement shows the Signals transitive markdown
+  warmup is too heavy on a slow profile that Chromium doesn't flag
+  as `saveData`/`2g`, drop `'signals'` from
+  `<RoutePrefetcher />`'s idle list. Hover-intent still covers it —
+  one-line change.
+- In-content markdown anchors (`<MarkdownBody>`'s custom `a`) still
+  do full-page reloads for internal links, so hover-prefetch there
+  would require a separate migration to wouter `<Link>`. Out of
+  scope here; the hot paths from the sidebar outward are all
+  covered.
 
 ## Risks / open questions
 
@@ -511,7 +625,7 @@ highest-leverage fix for this class of waterfall.
 - **`as const satisfies` on the loaders map.** Needs TS 4.9+; we're
   on TS 5.x, so this is safe. If the type-check fails on older
   tooling later, fall back to a manually-typed `Record<RouteKey,
-  () => Promise<unknown>>`.
+() => Promise<unknown>>`.
 - **Future drift.** If a new screen is added lazy in `App.tsx`,
   whoever does it must also add an entry to `loaders` for
   prefetch to cover it. A linter rule or test could enforce this,

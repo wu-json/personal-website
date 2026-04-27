@@ -1,45 +1,40 @@
 import { lazy, Suspense } from 'react';
 import { RootLayout } from 'src/layouts/RootLayout';
+import { loaders } from 'src/lib/prefetchRoute';
 import { HomeScreen } from 'src/screens/Home';
 import { Route, Switch } from 'wouter';
 
+// Gallery is its own entry (bypasses RootLayout, not prefetched — 887 kB
+// Three.js chunk is too heavy to warm speculatively).
 const GalleryScreen = lazy(() =>
   import('src/screens/Gallery').then(m => ({ default: m.GalleryScreen })),
 );
 
+// Every other lazy screen routes through `loaders` so the prefetch
+// registry and `lazy()` share one set of module specifiers (no drift).
 const MemoriesScreen = lazy(() =>
-  import('src/screens/Memories').then(m => ({ default: m.MemoriesScreen })),
+  loaders.memories().then(m => ({ default: m.MemoriesScreen })),
 );
 const FragmentDetail = lazy(() =>
-  import('src/screens/Memories/FragmentDetail').then(m => ({
-    default: m.FragmentDetail,
-  })),
+  loaders.memoriesDetail().then(m => ({ default: m.FragmentDetail })),
 );
 const SignalsScreen = lazy(() =>
-  import('src/screens/Signals').then(m => ({ default: m.SignalsScreen })),
+  loaders.signals().then(m => ({ default: m.SignalsScreen })),
 );
 const SignalDetail = lazy(() =>
-  import('src/screens/Signals/SignalDetail').then(m => ({
-    default: m.SignalDetail,
-  })),
+  loaders.signalsDetail().then(m => ({ default: m.SignalDetail })),
 );
 const ConstructsScreen = lazy(() =>
-  import('src/screens/Constructs').then(m => ({
-    default: m.ConstructsScreen,
-  })),
+  loaders.constructs().then(m => ({ default: m.ConstructsScreen })),
 );
 const ConstructDetail = lazy(() =>
-  import('src/screens/Constructs/ConstructDetail').then(m => ({
-    default: m.ConstructDetail,
-  })),
+  loaders.constructsDetail().then(m => ({ default: m.ConstructDetail })),
 );
 const HeroesScreen = lazy(() =>
-  import('src/screens/Heroes').then(m => ({ default: m.HeroesScreen })),
+  loaders.heroes().then(m => ({ default: m.HeroesScreen })),
 );
 const HeroDetail = lazy(() =>
-  import('src/screens/Heroes/HeroDetail').then(m => ({
-    default: m.HeroDetail,
-  })),
+  loaders.heroesDetail().then(m => ({ default: m.HeroDetail })),
 );
 
 /** Full-viewport black backdrop shown during lazy-chunk fetch. Matches the
