@@ -80,6 +80,11 @@ const useSwipe = ({
 
   // Per-gesture state lives in refs to avoid React re-renders during drag.
   const cellWidthRef = useRef(0);
+  // When a resize fires mid-commit/mid-drag, applying the new width
+  // immediately would invalidate the in-flight `animateTrackTo` target
+  // (which captured the old width) and land off-center. Park the new
+  // width here and pick it up at the next idle moment.
+  const pendingCellWidthRef = useRef<number | null>(null);
   const dragRef = useRef({
     pointerId: -1,
     startX: 0,
@@ -143,18 +148,19 @@ const useSwipe = ({
     if (!surface) return;
     const measure = () => {
       const rect = surface.getBoundingClientRect();
-      if (rect.width > 0) {
+      if (rect.width <= 0) return;
+      // Defer both the width write and the resting transform reset
+      // until idle. Mutating `cellWidthRef.current` mid-commit would
+      // make the in-flight `animateTrackTo` (which already captured
+      // the old width for its target transform) land off-center
+      // against the new width. Resetting the transform mid-commit
+      // would cancel the transition with the wrong bitmap visible.
+      if (dragRef.current.pointerId === -1 && phaseRef.current === 'idle') {
         cellWidthRef.current = rect.width;
-        // Only re-apply resting transform if no drag or commit
-        // animation is active. Reset mid-commit would cancel the
-        // transition and snap the track to -W with the wrong
-        // bitmap visible.
-        if (
-          dragRef.current.pointerId === -1 &&
-          phaseRef.current === 'idle'
-        ) {
-          setRestingTransform();
-        }
+        pendingCellWidthRef.current = null;
+        setRestingTransform();
+      } else {
+        pendingCellWidthRef.current = rect.width;
       }
     };
     measure();
@@ -274,14 +280,20 @@ const useSwipe = ({
       }
 
       // Suppress the trailing click some browsers fire after a
-      // captured horizontal-locked gesture. The trailing click
-      // arrives within a few ms; clear the flag after a short
-      // window so a stale value doesn't eat an unrelated click
-      // from the next user interaction.
-      consumedClickRef.current = true;
-      window.setTimeout(() => {
-        consumedClickRef.current = false;
-      }, 350);
+      // captured horizontal-locked gesture. Only arm when the
+      // gesture actually travelled past the axis-lock threshold —
+      // a tiny axis-locked wiggle that settles back near origin
+      // shouldn't eat a subsequent deliberate tap. Keep the window
+      // tight: the synthesized click arrives within a few ms of
+      // pointerup, well under 50ms, but a 350ms blanket would
+      // swallow legitimate taps on `[close]`, prev/next, or a
+      // group photo within the same interaction beat.
+      if (Math.abs(dx) > AXIS_LOCK_THRESHOLD_PX) {
+        consumedClickRef.current = true;
+        window.setTimeout(() => {
+          consumedClickRef.current = false;
+        }, 50);
+      }
 
       const { hasPrev, hasNext, onCommitPrev, onCommitNext } =
         callbacksRef.current;
@@ -304,6 +316,13 @@ const useSwipe = ({
         if (willCommit) {
           if (goingPrev) onCommitPrev?.();
           else if (goingNext) onCommitNext?.();
+        }
+        // Apply any width that arrived from a mid-commit resize
+        // before snapping back to rest, so the resting transform
+        // is computed against the current surface width.
+        if (pendingCellWidthRef.current !== null) {
+          cellWidthRef.current = pendingCellWidthRef.current;
+          pendingCellWidthRef.current = null;
         }
         // Snap track back to resting position with no transition.
         // The parent's wouter navigate (called above) will swap

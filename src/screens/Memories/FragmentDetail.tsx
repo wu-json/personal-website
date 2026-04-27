@@ -295,36 +295,6 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
     return null;
   }, [photo, fragment, gridItems]);
 
-  const navigateToGridItem = (gi: number) => {
-    const item = gridItems[gi];
-    if (item.kind === 'group') {
-      navigate(`/memories/${id}/${item.groupId}`, { replace: true });
-    } else {
-      navigate(`/memories/${id}/${item.photo.file}`, { replace: true });
-    }
-  };
-
-  if (!fragment) {
-    return (
-      <div className='w-full min-h-screen bg-black flex items-center justify-center md:pr-40'>
-        <div className='flex flex-col items-center gap-3'>
-          <h1 className='bio-glitch text-white text-2xl font-pixel'>
-            FRAGMENT LOST
-          </h1>
-          <p className='bio-glitch text-white/30 text-xs font-mono'>
-            {'// memory not found in archive'}
-          </p>
-          <Link
-            to='/memories'
-            className='mt-4 text-white/30 text-[10px] font-mono uppercase tracking-widest hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)] transition-all duration-300'
-          >
-            {'< return to memories'}
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
   const gridPreloadFiles = useMemo(() => {
     if (!lightboxView) return [];
     const gi = lightboxView.gridIndex;
@@ -377,6 +347,41 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
       next: coverOf(gridItems[(gridIndex + 1) % total]),
     };
   }, [lightboxView, gridItems]);
+
+  // Early return must come *after* every hook call above so the hook
+  // count is stable across render paths (Rules of Hooks). Today this
+  // only ever toggles via route-level remount, but a future change
+  // that flips `fragment` on the same mount would otherwise reorder
+  // hooks between renders.
+  if (!fragment) {
+    return (
+      <div className='w-full min-h-screen bg-black flex items-center justify-center md:pr-40'>
+        <div className='flex flex-col items-center gap-3'>
+          <h1 className='bio-glitch text-white text-2xl font-pixel'>
+            FRAGMENT LOST
+          </h1>
+          <p className='bio-glitch text-white/30 text-xs font-mono'>
+            {'// memory not found in archive'}
+          </p>
+          <Link
+            to='/memories'
+            className='mt-4 text-white/30 text-[10px] font-mono uppercase tracking-widest hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)] transition-all duration-300'
+          >
+            {'< return to memories'}
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  const navigateToGridItem = (gi: number) => {
+    const item = gridItems[gi];
+    if (item.kind === 'group') {
+      navigate(`/memories/${id}/${item.groupId}`, { replace: true });
+    } else {
+      navigate(`/memories/${id}/${item.photo.file}`, { replace: true });
+    }
+  };
 
   let lightboxElement: React.ReactNode = null;
 
