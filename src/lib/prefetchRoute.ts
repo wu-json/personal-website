@@ -36,7 +36,6 @@ type LazyPayload = {
 
 type LazyExoticLike = {
   _payload: LazyPayload;
-  _init: (payload: LazyPayload) => unknown;
 };
 
 type ScreenEntry<C> = {
