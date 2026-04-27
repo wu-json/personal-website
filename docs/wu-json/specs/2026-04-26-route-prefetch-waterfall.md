@@ -1,5 +1,5 @@
 ---
-status: draft
+status: ready
 ---
 
 # Fix nav-click waterfall from route-level code splitting
@@ -24,16 +24,19 @@ React can render the new route.
 2. `wouter` updates location → React renders
    `<Suspense fallback=<RouteFallback/>>` with `<MemoriesScreen />`.
 3. Suspense boundary throws because `MemoriesScreen` chunk isn't loaded.
-4. Browser requests the `MemoriesScreen-*.js` chunk (tiny — ~1.5 kB).
-5. That module's imports cascade: `ProgressiveImage-*.js`,
-   `Memories/data-*.js`, etc. — a second network roundtrip because
-   nothing was preloaded.
-6. React resumes render, screen paints.
+4. Browser requests the `MemoriesScreen-*.js` chunk. Vite's
+   `__vitePreload` helper emits `<link rel="modulepreload">` for the
+   chunk's declared dependencies (CSS is already in the single bundle,
+   but the screen's `data-*.js` sibling — 20 kB of
+   `import.meta.glob('./fragments/*.md', { eager: true })` — is
+   fetched in parallel).
+5. React resumes render once both chunks resolve, screen paints.
 
-On a fast desktop connection this is ~150–300 ms of black fallback.
-On mobile 4G it's visibly worse (500 ms–1 s). Multiply by two for
-`/memories` → `/memories/:id`, which re-pays for `FragmentDetail-*.js`
-+ `MarkdownBody-*.js` (44 kB) + `public-api-*.js` (96 kB, the
+On a fast desktop connection this is ~150–300 ms of black fallback
+(mostly `Suspense` bookkeeping + one RTT). On mobile 4G it's visibly
+worse (500 ms–1 s). Memories/Signals → their detail routes pay
+another round for `FragmentDetail` / `SignalDetail` plus the shared
+`MarkdownBody-*.js` (44 kB) + `public-api-*.js` (96 kB, the
 remark/rehype plugin bundle).
 
 ### Why not just un-split?
@@ -45,8 +48,38 @@ the same ~6× the last spec won.
 
 We want **eager-warm, lazy-execute**: keep the chunks split (so the
 bytes don't appear on the critical path), but prefetch them into the
-HTTP cache during idle time or on user intent, so the `import()` call
-later resolves instantly from cache.
+browser's module cache during idle time or on user intent, so the
+`import()` call that `lazy()` makes at click time resolves
+synchronously from cache.
+
+### Why `import()` memoization is the whole trick
+
+Vite/Rollup compiles every `import('src/screens/Memories')` callsite —
+whether inside a `lazy()` or inside a plain fire-and-forget prefetch
+call — to the same hashed URL (`/assets/index-DQtCerIn.js` or
+whatever). The ECMAScript module system keys its registry on the
+resolved URL and memoizes the promise for that URL.
+
+So: a prefetch call `void import('src/screens/Memories')` downloads
+the chunk, **evaluates its top-level code**, and caches its module
+record in the registry. A later `lazy(() =>
+import('src/screens/Memories'))` call looks up the same URL, finds
+the cached record, and returns an already-resolved promise — zero
+extra network, zero extra evaluation. Suspense's "throw a promise"
+mechanism resolves on the first render attempt and the child renders
+in the same tick.
+
+Top-level evaluation at prefetch time is the point, not a bug. The
+heavy module-load cost in our tree is the `import.meta.glob('./<x>/*.md',
+{ eager: true })` in each screen's `data.ts` — parsing frontmatter
+for 4–11 markdown entries. We want that amortized to idle / hover,
+not charged to the click. The screen's React component itself doesn't
+run until React calls it; only module-scope side effects execute on
+prefetch.
+
+This behavior is portable across Chromium, Firefox, and Safari
+(specified by the ES `HostLoadImportedModule` hook, which all three
+delegate to a URL-keyed internal slot).
 
 ## Goals
 
@@ -56,34 +89,41 @@ later resolves instantly from cache.
 - Make hover/focus → click on a detail `<Link>` feel instant too
   (`/memories` → `/memories/japan-2024`).
 - Zero regression on `/` initial paint. The landing page must not
-  download screen chunks **before** it paints; prefetch happens strictly
-  after `requestIdleCallback` / first paint.
+  download screen chunks **before** it paints; prefetch runs strictly
+  after the first React commit.
 - Works on Safari (which doesn't support `requestIdleCallback` natively
   — fallback to `setTimeout`).
-- No new dependencies. We're doing this with `import()` + a ref-counted
-  registry, nothing more.
+- No new dependencies. Implementation is one `Set`-backed registry +
+  one wrapper component + a small `<RoutePrefetcher />` mount.
 
 ## Non-goals
 
 - SSR / SSG. Still a client-rendered SPA.
-- Rewriting Gallery (`/gallery/:fragmentId`). It's a big chunk and it
-  has its own entry pattern. Out of scope.
-- Prefetching **data** (fragment markdown, image bytes). This spec is
-  about JS chunks only.
-- Prefetching chunks for routes not linked from the sidebar (e.g.
-  deeply-nested pages reached only via in-content links — they're not
-  on the hot path for nav-click perf).
+- Rewriting Gallery (`/gallery/:fragmentId`). Its chunk is 887 kB; we
+  don't want to warm it on idle, and users don't reach it from the
+  sidebar. Out of scope.
+- Prefetching **data** (fragment markdown, image bytes). JS chunks only.
+- Prefetching chunks for in-content markdown anchors. `MarkdownBody`'s
+  custom `a` renderer emits plain `<a href>` (not wouter `<Link>`),
+  which is a full-page reload anyway — a separate, larger change.
+- Chunks for routes not linked from the sidebar (e.g. links across
+  detail screens like `/heroes/:id` → nothing). They're rare enough
+  that cold-click cost is acceptable.
 
 ## Design
 
-Three layers, smallest first:
+Three layers:
 
-### 1. A shared `prefetchRoute` registry
+### 1. Shared loader registry (`src/lib/prefetchRoute.ts`)
 
-New module `src/routes/prefetch.ts` that exports:
+Single source of truth for every lazy screen's `import()` specifier.
+Both `App.tsx`'s `lazy()` calls and the prefetch intents point here,
+which prevents drift (change a specifier in one place without the
+other, and either `lazy()` breaks or prefetch warms the wrong chunk).
 
 ```ts
-type RouteKey =
+// src/lib/prefetchRoute.ts
+export type RouteKey =
   | 'memories'
   | 'memoriesDetail'
   | 'signals'
@@ -93,7 +133,7 @@ type RouteKey =
   | 'heroes'
   | 'heroesDetail';
 
-const loaders: Record<RouteKey, () => Promise<unknown>> = {
+export const loaders = {
   memories: () => import('src/screens/Memories'),
   memoriesDetail: () => import('src/screens/Memories/FragmentDetail'),
   signals: () => import('src/screens/Signals'),
@@ -102,269 +142,378 @@ const loaders: Record<RouteKey, () => Promise<unknown>> = {
   constructsDetail: () => import('src/screens/Constructs/ConstructDetail'),
   heroes: () => import('src/screens/Heroes'),
   heroesDetail: () => import('src/screens/Heroes/HeroDetail'),
-};
+} as const satisfies Record<RouteKey, () => Promise<unknown>>;
 
 const prefetched = new Set<RouteKey>();
 
 export const prefetchRoute = (key: RouteKey) => {
   if (prefetched.has(key)) return;
   prefetched.add(key);
-  // Fire and forget. Native ES dynamic imports are memoized by the
-  // module system, so the later `lazy()`-driven import() returns the
-  // same already-resolved promise with zero additional network cost.
+  // Fire and forget. The later lazy()-driven import() returns the
+  // same promise from the module registry — zero additional network.
   void loaders[key]().catch(() => {
-    // On transient network error, un-mark so a later intent retries.
+    // Transient failure (offline blip, CDN 503): un-mark so the real
+    // click re-tries. Never block the click on prefetch status.
     prefetched.delete(key);
   });
 };
 ```
 
-Design choices:
+Design notes:
 
-- **One registry, one source of truth.** Both `App.tsx`'s `lazy(() =>
-  import('...'))` calls and this module point at the same specifiers —
-  Vite/Rollup de-dupe them into one chunk, and the module system
-  guarantees the `lazy()` promise resolves from cache.
-- **Idempotent by key.** The `Set` guard means a sidebar link hovered
-  20 times fires one network request.
-- **Fail-open.** If the prefetch fetch errors (offline blip, CDN 503),
-  un-mark so the real click triggers a fresh load. We never block the
-  click on prefetch status.
-- **No explicit `<link rel="modulepreload">`.** Injecting `<link>`
-  tags can trigger CORS quirks in Safari and requires knowing the
-  hashed filename up front (we don't — it's Vite's output). A plain
-  `import()` call is the portable form: the browser resolves the
-  module specifier, downloads the script with the right CORS mode, and
-  populates the JS module cache. This is what TanStack Router,
-  Next.js's `router.prefetch`, and `react-router`'s `preload()`
-  hooks all ultimately compile to.
+- **`as const satisfies`** gives the compile-time `RouteKey`
+  completeness check (exhaustive record) without widening the value
+  types, so `loaders.memories` keeps its narrow function type.
+- **Idempotent by key.** A sidebar link hovered 20 times fires one
+  network request.
+- **Fail-open.** Prefetch is best-effort; the Suspense fallback is the
+  safety net if it misses.
+- **Why not `<link rel="modulepreload">`?** Two reasons: (a) Vite
+  hashes the chunk filenames at build time, so injecting tags into
+  `index.html` would need a custom plugin to template them in;
+  (b) Safari's `<link modulepreload>` implementation has occasionally
+  double-fetched when the subsequent `<script type=module>` loads
+  with different CORS semantics. A plain `import()` call sidesteps
+  both: it goes through the exact same fetch path the real click
+  would use, so the cache hit on click is guaranteed.
 
-### 2. Idle-time warm-up after first paint
+### 2. Idle-time warm-up after first paint (`<RoutePrefetcher />`)
 
-In `src/App.tsx` (or a dedicated `useEffect` in `RootLayout`), after
-the first commit schedule a low-priority prefetch of the four
-sidebar-linked index routes (`memories`, `signals`, `constructs`,
-`heroes`):
+A small component mounted **inside `RootLayout`'s subtree** (so it
+doesn't run on `/gallery/:fragmentId`, which bypasses `RootLayout`
+entirely). After the first commit, schedule a low-priority prefetch
+of the four sidebar-linked index routes.
 
-```ts
-useEffect(() => {
-  const schedule =
-    'requestIdleCallback' in window
-      ? window.requestIdleCallback
-      : (cb: () => void) => setTimeout(cb, 200);
-  const handle = schedule(() => {
-    prefetchRoute('memories');
-    prefetchRoute('signals');
-    prefetchRoute('constructs');
-    prefetchRoute('heroes');
-  });
-  return () => {
-    if ('cancelIdleCallback' in window && typeof handle === 'number') {
-      // Type-narrow: rIC returns a handle; setTimeout returns
-      // Timeout — both are clearable by their own cancel.
-      window.cancelIdleCallback(handle);
-    } else {
-      clearTimeout(handle as ReturnType<typeof setTimeout>);
+```tsx
+// src/layouts/RoutePrefetcher.tsx
+import { useEffect } from 'react';
+import { prefetchRoute } from 'src/lib/prefetchRoute';
+
+type Handle =
+  | { kind: 'idle'; id: number }
+  | { kind: 'timeout'; id: ReturnType<typeof setTimeout> };
+
+export const RoutePrefetcher = () => {
+  useEffect(() => {
+    // Opt out on metered / explicitly data-saving connections. Users
+    // can still click and pay the cold-chunk cost; hover-intent
+    // prefetch (user-initiated) remains active regardless.
+    const conn = (
+      navigator as Navigator & {
+        connection?: { saveData?: boolean; effectiveType?: string };
+      }
+    ).connection;
+    if (
+      conn?.saveData ||
+      conn?.effectiveType === '2g' ||
+      conn?.effectiveType === 'slow-2g'
+    ) {
+      return;
     }
-  };
-}, []);
+
+    const run = () => {
+      prefetchRoute('memories');
+      prefetchRoute('signals');
+      prefetchRoute('constructs');
+      prefetchRoute('heroes');
+    };
+
+    let handle: Handle;
+    if ('requestIdleCallback' in window) {
+      handle = { kind: 'idle', id: window.requestIdleCallback(run) };
+    } else {
+      // Safari: no native rIC. 200 ms is enough for the main thread
+      // to settle after first paint; we don't fight with LCP.
+      handle = { kind: 'timeout', id: setTimeout(run, 200) };
+    }
+
+    return () => {
+      if (handle.kind === 'idle') window.cancelIdleCallback(handle.id);
+      else clearTimeout(handle.id);
+    };
+  }, []);
+
+  return null;
+};
 ```
 
-This runs exactly once per session, after React has rendered the
-first route. The browser is allowed to dribble these chunks in over
-idle network; they're tiny (1.5–5 kB each — it's just the screen
-shell, not markdown / data).
+Bytes warmed on idle, measured against the current `build/assets/`:
 
-**Why not prefetch detail routes here too?**
-Detail chunks (`FragmentDetail`, `SignalDetail`) pull in `MarkdownBody`
-+ the remark/rehype plugin bundle (~140 kB combined). That's too much
-to blindly warm on every session — most sessions only click into one
-detail page (or none). Gate those behind user intent, next section.
+| Route | Shell + data | Transitive shared chunks |
+| --- | --- | --- |
+| `memories` | `MemoriesScreen` (1.5 kB) + `data` (20 kB) | — |
+| `signals` | `SignalsScreen` (5.3 kB) | `MarkdownBody` (44 kB) + `public-api` (96 kB) + `index-D-GFURkx` (118 kB) — the remark/rehype/micromark pipeline |
+| `constructs` | `ConstructsScreen` (1.5 kB) + `data` (12 kB) | — |
+| `heroes` | `HeroesScreen` (1.5 kB) + `data` (3.7 kB) | — |
+| **Total idle warmup** | **~300 kB min / ~95 kB gzipped** | Browser dribbles over idle network. |
 
-### 3. Hover / focus intent prefetch on `<Link>`
+**Signals dominates the idle bill** — its list view renders
+`MarkdownBody` inline on every entry, so warming `SignalsScreen`
+transitively warms the whole markdown pipeline (`MarkdownBody` +
+`public-api` + the split-out remark/rehype/micromark chunk
+`index-D-GFURkx.js`). ~95 kB gzipped is not trivial.
 
-When the user hovers or focuses a nav or card link, that's a strong
-signal they're about to click it. Prefetch the target's chunk
-immediately — by the time the click lands, the chunk is either
-already cached or in flight.
+The benefit: the markdown pipeline is **shared** across every detail
+route, so warming it once on idle makes hover-intent prefetch of
+`FragmentDetail` (15 kB), `SignalDetail` (2.3 kB), `ConstructDetail`
+(2.8 kB), and `HeroDetail` (2.7 kB) essentially free — a single
+small RTT for the remaining per-route code. Across a typical session
+(2–5 detail page visits), this is net bytes-saved vs. fetching
+markdown lazily on each cold detail click.
 
-Two call sites:
+Guards already in the design keep this defensible: `saveData` opts
+out, `2g`/`slow-2g` opts out, and the idle pass only runs after the
+first React commit (no competition with LCP). If measurement shows
+this is still too heavy for a real user profile, the easy tweak is to
+drop `'signals'` from the idle list and rely on hover-intent (which
+covers it fine on desktop; mobile tap-to-open-menu is slow enough for
+`touchstart` prefetch to cover too). That's a one-line change, not a
+design revision — flag it as a future adjustment rather than an
+open question.
 
-**A. Sidebar nav links** (`src/components/Sidebar/index.tsx`). Each
-`<NavLink>` gets `onMouseEnter` + `onFocus` handlers that call
-`prefetchRoute` with the corresponding key:
+Deliberately **not** warmed on idle: the four Detail screen chunks
+themselves, which are cold-speculative (many sessions hit zero detail
+pages). They come in on hover-intent, and by then the shared markdown
+pipeline is already cached from the Signals warmup.
+
+### 3. Hover / focus / touchstart intent prefetch
+
+When a user hovers or focuses a link, they're very likely about to
+click it. Prefetch the target chunk at that moment — by click time,
+the chunk is cached or close to it.
+
+**Attachment points:**
+
+**A. Sidebar nav links** (`src/components/Sidebar/index.tsx`). Extend
+`NavLink` with an optional `prefetch?: RouteKey`; internally wire
+`onMouseEnter` / `onFocus` / `onTouchStart` on the underlying wouter
+`<Link>` (verified: wouter `<Link>` spreads `restProps` onto its
+rendered `<a>`, so DOM handlers pass through).
 
 ```tsx
-<NavLink
-  to='/memories'
-  active={pathname.startsWith('/memories')}
-  onHoverIntent={() => prefetchRoute('memories')}
-  onClick={onClick}
->
-  Memories
-</NavLink>
+<NavLink to='/memories' prefetch='memories' active={…}>Memories</NavLink>
+<NavLink to='/constructs' prefetch='constructs' active={…}>Constructs</NavLink>
+<NavLink to='/signals' prefetch='signals' active={…}>Signals</NavLink>
+<NavLink to='/heroes' prefetch='heroes' active={…}>Heroes</NavLink>
 ```
 
-The index routes are already covered by the idle-time pass, so this is
-belt-and-suspenders for users who click faster than idle fires (very
-first paint, fast connection). Cost: zero extra network because
-`prefetchRoute` is idempotent.
+Sidebar nav is belt-and-suspenders against the idle pass — on a very
+fast connection the user can click before the idle callback fires.
+Cost is zero extra network because `prefetchRoute` is idempotent.
+`Jason Cui Wu` → `/` stays unprefetched (HomeScreen is eager, not
+lazy, in `App.tsx`).
 
-**B. Detail-page cards.** `MemoriesScreen`, `SignalsScreen`,
-`ConstructsScreen`, `HeroesScreen` each render a list of `<Link
-to="/<section>/:id">`s. Attach `onMouseEnter` / `onFocus` to each,
-calling `prefetchRoute('memoriesDetail')` (etc.).
-
-The common pattern: wrap `<Link>` in a local component `<PrefetchLink
-route='memoriesDetail'>` so the index screens don't each open-code
-the handler. Put this in
-`src/components/PrefetchLink.tsx`:
+**B. Detail-card links on index screens.** `MemoriesScreen`,
+`ConstructsScreen`, `HeroesScreen` each render `<Link to="/<section>/:id">`
+per entry. Introduce a thin wrapper:
 
 ```tsx
+// src/components/PrefetchLink.tsx
+import type { ComponentProps } from 'react';
+import { Link } from 'wouter';
+import { prefetchRoute, type RouteKey } from 'src/lib/prefetchRoute';
+
 type Props = ComponentProps<typeof Link> & { prefetch?: RouteKey };
 
 export const PrefetchLink = ({ prefetch, ...rest }: Props) => {
-  const onHover = prefetch ? () => prefetchRoute(prefetch) : undefined;
+  const onIntent = prefetch ? () => prefetchRoute(prefetch) : undefined;
   return (
     <Link
       {...rest}
-      onMouseEnter={onHover}
-      onFocus={onHover}
-      onTouchStart={onHover}
+      onMouseEnter={onIntent}
+      onFocus={onIntent}
+      onTouchStart={onIntent}
     />
   );
 };
 ```
 
-`onTouchStart` is the mobile equivalent of hover — fires at touch-down,
-~100–200 ms before the click resolves, which on a 4G connection is
-exactly enough to cover the network roundtrip.
+`onTouchStart` fires at touch-down — ~100–200 ms before `click`
+resolves, enough to cover one 4G roundtrip for the detail chunk.
+Swap `<Link>` → `<PrefetchLink prefetch='memoriesDetail'>` (etc.) on
+card rendering in Memories / Constructs / Heroes index screens.
 
-**Coverage.** Only swap `<Link>` → `<PrefetchLink prefetch='…'>` for
-links that go to a detail route or a route with a heavy
-`MarkdownBody`. Sidebar and in-content anchors (e.g. inline
-`/memories/...` in markdown) stay as plain `<Link>` — they're either
-already covered by the idle pass or don't benefit from prefetch.
+**C. Signals list — special case.** `SignalsScreen` does **not** use
+`<Link>` for entries. Each article is a `<div tabIndex={0}>` that
+calls `navigate('/signals/:id')` on click / Enter (so clicks can
+fall through to inline `<a>` / `<button>` children without
+navigating). `PrefetchLink` doesn't apply. Instead attach
+`onMouseEnter` / `onFocus` / `onTouchStart` handlers directly to the
+same `<div>` (`signal-list-item`). Wire via a tiny inline helper:
+
+```tsx
+const onIntent = () => prefetchRoute('signalsDetail');
+// …
+<div
+  tabIndex={0}
+  onClick={onPreviewClick}
+  onKeyDown={onPreviewKeyDown}
+  onMouseEnter={onIntent}
+  onFocus={onIntent}
+  onTouchStart={onIntent}
+  className='signal-list-item …'
+>
+```
+
+Both list and detail signals share one chunk (`SignalDetail-*.js`),
+so prefetching once per hover is sufficient regardless of which
+article triggers it.
+
+**Coverage audit.** These are the hot paths from the sidebar outward:
+
+- Sidebar → `/memories`, `/signals`, `/constructs`, `/heroes`: covered
+  by (A) + idle pass.
+- `/memories` → `/memories/:id`: covered by (B) via `PrefetchLink`.
+- `/signals` → `/signals/:id`: covered by (C) via handlers on the
+  list-item div.
+- `/constructs` → `/constructs/:id`: covered by (B).
+- `/heroes` → `/heroes/:id`: covered by (B).
+- Cross-section links in detail screens (e.g. `SignalDetail` →
+  `/memories/xyz`): **not covered**. These are rare and usually
+  mid-read; we accept the cold-click cost.
 
 ## Why this beats alternatives
 
 | Alternative | Why not |
 | --- | --- |
 | Revert all `lazy()` → eager | Re-bloats `/` by ~6× (the win this spec preserves). |
-| Only eager-import `MemoriesScreen` + `SignalsScreen` (indexes) | Still bloats `/` with both screen trees + their `data.ts` import.meta.glob bundles; detail routes still cold. |
-| `<link rel="modulepreload">` injected in `index.html` | Vite hashes filenames; would need a plugin to template them in, and Safari CORS-handles `<link modulepreload>` differently than `<script type=module>` — occasional double-fetches in the wild. |
-| `@vite-pwa/plugin` / service worker caching | Much bigger surface, precaches images/fonts too, adds a SW update story. Worth doing eventually but not for this problem. |
-| Prefetch on `mousedown` instead of `mouseenter` | Too late — `mousedown` → `click` gap is ~10–50 ms, not enough to swallow a network request. |
+| Only eager-import index screens | Still bloats `/` with four screen trees + their `data.ts` bundles; detail routes still cold. |
+| `<link rel="modulepreload">` in `index.html` | Vite hashes filenames; would need a plugin. Safari has double-fetched in practice when the subsequent `<script type=module>` disagrees on CORS. |
+| `@vite-pwa/plugin` / service worker | Much bigger surface (precaches images/fonts, adds a SW update story). Worth doing eventually, not for this problem. |
+| Prefetch on `mousedown` | Too late — `mousedown` → `click` is ~10–50 ms, not enough for a cold RTT. |
 
-The hover-intent + idle warm-up combo is what Next.js's
-`<Link prefetch>`, TanStack Router, and Remix all do in one form or
-another. It's the lowest-code, highest-leverage fix.
+Hover-intent + idle warm-up is what Next.js's `<Link prefetch>`,
+TanStack Router, and Remix all compile to under the hood. Lowest-code,
+highest-leverage fix for this class of waterfall.
 
 ## Implementation plan
 
 **Files touched:**
 
-- New: `src/routes/prefetch.ts` (registry + `prefetchRoute`).
-- New: `src/components/PrefetchLink.tsx` (thin `<Link>` wrapper).
-- `src/App.tsx` — import `prefetchRoute` from the registry so both
-  `lazy()` and the registry reference the same module specifiers
-  (avoid drift). Add the `useEffect` idle-time warm-up in a small
-  `<RoutePrefetcher />` component mounted inside `RootLayout`'s
-  subtree (not at the top level — we don't want it running when the
-  user lands directly on `/gallery/...`, which bypasses
-  `RootLayout`).
-- `src/components/Sidebar/index.tsx` — extend `NavLink` with an
-  `onHoverIntent` prop; wire the four content sections.
-- `src/screens/Memories/index.tsx` — swap `Link` →
-  `<PrefetchLink prefetch='memoriesDetail'>`.
-- `src/screens/Signals/index.tsx` — same for `signalsDetail`.
+- **New:** `src/lib/prefetchRoute.ts` — registry + `prefetchRoute`.
+- **New:** `src/components/PrefetchLink.tsx` — thin `<Link>` wrapper.
+- **New:** `src/layouts/RoutePrefetcher.tsx` — idle-time warm-up.
+- `src/App.tsx` — import `loaders` from `prefetchRoute.ts` so `lazy()`
+  calls share specifiers with the registry (no drift).
+- `src/layouts/RootLayout.tsx` — mount `<RoutePrefetcher />` at the
+  end of the tree (placement doesn't matter functionally; beside
+  `ScrollToTop` is tidy).
+- `src/components/Sidebar/index.tsx` — add `prefetch?: RouteKey` to
+  `NavLink`, wire `onMouseEnter` / `onFocus` / `onTouchStart` on the
+  underlying `<Link>`. Pass the four content-section keys.
+- `src/screens/Memories/index.tsx` — swap `Link` → `PrefetchLink
+  prefetch='memoriesDetail'`.
 - `src/screens/Constructs/index.tsx` — same for `constructsDetail`.
 - `src/screens/Heroes/index.tsx` — same for `heroesDetail`.
+- `src/screens/Signals/index.tsx` — inline handlers on the
+  `signal-list-item` `<div>` for `signalsDetail` (not `PrefetchLink`
+  — list items aren't `<Link>`s).
 
 ## Tasks
 
-- [ ] Add `src/routes/prefetch.ts` with the `RouteKey` union, `loaders`
-      map pointing at the same `import('src/screens/...')` specifiers
-      used in `App.tsx`, a `Set`-backed idempotency guard, and the
-      `prefetchRoute(key)` function that fires-and-forgets and
-      un-marks on failure.
-- [ ] Refactor `src/App.tsx` so the eight `lazy()` calls call into the
-      shared `loaders` map rather than duplicating the `import()`
-      specifiers. Keeps a single source of truth so the registry
-      can't drift from the router. (Pass `loaders.memories` directly
-      to `lazy()`, wrapping with the `.then(m => ({ default:
-      m.MemoriesScreen }))` shape where needed.)
-- [ ] Add `<RoutePrefetcher />` component that mounts inside
-      `RootLayout` and calls `prefetchRoute` for `memories`,
-      `signals`, `constructs`, `heroes` on a `requestIdleCallback`
-      (fallback `setTimeout(200)`) after first commit. Cleanup
-      cancels the idle handle if unmounted before it fires.
-- [ ] Add `src/components/PrefetchLink.tsx` that wraps wouter's
-      `<Link>` and attaches `onMouseEnter` / `onFocus` /
-      `onTouchStart` handlers that call `prefetchRoute(prefetch)`.
-      Preserve all existing `Link` props via `ComponentProps<typeof
-      Link>`.
+- [ ] Add `src/lib/prefetchRoute.ts` with the `RouteKey` union, a
+      `loaders` map using `as const satisfies
+      Record<RouteKey, () => Promise<unknown>>`, a `Set`-backed
+      idempotency guard, and a `prefetchRoute(key)` function that
+      fires-and-forgets and un-marks on failure. Export `loaders` and
+      `RouteKey` for `App.tsx`.
+- [ ] Refactor `src/App.tsx`: replace each of the eight inline
+      `import('src/screens/...')` specifiers with
+      `loaders.<key>().then(...)` so `lazy()` and the registry share
+      one source of truth. Keep the `.then(m => ({ default:
+      m.NamedExport }))` shape where the module isn't a default
+      export.
+- [ ] Add `src/layouts/RoutePrefetcher.tsx` per the design:
+      `requestIdleCallback` path with `setTimeout(200)` fallback,
+      `saveData` / `effectiveType` opt-out, cancel on unmount via
+      the tagged-handle union. Component returns `null`.
+- [ ] Mount `<RoutePrefetcher />` inside `RootLayout` (not at the
+      top of `App` — we want Gallery's `/gallery/:fragmentId` route
+      to skip the prefetch entirely).
+- [ ] Add `src/components/PrefetchLink.tsx`: wrap wouter's `<Link>`,
+      accept all its props via `ComponentProps<typeof Link>`, attach
+      `onMouseEnter` / `onFocus` / `onTouchStart` that call
+      `prefetchRoute(prefetch)` when `prefetch` is set. No change to
+      `<Link>` behavior when `prefetch` is omitted.
 - [ ] Extend `NavLink` in `src/components/Sidebar/index.tsx` with an
-      optional `onHoverIntent` callback bound to the same three
-      events. Wire the four content links to their respective
-      `prefetchRoute` keys. Leave `/` (HomeScreen, already eager) and
-      Gallery (separate concern) unwired.
-- [ ] Swap `Link` → `<PrefetchLink prefetch='memoriesDetail'>` on
-      fragment cards in `src/screens/Memories/index.tsx`.
-- [ ] Same swap for `signalsDetail` in
-      `src/screens/Signals/index.tsx` (the "expand into detail" links
-      on collapsed entries — check `SignalsScreen` for all
-      `<Link to={'/signals/${id}'}>` occurrences and hit each one).
-- [ ] Same swap for `constructsDetail` in
-      `src/screens/Constructs/index.tsx`.
-- [ ] Same swap for `heroesDetail` in `src/screens/Heroes/index.tsx`.
+      optional `prefetch?: RouteKey`. Inside, if set, wire the three
+      intent events on the underlying `<Link>`. Pass `'memories'` /
+      `'constructs'` / `'signals'` / `'heroes'` on the four content
+      links. Leave `'Jason Cui Wu'` (`/`) without prefetch (Home is
+      eager).
+- [ ] `src/screens/Memories/index.tsx`: swap `Link` → `PrefetchLink`
+      with `prefetch='memoriesDetail'` on fragment cards.
+- [ ] `src/screens/Constructs/index.tsx`: same with
+      `prefetch='constructsDetail'`.
+- [ ] `src/screens/Heroes/index.tsx`: same with
+      `prefetch='heroesDetail'`.
+- [ ] `src/screens/Signals/index.tsx`: **not** `PrefetchLink` — the
+      list entries are `<div tabIndex={0}>` that `navigate()` on
+      click, not `<Link>`s. Attach `onMouseEnter` / `onFocus` /
+      `onTouchStart` directly to the `signal-list-item` `<div>`,
+      calling `prefetchRoute('signalsDetail')`.
 - [ ] `bun run lint` + `bun run format` clean.
-- [ ] `bun run build` clean. Verify in `build/index.html` that the
-      preloaded chunk set is unchanged (still just the main entry +
-      CSS) — the prefetch is runtime-only, it must not affect the
-      HTML.
-- [ ] Smoke-test in `bun run preview` on throttled 3G (Chrome
-      DevTools): Click `/` → `/memories` after ~1 s of idle; the
-      `RouteFallback` flash should be gone. Then hover
-      `/memories/japan-2024` briefly, click: should also feel
-      instant (chunk pre-warmed).
+- [ ] `bun run build` clean. Verify via `head -60 build/index.html`
+      that the preloaded chunk set is unchanged (just `index-*.js` +
+      `index-*.css` + the fonts/mirror image). Prefetch is
+      runtime-only and must not alter the HTML.
+- [ ] Smoke-test in `bun run preview` on "Fast 3G" throttle
+      (DevTools → Network):
+      - Load `/`, wait ~2 s; confirm 4 small chunks appear in the
+        waterfall as Initiator=`(index)` or similar, **after**
+        `DOMContentLoaded`.
+      - Click `/memories`: no new network request for
+        `MemoriesScreen-*.js` (served from memory cache); screen
+        paints without `RouteFallback` flash.
+      - Hover a fragment card for ~300 ms, click it: `FragmentDetail`
+        + `MarkdownBody` land during hover; click is instant.
+      - Repeat for `/signals`, `/constructs`, `/heroes` and one
+        detail each.
 
 ## Verification
 
-- Before/after waterfalls in Chrome DevTools → Network panel,
-  "Fast 3G" throttle:
-  - Home load: no new chunks downloaded before `domcontentloaded`.
-  - After idle: 4 small chunks land in background (memories, signals,
-    constructs, heroes).
-  - Click nav: no new network request for the screen chunk (served
-    from memory cache), only the data chunk if not already shared.
-- Lighthouse run on `/`: LCP unchanged (goal: ±50 ms of current).
-- iPhone Safari on a real metered connection: hover substitute is
-  `touchstart`; detail page click should feel noticeably snappier.
+- Before/after waterfalls in Chrome DevTools → Network panel, "Fast
+  3G" throttle:
+  - `/` initial load: no new screen chunks downloaded before
+    `domcontentloaded`.
+  - Idle (~200 ms–1 s after paint): 4 small chunks (+ their data
+    siblings) land in background.
+  - Nav-click: zero new network activity for the screen chunk itself
+    (it's already in memory cache).
+- Lighthouse mobile run on `/`: LCP unchanged (tolerance ±50 ms).
+- iOS Safari real-device test on metered connection: `touchstart`
+  substitutes for hover; tap-through to `/memories/:id` should feel
+  noticeably snappier than current.
 
 ## Risks / open questions
 
-- **Idle-time prefetch on metered connections.** Chrome/Firefox expose
-  `navigator.connection.saveData`; could skip the idle pass when it's
-  true. Probably worth adding — **decision:** do it, one-line guard
-  in `<RoutePrefetcher />`. If `saveData` is true or `effectiveType`
-  is `'2g'`/`'slow-2g'`, skip the idle pass; hover-intent prefetch
-  still runs because that's user-initiated.
-- **`cancelIdleCallback` typing.** `requestIdleCallback` returns
-  `number`, `setTimeout` returns `ReturnType<typeof setTimeout>`
-  which narrows differently in DOM vs. Node lib. Just type the handle
-  as `number | ReturnType<typeof setTimeout>` and branch on cancel.
-- **Module specifier drift.** If someone edits `App.tsx` to change a
-  `lazy()` specifier without updating `prefetch.ts`, we'd prefetch
-  the wrong chunk. The "single source of truth" refactor (have
-  `App.tsx` import from `prefetch.ts`) prevents this; keep the
-  loaders map as the canonical definition.
-- **Safari touchstart → scrolling intent.** `onTouchStart` also fires
-  on scroll-initiating touches over a link. This is fine for our use
-  case (the chunk prefetch is cheap and idempotent), but note that
-  it's slightly more aggressive than strict hover intent.
-- **Does this conflict with the existing Suspense boundary's
-  fallback?** No — when the prefetch succeeds, the `lazy()` promise
-  resolves synchronously from cache on first render, so Suspense
-  never throws. The `<RouteFallback>` code path only runs when
-  prefetch hasn't completed. Safe fall-back behavior.
+- **`navigator.connection` is Chromium-only.** Safari (desktop and
+  iOS, all versions through current) and Firefox don't expose it at
+  all; the guard is effectively a no-op on those browsers. That's
+  acceptable because (a) the idle pass is already after LCP and on
+  rIC/200 ms timer — it's not fighting any critical work, (b) Safari
+  is the platform where `touchstart` hover-intent actually matters
+  most, and the intent prefetch is the real savings on mobile
+  anyway. The idle pass is a "fast-path for repeat visitors on good
+  connections"; the hover-intent pass is the broad-coverage fix.
+- **Safari `touchstart` during scroll.** `onTouchStart` fires on
+  scroll-initiating touches over a link. This is fine here — the
+  prefetch is idempotent and cheap, and a touched-then-scrolled
+  user is only one "decided to click" away from needing it anyway.
+- **Suspense boundary interaction.** When prefetch has completed,
+  `lazy()`'s internal `import()` hits the browser's module registry
+  and resolves in a microtask; Suspense throws the promise once and
+  React resolves it before commit, so `<RouteFallback>` never paints.
+  When prefetch is in-flight at click time, the ECMAScript module
+  registry returns the same pending promise to `lazy()`, so both
+  paths await one network request. Strictly non-regressing vs.
+  today's cold click.
+- **`as const satisfies` on the loaders map.** Needs TS 4.9+; we're
+  on TS 5.x, so this is safe. If the type-check fails on older
+  tooling later, fall back to a manually-typed `Record<RouteKey,
+  () => Promise<unknown>>`.
+- **Future drift.** If a new screen is added lazy in `App.tsx`,
+  whoever does it must also add an entry to `loaders` for
+  prefetch to cover it. A linter rule or test could enforce this,
+  but it's overkill for the current cadence (one new screen every
+  few months).
