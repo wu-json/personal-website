@@ -1,10 +1,17 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import Markdown from 'react-markdown';
 
 import type { PhotoMeta } from '../types';
 
 import { photoUrl } from '../data';
+import { warmImage } from './imageCache';
+import { PhotoCell } from './PhotoCell';
 import { useSwipe } from './useSwipe';
+
+type Neighbors = {
+  prev: PhotoMeta | null;
+  next: PhotoMeta | null;
+};
 
 const Lightbox = ({
   photo,
@@ -13,6 +20,7 @@ const Lightbox = ({
   onClose,
   onPrev,
   onNext,
+  neighbors,
   preloadFiles,
 }: {
   photo: PhotoMeta;
@@ -21,16 +29,18 @@ const Lightbox = ({
   onClose: () => void;
   onPrev: (() => void) | null;
   onNext: (() => void) | null;
+  neighbors: Neighbors;
   preloadFiles: string[];
 }) => {
-  const [loaded, setLoaded] = useState(false);
-  const swipe = useSwipe({ onSwipeLeft: onNext, onSwipeRight: onPrev });
   const callbacksRef = useRef({ onClose, onPrev, onNext });
   callbacksRef.current = { onClose, onPrev, onNext };
 
-  useEffect(() => {
-    setLoaded(false);
-  }, [photo.file]);
+  const { surfaceRef, trackRef } = useSwipe({
+    hasPrev: !!onPrev,
+    hasNext: !!onNext,
+    onCommitPrev: onPrev,
+    onCommitNext: onNext,
+  });
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
@@ -49,11 +59,14 @@ const Lightbox = ({
     };
   }, []);
 
+  // Warm distant neighbors (distance 2-3) so subsequent swipes are also
+  // flicker-free. The immediate neighbors (distance 1) are already
+  // DOM-resident in the prev/next cells, so the browser fetches them
+  // automatically; we just need to populate the warm cache for them via
+  // their `<img onLoad>` handlers.
   useEffect(() => {
     for (const file of preloadFiles) {
-      const img = new Image();
-      img.fetchPriority = 'low';
-      img.src = photoUrl(fragmentId, file, 'full');
+      void warmImage(photoUrl(fragmentId, file, 'full'));
     }
   }, [preloadFiles, fragmentId]);
 
@@ -67,8 +80,8 @@ const Lightbox = ({
     >
       {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
       <div
-        ref={swipe.ref}
-        className='relative flex items-center justify-center w-full h-full p-4 sm:p-8'
+        ref={surfaceRef}
+        className='memories-swipe-surface absolute inset-0 overflow-hidden'
         onClick={e => e.stopPropagation()}
       >
         <button
@@ -83,42 +96,34 @@ const Lightbox = ({
           <button
             type='button'
             onClick={onPrev}
-            className='absolute left-2 sm:left-4 z-10 text-white/30 hover:text-white text-lg font-mono transition-colors duration-300'
+            className='absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-10 text-white/30 hover:text-white text-lg font-mono transition-colors duration-300'
           >
             &lt;
           </button>
         )}
 
         <div
-          className='flex flex-col items-center gap-3 max-w-full max-h-full'
-          style={swipe.style}
+          ref={trackRef}
+          className='memories-track absolute inset-0 flex'
+          style={{ width: '300%' }}
         >
-          <div
-            className='relative overflow-hidden'
-            style={{
-              aspectRatio: `${photo.width} / ${photo.height}`,
-              maxHeight: 'calc(100vh - 8rem)',
-              width: `min(calc(100vw - 4rem), calc((100vh - 8rem) * ${photo.width / photo.height}))`,
-            }}
-          >
-            <img
-              src={photoUrl(fragmentId, photo.file, 'placeholder')}
-              alt=''
-              aria-hidden
-              className={`absolute inset-0 w-full h-full object-contain scale-110 blur-md transition-opacity duration-500 ${loaded ? 'opacity-0' : 'opacity-100'}`}
-            />
-            <img
-              src={photoUrl(fragmentId, photo.file, 'full')}
-              alt={photo.alt ?? photo.caption ?? ''}
-              decoding='async'
-              className={`absolute inset-0 w-full h-full object-contain transition-opacity duration-500 ${loaded ? 'opacity-100' : 'opacity-0'}`}
-              onLoad={() => setLoaded(true)}
-            />
-          </div>
+          <PhotoCell photo={neighbors.prev} fragmentId={fragmentId} />
+          <PhotoCell photo={photo} fragmentId={fragmentId} />
+          <PhotoCell photo={neighbors.next} fragmentId={fragmentId} />
+        </div>
 
-          <div
-            className={`flex items-baseline gap-4 text-[10px] font-mono max-w-full transition-opacity duration-500 ${loaded ? 'opacity-100' : 'opacity-0'}`}
+        {onNext && (
+          <button
+            type='button'
+            onClick={onNext}
+            className='absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-10 text-white/30 hover:text-white text-lg font-mono transition-colors duration-300'
           >
+            &gt;
+          </button>
+        )}
+
+        <div className='absolute bottom-4 left-0 right-0 z-10 flex justify-center pointer-events-none px-4'>
+          <div className='flex items-baseline gap-4 text-[10px] font-mono max-w-full pointer-events-auto'>
             <span className='text-white/30 shrink-0'>{counter}</span>
             {photo.caption && (
               <span className='text-white/50 signal-prose min-w-0'>
@@ -137,19 +142,10 @@ const Lightbox = ({
             )}
           </div>
         </div>
-
-        {onNext && (
-          <button
-            type='button'
-            onClick={onNext}
-            className='absolute right-2 sm:right-4 z-10 text-white/30 hover:text-white text-lg font-mono transition-colors duration-300'
-          >
-            &gt;
-          </button>
-        )}
       </div>
     </div>
   );
 };
 
 export { Lightbox };
+export type { Neighbors };
