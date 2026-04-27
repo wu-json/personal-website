@@ -1,5 +1,5 @@
 ---
-status: ready
+status: implemented
 ---
 
 # Memories lightbox: smooth, satisfying mobile swipe
@@ -457,6 +457,18 @@ Manually on an iPhone (Safari) and on a desktop Chrome touch-emulation:
   pan within the lightbox does nothing visible. Combined with
   `touch-action: pan-y` on the gesture surface (which yields vertical
   pans to the browser), this is the right default. No change needed.
+
+## Implementation notes
+
+Deltas from the design that came up during the rip:
+
+- **Extracted `PhotoCell` into its own file** (`src/screens/Memories/components/PhotoCell.tsx`) so both `Lightbox` (all three cells) and `GroupLightbox` (prev/next cells) share one warm-cache-aware photo renderer. The center cell of `GroupLightbox` is its own `GroupCell` since it lays out multiple photos.
+- **`imageCache.ts` exports a third helper, `markWarm(src)`**, called from each `<img onLoad>` so cold loads also populate the warm set without a second decode pass.
+- **`useSwipe` mirrors `phase` into a `phaseRef`** so the `ResizeObserver` callback's closure can read the live phase without re-running the effect on every commit. Resetting the resting transform mid-commit-animation would cancel the transition and snap the track to `-W` with the wrong bitmap visible; the ref-based check avoids it.
+- **`consumedClickRef` is cleared on a `setTimeout(350ms)`** in addition to the click-capture handler. Some browsers don't fire a trailing `click` after a captured horizontal-locked gesture (especially if the displacement was small); without the timeout the flag would persist and eat the next unrelated click.
+- **`lightboxNeighbors` `useMemo` sits after the early `if (!fragment) return ...`** in `FragmentDetail.tsx`, matching the pre-existing `gridPreloadFiles` pattern. The project's oxlint config does not enable the `react-hooks` plugin, so this passes lint as-is.
+- **Caption row** is rendered as `position: absolute; bottom: 1rem` with `pointer-events-none` on the wrapper and `pointer-events-auto` on the inner content row so the swipe surface receives gestures over the caption strip but the caption text remains selectable / link-clickable. Visually nearly identical to the previous flex-column layout for typical photo aspect ratios.
+- **The implementation rips all six steps in one branch** (`feat/memories-swipe-feel`). The step boundaries in the original plan still hold as logical reasoning seams, but each was small enough that splitting commits would have added more rebase cost than safety.
 
 ## Out-of-scope follow-ups (do not do in this spec)
 
