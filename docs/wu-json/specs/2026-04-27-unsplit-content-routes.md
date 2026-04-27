@@ -1,5 +1,5 @@
 ---
-status: draft
+status: ready
 ---
 
 # Unsplit content routes; keep Gallery split
@@ -30,30 +30,47 @@ disproportionate to the problem it now solves on this site.
 
 ### What the build actually looks like today
 
-`bun run build` on the current tree:
+`bun run build` on the current tree, identified by inspecting each
+chunk's import graph:
 
-| Chunk                                  | Raw      | Gzip     |
-| -------------------------------------- | -------- | -------- |
-| Entry `index-*.js`                     | 224 kB   | 71 kB    |
-| Vendor split chunk(s)                  | ~290 kB  | ~89 kB   |
-| `MarkdownBody` + `public-api` (remark) | ~141 kB  | ~45 kB   |
-| `MemoriesScreen` + data                | ~22 kB   | ~5 kB    |
-| `SignalsScreen` + data                 | ~18 kB   | ~7 kB    |
-| `ConstructsScreen` + data              | ~16 kB   | ~6 kB    |
-| `HeroesScreen` + data                  | ~5 kB    | ~3 kB    |
-| `FragmentDetail`                       | 15 kB    | 4.8 kB   |
-| `SignalDetail`                         | 2.3 kB   | 0.9 kB   |
-| `ConstructDetail`                      | 2.8 kB   | 1.0 kB   |
-| `HeroDetail`                           | 2.7 kB   | 1.0 kB   |
-| **Gallery (Three.js)**                 | **914 kB** | **247 kB** |
+| Chunk                                            | Raw       | Gzip      |
+| ------------------------------------------------ | --------- | --------- |
+| Entry `index-ioDqXByr.js` (React + wouter + shell + Home) | 224 kB    | 71 kB     |
+| `index-D7DGTqet.js` (remark / mdast pipeline)    | 172 kB    | 52 kB     |
+| `index-B9oGOUCV.js` (rehype + react-markdown)    | 118 kB    | 36 kB     |
+| `public-api-C2NUfPHx.js` (YAML frontmatter parser) | 97 kB   | 30 kB     |
+| `MarkdownBody-*.js`                              | 45 kB     | 14.5 kB   |
+| `data-Bdo-DsBb.js` (Memories fragments index)    | 20 kB     | 4.3 kB    |
+| `FragmentDetail-*.js`                            | 15.5 kB   | 4.8 kB    |
+| `data-C2D4ipqW.js` (Signals entries)             | 12.7 kB   | 5.2 kB    |
+| `index-DZsxN0Ir.js` (SignalsScreen)              | 5.4 kB    | 2.3 kB    |
+| `data-CJNNaQci.js` (Heroes / Constructs data)    | 3.7 kB    | 1.6 kB    |
+| `ConstructDetail-*.js`                           | 2.8 kB    | 1.0 kB    |
+| `HeroDetail-*.js`                                | 2.7 kB    | 1.0 kB    |
+| `SignalDetail-*.js`                              | 2.3 kB    | 0.9 kB    |
+| `index-Cy42_kOJ.js` (ConstructsScreen)           | 1.6 kB    | 0.8 kB    |
+| `index-MqBSH8-x.js` (HeroesScreen)               | 1.6 kB    | 0.8 kB    |
+| `index-C8sAKk4q.js` (MemoriesScreen)             | 1.6 kB    | 0.8 kB    |
+| `ProgressiveImage-*.js`                          | 1.1 kB    | 0.6 kB    |
+| `useNearViewport-*.js`                           | 0.5 kB    | 0.3 kB    |
+| **Gallery `index-QFnyzL-m.js` (Three.js)**       | **914 kB** | **247 kB** |
 
-The non-Gallery, non-vendor screen + data + markdown code totals
-roughly **225 kB / 70 kB gzipped** — and `<RoutePrefetcher />`
-already speculatively downloads almost all of it on idle for every
-visitor who lands on `/`. The split is not actually saving bandwidth
-for the median visitor; it's just spreading the same bytes across
-many small HTTP requests behind elaborate infrastructure that exists
-to hide the fact that the requests happen at all.
+The four content screens, their detail counterparts, the markdown
+pipeline (remark + rehype + react-markdown + MarkdownBody), the
+three data chunks, and the YAML parser sum to roughly **502 kB raw /
+~155 kB gzipped**. `<RoutePrefetcher />` already speculatively
+downloads most of this on idle: warming `signals` transitively pulls
+the markdown pipeline because `SignalsScreen` renders `MarkdownBody`
+inline, and warming any screen pulls its data chunk plus
+`public-api` (every `data.ts` parses YAML frontmatter at module-eval
+time via `import.meta.glob('./*.md', { eager: true })`).
+
+The split is not saving bandwidth for the median visitor who clicks
+around; it's spreading the same bytes across many small HTTP
+requests behind infrastructure that exists to hide the fact that the
+requests happen at all. It *does* save bandwidth for the
+landing-page-bouncer who never clicks anything — that's the
+trade-off this spec is making explicit.
 
 ### Why the system feels overkill now
 
@@ -78,17 +95,27 @@ to hide the fact that the requests happen at all.
 
 ### What we're actually doing
 
-Bundle the four content screens (Memories / Signals / Constructs /
-Heroes, with their detail counterparts and `MarkdownBody`) into the
-main entry. **Keep Gallery split** — its 914 kB / 247 kB gzipped
+Replace `lazy(() => import('src/screens/…'))` with static imports
+for the four content screens, their detail counterparts, and
+`MarkdownBody`. **Keep Gallery split** — its 914 kB / 247 kB gzipped
 Three.js chunk is real and most visitors don't enter `/gallery`.
 
 This eliminates Suspense and the entire prefetch pipeline for
 content routes. Direct deep-link navigation to `/memories/japan-2024`
-becomes "download one bundle, render" with no flash, no fallback,
-no hover-timing dance, no React-internal coupling. The bundle grows
-by the bytes the prefetcher was already pulling on idle, give or
-take.
+becomes one Suspense-free render with no flash, no fallback,
+no hover-timing dance, no React-internal coupling.
+
+What ends up in the entry vs. still split is a Vite/Rollup decision
+we don't fully control without a `manualChunks` config (and we're
+not adding one). Expectation: the four screen index chunks
+(~5 kB total), the four detail chunks (~23 kB), `MarkdownBody`,
+and the three `data-*.js` chunks all roll into the entry, since
+each is now imported by exactly one importer (`App.tsx`) which is
+already eager. Whether `react-markdown` + `remark` + `rehype` (the
+~290 kB raw / ~88 kB gz pair of vendor-y chunks) merge into the
+entry or stay split depends on Rollup's heuristics for code shared
+across multiple entry-reachable modules. Build measurement is part
+of the verification step, not an upfront assumption.
 
 ## Goals
 
@@ -105,17 +132,21 @@ take.
   `<Suspense fallback={null}>` — its chunk is large enough that
   speculative download would meaningfully cost mobile users and most
   sessions don't visit it.
-- No regression on `/` LCP beyond the bandwidth difference of moving
-  ~70 kB gz of speculative-idle traffic onto the initial bundle.
+- Accept a measured LCP regression on `/` proportional to the bytes
+  moved onto the entry's critical path. Target: entry stays under
+  200 kB gzipped post-change. If the actual measurement exceeds
+  that, fall back to the per-screen `lazy()` escape hatch in Risks
+  before merging.
 
 ## Non-goals
 
 - SSR / SSG. Still a client-rendered SPA.
 - Touching Gallery's chunking or load behavior.
-- Moving the markdown pipeline (`react-markdown`, `remark-gfm`,
-  `rehype-raw`) out of the main bundle. It comes in alongside the
-  signal entries; that's fine — it's already speculatively
-  downloaded by `<RoutePrefetcher />` today.
+- Adding a `manualChunks` config to control vendor splitting.
+  Whatever Rollup decides on its own is the first iteration; if
+  measurement says it's wrong, we tune that as a follow-up.
+- Re-introducing any form of route-level lazy splitting *unless*
+  measurement triggers an escape hatch in Risks.
 - Changing routing library, build tool, or any external dependency.
 - Adding tests; this is a deletion-heavy refactor and the smoke test
   is "production build still loads every route."
@@ -259,10 +290,11 @@ during its load is fine since Gallery owns the whole viewport.
 
 Two independent reasons:
 
-1. **Bandwidth.** 247 kB gzipped Three.js code is a real chunk that
-   most visitors will never load. Bundling it would push the entry
-   from ~70 kB gz to ~320 kB gz — a measurable LCP regression for
-   landing-page-only visitors.
+1. **Bandwidth.** 247 kB gzipped Three.js code is a real chunk most
+   visitors will never load. Bundling it would push the entry from
+   71 kB gz to 318 kB gz at minimum, and that's before adding any
+   of the content screens this spec is also bundling — a clearly
+   unacceptable LCP regression for landing-page-only visitors.
 2. **Module-evaluation cost.** Three.js's top-level evaluation isn't
    free, and Gallery imports `@react-three/fiber` /
    `@react-three/drei` which pull in further infrastructure. Lazy
@@ -272,31 +304,42 @@ The prior spec already correctly excluded Gallery from
 `<RoutePrefetcher />` for the same reason; we're keeping that
 exclusion as a hard split now.
 
-## Why the prefetch tax is gone-not-just-paid-elsewhere
+## The honest tradeoff
 
-Worth being honest about the tradeoff: we are paying ~70 kB gzipped
-of additional bytes on the entry HTML's critical path. But:
+The prefetch pipeline existed to hide a real cost. Removing it
+doesn't eliminate the cost — it shifts who pays and when:
 
-- `<RoutePrefetcher />` was already pulling those bytes — it just
-  pulled them on idle (`requestIdleCallback` / `setTimeout(200)`)
-  instead of on the initial request. For the median visitor who
-  stays on `/` for more than ~1 second, the wall-clock delivery
-  time is essentially the same.
-- The bytes that change from "deferred to idle" → "in entry" are
-  entirely **JS** that the browser would have parsed and executed
-  on idle anyway. The only visitors who see a meaningful regression
-  are those who land on `/` and bounce within the time it takes for
-  the additional bundle to arrive — and on broadband, that's tens
-  of milliseconds.
-- For all other visitors (anyone who clicks a sidebar link, or who
-  direct-links to any content route), the new shape is **strictly
-  faster** because there is no second roundtrip and no Suspense
-  boundary to cross.
+**Pay-on-entry visitors (now strictly more bytes on critical path)**
 
-The asymmetry favors the simpler design: we trade a small,
-predictable cost for the bouncing-visitor segment in exchange for
-a meaningful win for everyone else, plus deletion of the entire
-prefetch pipeline.
+- Anyone who lands on `/` and bounces before the prefetcher would
+  have run on idle. Today they pay only the entry. After: they pay
+  entry + content screens + (probably) markdown pipeline.
+- Anyone on a connection slow enough that LCP completes before
+  idle would have fired. Today: same — entry only. After: more.
+
+**Pay-on-click visitors (now strictly faster)**
+
+- Anyone who clicks any sidebar link. Today: cold-chunk fetch
+  (covered by hover-intent / idle warmup, but never zero). After:
+  zero new bytes, zero new RTT, zero Suspense boundary.
+- Anyone direct-linking to a content route. Today: entry + that
+  route's chunk + transitive deps over multiple RTTs.
+  After: one bundle.
+
+**Net judgement**
+
+The site exists for the second category — people who actually
+read a Signal, scroll Memories, or land directly on a Construct
+URL someone shared. The first category gets penalized by tens to
+hundreds of milliseconds (depending on connection); the second
+category gets a meaningfully better experience and the codebase
+sheds ~300 lines of React-internal-API-coupled infrastructure.
+
+The framing matters: this is **not** "the prefetcher was already
+doing this so it's free." Idle-time bytes don't compete with LCP;
+entry bytes do. We're choosing to spend the LCP budget on someone
+who's about to actually use the site, instead of saving it for
+someone who's about to leave.
 
 ## Why this beats alternatives
 
@@ -345,20 +388,32 @@ prefetch pipeline.
       `src/layouts/RoutePrefetcher.tsx`,
       `src/components/PrefetchLink.tsx`.
 - [ ] `bun run lint` and `bun run format` clean.
-- [ ] `bun run build` succeeds. Capture before/after entry-bundle and
-      total-bundle sizes for the outcome section. Confirm Gallery is
-      still its own chunk.
+- [ ] `bun run build` succeeds. Record:
+  - Final entry-bundle size (raw + gz). Compare against the 200 kB
+    gz target in Goals; if exceeded, decide whether to ship or
+    apply an escape hatch from Risks.
+  - Total of all non-Gallery JS chunks (raw + gz).
+  - Final preload set in `build/index.html` (which `modulepreload`
+    tags it emits). This is the actual critical-path delta.
+  - Confirm Gallery is still its own chunk and is **not** in the
+    entry preload set.
 - [ ] `bun run preview` smoke test: `/`, `/memories`,
       `/memories/:id`, `/signals`, `/signals/:id`, `/constructs`,
       `/constructs/:id`, `/heroes`, `/heroes/:id`,
       `/gallery/:fragmentId` all load. Direct-link nav to a content
       route paints without a flash.
+- [ ] DevTools Network panel on Fast 3G throttle: confirm `/` now
+      loads with at most one synchronous JS chunk fetch (entry +
+      whatever Rollup left split if anything), and clicking any
+      sidebar link triggers zero new JS requests.
 
 ## Verification
 
 - DevTools Network panel:
-  - `/` initial load delivers one larger entry bundle. No staged
-    chunk fetches for content routes.
+  - `/` initial load: confirm one entry bundle (plus any vendor
+    chunks Rollup chose to keep split, all loaded synchronously
+    via `modulepreload`). No `import()`-style staged fetches for
+    content routes.
   - `/gallery/:fragmentId` direct-link still triggers a separate
     Three.js chunk fetch on demand (intentional).
 - Visit each route directly (`/memories`, `/memories/japan-2024`,
@@ -366,43 +421,100 @@ prefetch pipeline.
   no `<RouteFallback>` flash, no Suspense fallback paint.
 - Click between routes from the sidebar: instant, no network
   activity for the new route.
-- Lighthouse mobile run on `/`: LCP within ±100 ms of current. The
-  small regression here is expected and acceptable; if it's worse
-  than that, investigate.
+- Lighthouse mobile run on `/`: capture LCP delta vs. current
+  baseline. Acceptable range depends on what Rollup chose to bundle
+  vs. split — if entry is at or under the 200 kB gz target,
+  expect <100 ms regression on broadband / <500 ms on 4G. If
+  Rollup merged the markdown pipeline into entry and the delta is
+  larger, evaluate whether to apply Risks escape hatch #1
+  (relazy-ing MarkdownBody) before merging.
 
 ## Outcome
 
-_To be written during implementation. Should include: measured
-before/after bundle sizes (entry, total, Gallery chunk), final list
-of files deleted vs. edited with LOC delta, and any deviations from
-the plan above._
+_To be written during the rip step. Should include:_
+
+- _Measured before/after bundle sizes: entry (raw + gz), each chunk
+  Rollup chose to keep split (raw + gz), Gallery (should be
+  unchanged), total non-Gallery JS._
+- _Final preload set in `build/index.html`._
+- _Final list of files deleted vs. edited with concrete LOC delta._
+- _Any deviations from the plan above (e.g. did we apply an escape
+  hatch from Risks?)._
+- _Lighthouse LCP delta on `/`._
+
+_Flip frontmatter `status: implemented` and move this file to
+`docs/wu-json/specs/archived/` once the rip is done and merged._
 
 ## Risks / open questions
 
-- **LCP regression on `/` for slow connections.** Adding ~70 kB
-  gzipped to the entry pushes initial load. On 4G this is likely
-  ~50–100 ms; on 3G it could be 300–500 ms. The bouncing-visitor
-  segment is the loser here. If real-user metrics show this is
-  meaningful, we have a few escape hatches: pull `MarkdownBody` +
-  `react-markdown` back behind a Signals-specific lazy boundary
-  (the largest single contributor at ~45 kB raw / 14.5 kB gz), or
-  reintroduce a single-screen `lazy()` for whichever route is
-  largest. We'd lose the "no Suspense at all" property but keep most
-  of the simplification win.
-- **Bundle parser cost on low-end devices.** ~70 kB more JS to
-  parse on first paint. For a Tailwind + React 19 app on mid-tier
-  Android this is in the noise (browser parsers are fast at this
-  size), but worth checking if anyone reports first-paint regression
-  on real devices.
-- **Future content additions.** Adding a new section that's
-  comparable in size to the existing four (e.g. doubling the
-  Signals markdown surface) would push the entry meaningfully.
-  This refactor is sized for the current content footprint; if it
-  doubles, revisit.
-- **Loss of the prefetch-related learning.** The archived spec at
+- **LCP regression on `/`.** Order-of-magnitude estimate: the
+  speculatively-bundled content sums to ~155 kB gzipped at the
+  upper bound (everything merges into entry). At Fast 3G's
+  effective ~1.5 Mbps that's ~830 ms additional transfer time;
+  on 4G (~10 Mbps real-world) it's ~125 ms; on broadband it's
+  noise. Whether the actual delta hits the upper bound depends on
+  Rollup's chunking (see next item). The bouncing-visitor segment
+  on slow connections is the clear loser. **Escape hatches if
+  measurement is bad:**
+  1. Pull `MarkdownBody` + the react-markdown / remark / rehype
+     pipeline back behind a Signals-specific `lazy()` boundary
+     (~45 kB gz of the ~155 kB total). Big single-step relief,
+     keeps every other route static.
+  2. Reintroduce per-screen `lazy()` for the largest single screen
+     and keep everything else static.
+  3. Add a `manualChunks` config to keep vendor pipelines split as
+     async chunks while content stays in entry.
+  Each escape preserves most of the simplification win (deleted
+  `prefetchRoute.ts`, `RoutePrefetcher.tsx`, `PrefetchLink.tsx`)
+  while restoring some splitting.
+
+- **Rollup may keep some chunks split anyway.** Each `import()`
+  call site disappears in the new shape (only Gallery uses it),
+  but Rollup's automatic chunking still groups large shared
+  vendor code (e.g. the remark/rehype pipeline imported by
+  `MarkdownBody`) when its size justifies the split heuristic.
+  If Rollup keeps `react-markdown` etc. in their own chunks but
+  loaded synchronously via the entry's `<script type=module>`
+  imports, the LCP cost is the same as bundling them, but
+  parsing is amortized. If it merges them in, parsing happens
+  earlier. Either way the entry HTML's preload set should grow
+  by a `<link rel="modulepreload">` per non-merged chunk; that
+  delta is the actual measurement we care about. **Implementation
+  step: capture `bun run build` output and decide whether to ship
+  as-is or add `manualChunks` based on the entry preload set.**
+
+- **Parser cost on low-end devices.** Worst case (full merge into
+  entry) adds ~155 kB gzipped / ~500 kB minified of JS to parse
+  before first paint. Modern V8 parses ~1–2 MB/s on mid-tier
+  Android, so this is ~250–500 ms additional parse on a low-end
+  device. Not catastrophic but real; flagged for the same
+  measurement step as above.
+
+- **Future content additions.** Each new Memory fragment, Signal
+  entry, or Construct adds bytes to the data chunks (parsed at
+  module-eval time via `import.meta.glob`). Today those bytes are
+  deferred to the relevant lazy chunk; after this change they're
+  in the entry. The marginal cost per new entry is small (a few
+  hundred bytes of frontmatter + body), but if the corpus 10×s
+  this calculus needs to be revisited. Worth checking annually,
+  not blocking now.
+
+- **The `import.meta.glob` data chunks.** Each section's `data.ts`
+  uses `import.meta.glob('./*.md', { eager: true })` to inline
+  every entry's frontmatter at build time. Today the parsed YAML
+  + body strings live in a per-section `data-*.js` chunk; after
+  this change they live in the entry. The YAML parser
+  (`public-api-*.js`, ~30 kB gz) is shared across all four
+  sections, and its presence in the entry is one of the bigger
+  open questions for Rollup's chunking. Verification step covers
+  this.
+
+- **Loss of the prefetch-related expertise.** The archived spec at
   `docs/wu-json/specs/archived/2026-04-26-route-prefetch-waterfall.md`
-  documents real expertise about React's lazy payload internals.
-  Keep it archived as the receipt for "we tried the harder thing
-  first." Worth a brief learnings note in `docs/wu-json/learnings/`
-  if the React-private-API material has reuse value beyond this
-  project; not blocking.
+  documents real, hard-won understanding of React's `lazy`
+  payload state machine. Keep it archived as the receipt for "we
+  tried the harder thing first." Optional follow-up: extract the
+  React-internal-API material into
+  `docs/wu-json/learnings/<date>-react-lazy-payload-mutation.md`
+  if it has reuse value beyond this project. Not blocking this
+  spec.
