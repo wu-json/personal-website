@@ -1,6 +1,6 @@
-import { PrefetchLink } from 'src/components/PrefetchLink';
 import { ProgressiveImage } from 'src/components/ProgressiveImage';
 import { useJitter } from 'src/hooks/useJitter';
+import { Link } from 'wouter';
 
 import { fragments, photoUrl } from './data';
 
@@ -26,10 +26,9 @@ const MemoriesScreen = () => {
 
         <div className='grid grid-cols-1 sm:grid-cols-2 gap-6'>
           {fragments.map((f, i) => (
-            <PrefetchLink
+            <Link
               key={f.id}
               to={`/memories/${f.id}`}
-              prefetch='memoriesDetail'
               className='bio-glitch group block'
               style={{ animationDelay: `${i * 40}ms` }}
             >
@@ -55,7 +54,7 @@ const MemoriesScreen = () => {
                   </span>
                 </div>
               </div>
-            </PrefetchLink>
+            </Link>
           ))}
         </div>
       </div>

@@ -1,6 +1,4 @@
 import { useEffect } from 'react';
-import { PrefetchLink } from 'src/components/PrefetchLink';
-import { type RouteKey } from 'src/lib/prefetchRoute';
 import { Link, useLocation } from 'wouter';
 
 const PETAL_ANGLES = [0, 72, 144, 216, 288];
@@ -39,43 +37,19 @@ const NavLink = ({
   to,
   active,
   onClick,
-  prefetch,
   children,
 }: {
   to: string;
   active: boolean;
   onClick?: () => void;
-  /** If set, warm the matching lazy chunk on hover/focus/touchstart.
-   *  Belt-and-suspenders with `<RoutePrefetcher />`'s idle pass — covers
-   *  users who click faster than the idle callback fires. */
-  prefetch?: RouteKey;
   children: React.ReactNode;
 }) => {
   const className = `group flex items-center gap-1.5 font-pixel text-xs uppercase transition-all duration-300 ${active ? 'nav-glitch-active text-white [text-shadow:0_0_8px_rgba(255,255,255,0.6)]' : 'text-white/80 hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)]'}`;
 
-  const content = (
-    <>
-      <LunarTear active={active} />
-      {children}
-    </>
-  );
-
-  if (prefetch) {
-    return (
-      <PrefetchLink
-        to={to}
-        onClick={onClick}
-        prefetch={prefetch}
-        className={className}
-      >
-        {content}
-      </PrefetchLink>
-    );
-  }
-
   return (
     <Link to={to} onClick={onClick} className={className}>
-      {content}
+      <LunarTear active={active} />
+      {children}
     </Link>
   );
 };
@@ -102,7 +76,6 @@ const Sidebar = ({
         to='/memories'
         active={pathname.startsWith('/memories')}
         onClick={onClick}
-        prefetch='memories'
       >
         Memories
       </NavLink>
@@ -110,7 +83,6 @@ const Sidebar = ({
         to='/constructs'
         active={pathname.startsWith('/constructs')}
         onClick={onClick}
-        prefetch='constructs'
       >
         Constructs
       </NavLink>
@@ -118,7 +90,6 @@ const Sidebar = ({
         to='/signals'
         active={pathname.startsWith('/signals')}
         onClick={onClick}
-        prefetch='signals'
       >
         Signals
       </NavLink>
@@ -126,7 +97,6 @@ const Sidebar = ({
         to='/heroes'
         active={pathname.startsWith('/heroes')}
         onClick={onClick}
-        prefetch='heroes'
       >
         Heroes
       </NavLink>

@@ -1,8 +1,17 @@
 ---
 status: implemented
+superseded_by: 2026-04-27-unsplit-content-routes.md
 ---
 
 # Fix nav-click waterfall from route-level code splitting
+
+> **Superseded** by `2026-04-27-unsplit-content-routes.md` (also
+> archived). The three-layer prefetch system this spec built
+> (idle warmup, hover-intent, synchronous lazy-payload resume)
+> was removed in favor of bundling content routes into the main
+> entry. Gallery is the only remaining `lazy()`-loaded screen.
+> The "weird pause" investigation captured here remains a useful
+> reference for React's `lazy` payload internals.
 
 ## Context
 
@@ -558,7 +567,7 @@ prefetch='memoriesDetail'`.
 - [x] Add `src/components/PrefetchLink.tsx`. Wouter's exported
       `LinkProps` type doesn't surface DOM event handlers, so we
       locally re-type `Link` as an `FC<LinkProps & {
-    onMouseEnter/onFocus/onTouchStart }>` cast — runtime behavior
+  onMouseEnter/onFocus/onTouchStart }>` cast — runtime behavior
       is already correct because wouter spreads `restProps` onto the
       rendered `<a>` (verified in its source at
       `node_modules/wouter/src/index.js:310`). The wrapper composes
@@ -574,7 +583,7 @@ prefetch='memoriesDetail'`.
       `<Link>` → `<PrefetchLink prefetch='…Detail'>` on each entry
       card.
 - [x] `SignalsScreen`: special case — list entries are `<div
-    tabIndex={0}>` that call `navigate()` on click (so inner
+  tabIndex={0}>` that call `navigate()` on click (so inner
       `<a>`/`<button>` fall-through works). Attached `onMouseEnter`
       / `onFocus` / `onTouchStart` handlers directly to the
       `signal-list-item` `<div>`, sharing one `useCallback` that

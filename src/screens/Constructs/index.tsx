@@ -1,6 +1,6 @@
-import { PrefetchLink } from 'src/components/PrefetchLink';
 import { ProgressiveImage } from 'src/components/ProgressiveImage';
 import { useJitter } from 'src/hooks/useJitter';
+import { Link } from 'wouter';
 
 import { constructImageUrl, constructs } from './data';
 
@@ -26,10 +26,9 @@ const ConstructsScreen = () => {
 
         <div className='grid grid-cols-1 sm:grid-cols-2 gap-6'>
           {constructs.map((c, i) => (
-            <PrefetchLink
+            <Link
               key={c.id}
               to={`/constructs/${c.id}`}
-              prefetch='constructsDetail'
               className='bio-glitch group block'
               style={{ animationDelay: `${i * 40}ms` }}
             >
@@ -55,7 +54,7 @@ const ConstructsScreen = () => {
                   </span>
                 </div>
               </div>
-            </PrefetchLink>
+            </Link>
           ))}
         </div>
       </div>

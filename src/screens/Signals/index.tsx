@@ -5,7 +5,6 @@ import { ProgressiveImage } from 'src/components/ProgressiveImage';
 import { useInfiniteList } from 'src/hooks/useInfiniteList';
 import { useJitter } from 'src/hooks/useJitter';
 import { useNearViewport } from 'src/hooks/useNearViewport';
-import { prefetchRoute } from 'src/lib/prefetchRoute';
 import { useLocation } from 'wouter';
 
 import { signals } from './data';
@@ -157,12 +156,6 @@ const SignalsScreen = () => {
     pageSize: 6,
   });
 
-  // List items are <div tabIndex={0}> + navigate() (not <Link>), so
-  // PrefetchLink doesn't apply — attach intent handlers directly.
-  // Every entry goes to the same `SignalDetail` chunk, so one shared
-  // callback covers all items and is idempotent per the registry.
-  const onSignalIntent = useCallback(() => prefetchRoute('signalsDetail'), []);
-
   return (
     <div className='w-full min-h-screen bg-black md:pr-40'>
       <div className='max-w-2xl mx-auto px-6 py-16'>
@@ -213,9 +206,6 @@ const SignalsScreen = () => {
                   className='signal-list-item cursor-pointer rounded-sm -mx-2 px-2 py-1 -my-1 transition-colors outline-none focus-visible:ring-1 focus-visible:ring-white/25 focus-visible:ring-offset-2 focus-visible:ring-offset-black'
                   onClick={onPreviewClick}
                   onKeyDown={onPreviewKeyDown}
-                  onMouseEnter={onSignalIntent}
-                  onFocus={onSignalIntent}
-                  onTouchStart={onSignalIntent}
                 >
                   <div
                     className={`flex items-baseline gap-3 flex-wrap ${s.title ? 'mb-2' : 'mb-1'}`}
