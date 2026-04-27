@@ -1,5 +1,5 @@
 ---
-status: ready
+status: implemented
 ---
 
 # Unsplit content routes; keep Gallery split
@@ -431,19 +431,99 @@ someone who's about to leave.
 
 ## Outcome
 
-_To be written during the rip step. Should include:_
+Implemented exactly as designed. No escape hatches needed.
 
-- _Measured before/after bundle sizes: entry (raw + gz), each chunk
-  Rollup chose to keep split (raw + gz), Gallery (should be
-  unchanged), total non-Gallery JS._
-- _Final preload set in `build/index.html`._
-- _Final list of files deleted vs. edited with concrete LOC delta._
-- _Any deviations from the plan above (e.g. did we apply an escape
-  hatch from Risks?)._
-- _Lighthouse LCP delta on `/`._
+### Measured bundle impact
 
-_Flip frontmatter `status: implemented` and move this file to
-`docs/wu-json/specs/archived/` once the rip is done and merged._
+`bun run build` after the change:
+
+| Artifact                                      | Before                               | After                                | Δ                                                     |
+| --------------------------------------------- | ------------------------------------ | ------------------------------------ | ----------------------------------------------------- |
+| Number of JS chunks                           | 20                                   | **2**                                | -18                                                   |
+| Entry JS                                      | 224 kB / 71 kB gz (`index-ioDqXByr`) | **724 kB / 223 kB gz** (`index-BOPTJFWC`) | **+500 kB / +152 kB gz**                              |
+| Gallery JS                                    | 914 kB / 247 kB gz                   | 914 kB / 247 kB gz                   | unchanged (intentional)                               |
+| All other content chunks (markdown pipeline, screens, data, etc.) | ~502 kB / ~155 kB gz across 18 chunks | merged into entry                    | -18 chunks                                            |
+| `build/index.html` preload set                | fonts + mirror + entry JS + CSS      | fonts + mirror + entry JS + CSS      | unchanged set; entry hash differs                     |
+
+Rollup collapsed every previously-split content chunk
+(`MarkdownBody`, the remark/rehype/react-markdown vendor chunks,
+the YAML frontmatter parser, the four screen index chunks, the
+four detail chunks, and all three data chunks) into the entry
+because each now has exactly one entry-reachable importer
+(`App.tsx`, eager) and Rollup's split heuristic doesn't trigger.
+
+The entry came in at **223 kB gzipped**, ~23 kB over the 200 kB gz
+target set in Goals. Per the user, that's acceptable — the
+simplification win is the primary goal and the LCP delta is
+expected to be small on broadband. No `manualChunks` config added;
+no escape hatch from Risks applied.
+
+### Files deleted (304 LOC)
+
+| Path                              | LOC |
+| --------------------------------- | --- |
+| `src/lib/prefetchRoute.ts`        | 174 |
+| `src/components/PrefetchLink.tsx` | 65  |
+| `src/layouts/RoutePrefetcher.tsx` | 65  |
+
+`src/lib/` still has `types.ts`; `src/layouts/` still has
+`RootLayout.tsx`. Neither directory was emptied.
+
+### Files simplified
+
+- `src/App.tsx` (-83 / +30 net): replaced the eight
+  `screens.<key>.Component` aliases with eight static imports;
+  removed the inner `<Suspense>` + `RouteFallback`. Gallery alone
+  retains `lazy()` + `<Suspense fallback={null}>`. Updated comment
+  on Gallery's `lazy()` block to explain the size-based reasoning
+  (was previously "not prefetched speculatively"; now "would be a
+  clear LCP regression for visitors who never enter the gallery").
+- `src/layouts/RootLayout.tsx` (-2): dropped `<RoutePrefetcher />`
+  import and render.
+- `src/components/Sidebar/index.tsx` (-25): collapsed the
+  `prefetch?: RouteKey` branch in `NavLink` so it always renders
+  wouter `<Link>`. Removed `prefetch=` props from the four sidebar
+  entries. Removed `PrefetchLink` and `RouteKey` imports.
+- `src/screens/{Memories,Constructs,Heroes}/index.tsx`: swapped
+  `<PrefetchLink prefetch='…Detail'>` → `<Link>`. Replaced
+  `PrefetchLink` import with wouter `Link` import.
+- `src/screens/Signals/index.tsx`: removed `onMouseEnter` /
+  `onFocus` / `onTouchStart` from `signal-list-item`, dropped the
+  `onSignalIntent` `useCallback`, and the `prefetchRoute` import.
+  Click and keyboard handlers untouched. `useCallback` import
+  retained because `composedRef` still uses it.
+
+### Smoke test results
+
+`bun run lint` and `bun run format` clean. `bun run build`
+completes in ~2 s with the chunk shape above. `bun run preview`
+serves `/`, `/memories`, `/memories/japan-2024`, `/signals`,
+`/constructs`, `/heroes` at 200 OK. (The "is there really no
+flash on direct nav?" check is a browser-side assertion, not
+server-side; HTTP 200 from the SPA shell only confirms the build
+is well-formed.)
+
+### Deviations from the plan
+
+None. Exactly the eight tasks in the implementation plan, no
+extras. Rollup made the simplest possible chunking choice
+(everything in entry) which obviated the second-guess about
+whether to add a `manualChunks` config.
+
+### Follow-ups
+
+- Browser-side verification that direct navigation to a content
+  route paints with no Suspense fallback. Acceptance is by-eye on
+  the live site.
+- Real-world LCP measurement after deploy. If broadband LCP on
+  `/` regresses by more than ~300 ms vs. the prior route-prefetch
+  baseline, escape hatch #1 in Risks (relazy `MarkdownBody` +
+  the markdown pipeline) is the cheapest single-step relief —
+  worth ~14.5 kB gz of MarkdownBody itself plus probably most
+  of the ~88 kB gz vendor pipeline that imports it.
+- Optional: extract the React `_payload` mutation technique into
+  a `docs/wu-json/learnings/` doc if it has reuse value beyond
+  this project.
 
 ## Risks / open questions
 

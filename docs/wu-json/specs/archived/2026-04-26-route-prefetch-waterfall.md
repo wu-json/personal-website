@@ -1,8 +1,17 @@
 ---
 status: implemented
+superseded_by: 2026-04-27-unsplit-content-routes.md
 ---
 
 # Fix nav-click waterfall from route-level code splitting
+
+> **Superseded** by `2026-04-27-unsplit-content-routes.md` (also
+> archived). The three-layer prefetch system this spec built
+> (idle warmup, hover-intent, synchronous lazy-payload resume)
+> was removed in favor of bundling content routes into the main
+> entry. Gallery is the only remaining `lazy()`-loaded screen.
+> The "weird pause" investigation captured here remains a useful
+> reference for React's `lazy` payload internals.
 
 ## Context
 
