@@ -7,7 +7,6 @@ import {
 } from 'react';
 import { ScrollToTop } from 'src/components/ScrollToTop';
 import { Sidebar } from 'src/components/Sidebar';
-import { RoutePrefetcher } from 'src/layouts/RoutePrefetcher';
 import { useLocation } from 'wouter';
 
 const ScrollReset = ({
@@ -129,7 +128,6 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
       </main>
       <ScrollReset scrollRef={mainRef} />
       <ScrollToTop scrollRef={mainRef} />
-      <RoutePrefetcher />
     </div>
   );
 };

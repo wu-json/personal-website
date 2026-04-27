@@ -33,27 +33,27 @@ disproportionate to the problem it now solves on this site.
 `bun run build` on the current tree, identified by inspecting each
 chunk's import graph:
 
-| Chunk                                            | Raw       | Gzip      |
-| ------------------------------------------------ | --------- | --------- |
-| Entry `index-ioDqXByr.js` (React + wouter + shell + Home) | 224 kB    | 71 kB     |
-| `index-D7DGTqet.js` (remark / mdast pipeline)    | 172 kB    | 52 kB     |
-| `index-B9oGOUCV.js` (rehype + react-markdown)    | 118 kB    | 36 kB     |
-| `public-api-C2NUfPHx.js` (YAML frontmatter parser) | 97 kB   | 30 kB     |
-| `MarkdownBody-*.js`                              | 45 kB     | 14.5 kB   |
-| `data-Bdo-DsBb.js` (Memories fragments index)    | 20 kB     | 4.3 kB    |
-| `FragmentDetail-*.js`                            | 15.5 kB   | 4.8 kB    |
-| `data-C2D4ipqW.js` (Signals entries)             | 12.7 kB   | 5.2 kB    |
-| `index-DZsxN0Ir.js` (SignalsScreen)              | 5.4 kB    | 2.3 kB    |
-| `data-CJNNaQci.js` (Heroes / Constructs data)    | 3.7 kB    | 1.6 kB    |
-| `ConstructDetail-*.js`                           | 2.8 kB    | 1.0 kB    |
-| `HeroDetail-*.js`                                | 2.7 kB    | 1.0 kB    |
-| `SignalDetail-*.js`                              | 2.3 kB    | 0.9 kB    |
-| `index-Cy42_kOJ.js` (ConstructsScreen)           | 1.6 kB    | 0.8 kB    |
-| `index-MqBSH8-x.js` (HeroesScreen)               | 1.6 kB    | 0.8 kB    |
-| `index-C8sAKk4q.js` (MemoriesScreen)             | 1.6 kB    | 0.8 kB    |
-| `ProgressiveImage-*.js`                          | 1.1 kB    | 0.6 kB    |
-| `useNearViewport-*.js`                           | 0.5 kB    | 0.3 kB    |
-| **Gallery `index-QFnyzL-m.js` (Three.js)**       | **914 kB** | **247 kB** |
+| Chunk                                                     | Raw        | Gzip       |
+| --------------------------------------------------------- | ---------- | ---------- |
+| Entry `index-ioDqXByr.js` (React + wouter + shell + Home) | 224 kB     | 71 kB      |
+| `index-D7DGTqet.js` (remark / mdast pipeline)             | 172 kB     | 52 kB      |
+| `index-B9oGOUCV.js` (rehype + react-markdown)             | 118 kB     | 36 kB      |
+| `public-api-C2NUfPHx.js` (YAML frontmatter parser)        | 97 kB      | 30 kB      |
+| `MarkdownBody-*.js`                                       | 45 kB      | 14.5 kB    |
+| `data-Bdo-DsBb.js` (Memories fragments index)             | 20 kB      | 4.3 kB     |
+| `FragmentDetail-*.js`                                     | 15.5 kB    | 4.8 kB     |
+| `data-C2D4ipqW.js` (Signals entries)                      | 12.7 kB    | 5.2 kB     |
+| `index-DZsxN0Ir.js` (SignalsScreen)                       | 5.4 kB     | 2.3 kB     |
+| `data-CJNNaQci.js` (Heroes / Constructs data)             | 3.7 kB     | 1.6 kB     |
+| `ConstructDetail-*.js`                                    | 2.8 kB     | 1.0 kB     |
+| `HeroDetail-*.js`                                         | 2.7 kB     | 1.0 kB     |
+| `SignalDetail-*.js`                                       | 2.3 kB     | 0.9 kB     |
+| `index-Cy42_kOJ.js` (ConstructsScreen)                    | 1.6 kB     | 0.8 kB     |
+| `index-MqBSH8-x.js` (HeroesScreen)                        | 1.6 kB     | 0.8 kB     |
+| `index-C8sAKk4q.js` (MemoriesScreen)                      | 1.6 kB     | 0.8 kB     |
+| `ProgressiveImage-*.js`                                   | 1.1 kB     | 0.6 kB     |
+| `useNearViewport-*.js`                                    | 0.5 kB     | 0.3 kB     |
+| **Gallery `index-QFnyzL-m.js` (Three.js)**                | **914 kB** | **247 kB** |
 
 The four content screens, their detail counterparts, the markdown
 pipeline (remark + rehype + react-markdown + MarkdownBody), the
@@ -68,7 +68,7 @@ time via `import.meta.glob('./*.md', { eager: true })`).
 The split is not saving bandwidth for the median visitor who clicks
 around; it's spreading the same bytes across many small HTTP
 requests behind infrastructure that exists to hide the fact that the
-requests happen at all. It *does* save bandwidth for the
+requests happen at all. It _does_ save bandwidth for the
 landing-page-bouncer who never clicks anything — that's the
 trade-off this spec is making explicit.
 
@@ -145,7 +145,7 @@ of the verification step, not an upfront assumption.
 - Adding a `manualChunks` config to control vendor splitting.
   Whatever Rollup decides on its own is the first iteration; if
   measurement says it's wrong, we tune that as a follow-up.
-- Re-introducing any form of route-level lazy splitting *unless*
+- Re-introducing any form of route-level lazy splitting _unless_
   measurement triggers an escape hatch in Risks.
 - Changing routing library, build tool, or any external dependency.
 - Adding tests; this is a deletion-heavy refactor and the smoke test
@@ -258,12 +258,12 @@ during its load is fine since Gallery owns the whole viewport.
 
 ### Files deleted
 
-| Path                                      | LOC  |
-| ----------------------------------------- | ---- |
-| `src/lib/prefetchRoute.ts`                | ~174 |
-| `src/layouts/RoutePrefetcher.tsx`         | ~65  |
-| `src/components/PrefetchLink.tsx`         | ~65  |
-| **Total**                                 | ~304 |
+| Path                              | LOC  |
+| --------------------------------- | ---- |
+| `src/lib/prefetchRoute.ts`        | ~174 |
+| `src/layouts/RoutePrefetcher.tsx` | ~65  |
+| `src/components/PrefetchLink.tsx` | ~65  |
+| **Total**                         | ~304 |
 
 ### Files simplified
 
@@ -343,12 +343,12 @@ someone who's about to leave.
 
 ## Why this beats alternatives
 
-| Alternative                                       | Why not                                                                                                                                                              |
-| ------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Keep current setup                                | Works, but ~300 lines of clever-but-load-bearing infra coupled to React private API for a one-frame flash that bundling solves outright.                             |
-| Drop only the idle warmup, keep hover-intent      | Halfway. Still keeps `lazyWithPreload`, still keeps Suspense, still flashes on direct-link nav. The original "weird pause" returns for the very case it was named for. |
-| Bundle Gallery in too                             | +247 kB gz on entry for a feature most visitors never touch. Net regression on LCP for the landing-page-bounce segment.                                              |
-| Replace `lazyWithPreload` with a third-party library | Same coupling to React internals, just hidden behind a dep. Doesn't address the underlying "do we need any of this?" question.                                       |
+| Alternative                                          | Why not                                                                                                                                                                |
+| ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Keep current setup                                   | Works, but ~300 lines of clever-but-load-bearing infra coupled to React private API for a one-frame flash that bundling solves outright.                               |
+| Drop only the idle warmup, keep hover-intent         | Halfway. Still keeps `lazyWithPreload`, still keeps Suspense, still flashes on direct-link nav. The original "weird pause" returns for the very case it was named for. |
+| Bundle Gallery in too                                | +247 kB gz on entry for a feature most visitors never touch. Net regression on LCP for the landing-page-bounce segment.                                                |
+| Replace `lazyWithPreload` with a third-party library | Same coupling to React internals, just hidden behind a dep. Doesn't address the underlying "do we need any of this?" question.                                         |
 
 ## Implementation plan
 
@@ -464,9 +464,9 @@ _Flip frontmatter `status: implemented` and move this file to
      and keep everything else static.
   3. Add a `manualChunks` config to keep vendor pipelines split as
      async chunks while content stays in entry.
-  Each escape preserves most of the simplification win (deleted
-  `prefetchRoute.ts`, `RoutePrefetcher.tsx`, `PrefetchLink.tsx`)
-  while restoring some splitting.
+     Each escape preserves most of the simplification win (deleted
+     `prefetchRoute.ts`, `RoutePrefetcher.tsx`, `PrefetchLink.tsx`)
+     while restoring some splitting.
 
 - **Rollup may keep some chunks split anyway.** Each `import()`
   call site disappears in the new shape (only Gallery uses it),
@@ -502,12 +502,12 @@ _Flip frontmatter `status: implemented` and move this file to
 - **The `import.meta.glob` data chunks.** Each section's `data.ts`
   uses `import.meta.glob('./*.md', { eager: true })` to inline
   every entry's frontmatter at build time. Today the parsed YAML
-  + body strings live in a per-section `data-*.js` chunk; after
-  this change they live in the entry. The YAML parser
-  (`public-api-*.js`, ~30 kB gz) is shared across all four
-  sections, and its presence in the entry is one of the bigger
-  open questions for Rollup's chunking. Verification step covers
-  this.
+  - body strings live in a per-section `data-*.js` chunk; after
+    this change they live in the entry. The YAML parser
+    (`public-api-*.js`, ~30 kB gz) is shared across all four
+    sections, and its presence in the entry is one of the bigger
+    open questions for Rollup's chunking. Verification step covers
+    this.
 
 - **Loss of the prefetch-related expertise.** The archived spec at
   `docs/wu-json/specs/archived/2026-04-26-route-prefetch-waterfall.md`

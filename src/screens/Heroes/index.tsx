@@ -1,6 +1,6 @@
-import { PrefetchLink } from 'src/components/PrefetchLink';
 import { ProgressiveImage } from 'src/components/ProgressiveImage';
 import { useJitter } from 'src/hooks/useJitter';
+import { Link } from 'wouter';
 
 import { heroImageUrl, heroes } from './data';
 
@@ -26,10 +26,9 @@ const HeroesScreen = () => {
 
         <div className='grid grid-cols-1 sm:grid-cols-2 gap-6'>
           {heroes.map((h, i) => (
-            <PrefetchLink
+            <Link
               key={h.id}
               to={`/heroes/${h.id}`}
-              prefetch='heroesDetail'
               className='bio-glitch group block'
               style={{ animationDelay: `${i * 40}ms` }}
             >
@@ -57,7 +56,7 @@ const HeroesScreen = () => {
                   )}
                 </div>
               </div>
-            </PrefetchLink>
+            </Link>
           ))}
         </div>
       </div>
