@@ -89,7 +89,7 @@ async function generateFeed(): Promise<string> {
         .use(rehypeStringify)
         .process(s.body);
 
-      const html = String(result).replace(/ src="\//g, ` src="${BASE_URL}/`);
+      const html = String(result).replace(/ src="\//g, ` src="${BASE_URL}/`).replace(/ href="\//g, ` href="${BASE_URL}/`);
       const pubDate = parseRssTimestamp(s.timestamp);
       const pubDateTag = pubDate
         ? `\n      <pubDate>${pubDate}</pubDate>`
