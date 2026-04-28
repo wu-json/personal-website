@@ -81,7 +81,7 @@ No runtime impact — all used only inside the Vite plugin at build time.
   <channel>
     <title>Jason Wu — Signals</title>
     <link>https://jasonwu.ink/signals</link>
-    <description>Short-form posts by Jason Wu</description>
+    <description>Jason's psychotic mind dump.</description>
     <language>en</language>
     <lastBuildDate>Mon, 28 Apr 2026 12:00:00 GMT</lastBuildDate>
     <item>
