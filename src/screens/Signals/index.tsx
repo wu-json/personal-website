@@ -51,7 +51,14 @@ const SignalsScreen = () => {
             className='bio-glitch text-white text-2xl sm:text-4xl font-pixel mb-2'
             style={jitter()}
           >
-            Signals
+            Signals{' '}
+            <a
+              href='/signals/feed.xml'
+              className='text-white/20 hover:text-white/50 text-[10px] font-mono no-underline transition-colors align-baseline'
+              aria-label='RSS feed'
+            >
+              [rss]
+            </a>
           </h1>
           <p
             className='bio-glitch text-white/30 text-xs font-mono uppercase tracking-widest'
