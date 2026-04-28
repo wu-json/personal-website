@@ -66,7 +66,7 @@ const SignalsScreen = () => {
               className='text-white/20 hover:text-white/50 no-underline transition-colors inline-flex items-center leading-none'
               aria-label='RSS feed'
             >
-              <Rss className='w-3 h-3 -mb-[1px]' />
+              <Rss className='w-3 h-3 translate-y-[-1px]' />
             </a>
           </p>
         </header>
