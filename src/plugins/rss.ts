@@ -1,5 +1,5 @@
-import type { Plugin } from 'vite';
 import type { IncomingMessage, ServerResponse } from 'http';
+import type { Plugin } from 'vite';
 
 import { readFileSync, mkdirSync, writeFileSync, readdirSync } from 'fs';
 import { join } from 'path';
@@ -89,16 +89,21 @@ async function generateFeed(): Promise<string> {
         .use(rehypeStringify)
         .process(s.body);
 
-      const html = String(result).replace(/ src="\//g, ` src="${BASE_URL}/`).replace(/ href="\//g, ` href="${BASE_URL}/`);
-      // Add inline styles to prevent stretching in RSS viewers
-      const htmlStyled = html.replace(/<img\s(?![\s\S]*?\bstyle\s*=)/gi, '<img style="max-width:100%;height:auto" ');
+      const html = String(result)
+        .replace(/ src="\//g, ` src="${BASE_URL}/`)
+        .replace(/ href="\//g, ` href="${BASE_URL}/`);
+      // Add inline styles to prevent stretching in RSS viewers.
+      // Match each <img> tag individually and only add style if it's missing,
+      // so later <img> tags with style don't suppress earlier ones.
+      const htmlStyled = html.replace(/<img\s[^>]*\/?>/gi, match => {
+        if (/\bstyle\s*=/.test(match)) return match;
+        return match.replace(/\/?>$/, ' style="max-width:100%;height:auto"$&');
+      });
       // Strip only the first <img> — that's the one RSS viewers promote to
       // a featured/hero image; removing it from the body prevents the duplicate.
       const htmlDeduped = htmlStyled.replace(/<img\s[^>]*\/?>/i, '');
       const pubDate = parseRssTimestamp(s.timestamp);
-      const pubDateTag = pubDate
-        ? `\n      <pubDate>${pubDate}</pubDate>`
-        : '';
+      const pubDateTag = pubDate ? `\n      <pubDate>${pubDate}</pubDate>` : '';
       const title = escapeXml(s.title ?? `[${s.id}]`);
       // Never leave description empty — some viewers scrape the linked page
       const descRaw = plainExcerpt(s.body) || s.title || `[${s.id}]`;

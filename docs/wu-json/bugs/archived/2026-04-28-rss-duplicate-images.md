@@ -21,6 +21,7 @@ Additionally, when `<description>` is empty (image-only posts like Chinatown War
 **Confirmed pattern** (backed by SoCast Digital's [KB article on duplicate RSS images](https://support.socastdigital.com/portal/en/kb/articles/why-are-there-duplicate-images-appearing-in-my-blog-posts-from-3rd-party-rss-feeds) and FreshRSS [#1668](https://github.com/FreshRSS/FreshRSS/issues/1668)):
 
 RSS-to-web renderers like rss.app follow this logic:
+
 1. Check if the feed item has a dedicated featured image (e.g., `<media:content>`, `<enclosure>`).
 2. If **not**, extract the first `<img>` from the content body and promote it to a "featured" or "hero" image.
 3. **Also** render the full content body inline — which still contains that same `<img>`.
@@ -35,15 +36,15 @@ Result: the image appears twice — once properly sized in the content flow, and
 
 ## Experiments
 
-| Test | What changed | Result |
-|------|-------------|--------|
-| 1 | Move HTML to `<description>`, remove `<content:encoded>` | Still duplicated |
-| 2 | Strip `<img>` from HTML, remove `<content:encoded>` | Text posts fixed; image-only posts still broken (empty description → page scrape) |
-| 3 | Plain-text `<description>` + `<content:encoded>` with images | Duplicated on all image posts |
-| 4 | Strip `<img>` from both + never-empty `<description>` | **All fixed** |
-| 5 | Wrap `<img>` in `<figure>` + never-empty `<description>` | Still duplicated — rss.app scans any `<img>`, parent doesn't matter |
-| 6 | Add `style="max-width:100%;height:auto"` to `<img>` + never-empty `<description>` | Stretching fixed, but duplicates returned |
-| 7 | Inline styles + strip **only first** `<img>` + never-empty `<description>` | **All fixed** — styles prevent stretch; removing the first image (which gets promoted to featured) prevents duplicate |
+| Test | What changed                                                                      | Result                                                                                                                |
+| ---- | --------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| 1    | Move HTML to `<description>`, remove `<content:encoded>`                          | Still duplicated                                                                                                      |
+| 2    | Strip `<img>` from HTML, remove `<content:encoded>`                               | Text posts fixed; image-only posts still broken (empty description → page scrape)                                     |
+| 3    | Plain-text `<description>` + `<content:encoded>` with images                      | Duplicated on all image posts                                                                                         |
+| 4    | Strip `<img>` from both + never-empty `<description>`                             | **All fixed**                                                                                                         |
+| 5    | Wrap `<img>` in `<figure>` + never-empty `<description>`                          | Still duplicated — rss.app scans any `<img>`, parent doesn't matter                                                   |
+| 6    | Add `style="max-width:100%;height:auto"` to `<img>` + never-empty `<description>` | Stretching fixed, but duplicates returned                                                                             |
+| 7    | Inline styles + strip **only first** `<img>` + never-empty `<description>`        | **All fixed** — styles prevent stretch; removing the first image (which gets promoted to featured) prevents duplicate |
 
 ## Fix
 
