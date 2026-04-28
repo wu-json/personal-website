@@ -1,10 +1,7 @@
-import type { ReactNode } from 'react';
-
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo } from 'react';
 import Markdown from 'react-markdown';
 import { ProgressiveImage } from 'src/components/ProgressiveImage';
 import { useJitter } from 'src/hooks/useJitter';
-import { useNearViewport } from 'src/hooks/useNearViewport';
 import { Link, useLocation } from 'wouter';
 
 import type { Grouping, PhotoMeta } from './types';
@@ -83,150 +80,6 @@ function filesFromGridItem(item: GridItem): string[] {
     ? [item.photo.file]
     : item.photos.map(p => p.file);
 }
-
-/**
- * Occlusion-cull a masonry tile. Renders `children` when within (or near) the
- * viewport, and a same-sized `<div>` placeholder otherwise — preserves the
- * `columns-*` masonry flow either way because the wrapper keeps its classes
- * and (initially) aspect ratio. Eager tiles (above-the-fold) skip the
- * placeholder on first render via `initialVisible` so there's no first-paint
- * flicker.
- *
- * Decoupled from `<ProgressiveImage>` because group tiles render multiple
- * images inside a flex wrapper; this shell culls the whole cell.
- *
- * Once a tile has been visible, a `ResizeObserver` caches its measured
- * `offsetHeight` and the placeholder switches from a computed `aspectRatio`
- * (an approximation that ignores `gap-*` between flex children, and for
- * `flex-1` rows mis-estimates the equal-width row height) to the exact
- * `min-height` of the live element. Mirrors `CullableBody` in `Signals/`.
- *
- * On viewport-width changes (window resize, mobile rotation, devtools
- * toggle) the cached pixel height is stale because the masonry column
- * widths reflow, so we invalidate `heightRef` on `resize`/
- * `orientationchange` and let the placeholder fall back to the computed
- * `aspectRatio` until the tile is re-measured.
- */
-const CullableTile = ({
-  className,
-  style,
-  aspectRatio,
-  initialVisible,
-  onClick,
-  children,
-}: {
-  className: string;
-  style?: React.CSSProperties;
-  aspectRatio: number;
-  initialVisible: boolean;
-  onClick?: () => void;
-  children: ReactNode;
-}) => {
-  const [ioRef, visible] = useNearViewport<HTMLDivElement>({
-    initial: initialVisible,
-  });
-  // Stored in state (not just a ref) so width invalidations re-render the
-  // placeholder — otherwise a culled tile would keep its stale pre-resize
-  // inline `min-height` until visibility flipped again.
-  const [height, setHeight] = useState<number | null>(null);
-  const liveRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    if (!visible) return;
-    const node = liveRef.current;
-    if (!node) return;
-    const apply = () => {
-      const h = node.offsetHeight;
-      if (h > 0) setHeight(h);
-    };
-    if (typeof ResizeObserver === 'undefined') {
-      apply();
-      return;
-    }
-    const ro = new ResizeObserver(apply);
-    ro.observe(node);
-    apply();
-    return () => ro.disconnect();
-  }, [visible]);
-
-  // Invalidate the cached pixel height whenever the viewport width changes
-  // — masonry columns reflow at different widths, so the prior measurement
-  // no longer matches. Falls back to the computed `aspectRatio` until the
-  // tile re-enters the observer's expanded root rect and gets remeasured.
-  // `setHeight(null)` triggers the re-render that drops the stale value.
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    let lastWidth = window.innerWidth;
-    const onResize = () => {
-      if (window.innerWidth === lastWidth) return;
-      lastWidth = window.innerWidth;
-      setHeight(null);
-    };
-    window.addEventListener('resize', onResize);
-    window.addEventListener('orientationchange', onResize);
-    return () => {
-      window.removeEventListener('resize', onResize);
-      window.removeEventListener('orientationchange', onResize);
-    };
-  }, []);
-
-  const composedRef = useCallback(
-    (node: HTMLDivElement | null) => {
-      ioRef(node);
-      liveRef.current = node;
-    },
-    [ioRef],
-  );
-
-  if (visible) {
-    const onKeyDown = onClick
-      ? (e: React.KeyboardEvent<HTMLDivElement>) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            onClick();
-          }
-        }
-      : undefined;
-    return (
-      <div
-        ref={composedRef}
-        className={className}
-        style={style}
-        onClick={onClick}
-        onKeyDown={onKeyDown}
-        role={onClick ? 'button' : undefined}
-        tabIndex={onClick ? 0 : undefined}
-      >
-        {children}
-      </div>
-    );
-  }
-
-  // Prefer the measured `min-height` once the tile has been visible; before
-  // first measurement (or after a width invalidation), fall back to the
-  // computed `aspectRatio` so the masonry column reserves roughly-correct
-  // space and the page doesn't jump when off-screen tiles get IO'd in.
-  const placeholderStyle: React.CSSProperties =
-    height != null
-      ? { ...style, minHeight: height }
-      : { ...style, aspectRatio: `${aspectRatio}` };
-
-  // Strip interactive cursor classes from the placeholder so the inert,
-  // aria-hidden div doesn't show a pointer/hand cursor on hover.
-  const placeholderClassName = className
-    .split(/\s+/)
-    .filter(c => c && c !== 'cursor-pointer')
-    .join(' ');
-
-  return (
-    <div
-      ref={ioRef}
-      className={placeholderClassName}
-      style={placeholderStyle}
-      aria-hidden='true'
-    />
-  );
-};
 
 const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
   const [, navigate] = useLocation();
@@ -484,16 +337,10 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
               const { photo: p, index: i } = item;
               const smallUrl = photoUrl(fragment.id, p.file, 'small');
               const thumbUrl = photoUrl(fragment.id, p.file, 'thumb');
-              const eager = i < 6;
               return (
-                <CullableTile
+                <div
                   key={p.file}
                   className='cursor-pointer mb-3 break-inside-avoid'
-                  aspectRatio={p.width / p.height}
-                  initialVisible={eager}
-                  onClick={() =>
-                    navigate(`/memories/${id}/${p.file}`, { replace: true })
-                  }
                 >
                   <ProgressiveImage
                     placeholderSrc={photoUrl(
@@ -506,11 +353,14 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
                     sizes='(min-width: 1024px) 260px, (min-width: 640px) 50vw, 100vw'
                     width={p.width}
                     height={p.height}
-                    loading={eager ? 'eager' : 'lazy'}
+                    loading={i < 6 ? 'eager' : 'lazy'}
                     fetchPriority={i < 2 ? 'high' : undefined}
                     className='rounded-sm'
+                    onClick={() =>
+                      navigate(`/memories/${id}/${p.file}`, { replace: true })
+                    }
                   />
-                </CullableTile>
+                </div>
               );
             }
 
@@ -526,30 +376,11 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
               ? 'flex flex-col sm:flex-row gap-1'
               : base.wrapper;
             const itemCls = shouldStack ? 'sm:flex-1 sm:min-w-0' : base.item;
-            // For `flex` rows with `flex-1 min-w-0` (equal-width children),
-            // the row's aspect = n / max(h_i/w_i) — the tallest child sets the
-            // row height once widths are equalized. `combinedAR` (Σ w_i/h_i)
-            // is the natural-width-row aspect and would mis-reserve space.
-            // For column groups the aspect is 1 / Σ(h_i/w_i). For the
-            // responsive `shouldStack` case we keep `combinedAR` as a rough
-            // approximation since the layout flips between stacked and row.
-            const groupAR =
-              isRow && !shouldStack
-                ? item.photos.length /
-                  Math.max(...item.photos.map(p => p.height / p.width))
-                : isRow
-                  ? combinedAR
-                  : 1 /
-                    item.photos.reduce((sum, p) => sum + p.height / p.width, 0);
-            const firstIdx = item.indices[0];
-            const eager = firstIdx < 6;
-
             return (
-              <CullableTile
+              // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
+              <div
                 key={item.groupId}
                 className={`cursor-pointer mb-3 break-inside-avoid ${wrapperCls}`}
-                aspectRatio={groupAR}
-                initialVisible={eager}
                 onClick={() =>
                   navigate(`/memories/${id}/${item.groupId}`, {
                     replace: true,
@@ -580,7 +411,7 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
                     </div>
                   );
                 })}
-              </CullableTile>
+              </div>
             );
           })}
         </div>
