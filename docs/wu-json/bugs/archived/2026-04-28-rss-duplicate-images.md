@@ -1,5 +1,5 @@
 ---
-status: implemented
+status: draft
 ---
 
 # RSS feed shows duplicate/stretched images in some viewers
@@ -42,11 +42,12 @@ Result: the image appears twice — once properly sized in the content flow, and
 | 3 | Plain-text `<description>` + `<content:encoded>` with images | Duplicated on all image posts |
 | 4 | Strip `<img>` from both + never-empty `<description>` | **All fixed** |
 | 5 | Wrap `<img>` in `<figure>` + never-empty `<description>` | Still duplicated — rss.app scans any `<img>`, parent doesn't matter |
+| 6 | Add `style="max-width:100%;height:auto"` to `<img>` + never-empty `<description>` | Testing — theory: stretching and duplication are separate issues |
 
 ## Fix
 
-Two changes in `src/plugins/rss.ts`:
+Three changes in `src/plugins/rss.ts`:
 
-1. **Strip `<img>` tags** from the HTML that goes into `<content:encoded>`. The image is still accessible by clicking through to the signal page — the RSS feed just won't embed it inline, avoiding viewer-side duplication.
-
-2. **Never emit an empty `<description>`**. Fall back to the signal title, then to the ID bracket `[NNN]`, so viewers never trigger page-scraping behavior.
+1. **Add inline styles to `<img>` tags** (`max-width:100%;height:auto`) — prevents the stretched/distorted rendering when RSS viewers place images in containers that override intrinsic width/height.
+2. **Keep images in `<content:encoded>`** — the duplication (second copy) is a viewer-side extract-and-render behavior, but the stretching is a separate CSS issue that inline styles address.
+3. **Never emit an empty `<description>`**. Fall back to the signal title, then to the ID bracket `[NNN]`, so viewers never trigger page-scraping behavior.
