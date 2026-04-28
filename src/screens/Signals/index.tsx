@@ -1,5 +1,6 @@
 import type { KeyboardEvent, MouseEvent } from 'react';
 
+import { Rss } from 'lucide-react';
 import { ProgressiveImage } from 'src/components/ProgressiveImage';
 import { useInfiniteList } from 'src/hooks/useInfiniteList';
 import { useJitter } from 'src/hooks/useJitter';
@@ -67,19 +68,7 @@ const SignalsScreen = () => {
             className='text-white/30 hover:text-white/60 no-underline transition-colors inline-flex items-center'
             aria-label='RSS feed'
           >
-            <svg
-              viewBox='0 0 14 12'
-              className='w-3.5 h-3'
-              fill='none'
-              stroke='currentColor'
-              strokeWidth='1.5'
-              strokeLinecap='round'
-              strokeLinejoin='round'
-            >
-              <circle cx='2.5' cy='9' r='1' fill='currentColor' stroke='none' />
-              <path d='M1 7.5Q5 4 8.5 7' />
-              <path d='M0 4.5Q6 0.5 12 3.5' />
-            </svg>
+            <Rss className='w-4 h-4' />
           </a>
         </div>
 
