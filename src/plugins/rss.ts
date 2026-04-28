@@ -90,19 +90,24 @@ async function generateFeed(): Promise<string> {
         .process(s.body);
 
       const html = String(result).replace(/ src="\//g, ` src="${BASE_URL}/`).replace(/ href="\//g, ` href="${BASE_URL}/`);
+      // Strip <img> tags: some RSS viewers extract the first image as a
+      // featured/hero image AND render it inline, causing a duplicate copy.
+      const htmlNoImg = html.replace(/<img\s[^>]*\/?>/gi, '');
       const pubDate = parseRssTimestamp(s.timestamp);
       const pubDateTag = pubDate
         ? `\n      <pubDate>${pubDate}</pubDate>`
         : '';
       const title = escapeXml(s.title ?? `[${s.id}]`);
-      const desc = escapeXml(plainExcerpt(s.body));
+      // Never leave description empty — some viewers scrape the linked page
+      const descRaw = plainExcerpt(s.body) || s.title || `[${s.id}]`;
+      const desc = escapeXml(descRaw);
 
       return `    <item>
       <title>${title}</title>
       <link>${BASE_URL}/signals/${s.id}</link>
       <guid isPermaLink="true">${BASE_URL}/signals/${s.id}</guid>${pubDateTag}
       <description>${desc}</description>
-      <content:encoded><![CDATA[${html}]]></content:encoded>
+      <content:encoded><![CDATA[${htmlNoImg}]]></content:encoded>
     </item>`;
     }),
   );
