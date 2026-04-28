@@ -1,5 +1,5 @@
 ---
-status: draft
+status: implemented
 ---
 
 # RSS feed shows duplicate/stretched images in some viewers
@@ -43,7 +43,7 @@ Result: the image appears twice — once properly sized in the content flow, and
 | 4 | Strip `<img>` from both + never-empty `<description>` | **All fixed** |
 | 5 | Wrap `<img>` in `<figure>` + never-empty `<description>` | Still duplicated — rss.app scans any `<img>`, parent doesn't matter |
 | 6 | Add `style="max-width:100%;height:auto"` to `<img>` + never-empty `<description>` | Stretching fixed, but duplicates returned |
-| 7 | Inline styles + strip **only first** `<img>` + never-empty `<description>` | Testing — styles prevent stretch; removing the first image (which gets promoted to featured) prevents duplicate |
+| 7 | Inline styles + strip **only first** `<img>` + never-empty `<description>` | **All fixed** — styles prevent stretch; removing the first image (which gets promoted to featured) prevents duplicate |
 
 ## Fix
 
