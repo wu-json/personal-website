@@ -437,13 +437,13 @@ Implemented exactly as designed. No escape hatches needed.
 
 `bun run build` after the change:
 
-| Artifact                                                          | Before                                | After                                     | Δ                                 |
-| ----------------------------------------------------------------- | ------------------------------------- | ----------------------------------------- | --------------------------------- |
-| Number of JS chunks                                               | 20                                    | **2**                                     | -18                               |
-| Entry JS                                                          | 224 kB / 71 kB gz (`index-ioDqXByr`)  | **724 kB / 223 kB gz** (`index-BOPTJFWC`) | **+500 kB / +152 kB gz**          |
-| Gallery JS                                                        | 914 kB / 247 kB gz                    | 914 kB / 247 kB gz                        | unchanged (intentional)           |
-| All other content chunks (markdown pipeline, screens, data, etc.) | ~502 kB / ~155 kB gz across 18 chunks | merged into entry                         | -18 chunks                        |
-| `build/index.html` preload set                                    | fonts + mirror + entry JS + CSS       | fonts + mirror + entry JS + CSS           | unchanged set; entry hash differs |
+| Artifact                                      | Before                               | After                                | Δ                                                     |
+| --------------------------------------------- | ------------------------------------ | ------------------------------------ | ----------------------------------------------------- |
+| Number of JS chunks                           | 20                                   | **2**                                | -18                                                   |
+| Entry JS                                      | 224 kB / 71 kB gz (`index-ioDqXByr`) | **724 kB / 223 kB gz** (`index-BOPTJFWC`) | **+500 kB / +152 kB gz**                              |
+| Gallery JS                                    | 914 kB / 247 kB gz                   | 914 kB / 247 kB gz                   | unchanged (intentional)                               |
+| All other content chunks (markdown pipeline, screens, data, etc.) | ~502 kB / ~155 kB gz across 18 chunks | merged into entry                    | -18 chunks                                            |
+| `build/index.html` preload set                | fonts + mirror + entry JS + CSS      | fonts + mirror + entry JS + CSS      | unchanged set; entry hash differs                     |
 
 Rollup collapsed every previously-split content chunk
 (`MarkdownBody`, the remark/rehype/react-markdown vendor chunks,

@@ -567,7 +567,7 @@ prefetch='memoriesDetail'`.
 - [x] Add `src/components/PrefetchLink.tsx`. Wouter's exported
       `LinkProps` type doesn't surface DOM event handlers, so we
       locally re-type `Link` as an `FC<LinkProps & {
-onMouseEnter/onFocus/onTouchStart }>` cast — runtime behavior
+  onMouseEnter/onFocus/onTouchStart }>` cast — runtime behavior
       is already correct because wouter spreads `restProps` onto the
       rendered `<a>` (verified in its source at
       `node_modules/wouter/src/index.js:310`). The wrapper composes
@@ -583,7 +583,7 @@ onMouseEnter/onFocus/onTouchStart }>` cast — runtime behavior
       `<Link>` → `<PrefetchLink prefetch='…Detail'>` on each entry
       card.
 - [x] `SignalsScreen`: special case — list entries are `<div
-tabIndex={0}>` that call `navigate()` on click (so inner
+  tabIndex={0}>` that call `navigate()` on click (so inner
       `<a>`/`<button>` fall-through works). Attached `onMouseEnter`
       / `onFocus` / `onTouchStart` handlers directly to the
       `signal-list-item` `<div>`, sharing one `useCallback` that
