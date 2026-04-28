@@ -65,10 +65,22 @@ const SignalsScreen = () => {
           <span className='text-white/15 text-[10px] font-mono'>{'//'}</span>
           <a
             href='/signals/feed.xml'
-            className='text-white/20 hover:text-white/50 text-[10px] font-mono no-underline transition-colors'
+            className='text-white/20 hover:text-white/50 no-underline transition-colors inline-flex items-center'
             aria-label='RSS feed'
           >
-            subscribe via RSS
+            <svg
+              viewBox='0 0 14 12'
+              className='w-3.5 h-3'
+              fill='none'
+              stroke='currentColor'
+              strokeWidth='1.5'
+              strokeLinecap='round'
+              strokeLinejoin='round'
+            >
+              <circle cx='7' cy='10' r='1' fill='currentColor' stroke='none' />
+              <path d='M3.5 8Q7 4.5 10.5 8' />
+              <path d='M0.5 4Q7 0 13.5 4' />
+            </svg>
           </a>
         </div>
 
