@@ -438,18 +438,11 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
                 replace: true,
               });
             return (
-              <div
+              <button
                 key={item.groupId}
-                role='button'
-                tabIndex={0}
-                className={`cursor-pointer mb-3 break-inside-avoid ${wrapperCls}`}
+                type='button'
+                className={`text-left cursor-pointer mb-3 break-inside-avoid ${wrapperCls}`}
                 onClick={openGroup}
-                onKeyDown={e => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    openGroup();
-                  }
-                }}
               >
                 {item.photos.map((p, j) => {
                   const idx = item.indices[j];
@@ -475,7 +468,7 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
                     </div>
                   );
                 })}
-              </div>
+              </button>
             );
           })}
         </div>
