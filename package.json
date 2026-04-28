@@ -14,7 +14,8 @@
     "postinstall": "test \"$CI\" = true || prek install",
     "format": "oxfmt .",
     "lint": "oxlint .",
-    "optimize-photos": "bun scripts/optimize-photos.ts"
+    "optimize-photos": "bun scripts/optimize-photos.ts",
+    "test": "bun test"
   },
   "dependencies": {
     "@fontsource-variable/geist": "^5.2.8",

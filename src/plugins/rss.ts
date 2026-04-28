@@ -1,5 +1,5 @@
-import type { Plugin } from 'vite';
 import type { IncomingMessage, ServerResponse } from 'http';
+import type { Plugin } from 'vite';
 
 import { readFileSync, mkdirSync, writeFileSync, readdirSync } from 'fs';
 import { join } from 'path';
@@ -10,10 +10,10 @@ import remarkParse from 'remark-parse';
 import remarkRehype from 'remark-rehype';
 import { unified } from 'unified';
 
-const BASE_URL = 'https://jasonwu.ink';
-const ENTRIES_DIR = 'src/screens/Signals/entries';
+export const BASE_URL = 'https://jasonwu.ink';
+export const ENTRIES_DIR = 'src/screens/Signals/entries';
 
-function parseFrontmatter(raw: string): {
+export function parseFrontmatter(raw: string): {
   attrs: Record<string, string>;
   body: string;
 } {
@@ -35,12 +35,12 @@ function parseFrontmatter(raw: string): {
   return { attrs, body: match[2].trim() };
 }
 
-function parseRssTimestamp(ts: string): string {
+export function parseRssTimestamp(ts: string): string {
   const d = new Date(ts.replace(/\./g, '-').replace(' // ', 'T'));
   return isNaN(d.getTime()) ? '' : d.toUTCString();
 }
 
-function escapeXml(s: string): string {
+export function escapeXml(s: string): string {
   return s
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
@@ -48,7 +48,7 @@ function escapeXml(s: string): string {
     .replace(/"/g, '&quot;');
 }
 
-function plainExcerpt(body: string, maxLen = 300): string {
+export function plainExcerpt(body: string, maxLen = 300): string {
   const noImg = body.replace(/<img\s[^>]*\/?>/gi, ' ').trim();
   const plain = noImg
     .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
@@ -59,6 +59,29 @@ function plainExcerpt(body: string, maxLen = 300): string {
   const cut = plain.slice(0, maxLen);
   const lastSpace = cut.lastIndexOf(' ');
   return `${(lastSpace > maxLen * 0.55 ? cut.slice(0, lastSpace) : cut).trimEnd()}…`;
+}
+
+/**
+ * Add inline styles to <img> tags that lack a `style` attribute.
+ * Each tag is matched individually so a later tag with `style` doesn't
+ * suppress an earlier tag without one.
+ */
+export function styleImages(html: string): string {
+  return html.replace(/<img\s[^>]*\/?>/gi, match => {
+    if (/\bstyle\s*=/.test(match)) return match;
+    // Insert style before optional space + /> or >, avoiding double spaces
+    return match.replace(/ ?\/?>$/, ' style="max-width:100%;height:auto"$&');
+  });
+}
+
+/**
+ * Strip only the first <img> tag from HTML content.
+ * This is the image RSS viewers promote to a featured/hero image;
+ * removing it from the body prevents the duplicate while it still
+ * appears as the featured display.
+ */
+export function stripFirstImage(html: string): string {
+  return html.replace(/<img\s[^>]*\/?>/i, '');
 }
 
 async function generateFeed(): Promise<string> {
@@ -89,20 +112,24 @@ async function generateFeed(): Promise<string> {
         .use(rehypeStringify)
         .process(s.body);
 
-      const html = String(result).replace(/ src="\//g, ` src="${BASE_URL}/`).replace(/ href="\//g, ` href="${BASE_URL}/`);
+      const html = String(result)
+        .replace(/ src="\//g, ` src="${BASE_URL}/`)
+        .replace(/ href="\//g, ` href="${BASE_URL}/`);
+      const htmlStyled = styleImages(html);
+      const htmlDeduped = stripFirstImage(htmlStyled);
       const pubDate = parseRssTimestamp(s.timestamp);
-      const pubDateTag = pubDate
-        ? `\n      <pubDate>${pubDate}</pubDate>`
-        : '';
+      const pubDateTag = pubDate ? `\n      <pubDate>${pubDate}</pubDate>` : '';
       const title = escapeXml(s.title ?? `[${s.id}]`);
-      const desc = escapeXml(plainExcerpt(s.body));
+      // Never leave description empty — some viewers scrape the linked page
+      const descRaw = plainExcerpt(s.body) || s.title || `[${s.id}]`;
+      const desc = escapeXml(descRaw);
 
       return `    <item>
       <title>${title}</title>
       <link>${BASE_URL}/signals/${s.id}</link>
       <guid isPermaLink="true">${BASE_URL}/signals/${s.id}</guid>${pubDateTag}
       <description>${desc}</description>
-      <content:encoded><![CDATA[${html}]]></content:encoded>
+      <content:encoded><![CDATA[${htmlDeduped}]]></content:encoded>
     </item>`;
     }),
   );
