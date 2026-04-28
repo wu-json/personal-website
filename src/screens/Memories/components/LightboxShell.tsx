@@ -85,16 +85,10 @@ const LightboxShell = ({
   return (
     <div
       className='fixed inset-0 z-[70] flex items-center justify-center bg-black/95'
-      onClick={onClose}
-      onKeyDown={e => e.key === 'Escape' && onClose()}
       role='dialog'
       aria-modal='true'
     >
-      {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
-      <div
-        className='relative w-full h-full'
-        onClick={e => e.stopPropagation()}
-      >
+      <div className='relative w-full h-full'>
         <button
           type='button'
           onClick={onClose}

@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import Markdown from 'react-markdown';
 
 import type { PhotoMeta } from '../types';
@@ -24,6 +24,10 @@ const GroupSlide = ({
   onPhotoClick: (photo: PhotoMeta) => void;
 }) => {
   const photoKey = useMemo(() => photos.map(p => p.file).join(','), [photos]);
+  // `LightboxShell` keys each `GroupSlide` by slide identity, so a change in
+  // `photos` / `fragmentId` arrives as a fresh mount. The `useState`
+  // initializer alone is enough to seed `loadedSet` from the cache; a
+  // separate effect would just produce a redundant Set + extra render.
   const [loadedSet, setLoadedSet] = useState<Set<string>>(() => {
     const initial = new Set<string>();
     for (const p of photos) {
@@ -32,15 +36,6 @@ const GroupSlide = ({
     }
     return initial;
   });
-
-  useEffect(() => {
-    const initial = new Set<string>();
-    for (const p of photos) {
-      const url = photoUrl(fragmentId, p.file, 'full');
-      if (loadedFullUrls.has(url)) initial.add(p.file);
-    }
-    setLoadedSet(initial);
-  }, [photoKey, fragmentId, photos]);
 
   const imgsRef = useRef<Map<string, HTMLImageElement>>(new Map());
 

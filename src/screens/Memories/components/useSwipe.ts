@@ -30,6 +30,7 @@ const useSwipe = ({
   const viewportNodeRef = useRef<HTMLElement | null>(null);
   const trackNodeRef = useRef<HTMLElement | null>(null);
   const committingRef = useRef(false);
+  const commitCleanupRef = useRef<(() => void) | null>(null);
 
   const touch = useRef({
     startX: 0,
@@ -49,8 +50,14 @@ const useSwipe = ({
 
   // Reset to center whenever the parent swaps the current view via paths
   // other than this hook (keyboard nav, on-screen chevrons). This is also a
-  // no-op idempotent reset after the post-commit batched update lands.
+  // no-op idempotent reset after the post-commit batched update lands. We
+  // also abort any in-flight commit (timeout + transitionend listener) so
+  // its deferred `resolve()` cannot fire navigation against the new center.
   useEffect(() => {
+    if (commitCleanupRef.current) {
+      commitCleanupRef.current();
+      commitCleanupRef.current = null;
+    }
     setOffsetX(0);
     setAnimating(false);
     currentOffsetRef.current = 0;
@@ -148,12 +155,16 @@ const useSwipe = ({
 
       const trackEl = trackNodeRef.current;
       let resolved = false;
-      const resolve = () => {
-        if (resolved) return;
-        resolved = true;
+      const cleanup = () => {
         if (trackEl) trackEl.removeEventListener('transitionend', onTrans);
         clearTimeout(fallback);
         committingRef.current = false;
+        commitCleanupRef.current = null;
+      };
+      const resolve = () => {
+        if (resolved) return;
+        resolved = true;
+        cleanup();
         // Snap to center without animation, batched with the navigation call
         // so React 18 applies both in the same render.
         setAnimating(false);
@@ -169,6 +180,15 @@ const useSwipe = ({
       };
       if (trackEl) trackEl.addEventListener('transitionend', onTrans);
       const fallback = setTimeout(resolve, COMMIT_FALLBACK_MS);
+      // Expose an abort path so the currentKey effect (or unmount cleanup)
+      // can detach the listener and clear the timeout without firing
+      // navigation. `resolved` stays false so a stray transitionend after
+      // teardown is a no-op.
+      commitCleanupRef.current = () => {
+        if (resolved) return;
+        resolved = true;
+        cleanup();
+      };
     };
 
     node.addEventListener('touchstart', onStart, { passive: true });
@@ -180,8 +200,17 @@ const useSwipe = ({
       node.removeEventListener('touchmove', onMove);
       node.removeEventListener('touchend', onEnd);
       node.removeEventListener('touchcancel', onEnd);
+      // Abort any in-flight commit so its timer / listener cannot fire
+      // navigation against a stale closure after the lightbox unmounts.
+      if (commitCleanupRef.current) {
+        commitCleanupRef.current();
+        commitCleanupRef.current = null;
+      }
     };
-  });
+    // Handlers read live state via refs, so this effect should attach
+    // listeners exactly once per mount instead of on every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Track is 3 slots wide (300% of the viewport). Slot 1 (current) is
   // centered when the track is shifted left by 1/3 of its own width
