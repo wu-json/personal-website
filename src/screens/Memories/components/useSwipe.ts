@@ -107,7 +107,7 @@ const useSwipe = ({
       setOffsetX(offset);
     };
 
-    const onEnd = () => {
+    const onEnd = (e: TouchEvent) => {
       const state = touch.current;
       if (!state.active) return;
       state.active = false;
@@ -121,8 +121,15 @@ const useSwipe = ({
       const ox = currentOffsetRef.current;
       const elapsed = Date.now() - state.startTime;
       const velocity = Math.abs(ox) / Math.max(elapsed, 1);
+      // A `touchcancel` means the gesture was interrupted by the system
+      // (incoming call, OS alert, scroll-chain takeover) without the user
+      // releasing. Force the cancel path so an in-progress gesture past the
+      // trigger threshold rubber-bands back instead of silently committing
+      // a navigation the user never confirmed.
+      const cancelled = e.type === 'touchcancel';
       const triggered =
-        Math.abs(ox) > TRIGGER_PX || velocity > TRIGGER_VELOCITY;
+        !cancelled &&
+        (Math.abs(ox) > TRIGGER_PX || velocity > TRIGGER_VELOCITY);
 
       const { onSwipeLeft, onSwipeRight, hasPrev, hasNext } =
         callbacksRef.current;

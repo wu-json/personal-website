@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import Markdown from 'react-markdown';
 
 import type { PhotoMeta } from '../types';
@@ -20,10 +20,6 @@ const PhotoSlide = ({
   const fullUrl = photoUrl(fragmentId, photo.file, 'full');
   const [loaded, setLoaded] = useState(() => loadedFullUrls.has(fullUrl));
   const imgRef = useRef<HTMLImageElement>(null);
-
-  useEffect(() => {
-    setLoaded(loadedFullUrls.has(fullUrl));
-  }, [fullUrl]);
 
   // Catch the case where the <img> finds the resource in the browser cache
   // before React mounts the load handler — `complete` is true synchronously
