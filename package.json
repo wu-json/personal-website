@@ -23,6 +23,7 @@
     "@react-three/fiber": "^9.5.0",
     "@tailwindcss/vite": "^4.1.18",
     "geist": "^1.7.0",
+    "lucide-react": "^1.11.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-markdown": "^10.1.0",
@@ -41,8 +42,12 @@
     "@vitejs/plugin-react": "^5.1.4",
     "oxfmt": "^0.32.0",
     "oxlint": "^1.35.0",
+    "rehype-stringify": "^10.0.1",
+    "remark-parse": "^11.0.0",
+    "remark-rehype": "^11.1.2",
     "sharp": "^0.34.5",
     "typescript": "^5.9.3",
+    "unified": "^11.0.5",
     "vite": "^7.3.1"
   },
   "browserslist": {

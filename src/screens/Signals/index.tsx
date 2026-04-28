@@ -1,5 +1,6 @@
 import type { KeyboardEvent, MouseEvent } from 'react';
 
+import { Rss } from 'lucide-react';
 import { ProgressiveImage } from 'src/components/ProgressiveImage';
 import { useInfiniteList } from 'src/hooks/useInfiniteList';
 import { useJitter } from 'src/hooks/useJitter';
@@ -53,12 +54,17 @@ const SignalsScreen = () => {
           >
             Signals
           </h1>
-          <p
-            className='bio-glitch text-white/30 text-xs font-mono uppercase tracking-widest'
+          <a
+            href='/signals/feed.xml'
+            className='bio-glitch text-white/30 hover:text-white/50 text-xs font-mono uppercase tracking-widest flex items-center gap-1.5 leading-none no-underline transition-colors cursor-pointer'
             style={jitter()}
+            aria-label='RSS feed'
           >
-            {'// live'}
-          </p>
+            <span className='inline-flex items-center leading-none'>
+              {'// live'}
+            </span>
+            <Rss className='w-3 h-3 translate-y-[-1px]' />
+          </a>
         </header>
 
         <div className='flex flex-col gap-px'>
