@@ -63,7 +63,7 @@ const SignalsScreen = () => {
             </span>
             <a
               href='/signals/feed.xml'
-              className='text-white/20 hover:text-white/50 no-underline transition-colors inline-flex items-center leading-none'
+              className='text-white/30 hover:text-white/50 no-underline transition-colors inline-flex items-center leading-none'
               aria-label='RSS feed'
             >
               <Rss className='w-3 h-3 translate-y-[-1px]' />
