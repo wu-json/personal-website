@@ -103,14 +103,14 @@ const SignalsScreen = () => {
                   <div
                     className={`flex items-baseline gap-3 flex-wrap ${s.title ? 'mb-2' : 'mb-1'}`}
                   >
-                    <span className='text-white/20 text-[10px] font-mono shrink-0'>
+                    <span className='text-white/20 text-xs font-mono shrink-0'>
                       [{s.id}]
                     </span>
-                    <span className='text-white/30 text-[10px] font-mono shrink-0'>
+                    <span className='text-white/30 text-xs font-mono shrink-0'>
                       {s.timestamp}
                     </span>
                     {s.location && (
-                      <span className='text-white/20 text-[10px] font-mono shrink-0'>
+                      <span className='text-white/20 text-xs font-mono shrink-0'>
                         — {s.location}
                       </span>
                     )}

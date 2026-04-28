@@ -47,20 +47,20 @@ const SignalDetail = ({ id }: { id: string }) => {
             className={`flex items-baseline gap-3 flex-wrap ${s.title ? 'mb-2' : ''}`}
           >
             <span
-              className='bio-glitch text-white/20 text-[10px] font-mono'
+              className='bio-glitch text-white/20 text-xs font-mono'
               style={jitter()}
             >
               [{s.id}]
             </span>
             <span
-              className='bio-glitch text-white/30 text-[10px] font-mono'
+              className='bio-glitch text-white/30 text-xs font-mono'
               style={jitter()}
             >
               {s.timestamp}
             </span>
             {s.location && (
               <span
-                className='bio-glitch text-white/20 text-[10px] font-mono'
+                className='bio-glitch text-white/20 text-xs font-mono'
                 style={jitter()}
               >
                 — {s.location}
