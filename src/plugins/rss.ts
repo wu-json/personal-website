@@ -1,4 +1,5 @@
 import type { Plugin } from 'vite';
+import type { IncomingMessage, ServerResponse } from 'http';
 
 import { readFileSync, mkdirSync, writeFileSync, readdirSync } from 'fs';
 import { join } from 'path';
@@ -11,7 +12,6 @@ import { unified } from 'unified';
 
 const BASE_URL = 'https://jasonwu.ink';
 const ENTRIES_DIR = 'src/screens/Signals/entries';
-const OUT_FILE = 'build/signals/feed.xml';
 
 function parseFrontmatter(raw: string): {
   attrs: Record<string, string>;
@@ -61,62 +61,55 @@ function plainExcerpt(body: string, maxLen = 300): string {
   return `${(lastSpace > maxLen * 0.55 ? cut.slice(0, lastSpace) : cut).trimEnd()}…`;
 }
 
-export function rssPlugin(): Plugin {
-  return {
-    name: 'rss-feed',
-    async writeBundle() {
-      const entriesDir = join(process.cwd(), ENTRIES_DIR);
-      const files = readdirSync(entriesDir).filter(f => f.endsWith('.md'));
+async function generateFeed(): Promise<string> {
+  const entriesDir = join(process.cwd(), ENTRIES_DIR);
+  const files = readdirSync(entriesDir).filter(f => f.endsWith('.md'));
 
-      const signals = files
-        .map(f => {
-          const raw = readFileSync(join(entriesDir, f), 'utf-8');
-          const { attrs, body } = parseFrontmatter(raw);
-          return {
-            id: attrs.id ?? '',
-            timestamp: attrs.timestamp ?? '',
-            title: attrs.title || null,
-            location: attrs.location ?? '',
-            body,
-          };
-        })
-        .sort((a, b) => b.id.localeCompare(a.id))
-        .slice(0, 20);
+  const signals = files
+    .map(f => {
+      const raw = readFileSync(join(entriesDir, f), 'utf-8');
+      const { attrs, body } = parseFrontmatter(raw);
+      return {
+        id: attrs.id ?? '',
+        timestamp: attrs.timestamp ?? '',
+        title: attrs.title || null,
+        body,
+      };
+    })
+    .sort((a, b) => b.id.localeCompare(a.id))
+    .slice(0, 20);
 
-      const items = await Promise.all(
-        signals.map(async s => {
-          const result = await unified()
-            .use(remarkParse)
-            .use(remarkGfm)
-            .use(remarkRehype, { allowDangerousHtml: true })
-            .use(rehypeRaw)
-            .use(rehypeStringify)
-            .process(s.body);
+  const items = await Promise.all(
+    signals.map(async s => {
+      const result = await unified()
+        .use(remarkParse)
+        .use(remarkGfm)
+        .use(remarkRehype, { allowDangerousHtml: true })
+        .use(rehypeRaw)
+        .use(rehypeStringify)
+        .process(s.body);
 
-          const html = String(result).replace(
-            / src="\//g,
-            ` src="${BASE_URL}/`,
-          );
-          const pubDate = parseRssTimestamp(s.timestamp);
-          const pubDateTag = pubDate
-            ? `\n      <pubDate>${pubDate}</pubDate>`
-            : '';
-          const title = escapeXml(s.title ?? `[${s.id}]`);
-          const desc = escapeXml(plainExcerpt(s.body));
+      const html = String(result).replace(/ src="\//g, ` src="${BASE_URL}/`);
+      const pubDate = parseRssTimestamp(s.timestamp);
+      const pubDateTag = pubDate
+        ? `\n      <pubDate>${pubDate}</pubDate>`
+        : '';
+      const title = escapeXml(s.title ?? `[${s.id}]`);
+      const desc = escapeXml(plainExcerpt(s.body));
 
-          return `    <item>
+      return `    <item>
       <title>${title}</title>
       <link>${BASE_URL}/signals/${s.id}</link>
       <guid isPermaLink="true">${BASE_URL}/signals/${s.id}</guid>${pubDateTag}
       <description>${desc}</description>
       <content:encoded><![CDATA[${html}]]></content:encoded>
     </item>`;
-        }),
-      );
+    }),
+  );
 
-      const lastBuildDate = new Date().toUTCString();
+  const lastBuildDate = new Date().toUTCString();
 
-      const rss = `<?xml version="1.0" encoding="UTF-8"?>
+  return `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>Jason Wu — Signals</title>
@@ -128,12 +121,35 @@ ${items.join('\n')}
   </channel>
 </rss>
 `;
+}
 
-      const outFile = join(process.cwd(), OUT_FILE);
+export function rssPlugin(): Plugin {
+  return {
+    name: 'rss-feed',
+    async writeBundle() {
+      const rss = await generateFeed();
+      const outFile = join(process.cwd(), 'build', 'signals', 'feed.xml');
       mkdirSync(join(process.cwd(), 'build', 'signals'), { recursive: true });
       writeFileSync(outFile, rss, 'utf-8');
-
       console.log(`[rss-feed] wrote ${outFile}`);
+    },
+    configureServer(server) {
+      server.middlewares.use(
+        '/signals/feed.xml',
+        async (_req: IncomingMessage, res: ServerResponse) => {
+          try {
+            const rss = await generateFeed();
+            res.writeHead(200, {
+              'Content-Type': 'application/rss+xml; charset=utf-8',
+            });
+            res.end(rss);
+          } catch (err) {
+            console.error('[rss-feed] dev middleware error:', err);
+            res.writeHead(500);
+            res.end('Internal Server Error');
+          }
+        },
+      );
     },
   };
 }
