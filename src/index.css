@@ -845,12 +845,8 @@ html[data-theme-flash-reset] .nav-glitch-active {
   transition: opacity 500ms;
 }
 
-/* Keep the placeholder background-image in place during the 500ms
-   opacity fade so the user never sees the flat wrapper bg-color peeking
-   through a half-transparent crisp photo. `background-image` isn't
-   smoothly animatable, but a `0s 500ms` transition defers when the
-   `none` value takes effect — i.e. exactly when the <img> reaches
-   opacity: 1. */
+/* Drop the placeholder bg-image only after the 500ms fade has finished,
+   so we never see a hard cut from blur → crisp behind the fading <img>. */
 .progressive-image {
   transition: background-image 0s 500ms;
 }

@@ -103,7 +103,16 @@ const ProgressiveImage = ({
       className={`progressive-image ${className}`}
       style={style}
       onClick={onClick}
-      onKeyDown={onClick ? e => e.key === 'Enter' && onClick() : undefined}
+      onKeyDown={
+        onClick
+          ? e => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onClick();
+              }
+            }
+          : undefined
+      }
       role={onClick ? 'button' : undefined}
       tabIndex={onClick ? 0 : undefined}
     >
