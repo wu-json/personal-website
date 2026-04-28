@@ -6,8 +6,7 @@ import { Link, useLocation } from 'wouter';
 
 import type { Grouping, PhotoMeta } from './types';
 
-import { GroupLightbox } from './components/GroupLightbox';
-import { Lightbox } from './components/Lightbox';
+import { LightboxShell, type SlideView } from './components/LightboxShell';
 import { fragments, photoUrl } from './data';
 
 const layoutClasses: Record<string, { wrapper: string; item: string }> = {
@@ -179,36 +178,58 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
     return files;
   }, [lightboxView, gridItems]);
 
+  const gridItemToSlideView = (
+    item: GridItem,
+    gridIndex: number,
+  ): SlideView => {
+    const counter = `${gridIndex + 1} / ${gridItems.length}`;
+    if (item.kind === 'solo') {
+      return { kind: 'photo', photo: item.photo, counter };
+    }
+    return {
+      kind: 'group',
+      groupId: item.groupId,
+      photos: item.photos,
+      layout: item.layout,
+      caption: item.caption,
+      counter,
+      onPhotoClick: p =>
+        navigate(`/memories/${id}/${p.file}`, { replace: true }),
+    };
+  };
+
   let lightboxElement: React.ReactNode = null;
 
   if (lightboxView?.kind === 'group') {
     const { gridIndex } = lightboxView;
     const groupItem = gridItems[gridIndex];
     if (groupItem.kind === 'group') {
+      const N = gridItems.length;
+      const wraps = N > 1;
+      const prev = wraps
+        ? gridItemToSlideView(
+            gridItems[(gridIndex - 1 + N) % N],
+            (gridIndex - 1 + N) % N,
+          )
+        : null;
+      const next = wraps
+        ? gridItemToSlideView(
+            gridItems[(gridIndex + 1) % N],
+            (gridIndex + 1) % N,
+          )
+        : null;
+      const current = gridItemToSlideView(groupItem, gridIndex);
       lightboxElement = (
-        <GroupLightbox
-          photos={groupItem.photos}
+        <LightboxShell
           fragmentId={fragment.id}
-          layout={groupItem.layout}
-          caption={groupItem.caption}
-          counter={`${gridIndex + 1} / ${gridItems.length}`}
+          prev={prev}
+          current={current}
+          next={next}
           onClose={() => navigate(`/memories/${id}`, { replace: true })}
           onPrev={
-            gridItems.length > 1
-              ? () =>
-                  navigateToGridItem(
-                    (gridIndex - 1 + gridItems.length) % gridItems.length,
-                  )
-              : null
+            wraps ? () => navigateToGridItem((gridIndex - 1 + N) % N) : null
           }
-          onNext={
-            gridItems.length > 1
-              ? () => navigateToGridItem((gridIndex + 1) % gridItems.length)
-              : null
-          }
-          onPhotoClick={p =>
-            navigate(`/memories/${id}/${p.file}`, { replace: true })
-          }
+          onNext={wraps ? () => navigateToGridItem((gridIndex + 1) % N) : null}
           preloadFiles={gridPreloadFiles}
         />
       );
@@ -223,20 +244,44 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
     } = lightboxView;
 
     if (fromGroup && gPhotos && indexInGroup !== undefined) {
-      const prevFile = indexInGroup > 0 ? gPhotos[indexInGroup - 1].file : null;
-      const nextFile =
-        indexInGroup < gPhotos.length - 1
-          ? gPhotos[indexInGroup + 1].file
-          : null;
+      // In-group navigation: hard boundaries, no wrap. Neighbors are always
+      // solo photos within the same group.
+      const prevPhoto = indexInGroup > 0 ? gPhotos[indexInGroup - 1] : null;
+      const nextPhoto =
+        indexInGroup < gPhotos.length - 1 ? gPhotos[indexInGroup + 1] : null;
+      const prevFile = prevPhoto?.file ?? null;
+      const nextFile = nextPhoto?.file ?? null;
       const preload: string[] = [];
       if (prevFile) preload.push(prevFile);
       if (nextFile) preload.push(nextFile);
 
+      const total = gPhotos.length;
+      const current: SlideView = {
+        kind: 'photo',
+        photo: currentPhoto,
+        counter: `${indexInGroup + 1} / ${total}`,
+      };
+      const prev: SlideView | null = prevPhoto
+        ? {
+            kind: 'photo',
+            photo: prevPhoto,
+            counter: `${indexInGroup} / ${total}`,
+          }
+        : null;
+      const next: SlideView | null = nextPhoto
+        ? {
+            kind: 'photo',
+            photo: nextPhoto,
+            counter: `${indexInGroup + 2} / ${total}`,
+          }
+        : null;
+
       lightboxElement = (
-        <Lightbox
-          photo={currentPhoto}
+        <LightboxShell
           fragmentId={fragment.id}
-          counter={`${indexInGroup + 1} / ${gPhotos.length}`}
+          prev={prev}
+          current={current}
+          next={next}
           onClose={() =>
             navigate(`/memories/${id}/${fromGroup}`, { replace: true })
           }
@@ -254,25 +299,37 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
         />
       );
     } else {
+      // Top-level solo: wraps via modulo on gridItems.
+      const N = gridItems.length;
+      const wraps = N > 1;
+      const prev = wraps
+        ? gridItemToSlideView(
+            gridItems[(gridIndex - 1 + N) % N],
+            (gridIndex - 1 + N) % N,
+          )
+        : null;
+      const next = wraps
+        ? gridItemToSlideView(
+            gridItems[(gridIndex + 1) % N],
+            (gridIndex + 1) % N,
+          )
+        : null;
+      const current: SlideView = {
+        kind: 'photo',
+        photo: currentPhoto,
+        counter: `${gridIndex + 1} / ${N}`,
+      };
       lightboxElement = (
-        <Lightbox
-          photo={currentPhoto}
+        <LightboxShell
           fragmentId={fragment.id}
-          counter={`${gridIndex + 1} / ${gridItems.length}`}
+          prev={prev}
+          current={current}
+          next={next}
           onClose={() => navigate(`/memories/${id}`, { replace: true })}
           onPrev={
-            gridItems.length > 1
-              ? () =>
-                  navigateToGridItem(
-                    (gridIndex - 1 + gridItems.length) % gridItems.length,
-                  )
-              : null
+            wraps ? () => navigateToGridItem((gridIndex - 1 + N) % N) : null
           }
-          onNext={
-            gridItems.length > 1
-              ? () => navigateToGridItem((gridIndex + 1) % gridItems.length)
-              : null
-          }
+          onNext={wraps ? () => navigateToGridItem((gridIndex + 1) % N) : null}
           preloadFiles={gridPreloadFiles}
         />
       );
