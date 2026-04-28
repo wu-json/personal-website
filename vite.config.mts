@@ -13,6 +13,7 @@ export default defineConfig({
   server: {
     open: true,
     port: 3000,
+    allowedHosts: ['.trycloudflare.com'],
   },
   resolve: { alias: { src: path.resolve(__dirname, './src') } },
 });
