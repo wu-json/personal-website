@@ -21,7 +21,6 @@ Add an RSS 2.0 XML feed at `/signals/feed.xml` that exposes Signals posts so rea
 - JSON Feed or Atom (RSS 2.0 only).
 - Podcast-specific tags / enclosures / media.
 - Filtering or categories — every Signal goes in the feed.
-- Feed item limit (low volume; all 6 current entries).
 
 ---
 
@@ -55,15 +54,16 @@ export default defineConfig({
 1. **Read entries** — `fs.readdirSync('src/screens/Signals/entries')`, filter `*.md`, read each file.
 2. **Parse frontmatter** — replicate the regex parser from `data.ts` (no import needed; it's 10 lines). Extract `id`, `timestamp`, `title`, `location`.
 3. **Sort** — by `id` descending (newest first).
-4. **Render markdown → HTML** — unified pipeline matching the runtime `MarkdownBody`:
+4. **Limit** — slice to 20 most recent Signals (keeps the feed file compact; plenty of headroom for years of posts at current cadence).
+5. **Render markdown → HTML** — unified pipeline matching the runtime `MarkdownBody`:
    ```
    remark-parse → remark-gfm → remark-rehype (allowDangerousHtml) → rehype-raw → rehype-stringify
    ```
-5. **Rewrite image URLs** — a rehype plugin (or post-processing) that transforms `<img src="/images/...">` → `<img src="https://jasonwu.ink/images/...">`.
-6. **Plain-text excerpt** — strip `<img>` tags and markdown syntax, normalize whitespace. First 300 chars for `<description>`.
-7. **RFC-2822 dates** — parse `timestamp` (format `YYYY.MM.DD // HH:MM:SS`) into a `Date`. If parsing fails (NaN), skip `<pubDate>` on that item.
-8. **XML escaping** — escape `&`, `<`, `>`, `"` in title and description text. Body goes into `<![CDATA[...]]>` — no escaping needed.
-9. **Write** — `mkdirSync('build/signals', { recursive: true })`, `writeFileSync('build/signals/feed.xml', xml)`.
+6. **Rewrite image URLs** — a rehype plugin (or post-processing) that transforms `<img src="/images/...">` → `<img src="https://jasonwu.ink/images/...">`.
+7. **Plain-text excerpt** — strip `<img>` tags and markdown syntax, normalize whitespace. First 300 chars for `<description>`.
+8. **RFC-2822 dates** — parse `timestamp` (format `YYYY.MM.DD // HH:MM:SS`) into a `Date`. If parsing fails (NaN), skip `<pubDate>` on that item.
+9. **XML escaping** — escape `&`, `<`, `>`, `"` in title and description text. Body goes into `<![CDATA[...]]>` — no escaping needed.
+10. **Write** — `mkdirSync('build/signals', { recursive: true })`, `writeFileSync('build/signals/feed.xml', xml)`.
 
 #### New dev dependencies
 
