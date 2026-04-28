@@ -90,9 +90,11 @@ async function generateFeed(): Promise<string> {
         .process(s.body);
 
       const html = String(result).replace(/ src="\//g, ` src="${BASE_URL}/`).replace(/ href="\//g, ` href="${BASE_URL}/`);
-      // Add inline styles to prevent stretching in RSS viewers that render
-      // images in containers that don't respect intrinsic width/height
+      // Add inline styles to prevent stretching in RSS viewers
       const htmlStyled = html.replace(/<img /gi, '<img style="max-width:100%;height:auto" ');
+      // Strip only the first <img> — that's the one RSS viewers promote to
+      // a featured/hero image; removing it from the body prevents the duplicate.
+      const htmlDeduped = htmlStyled.replace(/<img\s[^>]*\/?>/i, '');
       const pubDate = parseRssTimestamp(s.timestamp);
       const pubDateTag = pubDate
         ? `\n      <pubDate>${pubDate}</pubDate>`
@@ -107,7 +109,7 @@ async function generateFeed(): Promise<string> {
       <link>${BASE_URL}/signals/${s.id}</link>
       <guid isPermaLink="true">${BASE_URL}/signals/${s.id}</guid>${pubDateTag}
       <description>${desc}</description>
-      <content:encoded><![CDATA[${htmlStyled}]]></content:encoded>
+      <content:encoded><![CDATA[${htmlDeduped}]]></content:encoded>
     </item>`;
     }),
   );

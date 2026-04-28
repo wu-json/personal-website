@@ -42,12 +42,13 @@ Result: the image appears twice — once properly sized in the content flow, and
 | 3 | Plain-text `<description>` + `<content:encoded>` with images | Duplicated on all image posts |
 | 4 | Strip `<img>` from both + never-empty `<description>` | **All fixed** |
 | 5 | Wrap `<img>` in `<figure>` + never-empty `<description>` | Still duplicated — rss.app scans any `<img>`, parent doesn't matter |
-| 6 | Add `style="max-width:100%;height:auto"` to `<img>` + never-empty `<description>` | Testing — theory: stretching and duplication are separate issues |
+| 6 | Add `style="max-width:100%;height:auto"` to `<img>` + never-empty `<description>` | Stretching fixed, but duplicates returned |
+| 7 | Inline styles + strip **only first** `<img>` + never-empty `<description>` | Testing — styles prevent stretch; removing the first image (which gets promoted to featured) prevents duplicate |
 
 ## Fix
 
 Three changes in `src/plugins/rss.ts`:
 
-1. **Add inline styles to `<img>` tags** (`max-width:100%;height:auto`) — prevents the stretched/distorted rendering when RSS viewers place images in containers that override intrinsic width/height.
-2. **Keep images in `<content:encoded>`** — the duplication (second copy) is a viewer-side extract-and-render behavior, but the stretching is a separate CSS issue that inline styles address.
+1. **Add inline styles to `<img>` tags** (`max-width:100%;height:auto`) — prevents stretched/distorted rendering when RSS viewers place images in containers that override intrinsic width/height.
+2. **Strip only the first `<img>`** from `<content:encoded>` — RSS viewers extract the first image as a featured/hero image. Removing it from the body eliminates the duplicate while keeping that image visible as the featured display (properly styled via #1). Additional images after the first remain in the body.
 3. **Never emit an empty `<description>`**. Fall back to the signal title, then to the ID bracket `[NNN]`, so viewers never trigger page-scraping behavior.
