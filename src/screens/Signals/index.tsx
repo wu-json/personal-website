@@ -65,7 +65,7 @@ const SignalsScreen = () => {
           <span className='text-white/15 text-[10px] font-mono'>{'//'}</span>
           <a
             href='/signals/feed.xml'
-            className='text-white/20 hover:text-white/50 no-underline transition-colors inline-flex items-center'
+            className='text-white/30 hover:text-white/60 no-underline transition-colors inline-flex items-center'
             aria-label='RSS feed'
           >
             <svg
@@ -77,9 +77,9 @@ const SignalsScreen = () => {
               strokeLinecap='round'
               strokeLinejoin='round'
             >
-              <circle cx='7' cy='10' r='1' fill='currentColor' stroke='none' />
-              <path d='M3.5 8Q7 4.5 10.5 8' />
-              <path d='M0.5 4Q7 0 13.5 4' />
+              <circle cx='2.5' cy='9' r='1' fill='currentColor' stroke='none' />
+              <path d='M1 7.5Q5 4 8.5 7' />
+              <path d='M0 4.5Q6 0.5 12 3.5' />
             </svg>
           </a>
         </div>
