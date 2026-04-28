@@ -86,7 +86,7 @@ const SignalDetail = ({ id }: { id: string }) => {
 
         <footer className='mt-12 pt-6 border-t border-white/5'>
           <p className='text-white/20 text-[10px] font-mono uppercase tracking-widest'>
-            {'// end of signal'}
+            {'// end'}
           </p>
         </footer>
       </div>
