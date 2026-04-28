@@ -376,16 +376,23 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
               ? 'flex flex-col sm:flex-row gap-1'
               : base.wrapper;
             const itemCls = shouldStack ? 'sm:flex-1 sm:min-w-0' : base.item;
+            const openGroup = () =>
+              navigate(`/memories/${id}/${item.groupId}`, {
+                replace: true,
+              });
             return (
-              // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
               <div
                 key={item.groupId}
+                role='button'
+                tabIndex={0}
                 className={`cursor-pointer mb-3 break-inside-avoid ${wrapperCls}`}
-                onClick={() =>
-                  navigate(`/memories/${id}/${item.groupId}`, {
-                    replace: true,
-                  })
-                }
+                onClick={openGroup}
+                onKeyDown={e => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    openGroup();
+                  }
+                }}
               >
                 {item.photos.map((p, j) => {
                   const idx = item.indices[j];
