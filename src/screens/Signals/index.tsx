@@ -61,8 +61,7 @@ const SignalsScreen = () => {
           </p>
         </header>
 
-        <div className='flex items-center gap-2 mb-6'>
-          <span className='text-white/15 text-[10px] font-mono'>{'//'}</span>
+        <div className='flex items-center mb-6'>
           <a
             href='/signals/feed.xml'
             className='text-white/30 hover:text-white/60 no-underline transition-colors inline-flex items-center'
