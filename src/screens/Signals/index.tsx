@@ -55,16 +55,18 @@ const SignalsScreen = () => {
             Signals
           </h1>
           <p
-            className='bio-glitch text-white/30 text-xs font-mono uppercase tracking-widest flex items-center gap-3'
+            className='bio-glitch text-white/30 text-xs font-mono uppercase tracking-widest flex items-center gap-1.5 leading-none'
             style={jitter()}
           >
-            <span>{'// live'}</span>
+            <span className='inline-flex items-center leading-none'>
+              {'// live'}
+            </span>
             <a
               href='/signals/feed.xml'
-              className='text-white/20 hover:text-white/50 no-underline transition-colors inline-flex items-center'
+              className='text-white/20 hover:text-white/50 no-underline transition-colors inline-flex items-center leading-none'
               aria-label='RSS feed'
             >
-              <Rss className='w-3.5 h-3.5' />
+              <Rss className='w-3 h-3' />
             </a>
           </p>
         </header>
