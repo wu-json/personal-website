@@ -51,14 +51,7 @@ const SignalsScreen = () => {
             className='bio-glitch text-white text-2xl sm:text-4xl font-pixel mb-2'
             style={jitter()}
           >
-            Signals{' '}
-            <a
-              href='/signals/feed.xml'
-              className='text-white/20 hover:text-white/50 text-[10px] font-mono no-underline transition-colors align-baseline'
-              aria-label='RSS feed'
-            >
-              [rss]
-            </a>
+            Signals
           </h1>
           <p
             className='bio-glitch text-white/30 text-xs font-mono uppercase tracking-widest'
@@ -67,6 +60,17 @@ const SignalsScreen = () => {
             {'// live'}
           </p>
         </header>
+
+        <div className='flex items-center gap-2 mb-6'>
+          <span className='text-white/15 text-[10px] font-mono'>{'//'}</span>
+          <a
+            href='/signals/feed.xml'
+            className='text-white/20 hover:text-white/50 text-[10px] font-mono no-underline transition-colors'
+            aria-label='RSS feed'
+          >
+            subscribe via RSS
+          </a>
+        </div>
 
         <div className='flex flex-col gap-px'>
           {signals.slice(0, visibleCount).map((s, i) => {
