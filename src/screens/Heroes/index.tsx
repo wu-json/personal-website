@@ -20,7 +20,7 @@ const HeroesScreen = () => {
             className='bio-glitch text-white/30 text-xs font-mono uppercase tracking-widest'
             style={jitter()}
           >
-            {'// army of humanity'}
+            {'// humanity'}
           </p>
         </header>
 
