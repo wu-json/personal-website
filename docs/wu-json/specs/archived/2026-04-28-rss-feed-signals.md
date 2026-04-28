@@ -1,5 +1,5 @@
 ---
-status: ready
+status: implemented
 ---
 
 # RSS Feed for Signals
