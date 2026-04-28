@@ -90,6 +90,8 @@ const GroupSlide = ({
             <button
               key={p.file}
               type='button'
+              tabIndex={interactive ? 0 : -1}
+              aria-hidden={interactive ? undefined : true}
               className={`relative overflow-hidden cursor-pointer min-h-0 max-h-full ${isAlwaysRow ? 'min-w-0' : shouldStack ? 'w-full sm:min-w-0 sm:w-auto' : ''}`}
               style={
                 isAlwaysRow

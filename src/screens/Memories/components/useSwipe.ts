@@ -152,8 +152,17 @@ const useSwipe = ({
       // then on transitionend (filtered to track + transform) fire the
       // navigation callback and snap back to center in a single batched
       // update so the parent's re-render and our local snap apply together.
+      // Read the viewport width live at commit time. The resting transform
+      // (`-33.3333%` of the 3-slot track) is recomputed by the browser
+      // against the current track width, so a viewport resize mid-gesture
+      // (e.g. iPad orientation change while a finger is down) would leave
+      // a target derived from `state.viewportWidth` (captured at
+      // touchstart) at a different scale than the live resting position
+      // and land the slide off-center.
       const sign = goingLeft ? -1 : 1;
-      const target = sign * state.viewportWidth;
+      const liveWidth =
+        viewportNodeRef.current?.clientWidth ?? state.viewportWidth;
+      const target = sign * liveWidth;
 
       committingRef.current = true;
       setAnimating(true);
