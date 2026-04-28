@@ -18,7 +18,7 @@ const modules = import.meta.glob('./entries/*.md', {
 }) as Record<string, string>;
 
 export const heroes: Hero[] = Object.entries(modules)
-  .sort(([pathA], [pathB]) => pathB.localeCompare(pathA))
+  .sort(([pathA], [pathB]) => pathA.localeCompare(pathB))
   .map(([, raw]) => {
     const { data, content } = parseFrontmatter(raw);
     return {
