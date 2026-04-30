@@ -6,4 +6,3 @@ location: 'San Francisco, US'
 ---
 
 Farewells never get easier it seems.
-
