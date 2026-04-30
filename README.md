@@ -35,4 +35,4 @@ Git hooks are installed with [prek](https://github.com/j178/prek) on `bun instal
 
 ## Adding content
 
-Agent-oriented workflows live under `.cursor/skills/` (e.g. **add-fragment**, **add-signal**, **add-construct**): image optimization and frontmatter paths for each section. In Claude Code, the matching slash commands (such as `/add-fragment`) follow the same workflows.
+Agent-oriented workflows live under `.agents/skills/` (e.g. **add-fragment**, **add-signal**, **add-construct**): image optimization and frontmatter paths for each section. They follow the [Agent Skills](https://agentskills.io/specification) standard, so any compatible harness (pi, Claude Code, etc.) auto-discovers them.
