@@ -47,7 +47,7 @@ Personal site for Jason Wu ([jasonwu.ink](https://jasonwu.ink)): React + TypeScr
 | Constructs | `src/screens/Constructs/entries/*.md` (+ optimized assets per add-construct workflow) |
 | Heroes     | `src/screens/Heroes/entries/*.md`                                                     |
 
-Agent workflows: `.cursor/skills/` (`add-fragment`, `add-signal`, `add-construct`).
+Agent workflows: `.agents/skills/` (`add-fragment`, `add-signal`, `add-construct`) — [Agent Skills](https://agentskills.io/specification) format, auto-discovered by pi, Claude Code, and other compatible harnesses.
 
 ## Notes
 
