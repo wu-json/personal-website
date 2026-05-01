@@ -35,16 +35,7 @@ const MainBanner = () => {
           </p>
           <div className='flex flex-col gap-2.5'>
             <p className={bioClass} style={jitter()}>
-              Currently working on coding agents at{' '}
-              <a
-                href='https://withforge.com/'
-                target='_blank'
-                rel='noopener noreferrer'
-                className='underline decoration-white/30 hover:decoration-white transition-all duration-300'
-              >
-                Forge
-              </a>
-              .
+              Currently soul searching.
             </p>
             <p className={bioClass} style={jitter()}>
               Yale Undergrad, grew up in Princeton, lived in Atlanta, dragged to
