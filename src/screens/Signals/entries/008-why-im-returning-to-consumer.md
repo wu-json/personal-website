@@ -43,7 +43,11 @@ But time is money, so really:
 
 It's really that simple. So what is taking B2B AI companies this long to deliver?
 
-Well... building a product that can automate arbitrary business workloads reliably is a difficult technical problem. On top of that, there's an endless supply of curve-balls enterprise customers will throw at you around security and distribution that slow you down like quicksand.
+Well... building a product that can automate arbitrary business workloads reliably is a formidable technical challenge. On top of that, there's an endless supply of curve-balls enterprise customers will throw at you around security and distribution that slow you down like quicksand.
+
+To maintain moat, you must fend off the curve-balls with generalizable solutions, but to survive you need to give the generality up if it means trading too much time.
+
+Immense improvements in agentic coding have tremendously helped with the one-off curve-balls coupled to specific customers, but they are less useful in architecting the opinionated solutions that can speed up all deployments on the platform.
 
 If you think about the reason these companies need to exist alongside the frontier labs in the first place, it's to fill the gap between what the models can do on their own and the desired business outcomes. At a high level, these companies themselves can be viewed as forward deployed arms for frontier models in the greater economy.
 
