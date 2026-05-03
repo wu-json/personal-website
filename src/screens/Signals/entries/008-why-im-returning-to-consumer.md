@@ -105,6 +105,8 @@ militirzation
 vibe coding + burnout is a dangerous combination
 people being miserable is energy that spreads like the plague
 
+give people important work, and they will ensure they get it done properly
+
 ## Musical Chair Economics
 
 I must get rich now before it's too late.
