@@ -151,12 +151,6 @@ FDE's are used to fill the delta between the product and reality
 - Not enough people trying to build a real platform
 - Most of this work comes from people using agents to write code to do deployments; at the end of the day this is just contracting engineering teams, kind of like consulting; generally looks like having some agentic component writing and executing automations here and there, 
 
-## Does 996 Work?
-- vibecoding + burnout is the worst combination of things
-- when people get cranky you can feel it
-- weird politic dynamics emerge
-- hard to build truly beautiful solutions when you are competing against the clock and internal rat races within customer deployments
-
 ## Musical Chair Economics
 
 ## Why Consumer 
@@ -165,25 +159,6 @@ FDE's are used to fill the delta between the product and reality
 - chat is not the most creative way and not the most impactful way for users to leverage ai; yes everything is a harness or wrapper, but instead of rushing to build; almost all AI tools right now are heavily biased towards a technical audience; how can we prove to the world this stuff is magical in a way they can understand?
 
 ---
-
-## The Harness Rat Race
-
-## 996 Truths
-
-militirzation
-vibe coding + burnout is a dangerous combination
-people being miserable is energy that spreads like the plague
-
-give people important work, and they will ensure they get it done properly
-
-## Musical Chair Economics
-
-I must get rich now before it's too late.
-at the end you may be sitting in a chair on mars alone, or with a bunch of people you don't really like
-
-## The Future of Software
-
-lol
 
 [^1]: Maybe harness companies are second-lines actually?
 [^2]: Behind: venture. In front: paper.
