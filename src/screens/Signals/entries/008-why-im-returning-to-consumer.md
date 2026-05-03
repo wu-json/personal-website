@@ -97,24 +97,37 @@ Remember that founders are people too, and this setup also needs to make sense f
 
 ### "Burnout and Vibe Coding" As "Flint as Steel"
 
-For those that are able to handle the hours, there is a delicious poisonous apple waiting for them if they burn out...
+For those that learn to handle the hours, there is a delicious poisonous apple waiting for them if they burn out:
 
-Vibe coding.
+Coding agents.
 
-its like the fentanyl of b2b saas
+Vibe coding is like fentanyl for Engineers. There are legitimate medical and research use-cases for it, but if you use it outside those contexts (especially when you're tired and vulnerable) that's when it ruins you.
 
-### Why do leaders facilitate this, and what's the solution?
+Coding agents provide an escape hatch for burnt out Engineers by allowing them to maintain high output even when they're mentally not present. Once this becomes habit, the human becomes the shell of an Engineer, and you're really just employing the agent at that point.
 
-solution is give important work to high agency people with deadlines, and ensure your assignment algorithm has human energy as a parameter
+It makes you think whether all of these AI-usage leaderboards you hear about on Hacker News are really measuring increased productivity or burnout in a sexy dress.
 
-and is often overlooked in the modern age of enterprise B2B startups.
+## Why do we let this happen?
 
-Give people with high integrity important work, a deadline, and a lot of trust, and they will work hard naturally.
+The outcomes I'm describing here are bad for everyone. The employers are not happy because the quality of work goes down and culture suffers, and employees are not happy because they are exhausted and resentful. So why does this happen in the first place if no one really wins?
 
-- what are the consequences of not allowing for this? cranky employees, gossip, and betrayal
+### For leaders...
 
-- why does this happen? we forget to include human energy as a parameter in our roadmapping because its hard to measure without talking to your people
+I do think it is as simple as accounting for human energy as an exhaustable resource in your work assignment/scheduling function, and ensuring the managers below you do the same.
 
+The reason this doesn't happen right now is that motivation and energy are impossible to measure, and get left out of resourcing equations entirely as a result. However, even a baseless gut-estimate here is probably a better alternative to complete exclusion.
+
+If you want folks to work hard indefinitely, the rough shape you want is probably something like this:
+
+- Hire high agency employees with high pain tolerance, integrity, and accountability.
+- Assign work to them strategically. High stress work should be deployed in phases, and if the situation does not allow for it then compensation should be adjusted to make up for the occasion.
+- Trust your people.
+
+### For employees
+
+Besides inequality, fear also drives humans to make weird decisions.
+
+---
 
 ## Musical Chair Economics
 
