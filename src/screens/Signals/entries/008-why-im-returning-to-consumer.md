@@ -18,6 +18,7 @@ It has been a chaotic year to say the least, and I believe phases of high entrop
 
 In this post, references to _B2B AI_ specifically mean software companies that smell and taste like this.
 
+- Based in San Francisco
 - Sell AI products to large enterprises
 - Hire Forward Deployed Engineers
 - 996 culture
@@ -26,15 +27,24 @@ While it's true that B2B AI can come in many flavors, as far as investors are co
 
 ### Important. Make no mistakes.
 
-Before we get to the good stuff, I want to make it clear that the points I'm about to make are directed at the AI industry generally and not my prior experiences in isolation. My thoughts here are an amalgam of stories I've heard from friends, blog posts, and interacting with the SF community and tech space in general.
+Before we get to the good stuff, I want to make it clear that the points I'm about to make are directed at the AI industry generally and not my prior experiences in isolation. My thoughts here are formulated from an amalgam of stories I've heard from friends employed at various B2B AI startups, and interactions with the SF tech community in general.
 
 The point of this article is to think critically about the state of AI companies, not to talk shit.
 
 ## The Harness Rat Race
+- Not enough people trying to build a real platform
+- Most of this work comes from people using agents to write code to do deployments; at the end of the day this is just contracting engineering teams, kind of like consulting; generally looks like having some agentic component writing and executing automations here and there, 
 
 ## Does 996 Work?
+- vibecoding + burnout is the worst combination of things
+- when people get cranky you can feel it
+- weird politic dynamics emerge
+- hard to build truly beautiful solutions when you are competing against the clock and internal rat races within customer deployments
 
-## What does the future look like?
+## Why Consumer 
+- still optimistic that AI can be delivered to consumers in a way that delivers value; it will just be hard
+- AI should empower people, if you believe this then you should believe ai should be delivered in products that non-technical consumers can reach for directly
+- chat is not the most creative way and not the most impactful way for users to leverage ai; yes everything is a harness or wrapper, but instead of rushing to build; almost all AI tools right now are heavily biased towards a technical audience; how can we prove to the world this stuff is magical in a way they can understand?
 
 ---
 
