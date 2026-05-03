@@ -25,6 +25,8 @@ In this post, references to _B2B AI_ specifically mean software companies that s
 
 While it's true that B2B AI can come in many flavors, as far as investors are concerned, this archetype is the vanilla and chocolate of the industry right now. The chances are that if you moved to San Francisco within the last year or so as a part of this AI gold rush, you know exactly what type of company I'm talking about.
 
+> Again... I know not all B2B AI companies fall in this bucket, but grouping things under a misleading umbrella term is the norm now right?
+
 ### Important. Make no mistakes.
 
 Before we get to the good stuff, I want to make it clear that the points I'm about to make are directed at the AI industry generally and not my prior experiences in isolation. My thoughts here are formulated from an amalgam of stories I've heard from friends employed at various B2B AI startups, and interactions with the SF tech community in general.
@@ -58,6 +60,8 @@ From this lens, product moat becomes somewhat unclear. What actually makes your 
 They do however lead us to the next topic.
 
 ## The Return of 996
+
+- 996 things either come off too cringe or super whiny i will try best to be objective
 
 ## Musical Chair Economics
 
