@@ -149,30 +149,26 @@ Funnily enough, these choruses are generally followed by a templated rap verse o
 
 Anyways, the model here is that the economy is an intense game of musical chairs, and AI makes the music play faster.
 
-Even if this model were true, the premise of "collecting your bag" before the economy shits itself never made any sense to me. 
-
-Suppose there is a point where economic mobility ceases and now the majority of the wealth only exists within a microcosm of tech founders and founding employees. 
+Even if this model were true, the premise of "collecting your bag" before the economy shits itself never made any sense to me. Suppose there is a point where economic mobility ceases and now the majority of the wealth only resides within a microcosm of eccentric tech founders and founding employees. 
 
 Is that really a world you want to live in?
 
-Even if that microcosm relocates to a founders paradise on some exclusive habitable planet, you will likely be stuck on Mars alone or with a bunch of people you don't even like.
+Even if that group relocates to a founder's paradise on some exclusive habitable planet, you will likely be stuck on Mars alone or with a bunch of people you don't even like, and repeat the capitalist playbook all over again in extreme mode.
+
+## Should You Work in B2B AI?
+
+While I've been pretty brutal about the space here, I do think humans will figure out these very human problems pretty soon.
+
+The people working on these companies are some of the smartest (and surprisingly kindest) folks I've met. I really view these issues as more of an economic bug than something inherently wrong with the character of people building in this space.
+
+It is also very true that the best minds across all domains are concentrated in this space right now.
+
+I have no regrets, and would recommend anyone passionate about AI to work for one of these companies, even if it's just for a little bit. However, make sure you do it to work on the best tech with the best people, and NOT to build generational wealth before the music stops.
+
 
 ## The Future
 
-- while most of this piece is critical, I am optimistic about changes coming due to human forces; companies will have talent churn and will need to adjust, these places do have incredibly smart people
-
 ---
-
-harness companies are the fdes of the frontier labs in a weird way
-
-incentive alignement is hard with the fde model
-
-FDE's are used to fill the delta between the product and reality
-
-- Not enough people trying to build a real platform
-- Most of this work comes from people using agents to write code to do deployments; at the end of the day this is just contracting engineering teams, kind of like consulting; generally looks like having some agentic component writing and executing automations here and there, 
-
-## Musical Chair Economics
 
 ## Why Consumer 
 - still optimistic that AI can be delivered to consumers in a way that delivers value; it will just be hard
