@@ -91,11 +91,19 @@ The problem is that in a world where employees are working just as hard if not h
 
 > FYI, compensation at any workplace (and across the world for that matter) is never fair and will never be fair. This is a reality you should accept early. Focus your energy on how much you get paid, and no one else.
 
-Note how I say harder to "perceive as fair" and not "unfair". Fairness is difficult to measure and while employees may work just as hard as founders in some cases with 996, I think failing to encode the impact of one's work in the fairness function will lead to tremendous miscalculations that work disproportionately against the favor of the founders, especially the larger the team gets.
+Note how I say harder to "perceive as fair" and not "unfair". Fairness is difficult to measure and while employees may work just as hard as founders in some cases with 996, failing to encode risk appetite and impact of work into the fairness function leads to miscalculations that work heavily against the favor of the founders, especially as the team gets larger.
 
-### "Burnout and Vibe-Coding" As "Flint as Steel"
+Remember that founders are people too, and this setup also needs to make sense for them.
 
-### Why do leaders do this, and what's the solution?
+### "Burnout and Vibe Coding" As "Flint as Steel"
+
+For those that are able to handle the hours, there is a delicious poisonous apple waiting for them if they burn out...
+
+Vibe coding.
+
+its like the fentanyl of b2b saas
+
+### Why do leaders facilitate this, and what's the solution?
 
 solution is give important work to high agency people with deadlines, and ensure your assignment algorithm has human energy as a parameter
 
