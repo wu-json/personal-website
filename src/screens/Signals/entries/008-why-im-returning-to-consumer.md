@@ -16,22 +16,22 @@ It has been a chaotic year to say the least, and I believe phases of high entrop
 
 ### What is B2B AI?
 
-In this post, references to _B2B AI_ specifically mean software companies that smell and taste like this.
+In this post, references to _B2B AI_ specifically mean software companies that taste like this.
 
 - Based in San Francisco
-- Sell AI products to large enterprises
+- Sell AI harness products to large enterprises
 - Hire Forward Deployed Engineers
 - 996 culture
 
-While it's true that B2B AI can come in many flavors, as far as investors are concerned, this archetype is the vanilla and chocolate of the industry right now. The chances are that if you moved to San Francisco within the last year or so as a part of this AI gold rush, you know exactly what type of company I'm talking about.
+While it's true that B2B AI can come in many flavors, as far as investors are concerned, this archetype is the vanilla and chocolate of the industry right now. The chances are that if you moved to San Francisco within the last year or so as a part of this AI gold rush, you know exactly what type of company I'm talking about (and there are A LOT of them).
 
 > Again... I know not all B2B AI companies fall in this bucket, but grouping things under a misleading umbrella term is the norm now right?
 
 ### Important. Make no mistakes.
 
-Before we get to the good stuff, I want to make it clear that the points I'm about to make are directed at the AI industry generally and not my prior experiences in isolation. My thoughts here are formulated from an amalgam of stories I've heard from friends employed at various B2B AI startups, and interactions with the SF tech community in general.
+Before we get to the good stuff, I want to make it clear that the points I'm about to make are directed at the AI industry generally and not my prior experiences in a vacuum. My thoughts here are formulated from an amalgam of stories I've heard from friends employed at various B2B AI startups, and interactions with the SF tech community in general.
 
-The point of this article is to think critically about the state of AI companies, not to air out any form of trauma.
+The point of this article is to think critically about the state of AI companies, not to air out trauma.
 
 ## My Harness is Different
 
@@ -43,33 +43,77 @@ But time is money, so really:
 
 > By automating work in your organization with AI, we will save you a fuck ton of money.
 
-It's really that simple. So what is taking them this long to deliver?
+It's really that simple. So what is taking them so long to deliver?
 
 Well... building a product that can automate arbitrary business workloads reliably is a formidable technical challenge. On top of that, there's an endless supply of curve-balls enterprise customers will throw at you around security and distribution that slow you down like quicksand.
 
-To maintain moat, you must fend off the curve-balls with generalizable solutions, but to survive you need to give the generality up if it means trading too much time.
+To maintain moat, you must fend off the curve-balls with generalizable solutions, but to survive you need to sacrifice the generality if it means giving up too much time in exchange.
 
 Immense improvements in agentic coding have helped tremendously with the one-off curve-balls coupled to specific customers, but they are less useful in architecting the opinionated solutions that can speed up all deployments on the platform.
 
 This does beg the question - what would happen if models got good enough to do the latter?
 
-If you think about the reason these companies need to exist alongside the frontier labs in the first place, it's to fill the gap between model capabilities and desired business outcomes. At a high level, these B2B AI companies can be viewed as forward deployed arms for frontier models in the greater economy.
+If you think about the reason these companies need to exist alongside the frontier labs in the first place, it's to fill the gap between model capabilities and desired business outcomes. At a high level, these B2B AI startups can be viewed as forward deployed arms for frontier models in the greater economy themselves.
 
 From this lens, product moat becomes somewhat unclear. What actually makes your harness different if it's delivering the same business outcome as someone else's, or one that the model built for itself? Maybe it's cost or speed, but these are rather crude and uncreative dimensions.
 
 They do however lead us to the next topic.
 
-## The Return of 996
+## The Cost of 996
 
-When it comes to the cost and speed of a business, there is no more important factor than its core of flesh and bone.
+> Most works I've read about 996 are either extremely cringe and cold, or extremely cringe and whiny. I believe there is a pragmatic cringe-free maxima in there somewhere, and will do my best to find that here.
 
-I want to preface this by saying that most pieces I've read about 996 either come across as extremely cringe and cold, or extremely cringe and whiny. I have conviction that there is a pragmatic cringe-free maxima in there somewhere, and will do my best to express that here.
+When it comes to the cost and speed of a business, there is no factor more important than its workforce of flesh and bone.
 
-First, the 9 to 5 in a startup setting is not a reasonable expectation.
+9 to 5 in a startup setting is not a reasonable expectation; it never has been and it never will be. The reality of any early stage business is there is no human redundancy, so anyone and everyone will need to make sacrifices and maximize their availability when necessary.
+
+The "when necessary" detail of this social contract is important, and the consequences of not respecting it are detrimental to leadership rapport and culture.
+
+### The Consequences
+
+Unlike LLM's, humans do a lot of peculiar things when they are tired, and even more peculiar things when they are resentful. They hallucinate, gossip, and start asking for fancy titles and more money. This is not something you can fix with updated system or user prompts, this behavior is foundational to human psychology itself.
+
+I feel strongly that the basis of this behavior in relation to 996 comes more from the resentment and not fatigue itself.
+
+### Fuck Cucumbers, Give Me Grapes
+
+Frans de Waal's Grape Experiment suggests we may have had this visceral emotional reaction to inequality in us since we were monkeys.
+
+In this experiment, two monkeys are placed next to each other in a cage. One monkey is given a cucumber as payment for a simple task, which he indifferently eats. The second monkey is given a different task and is given sweet grapes as payment. When the first monkey is given the same task but is paid in cucumbers again, he refuses to eat it and actually throws it at the researcher.
+
+> They just like us for real.
+
+I suspect that a similar phenomena is occuring at many B2B AI SaaS companies due to the asymmetric compensation structure of founders and their founding employees. 
+
+Founders having disproportionately more equity than their employees is a startup tale as old as time, and anyone who has worked in the industry for any meaningful amount of time knows this. It also isn't inherently a bad distribution given the right conditions.
+
+> FYI, compensation in any workplace is never fair and will never be fair. This is a reality you should accept early. Focus on how much you get paid, and nothing more.
+
+### "Burnout and Vibe-Coding" As "Flint as Steel"
+
+### Why do leaders do this, and what's the solution?
+
+solution is give important work to high agency people with deadlines, and ensure your assignment algorithm has human energy as a parameter
+
+and is often overlooked in the modern age of enterprise B2B startups.
+
+Give people with high integrity important work, a deadline, and a lot of trust, and they will work hard naturally.
+
+- what are the consequences of not allowing for this? cranky employees, gossip, and betrayal
+
+- why does this happen? we forget to include human energy as a parameter in our roadmapping because its hard to measure without talking to your people
+
 
 ## Musical Chair Economics
 
+why don't people quit?
+
+- high conviction people being taken advantage of; assymetric compassions
+- musical chair ecnomics
+
 ## The Future
+
+- while most of this piece is critical, I am optimistic about changes coming due to human forces; companies will have talent churn and will need to adjust, these places do have incredibly smart people
 
 ---
 
