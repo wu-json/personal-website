@@ -43,7 +43,7 @@ But time is money, so really:
 
 It's really that simple. So what is taking B2B AI companies this long to deliver?
 
-Well... building a product that can automate arbitrary business workloads reliably is a difficult technical problem. On top of that, there's an endless supply of curve-balls enterprise customers will throw at you around security, distribution, data residency, etc. that slow you down like quicksand.
+Well... building a product that can automate arbitrary business workloads reliably is a difficult technical problem. On top of that, there's an endless supply of curve-balls enterprise customers will throw at you around security and distribution that slow you down like quicksand.
 
 ---
 
