@@ -26,9 +26,9 @@ While it's true that B2B AI can come in many flavors, as far as investors are co
 
 ### Important. Make no mistakes.
 
-Before we get to the good stuff, I want to make it clear that the points I'm about to make are directed at the AI industry generally and not my prior experiences. My thoughts here are an amalgam of stories I've heard from friends, blog posts, and interacting with the SF community and tech space in general.
+Before we get to the good stuff, I want to make it clear that the points I'm about to make are directed at the AI industry generally and not my prior experiences in isolation. My thoughts here are an amalgam of stories I've heard from friends, blog posts, and interacting with the SF community and tech space in general.
 
-The point of this article is to help you think critically about the state of AI companies, not for me to talk shit.
+The point of this article is to think critically about the state of AI companies, not to talk shit.
 
 ## The Harness Rat Race
 
