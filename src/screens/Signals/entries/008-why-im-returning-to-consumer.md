@@ -73,7 +73,7 @@ The "when necessary" detail of this social contract is important, and the conseq
 
 Unlike LLM's, humans do a lot of peculiar things when they are tired, and even more peculiar things when they are resentful. They hallucinate, gossip, and start asking for fancy titles and more money. This is not something you can fix with updated system or user prompts, this behavior is foundational to human psychology itself.
 
-I feel strongly that the basis of this behavior in relation to 996 comes more from the resentment and not fatigue itself.
+I feel strongly that the basis of this behavior in relation to 996 in San Francisco comes more from the resentment and not fatigue itself.
 
 ### Fuck Cucumbers, Give Me Grapes
 
@@ -83,11 +83,13 @@ In this experiment, two monkeys are placed next to each other in a cage. One mon
 
 > They just like us for real.
 
-I suspect that a similar phenomena is occuring at many B2B AI SaaS companies due to the asymmetric compensation structure of founders and their founding employees. 
+I suspect a similar phenomena is occuring at many B2B AI SaaS companies due to the asymmetric compensation structure of founders and their founding employees. 
 
-Founders having disproportionately more equity than their employees is a startup tale as old as time, and anyone who has worked in the industry for any meaningful amount of time knows this. It also isn't inherently a bad strategic distribution.
+Founders having disproportionately more equity than their employees is a startup tale as old as time, and anyone who has worked in the industry knows this as the law of the land. It also isn't inherently an unfair strategic distribution. You want strong founders to have as much stake as possible. Having more of a pie that is worth nothing means nothing.
 
 > FYI, compensation at any workplace is never fair and will never be fair. This is a reality you should accept early. Focus your energy on how much you get paid, and no one else.
+
+The problem is when people are tired, they try to point fingers to understand their pain, and the easiest measurable dimension is how much you're getting paid.
 
 ### "Burnout and Vibe-Coding" As "Flint as Steel"
 
