@@ -47,11 +47,11 @@ Well... building a product that can automate arbitrary business workloads reliab
 
 To maintain moat, you must fend off the curve-balls with generalizable solutions, but to survive you need to give the generality up if it means trading too much time.
 
-Immense improvements in agentic coding have tremendously helped with the one-off curve-balls coupled to specific customers, but they are less useful in architecting the opinionated solutions that can speed up all deployments on the platform.
+Immense improvements in agentic coding have helped tremendously with the one-off curve-balls coupled to specific customers, but they are less useful in architecting the opinionated solutions that can speed up all deployments on the platform.
 
-It's an interesting question though on what would happen if the models got good enough to do the latter autonomously as well.
+This does beg the question - what would happen if models got good enough to do the latter?
 
-If you think about the reason these companies need to exist alongside the frontier labs in the first place, it's to fill the gap between what the models can do on their own and the desired business outcomes. At a high level, these companies themselves can be viewed as forward deployed arms for frontier models in the greater economy.
+If you think about the reason these companies need to exist alongside the frontier labs in the first place, it's to fill the gap between model capabilities and desired business outcomes. At a high level, these B2B AI companies can be viewed as forward deployed arms for frontier models in the greater economy.
 
 ---
 
