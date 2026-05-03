@@ -113,9 +113,9 @@ The outcomes I'm describing here are bad for everyone. The employers are not hap
 
 ### For Leaders
 
-Human motivation and energy are impossible to measure, and often get left out of resourcing equations entirely as a result. However, even a baseless gut-estimate here is probably a better alternative to complete exclusion.
+Human motivation and energy are impossible to measure, and often get left out of resourcing equations entirely as a result. However, even a baseless gut-estimate here is a better alternative to complete exclusion.
 
-I think the solve here is as simple as accounting for human energy as an exhaustable resource in your work assignment/scheduling function, and ensuring the managers below you do the same.
+The solve here is as simple as accounting for human energy as an exhaustable resource in your work assignment/scheduling function, and ensuring the managers below you do the same.
 
 If you want folks to work hard indefinitely, the rough checklist you want is probably something like this:
 
@@ -125,9 +125,13 @@ If you want folks to work hard indefinitely, the rough checklist you want is pro
 
 ### For Employees
 
-Besides inequality, fear is the next most flammable material in the human psyche.
+Besides perceived inequality, fear is the next most flammable material in the human psyche.
 
----
+With all of the blog posts about permanent unemployment for Engineers right just under the skill level of the posts' respective authors (lol), the power dynamic naturally shifts aggressively to the employer.
+
+People won't say much when they're scared, especially Engineers who tend to lean more towards introversion than any other role.
+
+What you end with is a team of type A leaders with a lot of energy, and a large body of employees who won't express how they feel to keep food on the table.
 
 ## Musical Chair Economics
 
