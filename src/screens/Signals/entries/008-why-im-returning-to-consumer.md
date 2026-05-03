@@ -31,7 +31,7 @@ While it's true that B2B AI can come in many flavors, as far as investors are co
 
 Before we get to the good stuff, I want to make it clear that the points I'm about to make are directed at the AI industry generally and not my prior experiences in a vacuum. My thoughts here are formulated from an amalgam of stories I've heard from friends employed at various B2B AI startups, and interactions with the SF tech community in general.
 
-The point of this article is to think critically about the state of AI companies, not to air out trauma.
+The point of this article is to think critically about the state of AI companies, not to air out any kind of trauma.
 
 ## My Harness is Different
 
@@ -153,7 +153,7 @@ Even if this model were true, the premise of "collecting your bag" before the ec
 
 Is that really a world you want to live in?
 
-Even if that group relocates to a founder's paradise on some exclusive habitable planet, you will likely be stuck on Mars alone or with a bunch of people you don't even like, and repeat the capitalist playbook all over again in extreme mode.
+Even if that group relocates to a founder's paradise on some exclusive habitable planet, you will likely be stuck on Mars alone or with a bunch of people you don't even like, repeating the capitalist playbook all over again in extreme mode.
 
 ## Should You Work in B2B AI?
 
@@ -161,9 +161,9 @@ While I've been pretty brutal about the space here, I do think humans will figur
 
 The people working on these companies are some of the smartest (and surprisingly kindest) folks I've met. I really view these issues as more of an economic bug than something inherently wrong with the character of people building in this space.
 
-It is also very true that the best minds across all domains are concentrated in this space right now.
+It is also very true that the best minds across all domains are concentrated in this space right now, and if you want to work with and learn from the best there isn't really any other place to go right now besides the frontier labs.
 
-I have no regrets, and would recommend anyone passionate about AI to work for one of these companies, even if it's just for a little bit. However, make sure you do it to work on the best tech with the best people, and NOT to build generational wealth before the music stops.
+I have no regrets, and would recommend anyone passionate about AI to work for one of these companies at least once, even if it's just for a little bit. However, make sure you do it to work on the best tech with the best people, and NOT to build generational wealth before the music stops.
 
 
 ## The Future
