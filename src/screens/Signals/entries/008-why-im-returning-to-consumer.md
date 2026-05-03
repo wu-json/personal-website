@@ -131,7 +131,7 @@ With all of the blog posts about permanent unemployment for Engineers right just
 
 People won't say much when they're scared, especially Engineers who tend to lean more towards introversion than any other role.
 
-What you end with is a team of type A leaders with a lot of energy, and a large body of employees who won't express how they feel to keep food on the table.
+What you end with is a team of intense type A leaders, and a large body of employees who won't express how they feel to keep food on the table.
 
 ## Musical Chair Economics
 
@@ -145,9 +145,17 @@ Songs of this genre generally sound something like this.
 
 "If you don't make it into the permanent upper-class ASAP, you're gonna be fucked."
 
-Funnily enough, these choruses are generally followed by a repetitive rap verse on why each of their respective companies are building harnesses to help the world and empower people, then a Ramp expense or Venmo request as an ending producer tag.
+Funnily enough, these choruses are generally followed by a templated rap verse on why each of their respective companies are building harnesses to help the world and empower people, then a Ramp expense or Venmo request as an ending producer tag.
 
-The model here is that the economy is like a game of musical chairs, and AI makes the music play much faster.
+Anyways, the model here is that the economy is an intense game of musical chairs, and AI makes the music play faster.
+
+Even if this model were true, the premise of "collecting your bag" before the economy shits itself never made any sense to me. 
+
+Suppose there is a point where economic mobility ceases and now the majority of the wealth only exists within a microcosm of tech founders and founding employees. 
+
+Is that really a world you want to live in?
+
+Even if that microcosm relocates to a founders paradise on some exclusive habitable planet, you will likely be stuck on Mars alone or with a bunch of people you don't even like.
 
 ## The Future
 
