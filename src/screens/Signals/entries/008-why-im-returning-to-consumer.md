@@ -105,7 +105,7 @@ Vibe coding is like fentanyl for Engineers. There are legitimate medical and res
 
 Coding agents provide an escape hatch for burnt out Engineers by allowing them to maintain high output even when they're mentally not present. Once this becomes habit, the human becomes the shell of an Engineer, and you're really just employing the agent at that point.
 
-It makes you think whether all of these AI-usage leaderboards you hear about on Hacker News are really measuring increased productivity or burnout in a sexy dress.
+It makes you think whether all of these AI-usage leaderboards you hear about on earnings calls are really measuring increased productivity or burnout in a sexy dress.
 
 ## Why do we let this happen?
 
@@ -113,19 +113,19 @@ The outcomes I'm describing here are bad for everyone. The employers are not hap
 
 ### For Leaders
 
-Human motivation and energy are impossible to measure, and get left out of resourcing equations entirely as a result. However, even a baseless gut-estimate here is probably a better alternative to complete exclusion.
+Human motivation and energy are impossible to measure, and often get left out of resourcing equations entirely as a result. However, even a baseless gut-estimate here is probably a better alternative to complete exclusion.
 
-I do think the solve here is as simple as accounting for human energy as an exhaustable resource in your work assignment/scheduling function, and ensuring the managers below you do the same.
+I think the solve here is as simple as accounting for human energy as an exhaustable resource in your work assignment/scheduling function, and ensuring the managers below you do the same.
 
 If you want folks to work hard indefinitely, the rough checklist you want is probably something like this:
 
 - Hire high agency employees with high pain tolerance, integrity, and accountability.
-- Assign work to them strategically. High stress work should be deployed in phases, and if the situation does not allow for it then compensation should be adjusted to make up for the occasion.
+- Assign work to them strategically. Stressful time-sensitive work should be assigned carefully. If the situation warrants back to back blood-baths, then compensation should be adjusted in a way that is clear to the employee at the time of assignment.
 - Trust your people, and let go of the ones you can't.
 
 ### For Employees
 
-Besides inequality, fear also drives humans to make weird decisions.
+Besides inequality, fear is probably the next most flammable material in the human psyche.
 
 ---
 
