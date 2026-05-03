@@ -32,6 +32,17 @@ Before we get to the good stuff, I want to make it clear that the points I'm abo
 The point of this article is to think critically about the state of AI companies, not to air out trauma.
 
 ## My Harness is Different
+
+At the core of any software company is product, so what do these B2B AI companies have to offer? For most, this is an efficiency and savings sell.
+
+> By automating work with AI, we will save you money.
+
+It is really that simple.
+
+---
+
+FDE's are used to fill the delta between the product and reality
+
 - Not enough people trying to build a real platform
 - Most of this work comes from people using agents to write code to do deployments; at the end of the day this is just contracting engineering teams, kind of like consulting; generally looks like having some agentic component writing and executing automations here and there, 
 
@@ -61,6 +72,7 @@ people being miserable is energy that spreads like the plague
 ## Musical Chair Economics
 
 I must get rich now before it's too late.
+at the end you may be sitting in a chair on mars alone, or with a bunch of people you don't really like
 
 ## The Future of Software
 
