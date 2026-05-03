@@ -125,7 +125,7 @@ If you want folks to work hard indefinitely, the rough checklist you want is pro
 
 ### For Employees
 
-Besides inequality, fear is probably the next most flammable material in the human psyche.
+Besides inequality, fear is the next most flammable material in the human psyche.
 
 ---
 
