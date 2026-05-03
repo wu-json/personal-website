@@ -45,6 +45,8 @@ It's really that simple. So what is taking B2B AI companies this long to deliver
 
 Well... building a product that can automate arbitrary business workloads reliably is a difficult technical problem. On top of that, there's an endless supply of curve-balls enterprise customers will throw at you around security and distribution that slow you down like quicksand.
 
+If you think about the reason these companies need to exist alongside the frontier labs in the first place, it's to fill the gap between what the models can do on their own and the desired business outcomes. At a high level, these companies themselves can be seen as forward deployed arms in the greater economy for the frontier labs.
+
 ---
 
 harness companies are the fdes of the frontier labs in a weird way
