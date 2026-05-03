@@ -41,7 +41,7 @@ But time is money, so really:
 
 > By automating work in your organization with AI, we will save you a fuck ton of money.
 
-It's really that simple. So what is taking B2B AI companies this long to deliver?
+It's really that simple. So what is taking them this long to deliver?
 
 Well... building a product that can automate arbitrary business workloads reliably is a formidable technical challenge. On top of that, there's an endless supply of curve-balls enterprise customers will throw at you around security and distribution that slow you down like quicksand.
 
@@ -53,9 +53,15 @@ This does beg the question - what would happen if models got good enough to do t
 
 If you think about the reason these companies need to exist alongside the frontier labs in the first place, it's to fill the gap between model capabilities and desired business outcomes. At a high level, these B2B AI companies can be viewed as forward deployed arms for frontier models in the greater economy.
 
-From this lens, moat becomes a lot less clear. What actually makes your harness different if it's delivering the same business outcome?
+From this lens, product moat becomes somewhat unclear. What actually makes your harness different if it's delivering the same business outcome as someone else's, or one that the model built for itself? Maybe it's token efficiency or performance, but these are rather crude dimensions.
+
+To be clear, I think we are pretty far from a future
 
 ## Does 996 Work?
+
+## Musical Chair Economics
+
+## The Future
 
 ---
 
