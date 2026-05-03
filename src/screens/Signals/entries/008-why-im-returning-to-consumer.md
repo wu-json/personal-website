@@ -135,10 +135,19 @@ What you end with is a team of type A leaders with a lot of energy, and a large 
 
 ## Musical Chair Economics
 
-why don't people quit?
+I was going to include this as part of the "For Employees" passage, but I actually feel that this psychology affects founders, investors, and almost anyone financially or spiritually invested in the AI space in general.
 
-- high conviction people being taken advantage of; assymetric compassions
-- musical chair ecnomics
+Throughout various coffee chats and casual drinks I've had in SF, there has been a recurring theme of what I like to call _Musical Chair Economics._
+
+Songs of this genre generally sound something like this.
+
+"You need to collect your bag now before AI wipes out all the jobs."
+
+"If you don't make it into the permanent upper-class ASAP, you're gonna be fucked."
+
+Funnily enough, these choruses are generally followed by a repetitive rap verse on why each of their respective companies are building harnesses to help the world and empower people, then a Ramp expense or Venmo request as an ending producer tag.
+
+The model here is that the economy is like a game of musical chairs, and AI makes the music play much faster.
 
 ## The Future
 
