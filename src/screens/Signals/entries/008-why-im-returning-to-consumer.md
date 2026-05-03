@@ -29,7 +29,7 @@ While it's true that B2B AI can come in many flavors, as far as investors are co
 
 Before we get to the good stuff, I want to make it clear that the points I'm about to make are directed at the AI industry generally and not my prior experiences in isolation. My thoughts here are formulated from an amalgam of stories I've heard from friends employed at various B2B AI startups, and interactions with the SF tech community in general.
 
-The point of this article is to think critically about the state of AI companies, not to air out exaggerated trauma.
+The point of this article is to think critically about the state of AI companies, not to air out any form of trauma.
 
 ## My Harness is Different
 
