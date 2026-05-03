@@ -31,7 +31,7 @@ Before we get to the good stuff, I want to make it clear that the points I'm abo
 
 The point of this article is to think critically about the state of AI companies, not to talk shit.
 
-## The Harness Rat Race
+## My Harness is Different
 - Not enough people trying to build a real platform
 - Most of this work comes from people using agents to write code to do deployments; at the end of the day this is just contracting engineering teams, kind of like consulting; generally looks like having some agentic component writing and executing automations here and there, 
 
@@ -40,6 +40,8 @@ The point of this article is to think critically about the state of AI companies
 - when people get cranky you can feel it
 - weird politic dynamics emerge
 - hard to build truly beautiful solutions when you are competing against the clock and internal rat races within customer deployments
+
+## Musical Chair Economics
 
 ## Why Consumer 
 - still optimistic that AI can be delivered to consumers in a way that delivers value; it will just be hard
