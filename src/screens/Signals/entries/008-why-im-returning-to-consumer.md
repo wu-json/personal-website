@@ -63,7 +63,7 @@ They do however lead us to the next topic.
 
 When it comes to the cost and speed of a business, there is no more important factor than its core of flesh and bone.
 
-I want to preface this by saying that most pieces I've read about 996 either come across as extremely cringe and cold, or extremely cringe and whiny. I have conviction that there is a pragmatic cringe-free maxima in there somewhere, and will do my best to prove that here.
+I want to preface this by saying that most pieces I've read about 996 either come across as extremely cringe and cold, or extremely cringe and whiny. I have conviction that there is a pragmatic cringe-free maxima in there somewhere, and will do my best to express that here.
 
 First, the 9 to 5 in a startup setting is not a reasonable expectation.
 
