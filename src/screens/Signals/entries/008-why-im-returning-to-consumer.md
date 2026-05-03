@@ -85,9 +85,9 @@ In this experiment, two monkeys are placed next to each other in a cage. One mon
 
 I suspect that a similar phenomena is occuring at many B2B AI SaaS companies due to the asymmetric compensation structure of founders and their founding employees. 
 
-Founders having disproportionately more equity than their employees is a startup tale as old as time, and anyone who has worked in the industry for any meaningful amount of time knows this. It also isn't inherently a bad distribution given the right conditions.
+Founders having disproportionately more equity than their employees is a startup tale as old as time, and anyone who has worked in the industry for any meaningful amount of time knows this. It also isn't inherently a bad strategic distribution.
 
-> FYI, compensation in any workplace is never fair and will never be fair. This is a reality you should accept early. Focus on how much you get paid, and nothing more.
+> FYI, compensation at any workplace is never fair and will never be fair. This is a reality you should accept early. Focus your energy on how much you get paid, and no one else.
 
 ### "Burnout and Vibe-Coding" As "Flint as Steel"
 
