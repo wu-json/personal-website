@@ -48,15 +48,12 @@ The point of this article is to think critically about the state of AI companies
 
 ---
 
-
-vibe coding + burnout is a dangerous combination
-
 ## The Harness Rat Race
-
-militirzation
 
 ## 996 Truths
 
+militirzation
+vibe coding + burnout is a dangerous combination
 people being miserable is energy that spreads like the plague
 
 ## The Future of Software
