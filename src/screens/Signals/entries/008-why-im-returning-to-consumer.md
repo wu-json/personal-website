@@ -161,19 +161,18 @@ While I've been pretty brutal about the space here, I do think humans will figur
 
 The people working on these companies are some of the smartest (and surprisingly kindest) folks I've met. I really view these issues as more of an economic bug than something inherently wrong with the character of people building in this space.
 
-It is also very true that the best minds across all domains are concentrated in this space right now, and if you want to work with and learn from the best there isn't really any other place to go right now besides the frontier labs.
+It is also very true that the strongest minds across the world are concentrated in these B2B use-cases right now, and if you want to work with and learn from the best there isn't really any other place to go right now besides the frontier labs.
 
 I have no regrets, and would recommend anyone passionate about AI to work for one of these companies at least once, even if it's just for a little bit. However, make sure you do it to work on the best tech with the best people, and NOT to build generational wealth before the music stops.
 
 
 ## The Future
 
----
+I luckily still find coding in the age of AI really fun, and am optimistic about leveraging these tools without contributing too much unnecessary slop to the world (no promises).
 
-## Why Consumer 
-- still optimistic that AI can be delivered to consumers in a way that delivers value; it will just be hard
-- AI should empower people, if you believe this then you should believe ai should be delivered in products that non-technical consumers can reach for directly
-- chat is not the most creative way and not the most impactful way for users to leverage ai; yes everything is a harness or wrapper, but instead of rushing to build; almost all AI tools right now are heavily biased towards a technical audience; how can we prove to the world this stuff is magical in a way they can understand?
+I'll be exploring some less financially sexy projects geared towards consumers for the next few months while I figure my life out.
+
+For now, I'm still human.
 
 ---
 
