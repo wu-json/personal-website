@@ -33,7 +33,7 @@ The point of this article is to think critically about the state of AI companies
 
 ## My Harness is Different
 
-At the core of any company is value, so what do these B2B AI companies have to offer? For most, this is an efficiency and savings pitch.
+At the core of any company is business value, so what do these B2B AI companies have to offer? For most, this is an efficiency and savings pitch.
 
 > By automating work in your organization with AI, we will save you a fuck ton of time and money.
 
