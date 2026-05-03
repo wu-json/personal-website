@@ -1,7 +1,7 @@
 ---
 id: '008'
 timestamp: '2026.05.02 // 17:16:34'
-title: 'I'm Going Back to Consumer'
+title: 'The Peculiar World of B2B AI'
 expanded: false
 location: 'San Francisco, US'
 ---
@@ -55,6 +55,10 @@ The point of this article is to think critically about the state of AI companies
 militirzation
 vibe coding + burnout is a dangerous combination
 people being miserable is energy that spreads like the plague
+
+## Musical Chair Economics
+
+I must get rich now before it's too late.
 
 ## The Future of Software
 
