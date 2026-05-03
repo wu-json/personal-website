@@ -33,7 +33,7 @@ The point of this article is to think critically about the state of AI companies
 
 ## My Harness is Different
 
-At the core of any software company is product, so what do these B2B AI companies have to offer? For most, this is an efficiency and savings pitch.
+At the core of any company is value, so what do these B2B AI companies have to offer? For most, this is an efficiency and savings pitch.
 
 > By automating work in your organization with AI, we will save you a fuck ton of time and money.
 
@@ -48,6 +48,8 @@ Well... building a product that can automate arbitrary business workloads reliab
 To maintain moat, you must fend off the curve-balls with generalizable solutions, but to survive you need to give the generality up if it means trading too much time.
 
 Immense improvements in agentic coding have tremendously helped with the one-off curve-balls coupled to specific customers, but they are less useful in architecting the opinionated solutions that can speed up all deployments on the platform.
+
+It's an interesting question though on what would happen if the models got good enough to do the latter autonomously as well.
 
 If you think about the reason these companies need to exist alongside the frontier labs in the first place, it's to fill the gap between what the models can do on their own and the desired business outcomes. At a high level, these companies themselves can be viewed as forward deployed arms for frontier models in the greater economy.
 
