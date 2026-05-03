@@ -29,7 +29,7 @@ While it's true that B2B AI can come in many flavors, as far as investors are co
 
 Before we get to the good stuff, I want to make it clear that the points I'm about to make are directed at the AI industry generally and not my prior experiences in isolation. My thoughts here are formulated from an amalgam of stories I've heard from friends employed at various B2B AI startups, and interactions with the SF tech community in general.
 
-The point of this article is to think critically about the state of AI companies, not to air out trauma.
+The point of this article is to think critically about the state of AI companies, not to air out fabricated trauma.
 
 ## My Harness is Different
 
@@ -41,7 +41,15 @@ But time is money, so really:
 
 > By automating work in your organization with AI, we will save you a fuck ton of money.
 
+It's really that simple. So what is taking B2B AI companies this long to deliver?
+
+Well... building a product that can automate arbitrary business workloads reliably is a difficult technical problem. On top of that, there's an endless supply of curve-balls enterprise customers will throw at you around security, distribution, data residency, etc. that slow you down like quicksand.
+
 ---
+
+harness companies are the fdes of the frontier labs in a weird way
+
+incentive alignement is hard with the fde model
 
 FDE's are used to fill the delta between the product and reality
 
