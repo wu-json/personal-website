@@ -53,6 +53,10 @@ This does beg the question - what would happen if models got good enough to do t
 
 If you think about the reason these companies need to exist alongside the frontier labs in the first place, it's to fill the gap between model capabilities and desired business outcomes. At a high level, these B2B AI companies can be viewed as forward deployed arms for frontier models in the greater economy.
 
+From this lens, moat becomes a lot less clear. What actually makes your harness different if it's delivering the same business outcome?
+
+## Does 996 Work?
+
 ---
 
 harness companies are the fdes of the frontier labs in a weird way
