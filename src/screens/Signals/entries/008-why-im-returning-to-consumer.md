@@ -23,7 +23,7 @@ In this post, references to _B2B AI_ specifically mean software companies that t
 - Hire Forward Deployed Engineers
 - 996 culture
 
-While it's true that B2B AI can come in many flavors, as far as investors are concerned, this archetype is the vanilla and chocolate of the industry right now. The chances are that if you moved to San Francisco within the last year or so as a part of this AI gold rush, you know exactly what type of company I'm talking about (and there are A LOT of them).
+While it's true that B2B AI can come in many flavors, as far as investors are concerned, this archetype is the vanilla and chocolate of the industry right now. The chances are that if you moved to San Francisco within the last year as part of this AI gold rush, you know exactly what type of company I'm talking about... there are A LOT of them.
 
 > Again... I know not all B2B AI companies fall in this bucket, but grouping things under a misleading umbrella term is the norm now right?
 
@@ -31,7 +31,7 @@ While it's true that B2B AI can come in many flavors, as far as investors are co
 
 Before we get to the good stuff, I want to make it clear that the points I'm about to make are directed at the AI industry generally and not my prior experiences in a vacuum. My thoughts here are formulated from an amalgam of stories I've heard from friends employed at various B2B AI startups, and interactions with the SF tech community in general.
 
-The point of this article is to think critically about the state of AI companies, not to air out any kind of trauma.
+The point of this article is to think critically about the state of AI companies, not to air out some sensationalized trauma.
 
 ## My Harness is Different
 
@@ -61,11 +61,11 @@ They do however lead us to the next topic.
 
 ## The Cost of 996
 
-> Most works I've read about 996 are either extremely cringe and cold, or extremely cringe and whiny. I believe there is a pragmatic cringe-free maxima in there somewhere, and will do my best to find that here.
+> Most works I've read about 996 are either extremely cringe and cold, or extremely cringe and whiny. I believe there is a pragmatic cringe-free maxima in there somewhere, and will do my best to explore that here.
 
 When it comes to the cost and speed of a business, there is no factor more important than its workforce of flesh and bone.
 
-9 to 5 in a startup setting is not a reasonable expectation; it never has been and it never will be. The reality of any early stage business is there is no human redundancy, so anyone and everyone will need to make sacrifices and maximize their availability when necessary.
+9 to 5 in a startup setting is not a reasonable expectation; it never has been and it never will be. The reality of any early stage business is there is little human redundancy, so anyone and everyone will need to make sacrifices and maximize their availability when necessary.
 
 The "when necessary" detail of this social contract is important, and the consequences of not respecting it are detrimental to leadership rapport and culture.
 
@@ -73,25 +73,25 @@ The "when necessary" detail of this social contract is important, and the conseq
 
 Unlike LLM's, humans do a lot of peculiar things when they are tired, and even more peculiar things when they are resentful. They hallucinate, gossip, and start asking for fancy titles and more money. This is not something you can fix with updated system or user prompts, this behavior is foundational to human psychology itself.
 
-I feel strongly that the basis of this with respect to San Francisco 996 comes specifically from the resentment and not fatigue.
+I feel particularly strongly that the basis of this in SF 996 comes from resentment and not fatigue.
 
 ### Fuck Cucumbers, Give Me Grapes
 
 Frans de Waal's Grape Experiment suggests we may have had visceral emotional reactions to inequality programmed in us since we were monkeys.
 
-In this experiment, two monkeys are placed next to each other in a cage. One monkey is given a cucumber as payment for a simple task, which he indifferently eats. The second monkey is given a different task and is given sweet grapes as payment. When the first monkey is given the same task but is paid in cucumbers again, he refuses to eat it and actually throws it at the researcher.
+In this experiment, two monkeys are placed next to each other in a cage. One monkey is given a cucumber as payment for a simple task, which he inhales complaint-free. The second monkey is given a new task and receives delicious grapes as payment. When the first monkey is given the same task but is paid in cucumbers again, he refuses to eat it and throws it at the researcher.
 
 > They just like us for real.
 
 I suspect a similar phenomena is occuring at many B2B AI companies due to the asymmetric compensation structure of founders and their founding employees. 
 
-Founders having disproportionately more equity than their employees is a startup tale as old as time, and anyone who has worked in the industry knows this as the law of the land. It also isn't inherently a poor strategic distribution. You want strong founders to have as much stake as possible. Having more share of a pie that is worth nothing still leaves you with nothing.
+Founders having disproportionately more equity than their employees is a startup tale as old as time, and anyone who has worked in the industry knows this as the law of the land. It also isn't inherently a poor strategic distribution. You want strong founders to have as much stake as possible. As an employee, having more share of an imaginary pie leaves you with imaginary money.
 
 The problem is that in a world where employees are working just as hard if not harder than the founders, this equity structure is much harder to perceive as fair, especially if you can't make up for the difference with cash.
 
-> FYI, compensation at any workplace (and across the world for that matter) is never fair and will never be fair. This is a reality you should accept early. Focus your energy on how much you get paid, and no one else.
+> FYI, compensation at any workplace (and across the world for that matter) is never fair. This is a reality you should accept early. Focus your energy on how much you get paid, and no one else.
 
-Note how I say harder to "perceive as fair" and not "unfair". Fairness is difficult to measure and while employees may work just as hard as founders in some cases with 996, failing to encode risk appetite and impact of work into the fairness function leads to miscalculations that work heavily against the favor of the founders, especially as the team gets larger.
+Note the difference between _perceived_ and _actual_ fairness. Fairness is difficult to measure and while employees may work just as hard as founders in some cases, failing to encode risk appetite and impact of work into the fairness function leads to miscalculations that work disproportionately against the founders, especially as the team gets larger.
 
 Remember that founders are people too, and this setup also needs to make sense for them.
 
@@ -103,7 +103,7 @@ Coding agents.
 
 Vibe coding is like fentanyl for Engineers. There are legitimate medical and research use-cases for it, but if you use it outside those contexts (especially when you're tired and vulnerable) that's when it ruins you.
 
-Coding agents provide an escape hatch for burnt out Engineers by allowing them to maintain high output even when they're mentally not present. Once this becomes habit, the human becomes the shell of an Engineer, and you're really just employing the agent at that point.
+Coding agents provide an escape hatch for burnt-out Engineers by allowing them to maintain high output even when they're mentally not present. Once this becomes habit, the human becomes the shell of an Engineer, and you're really just employing the agent at that point.
 
 It makes you think whether all of these AI-usage leaderboards you hear about on earnings calls are really measuring increased productivity or burnout in a sexy dress.
 
@@ -115,7 +115,7 @@ The outcomes I'm describing here are bad for everyone. The employers are not hap
 
 Human motivation and energy are impossible to measure, and often get left out of resourcing equations entirely as a result. However, even a baseless gut-estimate here is a better alternative to complete exclusion.
 
-The solve here is as simple as accounting for human energy as an exhaustable resource in your work assignment/scheduling function, and ensuring the managers below you do the same.
+The solve here is as simple as accounting for human energy as an exhaustable resource in your work assignment/scheduling function.
 
 If you want folks to work hard indefinitely, the rough checklist you want is probably something like this:
 
@@ -127,7 +127,7 @@ If you want folks to work hard indefinitely, the rough checklist you want is pro
 
 Besides perceived inequality, fear is the next most flammable material in the human psyche.
 
-With all of the blog posts about permanent unemployment for Engineers right just under the skill level of the posts' respective authors (lol), the power dynamic naturally shifts aggressively to the employer.
+With all of the blog posts about permanent unemployment for Engineers just under the skill level of the posts' respective authors (lol), the power dynamic naturally shifts aggressively to the employer.
 
 People won't say much when they're scared, especially Engineers who tend to lean more towards introversion than any other role.
 
@@ -161,7 +161,7 @@ While I've been pretty brutal about the space here, I do think humans will figur
 
 The people working on these companies are some of the smartest (and surprisingly kindest) folks I've met. I really view these issues as more of an economic bug than something inherently wrong with the character of people building in this space.
 
-It is also very true that the strongest minds across the world are concentrated in these B2B use-cases right now, and if you want to work with and learn from the best there isn't really any other place to go right now besides the frontier labs.
+It is also very true that the strongest minds across the world are concentrated in these B2B use-cases right now, and if you want to work with and learn from the best there isn't really any other place to go right now besides the frontier labs, which are no longer small.
 
 I have no regrets, and would recommend anyone passionate about AI to work for one of these companies at least once, even if it's just for a little bit. However, make sure you do it to work on the best tech with the best people, and NOT to build generational wealth before the music stops.
 
@@ -172,9 +172,7 @@ I luckily still find coding in the age of AI really fun, and am optimistic about
 
 I'll be exploring some less financially sexy projects geared towards consumers for the next few months while I figure my life out.
 
-For now, I'm still human.
-
----
+For now, I'm still human and will continue doing human things.
 
 [^1]: Maybe harness companies are second-lines actually?
 [^2]: Behind: venture. In front: paper.
