@@ -53,11 +53,11 @@ This does beg the question - what would happen if models got good enough to do t
 
 If you think about the reason these companies need to exist alongside the frontier labs in the first place, it's to fill the gap between model capabilities and desired business outcomes. At a high level, these B2B AI companies can be viewed as forward deployed arms for frontier models in the greater economy.
 
-From this lens, product moat becomes somewhat unclear. What actually makes your harness different if it's delivering the same business outcome as someone else's, or one that the model built for itself? Maybe it's token efficiency or performance, but these are rather crude dimensions.
+From this lens, product moat becomes somewhat unclear. What actually makes your harness different if it's delivering the same business outcome as someone else's, or one that the model built for itself? Maybe it's cost or speed, but these are rather crude and uncreative dimensions.
 
-To be clear, I think we are pretty far from a future
+They do however lead us to the next topic.
 
-## Does 996 Work?
+## The Return of 996
 
 ## Musical Chair Economics
 
