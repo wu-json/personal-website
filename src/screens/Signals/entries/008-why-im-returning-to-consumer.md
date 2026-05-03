@@ -19,7 +19,7 @@ It has been a chaotic year to say the least, and I believe phases of high entrop
 In this post, references to _B2B AI_ specifically mean software companies that smell and taste like this.
 
 - Sell AI products to large enterprises
-- Forward Deployed Engineers
+- Hire Forward Deployed Engineers
 - 996 culture
 
 While it's true that B2B AI can come in many flavors, as far as investors are concerned, these are the vanilla and chocolate of the industry right now. The chances are that if you moved to San Francisco within the last year or so as a part of this AI gold rush, you know exactly the type of company I'm talking about.
