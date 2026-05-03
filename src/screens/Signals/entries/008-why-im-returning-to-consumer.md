@@ -73,11 +73,11 @@ The "when necessary" detail of this social contract is important, and the conseq
 
 Unlike LLM's, humans do a lot of peculiar things when they are tired, and even more peculiar things when they are resentful. They hallucinate, gossip, and start asking for fancy titles and more money. This is not something you can fix with updated system or user prompts, this behavior is foundational to human psychology itself.
 
-I feel strongly that the basis of this behavior in relation to 996 in San Francisco comes more from the resentment and not fatigue itself.
+I feel strongly that the basis of this behavior in relation to 996 in San Francisco comes specifically from the resentment and not fatigue.
 
 ### Fuck Cucumbers, Give Me Grapes
 
-Frans de Waal's Grape Experiment suggests we may have had this visceral emotional reaction to inequality in us since we were monkeys.
+Frans de Waal's Grape Experiment suggests we may have had visceral emotional reactions to inequality programmed in us since we were monkeys.
 
 In this experiment, two monkeys are placed next to each other in a cage. One monkey is given a cucumber as payment for a simple task, which he indifferently eats. The second monkey is given a different task and is given sweet grapes as payment. When the first monkey is given the same task but is paid in cucumbers again, he refuses to eat it and actually throws it at the researcher.
 
@@ -85,7 +85,7 @@ In this experiment, two monkeys are placed next to each other in a cage. One mon
 
 I suspect a similar phenomena is occuring at many B2B AI SaaS companies due to the asymmetric compensation structure of founders and their founding employees. 
 
-Founders having disproportionately more equity than their employees is a startup tale as old as time, and anyone who has worked in the industry knows this as the law of the land. It also isn't inherently an unfair strategic distribution. You want strong founders to have as much stake as possible. Having more of a pie that is worth nothing means nothing.
+Founders having disproportionately more equity than their employees is a startup tale as old as time, and anyone who has worked in the industry knows this as the law of the land. It also isn't inherently an unfair distribution. You want strong founders to have as much stake as possible. Having more share of a pie that is worth nothing still leaves you with nothing.
 
 > FYI, compensation at any workplace is never fair and will never be fair. This is a reality you should accept early. Focus your energy on how much you get paid, and no one else.
 
