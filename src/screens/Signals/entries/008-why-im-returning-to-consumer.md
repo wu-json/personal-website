@@ -73,7 +73,7 @@ The "when necessary" detail of this social contract is important, and the conseq
 
 Unlike LLM's, humans do a lot of peculiar things when they are tired, and even more peculiar things when they are resentful. They hallucinate, gossip, and start asking for fancy titles and more money. This is not something you can fix with updated system or user prompts, this behavior is foundational to human psychology itself.
 
-I feel strongly that the basis of this behavior in relation to 996 in San Francisco comes specifically from the resentment and not fatigue.
+I feel strongly that the basis of this with respect to San Francisco 996 comes specifically from the resentment and not fatigue.
 
 ### Fuck Cucumbers, Give Me Grapes
 
@@ -83,13 +83,15 @@ In this experiment, two monkeys are placed next to each other in a cage. One mon
 
 > They just like us for real.
 
-I suspect a similar phenomena is occuring at many B2B AI SaaS companies due to the asymmetric compensation structure of founders and their founding employees. 
+I suspect a similar phenomena is occuring at many B2B AI companies due to the asymmetric compensation structure of founders and their founding employees. 
 
-Founders having disproportionately more equity than their employees is a startup tale as old as time, and anyone who has worked in the industry knows this as the law of the land. It also isn't inherently an unfair distribution. You want strong founders to have as much stake as possible. Having more share of a pie that is worth nothing still leaves you with nothing.
+Founders having disproportionately more equity than their employees is a startup tale as old as time, and anyone who has worked in the industry knows this as the law of the land. It also isn't inherently a poor strategic distribution. You want strong founders to have as much stake as possible. Having more share of a pie that is worth nothing still leaves you with nothing.
 
-> FYI, compensation at any workplace is never fair and will never be fair. This is a reality you should accept early. Focus your energy on how much you get paid, and no one else.
+The problem is that in a world where employees are working just as hard if not harder than the founders, this equity structure is much harder to perceive as fair, especially if you can't make up for the difference with cash.
 
-The problem is when people are tired, they try to point fingers to understand their pain, and the easiest measurable dimension is how much you're getting paid.
+> FYI, compensation at any workplace (and across the world for that matter) is never fair and will never be fair. This is a reality you should accept early. Focus your energy on how much you get paid, and no one else.
+
+Note how I say harder to "perceive as fair" and not "unfair". Fairness is difficult to measure and while employees may work just as hard as founders in some cases with 996, I think failing to encode the impact of one's work in the fairness function will lead to tremendous miscalculations that work disproportionately against the favor of the founders, especially the larger the team gets.
 
 ### "Burnout and Vibe-Coding" As "Flint as Steel"
 
