@@ -1,5 +1,5 @@
 ---
-status: ready
+status: implemented
 ---
 
 # Signals: date-prefix slug naming
