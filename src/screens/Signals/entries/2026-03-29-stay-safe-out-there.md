@@ -1,5 +1,5 @@
 ---
-id: '004'
+id: '2026-03-29-stay-safe-out-there'
 timestamp: '2026.03.29 // 12:00:00'
 title: 'Stay Safe Out There'
 expanded: false

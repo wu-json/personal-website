@@ -22,12 +22,12 @@ status: ready
 
 ### File naming
 
-| Before | After |
-|---|---|
+| Before                                                | After                                                        |
+| ----------------------------------------------------- | ------------------------------------------------------------ |
 | `src/screens/Signals/entries/001-initial-boot-seq.md` | `src/screens/Signals/entries/2026-02-14-initial-boot-seq.md` |
-| `src/screens/Signals/entries/002-sidewalk-freq.md` | `src/screens/Signals/entries/2026-02-21-sidewalk-freq.md` |
-| `src/screens/Signals/entries/003-chinatown-wars.md` | `src/screens/Signals/entries/2026-03-22-chinatown-wars.md` |
-| `…` | `…` |
+| `src/screens/Signals/entries/002-sidewalk-freq.md`    | `src/screens/Signals/entries/2026-02-21-sidewalk-freq.md`    |
+| `src/screens/Signals/entries/003-chinatown-wars.md`   | `src/screens/Signals/entries/2026-03-22-chinatown-wars.md`   |
+| `…`                                                   | `…`                                                          |
 
 The date prefix comes from the existing `timestamp` frontmatter (the date portion, `.` → `-`). The title-slug portion stays unchanged from the current filename (everything after `NNN-`).
 
@@ -60,9 +60,9 @@ Entries 001, 004, 005, 006, and 007 have no image directories — nothing to ren
 
 Image references **inside markdown bodies** must also be updated. Only entries 002 and 003 contain `<img>` tags with path references:
 
-| Entry | Old path | New path |
-|---|---|---|
-| `002-sidewalk-freq.md` | `/images/signals/002/` | `/images/signals/2026-02-21-sidewalk-freq/` |
+| Entry                   | Old path               | New path                                     |
+| ----------------------- | ---------------------- | -------------------------------------------- |
+| `002-sidewalk-freq.md`  | `/images/signals/002/` | `/images/signals/2026-02-21-sidewalk-freq/`  |
 | `003-chinatown-wars.md` | `/images/signals/003/` | `/images/signals/2026-03-22-chinatown-wars/` |
 
 The `scripts/optimize-photos.ts` script accepts `category` and `slug` arguments — passing the date-slug as the slug works unchanged (it writes into `public/images/<category>/<slug>/`).
@@ -102,20 +102,20 @@ If two entries have the same date AND same title-slug, the filenames would colli
 
 ## Files to change
 
-| File | Change |
-|---|---|
-| `src/screens/Signals/entries/001-…` through `007-…` | Rename files; update `id` frontmatter; update image paths in body (002, 003 only) |
-| `public/images/signals/002/` | Rename to `2026-02-21-sidewalk-freq/` |
-| `public/images/signals/003/` | Rename to `2026-03-22-chinatown-wars/` |
-| `src/screens/Signals/data.ts` | No code changes (reads `id` from frontmatter, sort works as-is) |
-| `src/screens/Signals/SignalDetail.tsx` | No changes (uses `id` param + `.find()`) |
-| `src/screens/Signals/index.tsx` | No changes (uses `s.id` for routing) |
-| `src/App.tsx` | No changes |
-| `src/plugins/rss.ts` | No code changes (links use `s.id`) |
-| `src/plugins/rss.test.ts` | No changes (tests parsing mechanics, not ID format; fixtures use placeholder values) |
-| `scripts/optimize-photos.ts` | No changes (takes arbitrary slug string) |
-| `.agents/skills/add-signal/SKILL.md` | Rewrite naming convention steps |
-| `AGENTS.md` | Update Signal file naming reference if it mentions `NNN-` pattern |
+| File                                                | Change                                                                               |
+| --------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| `src/screens/Signals/entries/001-…` through `007-…` | Rename files; update `id` frontmatter; update image paths in body (002, 003 only)    |
+| `public/images/signals/002/`                        | Rename to `2026-02-21-sidewalk-freq/`                                                |
+| `public/images/signals/003/`                        | Rename to `2026-03-22-chinatown-wars/`                                               |
+| `src/screens/Signals/data.ts`                       | No code changes (reads `id` from frontmatter, sort works as-is)                      |
+| `src/screens/Signals/SignalDetail.tsx`              | No changes (uses `id` param + `.find()`)                                             |
+| `src/screens/Signals/index.tsx`                     | No changes (uses `s.id` for routing)                                                 |
+| `src/App.tsx`                                       | No changes                                                                           |
+| `src/plugins/rss.ts`                                | No code changes (links use `s.id`)                                                   |
+| `src/plugins/rss.test.ts`                           | No changes (tests parsing mechanics, not ID format; fixtures use placeholder values) |
+| `scripts/optimize-photos.ts`                        | No changes (takes arbitrary slug string)                                             |
+| `.agents/skills/add-signal/SKILL.md`                | Rewrite naming convention steps                                                      |
+| `AGENTS.md`                                         | Update Signal file naming reference if it mentions `NNN-` pattern                    |
 
 ## Migration plan
 
@@ -123,15 +123,15 @@ If two entries have the same date AND same title-slug, the filenames would colli
 
 For each existing entry, extract `YYYY-MM-DD` from `timestamp` and combine with the existing title-slug from the filename:
 
-| Old file | Timestamp | New id |
-|---|---|---|
-| `001-initial-boot-seq.md` | `2026.02.14 // 21:00:00` | `2026-02-14-initial-boot-seq` |
-| `002-sidewalk-freq.md` | `2026.02.21 // 15:30:00` | `2026-02-21-sidewalk-freq` |
-| `003-chinatown-wars.md` | `2026.03.22 // 12:00:00` | `2026-03-22-chinatown-wars` |
+| Old file                     | Timestamp                | New id                           |
+| ---------------------------- | ------------------------ | -------------------------------- |
+| `001-initial-boot-seq.md`    | `2026.02.14 // 21:00:00` | `2026-02-14-initial-boot-seq`    |
+| `002-sidewalk-freq.md`       | `2026.02.21 // 15:30:00` | `2026-02-21-sidewalk-freq`       |
+| `003-chinatown-wars.md`      | `2026.03.22 // 12:00:00` | `2026-03-22-chinatown-wars`      |
 | `004-stay-safe-out-there.md` | `2026.03.29 // 12:00:00` | `2026-03-29-stay-safe-out-there` |
-| `005-david.md` | `2026.04.12 // 12:11:00` | `2026-04-12-david` |
-| `006-throw-it-away.md` | `2026.04.16 // 16:50:12` | `2026-04-16-throw-it-away` |
-| `007-farewells.md` | `2026.04.28 // 09:55:10` | `2026-04-28-farewells` |
+| `005-david.md`               | `2026.04.12 // 12:11:00` | `2026-04-12-david`               |
+| `006-throw-it-away.md`       | `2026.04.16 // 16:50:12` | `2026-04-16-throw-it-away`       |
+| `007-farewells.md`           | `2026.04.28 // 09:55:10` | `2026-04-28-farewells`           |
 
 ### Step 2: Rename entry files
 
@@ -155,9 +155,11 @@ git mv public/images/signals/003 public/images/signals/2026-03-22-chinatown-wars
 ### Step 5: Update image path references in markdown bodies
 
 In `002-sidewalk-freq.md` (now `2026-02-21-sidewalk-freq.md`):
+
 - `/images/signals/002/IMG_4072-full.webp` → `/images/signals/2026-02-21-sidewalk-freq/IMG_4072-full.webp`
 
 In `003-chinatown-wars.md` (now `2026-03-22-chinatown-wars.md`):
+
 - `/images/signals/003/DSCF1142-full.webp` → `/images/signals/2026-03-22-chinatown-wars/DSCF1142-full.webp`
 
 ### Step 6: Update add-signal skill
