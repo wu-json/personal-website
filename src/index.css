@@ -701,9 +701,11 @@ html[data-theme-flash-reset] .nav-glitch-active {
   padding-left: 1.25em;
 }
 .signal-prose blockquote {
-  border-left: 2px solid var(--color-ink-trace);
-  padding-left: 1em;
-  color: var(--color-ink-faint);
+  border-left: 2px solid var(--color-ink-ghost);
+  background: var(--color-ink-hair);
+  padding: 0.75em 1em;
+  border-radius: 0 4px 4px 0;
+  color: var(--color-ink-soft);
   margin: 0.75em 0;
 }
 .signal-prose h1,
