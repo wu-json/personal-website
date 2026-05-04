@@ -744,11 +744,17 @@ html[data-theme-flash-reset] .nav-glitch-active {
   content: '// refs';
   display: block;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: 0.625rem;
+  font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.12em;
   color: var(--color-ink-ghost);
   margin-bottom: 0.65rem;
+}
+
+@media (min-width: 640px) {
+  .signal-prose section[data-footnotes]::before {
+    font-size: 0.625rem;
+  }
 }
 
 .signal-prose section[data-footnotes] > h2#footnote-label {
@@ -767,8 +773,14 @@ html[data-theme-flash-reset] .nav-glitch-active {
   list-style-type: decimal;
   padding-left: 1.25rem;
   margin: 0;
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   color: var(--color-ink-muted);
+}
+
+@media (min-width: 640px) {
+  .signal-prose section[data-footnotes] ol {
+    font-size: 0.7rem;
+  }
 }
 
 .signal-prose section[data-footnotes] li {

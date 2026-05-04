@@ -155,7 +155,7 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
           </p>
           <Link
             to='/memories'
-            className='mt-4 text-white/30 text-[10px] font-mono uppercase tracking-widest hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)] transition-all duration-300'
+            className='mt-4 text-white/30 text-xs sm:text-[10px] font-mono uppercase tracking-widest hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)] transition-all duration-300'
           >
             {'< return to memories'}
           </Link>
@@ -341,7 +341,7 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
       <div className='max-w-4xl mx-auto px-6 py-16 pb-32'>
         <Link
           to='/memories'
-          className='bio-glitch inline-block mb-8 text-white/30 text-[10px] font-mono uppercase tracking-widest hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)] transition-all duration-300'
+          className='bio-glitch inline-block mb-8 text-white/30 text-xs sm:text-[10px] font-mono uppercase tracking-widest hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)] transition-all duration-300'
           style={jitter()}
         >
           {'< return to memories'}
@@ -356,13 +356,13 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
           </h1>
           <div className='flex items-baseline gap-3 flex-wrap'>
             <span
-              className='bio-glitch text-white/30 text-[10px] font-mono'
+              className='bio-glitch text-white/30 text-xs sm:text-[10px] font-mono'
               style={jitter()}
             >
               {fragment.date}
             </span>
             <span
-              className='bio-glitch text-white/20 text-[10px] font-mono'
+              className='bio-glitch text-white/20 text-xs sm:text-[10px] font-mono'
               style={jitter()}
             >
               — {fragment.location}
@@ -370,7 +370,7 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
           </div>
           <Link
             to={`/gallery/${fragment.id}`}
-            className='bio-glitch text-white/30 text-[10px] font-mono uppercase tracking-widest hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)] transition-all duration-300 mt-3 inline-block'
+            className='bio-glitch text-white/30 text-xs sm:text-[10px] font-mono uppercase tracking-widest hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)] transition-all duration-300 mt-3 inline-block'
             style={jitter()}
           >
             {'> view in interactive gallery'}
@@ -379,7 +379,7 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
 
         {fragment.description && (
           <div
-            className='bio-glitch signal-prose text-white/70 text-xs sm:text-sm font-mono leading-loose mb-12'
+            className='bio-glitch signal-prose text-white/70 text-sm font-mono leading-loose mb-12'
             style={jitter()}
           >
             <Markdown>{fragment.description}</Markdown>
@@ -474,7 +474,7 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
         </div>
 
         <footer className='mt-12 pt-6 border-t border-white/5'>
-          <p className='text-white/20 text-[10px] font-mono uppercase tracking-widest'>
+          <p className='text-white/20 text-xs sm:text-[10px] font-mono uppercase tracking-widest'>
             {'// end'}
           </p>
         </footer>

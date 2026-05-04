@@ -1346,7 +1346,7 @@ const GalleryScreen = ({ fragmentId }: { fragmentId?: string }) => {
   const hintBase =
     'font-pixel text-[color:var(--color-ink-faint)] text-sm tracking-[0.2em] select-none';
   const hintSub =
-    'font-pixel text-[color:var(--color-ink-ghost)] text-[10px] tracking-[0.15em] select-none mt-2';
+    'font-pixel text-[color:var(--color-ink-ghost)] text-xs sm:text-[10px] tracking-[0.15em] select-none mt-2';
 
   return (
     <div
