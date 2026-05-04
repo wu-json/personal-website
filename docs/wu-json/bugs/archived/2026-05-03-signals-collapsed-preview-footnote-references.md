@@ -1,5 +1,5 @@
 ---
-status: ready
+status: implemented
 ---
 
 # Signals collapsed preview shows raw footnote references
