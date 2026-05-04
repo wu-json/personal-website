@@ -36,9 +36,11 @@ export function shouldCollapseSignalList(
 export function signalPlainExcerpt(body: string, maxLen = 300): string {
   const noImg = body.replace(/<img\s[^>]*\/?>/gi, ' ').trim();
   const plain = noImg
-    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
-    .replace(/[`#>*_-]/g, '')
-    .replace(/\s+/g, ' ')
+    .replace(/^\[\^[^\]]+\]:.*$\n?/gm, '') // strip footnote definition lines
+    .replace(/\[\^[^\]]+\]/g, '') // strip footnote reference markers
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // inline links → link text
+    .replace(/[`#>*_-]/g, '') // formatting chars
+    .replace(/\s+/g, ' ') // collapse whitespace
     .trim();
   if (plain.length <= maxLen) return plain;
   const cut = plain.slice(0, maxLen);
