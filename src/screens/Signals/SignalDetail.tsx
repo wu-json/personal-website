@@ -47,12 +47,6 @@ const SignalDetail = ({ id }: { id: string }) => {
             className={`flex items-baseline gap-3 flex-wrap ${s.title ? 'mb-2' : ''}`}
           >
             <span
-              className='bio-glitch text-white/20 text-xs font-mono'
-              style={jitter()}
-            >
-              [{s.id.replace(/^\d{4}-\d{2}-\d{2}-/, '')}]
-            </span>
-            <span
               className='bio-glitch text-white/30 text-xs font-mono'
               style={jitter()}
             >
