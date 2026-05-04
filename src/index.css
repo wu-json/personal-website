@@ -933,11 +933,21 @@ html[data-theme-flash-reset] .nav-glitch-active {
 }
 
 /* Signal list item hover. Gated behind `(hover: hover)` so iOS Safari
-   doesn't strand the tint on the last-tapped card while scrolling — most
-   noticeable in light mode where the hair-line tint reads as a real
-   highlight. */
+   doesn't strand the tint on the last-tapped card while scrolling.
+   A single restrained gesture — a gentle nudge right and a hairline left
+   border that appears like a margin note marker. */
 @media (hover: hover) {
+  .signal-list-item {
+    border-left: 2px solid transparent;
+    transition:
+      transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 0.4s ease,
+      background-color 0.4s ease;
+  }
+
   .signal-list-item:hover {
+    transform: translateX(4px);
+    border-left-color: var(--color-ink-ghost);
     background-color: var(--color-ink-hair);
   }
 }
