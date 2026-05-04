@@ -22,7 +22,7 @@ const HeroDetail = ({ id }: { id: string }) => {
           </p>
           <Link
             to='/heroes'
-            className='mt-4 text-white/30 text-[10px] font-mono uppercase tracking-widest hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)] transition-all duration-300'
+            className='mt-4 text-white/30 text-xs sm:text-[10px] font-mono uppercase tracking-widest hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)] transition-all duration-300'
           >
             {'< return to heroes'}
           </Link>
@@ -36,7 +36,7 @@ const HeroDetail = ({ id }: { id: string }) => {
       <div className='max-w-2xl mx-auto px-6 py-16 pb-32'>
         <Link
           to='/heroes'
-          className='bio-glitch inline-block mb-8 text-white/30 text-[10px] font-mono uppercase tracking-widest hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)] transition-all duration-300'
+          className='bio-glitch inline-block mb-8 text-white/30 text-xs sm:text-[10px] font-mono uppercase tracking-widest hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)] transition-all duration-300'
           style={jitter()}
         >
           {'< return to heroes'}
@@ -79,7 +79,7 @@ const HeroDetail = ({ id }: { id: string }) => {
         </header>
 
         <div
-          className='bio-glitch signal-prose text-white/70 text-xs sm:text-sm font-mono leading-loose'
+          className='bio-glitch signal-prose text-white/70 text-sm font-mono leading-loose'
           style={jitter()}
         >
           <Markdown
@@ -119,7 +119,7 @@ const HeroDetail = ({ id }: { id: string }) => {
         </div>
 
         <footer className='mt-12 pt-6 border-t border-white/5'>
-          <p className='text-white/20 text-[10px] font-mono uppercase tracking-widest'>
+          <p className='text-white/20 text-xs sm:text-[10px] font-mono uppercase tracking-widest'>
             {'// end'}
           </p>
         </footer>

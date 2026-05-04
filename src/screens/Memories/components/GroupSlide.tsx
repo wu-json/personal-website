@@ -126,7 +126,7 @@ const GroupSlide = ({
       </div>
 
       <div
-        className={`flex items-center gap-4 text-[10px] font-mono transition-opacity duration-500 ${allLoaded ? 'opacity-100' : 'opacity-0'}`}
+        className={`flex items-center gap-4 text-xs sm:text-[10px] font-mono transition-opacity duration-500 ${allLoaded ? 'opacity-100' : 'opacity-0'}`}
       >
         <span className='text-white/30'>{counter}</span>
         {caption && (

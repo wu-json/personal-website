@@ -3,10 +3,10 @@ import { useJitter } from 'src/hooks/useJitter';
 import { SpiderLily } from '../../SpiderLily';
 
 const linkClass =
-  'font-mono text-xs uppercase tracking-widest text-white/50 hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)] transition-all duration-300';
+  'font-mono text-sm sm:text-xs uppercase tracking-widest text-white/50 hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)] transition-all duration-300';
 
 const bioClass =
-  'bio-glitch text-white text-xs sm:text-sm font-pixel text-left leading-relaxed';
+  'bio-glitch text-white text-sm font-pixel text-left leading-relaxed';
 
 const MainBanner = () => {
   const jitter = useJitter();
@@ -28,7 +28,7 @@ const MainBanner = () => {
         </div>
         <div className='flex flex-col gap-4'>
           <p
-            className='bio-glitch text-white text-sm sm:text-base font-pixel text-left leading-relaxed [text-shadow:0_0_8px_rgba(255,255,255,0.4)]'
+            className='bio-glitch text-white text-base font-pixel text-left leading-relaxed [text-shadow:0_0_8px_rgba(255,255,255,0.4)]'
             style={jitter()}
           >
             {'[BLOOM AND WILT]'}
@@ -55,7 +55,7 @@ const MainBanner = () => {
           >
             GitHub
           </a>
-          <span className='text-white/20 text-xs'>/</span>
+          <span className='text-white/20 text-sm sm:text-xs'>/</span>
           <a
             href='https://www.linkedin.com/in/wu-json/'
             target='_blank'
@@ -64,7 +64,7 @@ const MainBanner = () => {
           >
             LinkedIn
           </a>
-          <span className='text-white/20 text-xs'>/</span>
+          <span className='text-white/20 text-sm sm:text-xs'>/</span>
           <a
             href='https://www.instagram.com/jasoncuiwu/'
             target='_blank'
@@ -73,7 +73,7 @@ const MainBanner = () => {
           >
             Instagram
           </a>
-          <span className='text-white/20 text-xs'>/</span>
+          <span className='text-white/20 text-sm sm:text-xs'>/</span>
           <a
             href='https://x.com/jasoncuiwu'
             target='_blank'

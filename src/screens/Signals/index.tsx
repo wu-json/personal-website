@@ -117,12 +117,12 @@ const SignalsScreen = () => {
                   </div>
 
                   {s.title && (
-                    <h2 className='text-white text-xs sm:text-sm font-pixel uppercase tracking-wide mb-2'>
+                    <h2 className='text-white text-sm font-pixel uppercase tracking-wide mb-2'>
                       {s.title}
                     </h2>
                   )}
 
-                  <div className='signal-prose signal-entry signal-list text-white/70 text-xs sm:text-sm font-mono'>
+                  <div className='signal-prose signal-entry signal-list text-white/70 text-sm font-mono'>
                     {collapsed ? (
                       <>
                         {hero && (
@@ -134,7 +134,7 @@ const SignalsScreen = () => {
                         {excerpt ? (
                           <p className='leading-relaxed'>{excerpt}</p>
                         ) : (
-                          <p className='text-white/25 text-[10px] font-mono'>
+                          <p className='text-white/25 text-xs sm:text-[10px] font-mono'>
                             {'// preview truncated — open for full signal'}
                           </p>
                         )}
@@ -155,7 +155,7 @@ const SignalsScreen = () => {
             className='mt-8 flex justify-center'
             aria-hidden
           >
-            <span className='text-white/20 text-[10px] font-mono uppercase tracking-widest'>
+            <span className='text-white/20 text-xs sm:text-[10px] font-mono uppercase tracking-widest'>
               {'// loading more signal…'}
             </span>
           </div>
