@@ -653,13 +653,52 @@ html[data-theme-flash-reset] .nav-glitch-active {
   margin: 0.5em 0;
 }
 .signal-prose ul {
-  list-style-type: '— ';
+  list-style: none;
 }
 .signal-prose ol {
   list-style-type: decimal;
 }
 .signal-prose li {
+  position: relative;
   margin-bottom: 0.25em;
+}
+
+/* 5-petal flower bullet — echoes the sidebar LunarTear marker in a smaller,
+   static form.  SVG used as a CSS mask so the color flows from background-color
+   and tracks the theme palette automatically (currentColor in background-image
+   data URIs doesn't cascade). */
+.signal-prose ul > li::before {
+  content: '';
+  position: absolute;
+  left: -1.35em;
+  top: 0.5em;
+  width: 0.68em;
+  height: 0.68em;
+  background-color: var(--color-ink-faint);
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cellipse cx='50' cy='22' rx='8' ry='18' fill='black'/%3E%3Cellipse cx='50' cy='22' rx='8' ry='18' fill='black' transform='rotate(72 50 50)'/%3E%3Cellipse cx='50' cy='22' rx='8' ry='18' fill='black' transform='rotate(144 50 50)'/%3E%3Cellipse cx='50' cy='22' rx='8' ry='18' fill='black' transform='rotate(216 50 50)'/%3E%3Cellipse cx='50' cy='22' rx='8' ry='18' fill='black' transform='rotate(288 50 50)'/%3E%3C/svg%3E");
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cellipse cx='50' cy='22' rx='8' ry='18' fill='black'/%3E%3Cellipse cx='50' cy='22' rx='8' ry='18' fill='black' transform='rotate(72 50 50)'/%3E%3Cellipse cx='50' cy='22' rx='8' ry='18' fill='black' transform='rotate(144 50 50)'/%3E%3Cellipse cx='50' cy='22' rx='8' ry='18' fill='black' transform='rotate(216 50 50)'/%3E%3Cellipse cx='50' cy='22' rx='8' ry='18' fill='black' transform='rotate(288 50 50)'/%3E%3C/svg%3E");
+  -webkit-mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  filter: drop-shadow(0 0 2px var(--color-glow-soft));
+}
+
+/* Number markers — tint them back so they recede behind the text */
+.signal-prose ol ::marker {
+  color: var(--color-ink-faint);
+}
+
+/* Nested lists: same flower, a little less indent */
+.signal-prose ul ul,
+.signal-prose ol ul {
+  padding-left: 1.25em;
+}
+.signal-prose ul ol,
+.signal-prose ol ol {
+  padding-left: 1.25em;
 }
 .signal-prose blockquote {
   border-left: 2px solid var(--color-ink-trace);
