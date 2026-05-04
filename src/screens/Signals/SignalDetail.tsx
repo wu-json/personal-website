@@ -56,7 +56,7 @@ const SignalDetail = ({ id }: { id: string }) => {
               className='bio-glitch text-white/30 text-xs font-mono'
               style={jitter()}
             >
-              {s.timestamp.replace(/ \/\/ /g, ' · ')}
+              {s.timestamp.replace(/ \/\/ /g, ' ')}
             </span>
             {s.location && (
               <span

@@ -107,7 +107,7 @@ const SignalsScreen = () => {
                       [{s.id.replace(/^\d{4}-\d{2}-\d{2}-/, '')}]
                     </span>
                     <span className='text-white/30 text-xs font-mono shrink-0 transition-colors duration-300 group-hover:text-white/45'>
-                      {s.timestamp.replace(/ \/\/ /g, ' · ')}
+                      {s.timestamp.replace(/ \/\/ /g, ' ')}
                     </span>
                     {s.location && (
                       <span className='text-white/20 text-xs font-mono shrink-0 transition-colors duration-300 group-hover:text-white/40'>
