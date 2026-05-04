@@ -1,4 +1,4 @@
-import { type RefObject, useEffect, useState } from 'react';
+import { type RefObject, useEffect, useRef, useState } from 'react';
 
 const ScrollToTop = ({
   scrollRef,
@@ -7,6 +7,9 @@ const ScrollToTop = ({
 }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isScrollable, setIsScrollable] = useState(false);
+  const [scrollingDown, setScrollingDown] = useState(false);
+  const lastScrollTop = useRef(0);
+  const stopTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -17,8 +20,23 @@ const ScrollToTop = ({
     };
 
     const onScroll = () => {
-      setIsScrolled(el.scrollTop > 100);
+      clearTimeout(stopTimer.current);
+
+      const st = el.scrollTop;
+
+      if (st > lastScrollTop.current + 3) {
+        setScrollingDown(true);
+      } else if (st < lastScrollTop.current - 3) {
+        setScrollingDown(false);
+      }
+
+      stopTimer.current = setTimeout(() => {
+        setScrollingDown(false);
+      }, 400);
+
+      setIsScrolled(st > 100);
       checkScrollable();
+      lastScrollTop.current = st;
     };
 
     el.addEventListener('scroll', onScroll, { passive: true });
@@ -29,10 +47,11 @@ const ScrollToTop = ({
     return () => {
       el.removeEventListener('scroll', onScroll);
       ro.disconnect();
+      clearTimeout(stopTimer.current);
     };
   }, [scrollRef]);
 
-  const visible = isScrolled && isScrollable;
+  const visible = isScrolled && isScrollable && !scrollingDown;
 
   return (
     <button
