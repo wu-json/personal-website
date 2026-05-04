@@ -912,6 +912,41 @@ html[data-theme-flash-reset] .nav-glitch-active {
   }
 }
 
+/* ── Scrollbar ───────────────────────────────────────────────────────
+   Slim, understated scrollbar that blends into the surface.  WebKit
+   (Chrome / Safari / Edge) gets the full treatment; Firefox uses the
+   standard `scrollbar-width` / `scrollbar-color` shorthand.
+   ─────────────────────────────────────────────────────────────────── */
+
+/* Firefox */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-ink-hair) transparent;
+}
+
+/* WebKit */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--color-ink-hair);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-ink-trace);
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
 @layer base {
   html,
   body {
