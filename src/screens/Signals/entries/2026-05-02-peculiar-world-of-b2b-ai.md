@@ -19,7 +19,7 @@ It has been a chaotic year to say the least, and I believe phases of high entrop
 In this post, references to _B2B AI_ specifically mean software companies that taste like this.
 
 - Based in San Francisco
-- Sell AI harness products to large enterprises
+- Sell and integrate AI harness products to large enterprises
 - Hire Forward Deployed Engineers
 - 996 culture
 
