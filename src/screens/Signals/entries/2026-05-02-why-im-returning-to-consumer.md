@@ -1,5 +1,5 @@
 ---
-id: '008'
+id: '2026-05-02-why-im-returning-to-consumer'
 timestamp: '2026.05.02 // 17:16:34'
 title: 'The Peculiar World of B2B AI'
 expanded: false
@@ -77,7 +77,7 @@ I feel particularly strongly that the basis of this in SF 996 comes from resentm
 
 ### Fuck Cucumbers, Give Me Grapes
 
-Frans de Waal's famous grape experiment suggests we may have had been programmed to detest inequality since we were monkeys.
+Frans de Waal's famous grape experiment[^3] suggests we may have had been programmed to detest inequality since we were monkeys.
 
 In this experiment, two monkeys are placed next to each other in a cage. One monkey is given a cucumber as payment for a simple task, which he inhales complaint-free. The second monkey is given a new task and receives delicious grapes as payment. When the first monkey is given the same task but is paid in cucumbers again, he refuses to eat it and throws it at the researcher.
 
@@ -176,3 +176,4 @@ For now, I'm still human and will continue doing human things.
 
 [^1]: Maybe harness companies are second-lines actually?
 [^2]: Behind: venture. In front: paper.
+[^3]: [Two Monkeys Were Paid Unequally: Excerpt from Frans de Waal's TED Talk](https://www.youtube.com/watch?v=meiU6TxysCg) (TED Blog, 2013).
