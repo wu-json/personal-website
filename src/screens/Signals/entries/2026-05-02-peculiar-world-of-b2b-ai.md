@@ -23,7 +23,7 @@ In this post, references to _B2B AI_ specifically mean software companies that t
 - Hire Forward Deployed Engineers
 - 996 culture
 
-While it's true that B2B AI can come in many flavors, as far as investors are concerned, this archetype is the vanilla and chocolate of the industry right now. The chances are if you moved to San Francisco within the last year as part of this AI gold rush, you know exactly what type of company I'm talking about. There are a lot.
+While it's true that B2B AI can come in many flavors, as far as investors are concerned, right now this archetype is the vanilla and chocolate of the industry. The chances are if you moved to San Francisco within the last year as part of this AI gold rush, you know exactly what type of company I'm talking about. There are a lot.
 
 > I know not all B2B AI companies fall in this bucket, but grouping things under a subtly misleading umbrella term is cool now right?
 
