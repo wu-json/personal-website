@@ -73,7 +73,7 @@ The "when necessary" detail of this social contract is important, and the conseq
 
 Unlike LLM's, humans do a lot of peculiar things when they are tired, and even more peculiar things when they are resentful. They become irritable, gossip, hallucinate, and start asking for fancy titles and more money. This is not something you can fix with updated system or user prompts, this behavior is foundational to human psychology itself.
 
-I feel particularly strongly that the basis of this in SF 996 comes from resentment and not fatigue.
+I feel particularly strongly that the basis of this in SF's style 996 comes from resentment and not fatigue.
 
 ### Fuck Cucumbers, Give Me Grapes
 
