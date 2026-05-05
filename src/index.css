@@ -653,18 +653,59 @@ html[data-theme-flash-reset] .nav-glitch-active {
   margin: 0.5em 0;
 }
 .signal-prose ul {
-  list-style-type: '— ';
+  list-style: none;
 }
 .signal-prose ol {
   list-style-type: decimal;
 }
 .signal-prose li {
+  position: relative;
   margin-bottom: 0.25em;
 }
-.signal-prose blockquote {
-  border-left: 2px solid var(--color-ink-trace);
-  padding-left: 1em;
+
+/* 5-petal flower bullet — echoes the sidebar LunarTear marker in a smaller,
+   static form.  SVG used as a CSS mask so the color flows from background-color
+   and tracks the theme palette automatically (currentColor in background-image
+   data URIs doesn't cascade). */
+.signal-prose ul > li::before {
+  content: '';
+  position: absolute;
+  left: -1.35em;
+  top: 0.5em;
+  width: 0.68em;
+  height: 0.68em;
+  background-color: var(--color-ink-faint);
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cellipse cx='50' cy='22' rx='8' ry='18' fill='black'/%3E%3Cellipse cx='50' cy='22' rx='8' ry='18' fill='black' transform='rotate(72 50 50)'/%3E%3Cellipse cx='50' cy='22' rx='8' ry='18' fill='black' transform='rotate(144 50 50)'/%3E%3Cellipse cx='50' cy='22' rx='8' ry='18' fill='black' transform='rotate(216 50 50)'/%3E%3Cellipse cx='50' cy='22' rx='8' ry='18' fill='black' transform='rotate(288 50 50)'/%3E%3C/svg%3E");
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cellipse cx='50' cy='22' rx='8' ry='18' fill='black'/%3E%3Cellipse cx='50' cy='22' rx='8' ry='18' fill='black' transform='rotate(72 50 50)'/%3E%3Cellipse cx='50' cy='22' rx='8' ry='18' fill='black' transform='rotate(144 50 50)'/%3E%3Cellipse cx='50' cy='22' rx='8' ry='18' fill='black' transform='rotate(216 50 50)'/%3E%3Cellipse cx='50' cy='22' rx='8' ry='18' fill='black' transform='rotate(288 50 50)'/%3E%3C/svg%3E");
+  -webkit-mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  filter: drop-shadow(0 0 2px var(--color-glow-soft));
+}
+
+/* Number markers — tint them back so they recede behind the text */
+.signal-prose ol ::marker {
   color: var(--color-ink-faint);
+}
+
+/* Nested lists: same flower, a little less indent */
+.signal-prose ul ul,
+.signal-prose ol ul {
+  padding-left: 1.25em;
+}
+.signal-prose ul ol,
+.signal-prose ol ol {
+  padding-left: 1.25em;
+}
+.signal-prose blockquote {
+  border-left: 2px solid var(--color-ink-ghost);
+  background: var(--color-ink-hair);
+  padding: 0.75em 1em;
+  border-radius: 0 4px 4px 0;
+  color: var(--color-ink-soft);
   margin: 0.75em 0;
 }
 .signal-prose h1,
@@ -703,11 +744,17 @@ html[data-theme-flash-reset] .nav-glitch-active {
   content: '// refs';
   display: block;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: 0.625rem;
+  font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.12em;
   color: var(--color-ink-ghost);
   margin-bottom: 0.65rem;
+}
+
+@media (min-width: 640px) {
+  .signal-prose section[data-footnotes]::before {
+    font-size: 0.625rem;
+  }
 }
 
 .signal-prose section[data-footnotes] > h2#footnote-label {
@@ -726,8 +773,14 @@ html[data-theme-flash-reset] .nav-glitch-active {
   list-style-type: decimal;
   padding-left: 1.25rem;
   margin: 0;
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   color: var(--color-ink-muted);
+}
+
+@media (min-width: 640px) {
+  .signal-prose section[data-footnotes] ol {
+    font-size: 0.7rem;
+  }
 }
 
 .signal-prose section[data-footnotes] li {
@@ -880,11 +933,21 @@ html[data-theme-flash-reset] .nav-glitch-active {
 }
 
 /* Signal list item hover. Gated behind `(hover: hover)` so iOS Safari
-   doesn't strand the tint on the last-tapped card while scrolling — most
-   noticeable in light mode where the hair-line tint reads as a real
-   highlight. */
+   doesn't strand the tint on the last-tapped card while scrolling.
+   A single restrained gesture — a gentle nudge right and a hairline left
+   border that appears like a margin note marker. */
 @media (hover: hover) {
+  .signal-list-item {
+    border-left: 2px solid transparent;
+    transition:
+      transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 0.4s ease,
+      background-color 0.4s ease;
+  }
+
   .signal-list-item:hover {
+    transform: translateX(4px);
+    border-left-color: var(--color-ink-ghost);
     background-color: var(--color-ink-hair);
   }
 }
@@ -910,6 +973,41 @@ html[data-theme-flash-reset] .nav-glitch-active {
     transform: translateX(12px);
     opacity: 0.6;
   }
+}
+
+/* ── Scrollbar ───────────────────────────────────────────────────────
+   Slim, understated scrollbar that blends into the surface.  WebKit
+   (Chrome / Safari / Edge) gets the full treatment; Firefox uses the
+   standard `scrollbar-width` / `scrollbar-color` shorthand.
+   ─────────────────────────────────────────────────────────────────── */
+
+/* Firefox */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-ink-hair) transparent;
+}
+
+/* WebKit */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--color-ink-hair);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-ink-trace);
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
 }
 
 @layer base {

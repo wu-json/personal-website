@@ -69,7 +69,7 @@ const PhotoSlide = ({
       </div>
 
       <div
-        className={`flex items-baseline gap-4 text-[10px] font-mono max-w-full transition-opacity duration-500 ${loaded ? 'opacity-100' : 'opacity-0'}`}
+        className={`flex items-baseline gap-4 text-xs sm:text-[10px] font-mono max-w-full transition-opacity duration-500 ${loaded ? 'opacity-100' : 'opacity-0'}`}
       >
         <span className='text-white/30 shrink-0'>{counter}</span>
         {photo.caption && (

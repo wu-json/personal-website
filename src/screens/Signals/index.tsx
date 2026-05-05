@@ -103,26 +103,23 @@ const SignalsScreen = () => {
                   <div
                     className={`flex items-baseline gap-3 flex-wrap ${s.title ? 'mb-2' : 'mb-1'}`}
                   >
-                    <span className='text-white/20 text-xs font-mono shrink-0'>
-                      [{s.id}]
-                    </span>
-                    <span className='text-white/30 text-xs font-mono shrink-0'>
-                      {s.timestamp}
+                    <span className='text-white/30 text-xs font-mono shrink-0 transition-colors duration-300 group-hover:text-white/45'>
+                      {s.timestamp.replace(/ \/\/ /g, ' ')}
                     </span>
                     {s.location && (
-                      <span className='text-white/20 text-xs font-mono shrink-0'>
+                      <span className='text-white/20 text-xs font-mono shrink-0 transition-colors duration-300 group-hover:text-white/40'>
                         — {s.location}
                       </span>
                     )}
                   </div>
 
                   {s.title && (
-                    <h2 className='text-white text-xs sm:text-sm font-pixel uppercase tracking-wide mb-2'>
+                    <h2 className='text-white text-sm font-pixel uppercase tracking-wide mb-2'>
                       {s.title}
                     </h2>
                   )}
 
-                  <div className='signal-prose signal-entry signal-list text-white/70 text-xs sm:text-sm font-mono'>
+                  <div className='signal-prose signal-entry signal-list text-white/70 text-sm font-mono'>
                     {collapsed ? (
                       <>
                         {hero && (
@@ -134,7 +131,7 @@ const SignalsScreen = () => {
                         {excerpt ? (
                           <p className='leading-relaxed'>{excerpt}</p>
                         ) : (
-                          <p className='text-white/25 text-[10px] font-mono'>
+                          <p className='text-white/25 text-xs sm:text-[10px] font-mono'>
                             {'// preview truncated — open for full signal'}
                           </p>
                         )}
@@ -155,7 +152,7 @@ const SignalsScreen = () => {
             className='mt-8 flex justify-center'
             aria-hidden
           >
-            <span className='text-white/20 text-[10px] font-mono uppercase tracking-widest'>
+            <span className='text-white/20 text-xs sm:text-[10px] font-mono uppercase tracking-widest'>
               {'// loading more signal…'}
             </span>
           </div>

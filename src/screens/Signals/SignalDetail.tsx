@@ -20,7 +20,7 @@ const SignalDetail = ({ id }: { id: string }) => {
           </p>
           <Link
             to='/signals'
-            className='mt-4 text-white/30 text-[10px] font-mono uppercase tracking-widest hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)] transition-all duration-300'
+            className='mt-4 text-white/30 text-xs sm:text-[10px] font-mono uppercase tracking-widest hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)] transition-all duration-300'
           >
             {'< return to signals'}
           </Link>
@@ -34,7 +34,7 @@ const SignalDetail = ({ id }: { id: string }) => {
       <div className='max-w-2xl mx-auto px-6 py-16 pb-32'>
         <Link
           to='/signals'
-          className='bio-glitch inline-block mb-8 text-white/30 text-[10px] font-mono uppercase tracking-widest hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)] transition-all duration-300'
+          className='bio-glitch inline-block mb-8 text-white/30 text-xs sm:text-[10px] font-mono uppercase tracking-widest hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)] transition-all duration-300'
           style={jitter()}
         >
           {'< return to signals'}
@@ -47,16 +47,10 @@ const SignalDetail = ({ id }: { id: string }) => {
             className={`flex items-baseline gap-3 flex-wrap ${s.title ? 'mb-2' : ''}`}
           >
             <span
-              className='bio-glitch text-white/20 text-xs font-mono'
-              style={jitter()}
-            >
-              [{s.id}]
-            </span>
-            <span
               className='bio-glitch text-white/30 text-xs font-mono'
               style={jitter()}
             >
-              {s.timestamp}
+              {s.timestamp.replace(/ \/\/ /g, ' ')}
             </span>
             {s.location && (
               <span
@@ -78,14 +72,14 @@ const SignalDetail = ({ id }: { id: string }) => {
         </header>
 
         <div
-          className='bio-glitch signal-prose signal-entry text-white/70 text-xs sm:text-sm font-mono'
+          className='bio-glitch signal-prose signal-entry text-white/70 text-sm font-mono'
           style={jitter()}
         >
           <MarkdownBody>{s.body}</MarkdownBody>
         </div>
 
         <footer className='mt-12 pt-6 border-t border-white/5'>
-          <p className='text-white/20 text-[10px] font-mono uppercase tracking-widest'>
+          <p className='text-white/20 text-xs sm:text-[10px] font-mono uppercase tracking-widest'>
             {'// end'}
           </p>
         </footer>
