@@ -77,7 +77,7 @@ I feel particularly strongly that the basis of this in SF's style 996 comes from
 
 ### Fuck Cucumbers, Give Me Grapes
 
-Frans de Waal's famous grape experiment[^3] suggests we may have been programmed to detest inequality since we were monkeys.
+Frans de Waal's famous grape experiment[^3] suggests we may have been programmed to reject inequality since we were monkeys.
 
 In this experiment, two monkeys are placed next to each other in a cage. One monkey is given a cucumber as payment for a simple task, which he inhales complaint-free. The second monkey is given a new task and receives delicious grapes as payment. When the first monkey is given the same task but is paid in cucumbers again, he refuses to eat it and throws it at the researcher.
 
