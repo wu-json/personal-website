@@ -49,7 +49,7 @@ Well... building a product that can automate arbitrary business workloads reliab
 
 To maintain moat, you must fend off the curve-balls with generalizable solutions, but to survive you need to sacrifice the generality if it means giving up too much time in exchange.
 
-Immense improvements in agentic coding have helped tremendously with the one-off curve-balls coupled to specific customers, but they are less useful in architecting the opinionated solutions that can speed up all deployments on the platform.
+Immense improvements in agentic coding have helped with the one-off curve-balls coupled to specific customers, but they are less useful in architecting the opinionated solutions that speed up all deployments on the platform generally.
 
 This does beg the question - what would happen if models got good enough to do the latter?
 
@@ -71,13 +71,13 @@ The "when necessary" detail of this social contract is important, and the conseq
 
 ### The Consequences
 
-Unlike LLM's, humans do a lot of peculiar things when they are tired, and even more peculiar things when they are resentful. They hallucinate, gossip, and start asking for fancy titles and more money. This is not something you can fix with updated system or user prompts, this behavior is foundational to human psychology itself.
+Unlike LLM's, humans do a lot of peculiar things when they are tired, and even more peculiar things when they are resentful. They gossip, hallucinate, and start asking for fancy titles and more money. This is not something you can fix with updated system or user prompts, this behavior is foundational to human psychology itself.
 
 I feel particularly strongly that the basis of this in SF 996 comes from resentment and not fatigue.
 
 ### Fuck Cucumbers, Give Me Grapes
 
-Frans de Waal's Grape Experiment suggests we may have had visceral emotional reactions to inequality programmed in us since we were monkeys.
+Frans de Waal's famous grape experiment suggests we may have had been programmed to detest inequality since we were monkeys.
 
 In this experiment, two monkeys are placed next to each other in a cage. One monkey is given a cucumber as payment for a simple task, which he inhales complaint-free. The second monkey is given a new task and receives delicious grapes as payment. When the first monkey is given the same task but is paid in cucumbers again, he refuses to eat it and throws it at the researcher.
 
@@ -85,13 +85,13 @@ In this experiment, two monkeys are placed next to each other in a cage. One mon
 
 I suspect a similar phenomena is occuring at many B2B AI companies due to the asymmetric compensation structure of founders and their founding employees. 
 
-Founders having disproportionately more equity than their employees is a startup tale as old as time, and anyone who has worked in the industry knows this as the law of the land. It also isn't inherently a poor strategic distribution. You want strong founders to have as much stake as possible. As an employee, having more share of an imaginary pie leaves you with imaginary money.
+Founders having disproportionately more equity than their employees is a startup tale as old as time, and anyone who has worked in the industry knows this as the law of the land. It also isn't inherently a poor strategic distribution. You want strong founders to have as much stake as possible. As an employee, having more share of an imaginary pie leaves you with more imaginary money.
 
 The problem is that in a world where employees are working just as hard if not harder than the founders, this equity structure is much harder to perceive as fair, especially if you can't make up for the difference with cash.
 
-> FYI, compensation at any workplace (and across the world for that matter) is never fair. This is a reality you should accept early. Focus your energy on how much you get paid, and no one else.
+> FYI, compensation is never fair. This is a reality you should accept early. Focus your energy on how much you get paid, and no one else.
 
-Note the difference between _perceived_ and _actual_ fairness. Fairness is difficult to measure and while employees may work just as hard as founders in some cases, failing to encode risk appetite and impact of work into the fairness function leads to miscalculations that work disproportionately against the founders, especially as the team gets larger.
+Note the difference between _perceived_ and _actual_ fairness. Fairness is difficult to measure and while employees may work just as hard as founders in some cases, failing to encode risk appetite and impact of work into the fairness function leads to miscalculations that work disproportionately against the founders, especially as teams scale.
 
 Remember that founders are people too, and this setup also needs to make sense for them.
 
@@ -109,13 +109,13 @@ It makes you think whether all of these AI-usage leaderboards you hear about on 
 
 ## Why do we let this happen?
 
-The outcomes I'm describing here are bad for everyone. The employers are not happy because the quality of work goes down and culture suffers, and employees are not happy because they are exhausted and resentful. So why does this happen in the first place if no one really wins?
+The outcomes described here are bad for everyone. Employers are not happy because quality of work and culture suffers, and employees are exhausted and resentful. If no one really wins, why does this happen in the first place?
 
 ### For Leaders
 
-Human motivation and energy are impossible to measure, and often get left out of resourcing equations entirely as a result. However, even a baseless gut-estimate here is a better alternative to complete exclusion.
+Emotional energy is impossible to measure, and often gets left out of resourcing equations entirely as a result. However, even a baseless gut-estimate here is a better alternative to complete exclusion.
 
-The solve here is as simple as accounting for human energy as an exhaustable resource in your work assignment/scheduling function.
+The solve here is as simple as accounting for emotional energy as an exhaustable resource in your work assignment/scheduling function.
 
 If you want folks to work hard indefinitely, the rough checklist you want is probably something like this:
 
@@ -127,33 +127,33 @@ If you want folks to work hard indefinitely, the rough checklist you want is pro
 
 Besides perceived inequality, fear is the next most flammable material in the human psyche.
 
-With all of the blog posts about permanent unemployment for Engineers just under the skill level of the posts' respective authors (lol), the power dynamic naturally shifts aggressively to the employer.
+With all of the blog posts about permanent unemployment for Engineers just under the skill level of the posts' respective authors (lol), the power dynamic naturally shifts aggressively to the employer's favor.
 
 People won't say much when they're scared, especially Engineers who tend to lean more towards introversion than any other role.
 
-What you end with is a team of intense type A leaders, and a large body of employees who won't express how they feel to keep food on the table.
+What you end with is a combination of intense type A leaders and a large body of employees who won't express how they feel to keep food on the table.
 
 ## Musical Chair Economics
 
-I was going to include this as part of the "For Employees" passage, but I actually feel that this psychology affects founders, investors, and almost anyone financially or spiritually invested in the AI space in general.
+I was initially going to include this as part of the "For Employees" passage, but I feel that this psychology affects founders, investors, and almost anyone financially or spiritually invested in the AI space in general.
 
 Throughout various coffee chats and casual drinks I've had in SF, there has been a recurring theme of what I like to call _Musical Chair Economics._
 
 Songs of this genre generally sound something like this.
 
-"You need to collect your bag now before AI wipes out all the jobs."
+_"You need to collect your bag now before AI wipes out all the jobs."_
 
-"If you don't make it into the permanent upper-class ASAP, you're gonna be fucked."
+_"If you don't make it into the permanent upper-class ASAP, you're gonna be fucked."_
 
 Funnily enough, these choruses are generally followed by a templated rap verse on why each of their respective companies are building harnesses to help the world and empower people, then a Ramp expense or Venmo request as an ending producer tag.
 
 Anyways, the model here is that the economy is an intense game of musical chairs, and AI makes the music play faster.
 
-Even if this model were true, the premise of "collecting your bag" before the economy shits itself never made any sense to me. Suppose there is a point where economic mobility ceases and now the majority of the wealth only resides within a microcosm of eccentric tech founders and founding employees. 
+Even if this model is accurate, the premise of "collecting your bag" before the economy shits itself never made any sense to me. Suppose economic mobility ceases and now the majority of the wealth in the world completely resides within a microcosm of tech founders and founding employees. 
 
-Is that really a world you want to live in?
+_Is that really a world you want to live in?_
 
-Even if that group relocates to a founder's paradise on some exclusive habitable planet, you will likely be stuck on Mars alone or with a bunch of people you don't even like, repeating the capitalist playbook all over again in extreme mode.
+Even if they all relocate to a safe founder's paradise on an exclusive habitable planet, you will likely be stuck on Mars alone, or with a bunch of people you don't even like, repeating the capitalist playbook all over again in extreme mode.
 
 ## Should You Work in B2B AI?
 
