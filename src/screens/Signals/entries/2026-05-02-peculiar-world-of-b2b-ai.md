@@ -23,13 +23,13 @@ In this post, references to _B2B AI_ specifically mean software companies that t
 - Hire Forward Deployed Engineers
 - 996 culture
 
-While it's true that B2B AI can come in many flavors, as far as investors are concerned, this archetype is the vanilla and chocolate of the industry right now. The chances are that if you moved to San Francisco within the last year as part of this AI gold rush, you know exactly what type of company I'm talking about... there are A LOT of them.
+While it's true that B2B AI can come in many flavors, as far as investors are concerned, this archetype is the vanilla and chocolate of the industry right now. The chances are if you moved to San Francisco within the last year as part of this AI gold rush, you know exactly what type of company I'm talking about. There are a lot.
 
-> Again... I know not all B2B AI companies fall in this bucket, but grouping things under a misleading umbrella term is the norm now right?
+> I know not all B2B AI companies fall in this bucket, but grouping things under a subtly misleading umbrella term is cool now right?
 
 ### Important. Make no mistakes.
 
-Before we get to the good stuff, I want to make it clear that the points I'm about to make are directed at the AI industry generally and not my prior experiences in a vacuum. My thoughts here are formulated from an amalgam of stories I've heard from friends employed at various B2B AI startups, and interactions with the SF tech community in general.
+Before we get to the good stuff, I want to be clear that the points I'm about to make are directed at the AI industry generally and not my prior experiences in a vacuum. My thoughts here are formulated from an amalgam of stories I've heard from friends employed at various B2B AI startups, and interactions with the SF tech community in general.
 
 The point of this article is to think critically about the state of AI companies, not to air out some sensationalized trauma.
 
@@ -43,17 +43,17 @@ But time is money, so really:
 
 > By automating work in your organization with AI, we will save you a fuck ton of money.
 
-It's really that simple. So what is taking them so long to deliver?
+It's really that simple. So what is taking so long to deliver?
 
 Well... building a product that can automate arbitrary business workloads reliably is a formidable technical challenge. On top of that, there's an endless supply of curve-balls enterprise customers will throw at you around security and distribution that slow you down like quicksand.
 
-To maintain moat, you must fend off the curve-balls with generalizable solutions, but to survive you need to sacrifice the generality if it means giving up too much time in exchange.
+To maintain moat, you must fend off the curve-balls with generalizable solutions, but to survive you need to sacrifice the generality if it means giving up too much time.
 
-Immense improvements in agentic coding have helped with the one-off curve-balls coupled to specific customers, but they are less useful in architecting the opinionated solutions that speed up all deployments on the platform generally.
+Immense improvements in agentic coding have helped with the one-off solutions coupled to specific customers, but they are less useful in architecting the opinionated platform solutions that speed up all deployments generally.
 
 This does beg the question - what would happen if models got good enough to do the latter?
 
-If you think about the reason these companies need to exist alongside the frontier labs in the first place, it's to fill the gap between model capabilities and desired business outcomes. At a high level, these B2B AI startups can be viewed as forward deployed arms for frontier models in the greater economy themselves.
+If you think about why these companies need to exist alongside the frontier labs in the first place, it's to fill the gap between model capabilities and desired business outcomes. At a high level, these B2B AI startups can be viewed as forward deployed arms for frontier models in the greater economy themselves.
 
 From this lens, product moat becomes somewhat unclear. What actually makes your harness different if it's delivering the same business outcome as someone else's, or one that the model built for itself? Maybe it's cost or speed, but these are rather crude and uncreative dimensions.
 
