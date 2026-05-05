@@ -1,5 +1,5 @@
 ---
-id: '2026-05-02-why-im-returning-to-consumer'
+id: '2026-05-02-peculiar-world-of-b2b-ai'
 timestamp: '2026.05.02 // 17:16:34'
 title: 'The Peculiar World of B2B AI'
 expanded: false
