@@ -1,5 +1,5 @@
-@import 'tailwindcss';
 @import url('https://fonts.googleapis.com/css2?family=DotGothic16&display=swap');
+@import 'tailwindcss';
 
 /* Theming: data-theme on <html> drives every palette swap. Default is dark;
    light mode is activated by clicking the home-page spider lily. See
