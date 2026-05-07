@@ -154,13 +154,14 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
     if (typeof window === 'undefined') return false;
     return window.localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === 'true';
   });
-  // Multiple independent hover sources (sidebar nav, the toggle button, the
-  // collapsed hot zone) are tracked separately so a mouseleave on one
-  // doesn't override an active hover on another when the regions overlap.
+  // Sidebar nav and toggle button track hover independently so a mouseleave
+  // on one doesn't override an active hover on the other when the regions
+  // overlap. When the sidebar is collapsed the toggle stays visible
+  // unconditionally — without the sidebar there's no other affordance to
+  // signal that nav is reachable.
   const [sidebarHovered, setSidebarHovered] = useState(false);
   const [toggleHovered, setToggleHovered] = useState(false);
-  const [hotZoneHovered, setHotZoneHovered] = useState(false);
-  const showToggle = sidebarHovered || toggleHovered || hotZoneHovered;
+  const showToggle = isSidebarCollapsed || sidebarHovered || toggleHovered;
 
   const closeMobileMenu = useCallback(() => setIsMobileMenuOpen(false), []);
   const toggleMobileMenu = useCallback(
@@ -196,17 +197,6 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
         onClick={toggleSidebar}
         onHoverChange={setToggleHovered}
       />
-      {isSidebarCollapsed && (
-        <button
-          type='button'
-          onClick={toggleSidebar}
-          onMouseEnter={() => setHotZoneHovered(true)}
-          onMouseLeave={() => setHotZoneHovered(false)}
-          aria-label='Expand sidebar'
-          tabIndex={-1}
-          className='hidden md:block fixed top-0 bottom-0 left-0 w-3 z-[55]'
-        />
-      )}
       <MenuToggle open={isMobileMenuOpen} onClick={toggleMobileMenu} />
       <main ref={mainRef} className='flex-1 min-w-0 overflow-y-auto'>
         {children}
