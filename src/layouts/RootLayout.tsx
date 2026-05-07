@@ -102,24 +102,32 @@ const MenuToggle = ({
   </button>
 );
 
-// Desktop-only sidebar collapse toggle. Sits at the bottom of the sidebar's
-// right edge (when expanded) and slides to the screen's bottom-left corner
-// (when collapsed) so it always has a corner or boundary to anchor against
-// — never floating in the middle. A persistent soft glow makes it
-// discoverable at rest.
+// Desktop-only sidebar collapse toggle. Hidden at rest; revealed when the
+// sidebar (or, when collapsed, the screen's left-edge hot zone) is hovered.
+// Sits at the right edge of the sidebar near the link content when
+// expanded, and at the screen's left edge when collapsed. The chevron
+// color flips between hardcoded white (over the always-black sidebar) and
+// var(--color-ink) (over the themed main content) so it stays visible in
+// both light and dark mode.
 const SidebarToggle = ({
   collapsed,
+  visible,
   onClick,
+  onHoverChange,
 }: {
   collapsed: boolean;
+  visible: boolean;
   onClick: () => void;
+  onHoverChange: (hovered: boolean) => void;
 }) => (
   <button
     type='button'
     onClick={onClick}
+    onMouseEnter={() => onHoverChange(true)}
+    onMouseLeave={() => onHoverChange(false)}
     aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
     aria-expanded={!collapsed}
-    className={`hidden md:flex fixed bottom-6 z-[60] justify-center items-center w-9 h-9 group transition-[left] duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] ${collapsed ? 'left-2' : 'left-[8rem]'}`}
+    className={`hidden md:flex fixed top-1/2 -translate-y-1/2 z-[60] justify-center items-center w-9 h-9 transition-[left] duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] ${collapsed ? 'left-1' : 'left-[8rem]'} ${visible ? 'pointer-events-auto' : 'pointer-events-none'}`}
   >
     <svg
       width='12'
@@ -130,7 +138,7 @@ const SidebarToggle = ({
       strokeWidth='1.5'
       strokeLinecap='round'
       strokeLinejoin='round'
-      className={`text-white/55 [filter:drop-shadow(0_0_3px_rgba(255,255,255,0.2))] group-hover:text-white group-hover:[filter:drop-shadow(0_0_6px_rgba(255,255,255,0.55))] transition-[transform,color,filter] duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${collapsed ? 'rotate-180' : ''}`}
+      className={`${collapsed ? 'text-[var(--color-ink)]' : 'text-white'} ${visible ? `opacity-100 ${collapsed ? '[filter:drop-shadow(0_0_5px_var(--color-glow-strong))]' : '[filter:drop-shadow(0_0_5px_rgba(255,255,255,0.45))]'}` : 'opacity-0'} transition-[opacity,transform,filter,color] duration-300 ease-out ${collapsed ? 'rotate-180' : ''}`}
     >
       <polyline points='6 1 2 7 6 13' />
     </svg>
@@ -146,6 +154,13 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
     if (typeof window === 'undefined') return false;
     return window.localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === 'true';
   });
+  // Multiple independent hover sources (sidebar nav, the toggle button, the
+  // collapsed hot zone) are tracked separately so a mouseleave on one
+  // doesn't override an active hover on another when the regions overlap.
+  const [sidebarHovered, setSidebarHovered] = useState(false);
+  const [toggleHovered, setToggleHovered] = useState(false);
+  const [hotZoneHovered, setHotZoneHovered] = useState(false);
+  const showToggle = sidebarHovered || toggleHovered || hotZoneHovered;
 
   const closeMobileMenu = useCallback(() => setIsMobileMenuOpen(false), []);
   const toggleMobileMenu = useCallback(
@@ -173,8 +188,25 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
         isMobileOpen={isMobileMenuOpen}
         onClose={closeMobileMenu}
         isDesktopCollapsed={isSidebarCollapsed}
+        onDesktopHoverChange={setSidebarHovered}
       />
-      <SidebarToggle collapsed={isSidebarCollapsed} onClick={toggleSidebar} />
+      <SidebarToggle
+        collapsed={isSidebarCollapsed}
+        visible={showToggle}
+        onClick={toggleSidebar}
+        onHoverChange={setToggleHovered}
+      />
+      {isSidebarCollapsed && (
+        <button
+          type='button'
+          onClick={toggleSidebar}
+          onMouseEnter={() => setHotZoneHovered(true)}
+          onMouseLeave={() => setHotZoneHovered(false)}
+          aria-label='Expand sidebar'
+          tabIndex={-1}
+          className='hidden md:block fixed top-0 bottom-0 left-0 w-3 z-[55]'
+        />
+      )}
       <MenuToggle open={isMobileMenuOpen} onClick={toggleMobileMenu} />
       <main ref={mainRef} className='flex-1 min-w-0 overflow-y-auto'>
         {children}

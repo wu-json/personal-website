@@ -58,10 +58,12 @@ const Sidebar = ({
   isMobileOpen,
   onClose,
   isDesktopCollapsed,
+  onDesktopHoverChange,
 }: {
   isMobileOpen: boolean;
   onClose: () => void;
   isDesktopCollapsed: boolean;
+  onDesktopHoverChange: (hovered: boolean) => void;
 }) => {
   const [pathname] = useLocation();
 
@@ -110,6 +112,8 @@ const Sidebar = ({
       {/* Desktop sidebar */}
       <nav
         aria-hidden={isDesktopCollapsed}
+        onMouseEnter={() => onDesktopHoverChange(true)}
+        onMouseLeave={() => onDesktopHoverChange(false)}
         className={`hidden md:flex flex-col items-start gap-5 px-4 py-6 h-full bg-black overflow-hidden transition-[width] duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] ${isDesktopCollapsed ? 'w-0' : 'w-40'}`}
       >
         <div
