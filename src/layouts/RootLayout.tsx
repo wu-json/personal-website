@@ -127,7 +127,7 @@ const SidebarToggle = ({
     onMouseLeave={() => onHoverChange(false)}
     aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
     aria-expanded={!collapsed}
-    className={`hidden md:flex fixed top-1/2 -translate-y-1/2 z-[60] justify-center items-center w-9 h-9 transition-[left] duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] ${collapsed ? 'left-1' : 'left-[8rem]'} ${visible ? 'pointer-events-auto' : 'pointer-events-none'}`}
+    className={`hidden md:flex fixed top-20 z-[60] justify-center items-center w-9 h-9 transition-[left] duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] ${collapsed ? 'left-1' : 'left-[8rem]'} ${visible ? 'pointer-events-auto' : 'pointer-events-none'}`}
   >
     <svg
       width='12'
