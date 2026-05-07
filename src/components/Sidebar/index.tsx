@@ -54,31 +54,19 @@ const NavLink = ({
   );
 };
 
-// Collapse action styled as a dimmer sibling of the nav links so it reads
-// as a footer/utility item rather than a route. Sits directly below the
-// last link so it stays close to the content; the chevron is sized to
-// match the LunarTear marker's 14×14 footprint, keeping the text column
-// aligned with the nav links above.
+// Collapse action styled as a dimmer sibling of the nav links. Inactive
+// nav links don't render a visible marker (their LunarTear is opacity-0
+// but still occupies space), so Collapse uses a transparent spacer of the
+// same footprint to keep the text column aligned and avoid the visual
+// weight of a permanent icon next to the inactive links above.
 const CollapseLink = ({ onClick }: { onClick: () => void }) => (
   <button
     type='button'
     onClick={onClick}
     aria-label='Collapse sidebar'
-    className='group flex items-center gap-1.5 font-pixel text-sm md:text-xs uppercase whitespace-nowrap transition-all duration-300 text-white/45 hover:text-white/85 hover:[text-shadow:0_0_6px_rgba(255,255,255,0.25)]'
+    className='group flex items-center gap-1.5 font-pixel text-sm md:text-xs uppercase whitespace-nowrap transition-all duration-300 text-white/40 hover:text-white/80 hover:[text-shadow:0_0_6px_rgba(255,255,255,0.2)]'
   >
-    <svg
-      width='14'
-      height='14'
-      viewBox='0 0 14 14'
-      fill='none'
-      stroke='currentColor'
-      strokeWidth='1'
-      strokeLinecap='round'
-      strokeLinejoin='round'
-      className='shrink-0'
-    >
-      <polyline points='11 2 3 7 11 12' />
-    </svg>
+    <span aria-hidden className='block w-[14px] h-[14px] shrink-0' />
     Collapse
   </button>
 );
