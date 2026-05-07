@@ -276,20 +276,6 @@ html[data-theme-flash-reset] .nav-glitch-active {
     opacity 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.sidebar-petal {
-  transform-origin: 50px 50px;
-  transition:
-    transform 500ms cubic-bezier(0.34, 1.56, 0.64, 1),
-    opacity 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.sidebar-center {
-  transform-origin: 50px 50px;
-  transition:
-    transform 500ms cubic-bezier(0.34, 1.56, 0.64, 1),
-    opacity 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
 /* Spider lily — side view bloom animation */
 
 @keyframes lily-stem-rise {

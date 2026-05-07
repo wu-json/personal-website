@@ -110,7 +110,7 @@ const Sidebar = ({
       {/* Desktop sidebar */}
       <nav
         aria-hidden={isDesktopCollapsed}
-        className={`hidden md:flex flex-col items-start gap-5 px-4 pt-14 pb-6 h-full bg-black overflow-hidden transition-[width] duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] ${isDesktopCollapsed ? 'w-0' : 'w-40'}`}
+        className={`hidden md:flex flex-col items-start gap-5 px-4 py-6 h-full bg-black overflow-hidden transition-[width] duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] ${isDesktopCollapsed ? 'w-0' : 'w-40'}`}
       >
         <div
           className={`flex flex-col items-start gap-5 transition-[opacity,transform] duration-300 ease-out ${isDesktopCollapsed ? 'opacity-0 -translate-x-2 pointer-events-none' : 'opacity-100 translate-x-0 delay-150'}`}

@@ -102,10 +102,10 @@ const MenuToggle = ({
   </button>
 );
 
-// Desktop-only sidebar collapse toggle. Reuses the LunarTear flower:
-// expanded = full bloom (5 petals out), collapsed = closed bud (petals
-// retract toward the center). Petals stagger so it feels like a flower
-// folding/unfolding.
+// Desktop-only sidebar collapse toggle. Sits in the gutter at the right
+// edge of the sidebar so it never collides with the link column or the
+// active-route LunarTear marker. When the sidebar collapses, the toggle
+// slides over to the screen's left edge so it remains reachable.
 const SidebarToggle = ({
   collapsed,
   onClick,
@@ -118,44 +118,20 @@ const SidebarToggle = ({
     onClick={onClick}
     aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
     aria-expanded={!collapsed}
-    className='hidden md:flex fixed top-4 left-4 z-[60] justify-center items-center w-8 h-8 group'
+    className={`hidden md:flex fixed top-1/2 -translate-y-1/2 z-[60] justify-center items-center w-7 h-10 group transition-[left] duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] ${collapsed ? 'left-0' : 'left-[8.5rem]'}`}
   >
     <svg
-      width='20'
-      height='20'
-      viewBox='0 0 100 100'
+      width='10'
+      height='14'
+      viewBox='0 0 10 14'
       fill='none'
-      className='menu-flower text-[var(--color-ink)] transition-transform duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover:scale-110'
+      stroke='currentColor'
+      strokeWidth='1.25'
+      strokeLinecap='round'
+      strokeLinejoin='round'
+      className={`text-white/35 group-hover:text-white/90 group-hover:[filter:drop-shadow(0_0_5px_rgba(255,255,255,0.45))] transition-[transform,color,filter] duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${collapsed ? 'rotate-180' : ''}`}
     >
-      {PETAL_ANGLES.map((angle, i) => (
-        <ellipse
-          key={angle}
-          cx='50'
-          cy='22'
-          rx='10'
-          ry='22'
-          fill='currentColor'
-          className='sidebar-petal'
-          style={{
-            transform: `rotate(${angle}deg) scale(${collapsed ? 0 : 1})`,
-            opacity: collapsed ? 0 : 0.85,
-            transitionDelay: collapsed
-              ? `${(PETAL_ANGLES.length - 1 - i) * 50}ms`
-              : `${i * 50}ms`,
-          }}
-        />
-      ))}
-      <circle
-        cx='50'
-        cy='50'
-        r='8'
-        fill='currentColor'
-        className='sidebar-center'
-        style={{
-          transform: `scale(${collapsed ? 1.05 : 1})`,
-          opacity: collapsed ? 1 : 0.95,
-        }}
-      />
+      <polyline points='6 1 2 7 6 13' />
     </svg>
   </button>
 );
