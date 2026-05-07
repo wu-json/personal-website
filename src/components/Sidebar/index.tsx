@@ -67,7 +67,7 @@ const CollapseLink = ({ onClick }: { onClick: () => void }) => (
     className='group flex items-center gap-1.5 font-pixel text-sm md:text-xs uppercase whitespace-nowrap transition-all duration-300 text-white/40 hover:text-white/80 hover:[text-shadow:0_0_6px_rgba(255,255,255,0.2)]'
   >
     <span aria-hidden className='block w-[14px] h-[14px] shrink-0' />
-    Hide
+    隠す
   </button>
 );
 
