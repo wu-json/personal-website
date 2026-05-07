@@ -12,7 +12,7 @@ I first enlisted in the frontlines[^1] of the AI gold rush in March of 2025 when
 
 An unbelievable amount of plot has happened since. I use coding agents daily, developed a pathological houseplant addiction, and now have a massive forearm tattoo (shoutout to [Filip](https://www.instagram.com/fill_tat/) for his amazing art). 25 years of age is a major milestone in Chinese culture, and I'm proud that year was spent working alongside so many exceptional and eccentric people, many of whom I now nearly consider family.
 
-It has been a chaotic year to say the least, and I believe phases of high entropy always warrant thorough reflection. This is my year of B2B AI wrapped, or compacted as losers would say.
+It has been a chaotic year to say the least, and I believe phases of high entropy always warrant thorough reflection. This is my year of B2B AI wrapped, or compacted as some losers would say.
 
 ### What is B2B AI?
 
