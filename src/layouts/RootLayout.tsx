@@ -102,10 +102,11 @@ const MenuToggle = ({
   </button>
 );
 
-// Desktop-only sidebar collapse toggle. Sits in the gutter at the right
-// edge of the sidebar so it never collides with the link column or the
-// active-route LunarTear marker. When the sidebar collapses, the toggle
-// slides over to the screen's left edge so it remains reachable.
+// Desktop-only sidebar collapse toggle. Sits at the bottom of the sidebar's
+// right edge (when expanded) and slides to the screen's bottom-left corner
+// (when collapsed) so it always has a corner or boundary to anchor against
+// — never floating in the middle. A persistent soft glow makes it
+// discoverable at rest.
 const SidebarToggle = ({
   collapsed,
   onClick,
@@ -118,18 +119,18 @@ const SidebarToggle = ({
     onClick={onClick}
     aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
     aria-expanded={!collapsed}
-    className={`hidden md:flex fixed top-1/2 -translate-y-1/2 z-[60] justify-center items-center w-7 h-10 group transition-[left] duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] ${collapsed ? 'left-0' : 'left-[8.5rem]'}`}
+    className={`hidden md:flex fixed bottom-6 z-[60] justify-center items-center w-9 h-9 group transition-[left] duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] ${collapsed ? 'left-2' : 'left-[8rem]'}`}
   >
     <svg
-      width='10'
-      height='14'
+      width='12'
+      height='16'
       viewBox='0 0 10 14'
       fill='none'
       stroke='currentColor'
-      strokeWidth='1.25'
+      strokeWidth='1.5'
       strokeLinecap='round'
       strokeLinejoin='round'
-      className={`text-white/35 group-hover:text-white/90 group-hover:[filter:drop-shadow(0_0_5px_rgba(255,255,255,0.45))] transition-[transform,color,filter] duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${collapsed ? 'rotate-180' : ''}`}
+      className={`text-white/55 [filter:drop-shadow(0_0_3px_rgba(255,255,255,0.2))] group-hover:text-white group-hover:[filter:drop-shadow(0_0_6px_rgba(255,255,255,0.55))] transition-[transform,color,filter] duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${collapsed ? 'rotate-180' : ''}`}
     >
       <polyline points='6 1 2 7 6 13' />
     </svg>
