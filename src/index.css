@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import url('https://fonts.googleapis.com/css2?family=DotGothic16&display=swap');
 
 /* Theming: data-theme on <html> drives every palette swap. Default is dark;
    light mode is activated by clicking the home-page spider lily. See
@@ -121,7 +122,7 @@
   --font-mono:
     'Geist Mono Variable', ui-monospace, SFMono-Regular, Menlo, Monaco,
     Consolas, 'Liberation Mono', 'Courier New', monospace;
-  --font-pixel: 'Geist Pixel Circle';
+  --font-pixel: 'Geist Pixel Circle', 'DotGothic16', sans-serif;
 
   --color-surface-token: var(--color-surface);
   --color-ink-token: var(--color-ink);
