@@ -1,4 +1,4 @@
-name: CI
+name: Source Quality
 on:
   push:
     branches: [main]
@@ -8,8 +8,7 @@ env:
   CI: true
 
 jobs:
-  test-and-build:
-    name: Test & Build
+  check:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
