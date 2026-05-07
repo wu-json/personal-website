@@ -109,7 +109,7 @@ const MenuToggle = ({
 // nav-glitch only fires on first paint when the sidebar boots already
 // collapsed — subsequent toggles fall back to the plain opacity fade so
 // flipping the sidebar doesn't feel jittery.
-const ATLAS_CHARS = ['A', 't', 'l', 'a', 's'];
+const ATLAS_CHARS = ['ア', 'ト', 'ラ', 'ス'];
 
 const SidebarToggle = ({
   visible,
@@ -162,7 +162,7 @@ const SidebarToggle = ({
       </svg>
       <span
         aria-label='Atlas'
-        className='flex flex-col items-center gap-[0.55em] font-pixel text-[11px] uppercase text-[var(--color-ink-muted)] select-none'
+        className='flex flex-col items-center gap-[0.45em] font-pixel text-[13px] text-[var(--color-ink-muted)] select-none'
       >
         {ATLAS_CHARS.map((c, i) => (
           <span
