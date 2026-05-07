@@ -44,7 +44,7 @@ const NavLink = ({
   onClick?: () => void;
   children: React.ReactNode;
 }) => {
-  const className = `group flex items-center gap-1.5 font-pixel text-sm md:text-xs uppercase transition-all duration-300 ${active ? 'nav-glitch-active text-white [text-shadow:0_0_8px_rgba(255,255,255,0.6)]' : 'text-white/80 hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)]'}`;
+  const className = `group flex items-center gap-1.5 font-pixel text-sm md:text-xs uppercase whitespace-nowrap transition-all duration-300 ${active ? 'nav-glitch-active text-white [text-shadow:0_0_8px_rgba(255,255,255,0.6)]' : 'text-white/80 hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)]'}`;
 
   return (
     <Link to={to} onClick={onClick} className={className}>
@@ -57,9 +57,11 @@ const NavLink = ({
 const Sidebar = ({
   isMobileOpen,
   onClose,
+  isDesktopCollapsed,
 }: {
   isMobileOpen: boolean;
   onClose: () => void;
+  isDesktopCollapsed: boolean;
 }) => {
   const [pathname] = useLocation();
 
@@ -106,8 +108,15 @@ const Sidebar = ({
   return (
     <>
       {/* Desktop sidebar */}
-      <nav className='hidden md:flex flex-col items-start gap-5 w-40 px-4 h-full bg-black py-6'>
-        {links()}
+      <nav
+        aria-hidden={isDesktopCollapsed}
+        className={`hidden md:flex flex-col items-start gap-5 px-4 pt-14 pb-6 h-full bg-black overflow-hidden transition-[width] duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] ${isDesktopCollapsed ? 'w-0' : 'w-40'}`}
+      >
+        <div
+          className={`flex flex-col items-start gap-5 transition-[opacity,transform] duration-300 ease-out ${isDesktopCollapsed ? 'opacity-0 -translate-x-2 pointer-events-none' : 'opacity-100 translate-x-0 delay-150'}`}
+        >
+          {links()}
+        </div>
       </nav>
 
       {/* Mobile overlay */}
