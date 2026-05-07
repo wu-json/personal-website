@@ -8,8 +8,8 @@ env:
   CI: true
 
 jobs:
-  test-and-build:
-    name: Test & Build
+  source-quality:
+    name: Source Quality
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
