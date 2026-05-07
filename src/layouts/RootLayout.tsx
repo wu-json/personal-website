@@ -128,15 +128,15 @@ const SidebarToggle = ({
       viewBox='0 0 10 14'
       fill='none'
       stroke='currentColor'
-      strokeWidth='1.5'
+      strokeWidth='1'
       strokeLinecap='round'
       strokeLinejoin='round'
       className='text-[var(--color-ink)] [filter:drop-shadow(0_0_5px_var(--color-glow-strong))] rotate-180'
     >
-      <polyline points='6 1 2 7 6 13' />
+      <polyline points='9 1 1 7 9 13' />
     </svg>
-    <span className='navigator-label font-pixel text-[10px] uppercase tracking-[0.45em] text-[var(--color-ink-muted)] [writing-mode:vertical-rl] [text-orientation:upright] select-none'>
-      Navigator
+    <span className='navigator-label font-pixel text-[11px] uppercase tracking-[0.55em] text-[var(--color-ink-muted)] [writing-mode:vertical-rl] [text-orientation:upright] select-none'>
+      Atlas
     </span>
   </button>
 );
