@@ -120,7 +120,7 @@ const SidebarToggle = ({
     aria-expanded={!visible}
     aria-hidden={!visible}
     tabIndex={visible ? 0 : -1}
-    className={`hidden md:flex fixed top-20 left-3 z-[60] flex-col items-center gap-3 transition-opacity duration-500 ease-out ${visible ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+    className={`hidden md:flex fixed top-20 left-3 z-[60] flex-col items-center gap-3 transition-opacity duration-500 ease-out ${visible ? 'opacity-100 pointer-events-auto nav-glitch-active' : 'opacity-0 pointer-events-none'}`}
   >
     <svg
       width='12'
