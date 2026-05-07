@@ -103,43 +103,54 @@ const MenuToggle = ({
 );
 
 // Collapsed-state expand handle. Renders as a tall left-edge column with a
-// chevron above a vertical "NAVIGATOR" pixel label, turning the empty rail
+// chevron above a vertical "ATLAS" pixel label, turning the empty rail
 // into a deliberate design element. Always rendered so its opacity can
-// animate; pointer-events are disabled when the sidebar is expanded.
+// animate; pointer-events are disabled when the sidebar is expanded. The
+// nav-glitch only fires on first paint when the sidebar boots already
+// collapsed — subsequent toggles fall back to the plain opacity fade so
+// flipping the sidebar doesn't feel jittery.
 const SidebarToggle = ({
   visible,
   onClick,
 }: {
   visible: boolean;
   onClick: () => void;
-}) => (
-  <button
-    type='button'
-    onClick={onClick}
-    aria-label='Expand sidebar'
-    aria-expanded={!visible}
-    aria-hidden={!visible}
-    tabIndex={visible ? 0 : -1}
-    className={`hidden md:flex fixed top-20 left-3 z-[60] flex-col items-center gap-3 transition-opacity duration-500 ease-out ${visible ? 'opacity-100 pointer-events-auto nav-glitch-active' : 'opacity-0 pointer-events-none'}`}
-  >
-    <svg
-      width='12'
-      height='16'
-      viewBox='0 0 10 14'
-      fill='none'
-      stroke='currentColor'
-      strokeWidth='1'
-      strokeLinecap='round'
-      strokeLinejoin='round'
-      className='text-[var(--color-ink)] [filter:drop-shadow(0_0_5px_var(--color-glow-strong))] rotate-180'
+}) => {
+  const isFirstRenderRef = useRef(true);
+  const glitchOnLoad = visible && isFirstRenderRef.current;
+  useEffect(() => {
+    isFirstRenderRef.current = false;
+  }, []);
+
+  return (
+    <button
+      type='button'
+      onClick={onClick}
+      aria-label='Expand sidebar'
+      aria-expanded={!visible}
+      aria-hidden={!visible}
+      tabIndex={visible ? 0 : -1}
+      className={`hidden md:flex fixed top-20 left-3 z-[60] flex-col items-center gap-3 transition-opacity duration-500 ease-out ${visible ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'} ${glitchOnLoad ? 'nav-glitch-active' : ''}`}
     >
-      <polyline points='9 1 1 7 9 13' />
-    </svg>
-    <span className='navigator-label font-pixel text-[11px] uppercase tracking-[0.55em] text-[var(--color-ink-muted)] [writing-mode:vertical-rl] [text-orientation:upright] select-none'>
-      Atlas
-    </span>
-  </button>
-);
+      <svg
+        width='12'
+        height='16'
+        viewBox='0 0 10 14'
+        fill='none'
+        stroke='currentColor'
+        strokeWidth='1'
+        strokeLinecap='round'
+        strokeLinejoin='round'
+        className='text-[var(--color-ink)] [filter:drop-shadow(0_0_5px_var(--color-glow-strong))] rotate-180'
+      >
+        <polyline points='9 1 1 7 9 13' />
+      </svg>
+      <span className='navigator-label font-pixel text-[11px] uppercase tracking-[0.55em] text-[var(--color-ink-muted)] [writing-mode:vertical-rl] [text-orientation:upright] select-none'>
+        Atlas
+      </span>
+    </button>
+  );
+};
 
 const SIDEBAR_COLLAPSED_KEY = 'sidebarCollapsed';
 
