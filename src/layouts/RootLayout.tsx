@@ -102,32 +102,25 @@ const MenuToggle = ({
   </button>
 );
 
-// Desktop-only sidebar collapse toggle. Hidden at rest; revealed when the
-// sidebar (or, when collapsed, the screen's left-edge hot zone) is hovered.
-// Sits at the right edge of the sidebar near the link content when
-// expanded, and at the screen's left edge when collapsed. The chevron
-// color flips between hardcoded white (over the always-black sidebar) and
-// var(--color-ink) (over the themed main content) so it stays visible in
-// both light and dark mode.
+// Collapsed-state expand handle. Renders as a tall left-edge column with a
+// chevron above a vertical "NAVIGATOR" pixel label, turning the empty rail
+// into a deliberate design element. Always rendered so its opacity can
+// animate; pointer-events are disabled when the sidebar is expanded.
 const SidebarToggle = ({
-  collapsed,
   visible,
   onClick,
-  onHoverChange,
 }: {
-  collapsed: boolean;
   visible: boolean;
   onClick: () => void;
-  onHoverChange: (hovered: boolean) => void;
 }) => (
   <button
     type='button'
     onClick={onClick}
-    onMouseEnter={() => onHoverChange(true)}
-    onMouseLeave={() => onHoverChange(false)}
-    aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-    aria-expanded={!collapsed}
-    className={`hidden md:flex fixed top-20 z-[60] justify-center items-center w-9 h-9 transition-[left] duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] ${collapsed ? 'left-1' : 'left-[8rem]'} ${visible ? 'pointer-events-auto' : 'pointer-events-none'}`}
+    aria-label='Expand sidebar'
+    aria-expanded={!visible}
+    aria-hidden={!visible}
+    tabIndex={visible ? 0 : -1}
+    className={`hidden md:flex fixed top-20 left-3 z-[60] flex-col items-center gap-3 transition-opacity duration-500 ease-out ${visible ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
   >
     <svg
       width='12'
@@ -138,10 +131,13 @@ const SidebarToggle = ({
       strokeWidth='1.5'
       strokeLinecap='round'
       strokeLinejoin='round'
-      className={`${collapsed ? 'text-[var(--color-ink)]' : 'text-white'} ${visible ? `opacity-100 ${collapsed ? '[filter:drop-shadow(0_0_5px_var(--color-glow-strong))]' : '[filter:drop-shadow(0_0_5px_rgba(255,255,255,0.45))]'}` : 'opacity-0'} transition-[opacity,transform,filter,color] duration-300 ease-out ${collapsed ? 'rotate-180' : ''}`}
+      className='text-[var(--color-ink)] [filter:drop-shadow(0_0_5px_var(--color-glow-strong))] rotate-180'
     >
       <polyline points='6 1 2 7 6 13' />
     </svg>
+    <span className='navigator-label font-pixel text-[10px] uppercase tracking-[0.45em] text-[var(--color-ink-muted)] [writing-mode:vertical-rl] [text-orientation:upright] select-none'>
+      Navigator
+    </span>
   </button>
 );
 
@@ -154,14 +150,6 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
     if (typeof window === 'undefined') return false;
     return window.localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === 'true';
   });
-  // Sidebar nav and toggle button track hover independently so a mouseleave
-  // on one doesn't override an active hover on the other when the regions
-  // overlap. When the sidebar is collapsed the toggle stays visible
-  // unconditionally — without the sidebar there's no other affordance to
-  // signal that nav is reachable.
-  const [sidebarHovered, setSidebarHovered] = useState(false);
-  const [toggleHovered, setToggleHovered] = useState(false);
-  const showToggle = isSidebarCollapsed || sidebarHovered || toggleHovered;
 
   const closeMobileMenu = useCallback(() => setIsMobileMenuOpen(false), []);
   const toggleMobileMenu = useCallback(
@@ -189,14 +177,9 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
         isMobileOpen={isMobileMenuOpen}
         onClose={closeMobileMenu}
         isDesktopCollapsed={isSidebarCollapsed}
-        onDesktopHoverChange={setSidebarHovered}
+        onDesktopToggle={toggleSidebar}
       />
-      <SidebarToggle
-        collapsed={isSidebarCollapsed}
-        visible={showToggle}
-        onClick={toggleSidebar}
-        onHoverChange={setToggleHovered}
-      />
+      <SidebarToggle visible={isSidebarCollapsed} onClick={toggleSidebar} />
       <MenuToggle open={isMobileMenuOpen} onClick={toggleMobileMenu} />
       <main ref={mainRef} className='flex-1 min-w-0 overflow-y-auto'>
         {children}
