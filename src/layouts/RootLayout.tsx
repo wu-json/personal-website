@@ -109,6 +109,8 @@ const MenuToggle = ({
 // nav-glitch only fires on first paint when the sidebar boots already
 // collapsed — subsequent toggles fall back to the plain opacity fade so
 // flipping the sidebar doesn't feel jittery.
+const ATLAS_CHARS = ['A', 't', 'l', 'a', 's'];
+
 const SidebarToggle = ({
   visible,
   onClick,
@@ -117,10 +119,23 @@ const SidebarToggle = ({
   onClick: () => void;
 }) => {
   const isFirstRenderRef = useRef(true);
-  const glitchOnLoad = visible && isFirstRenderRef.current;
+  // riseKey re-mounts each Atlas character span on subsequent transitions
+  // into the collapsed state, replaying the per-character rise. The glitch
+  // and char-rise are mutually exclusive: glitch fires only on first paint
+  // (if booting collapsed), char-rise fires only on subsequent collapses.
+  const [riseKey, setRiseKey] = useState(0);
+
   useEffect(() => {
-    isFirstRenderRef.current = false;
-  }, []);
+    if (!isFirstRenderRef.current && visible) {
+      setRiseKey(k => k + 1);
+    }
+    if (isFirstRenderRef.current) {
+      isFirstRenderRef.current = false;
+    }
+  }, [visible]);
+
+  const glitchOnLoad = visible && isFirstRenderRef.current;
+  const charAnimClass = isFirstRenderRef.current ? '' : 'atlas-char-rise';
 
   return (
     <button
@@ -145,8 +160,20 @@ const SidebarToggle = ({
       >
         <polyline points='9 1 1 7 9 13' />
       </svg>
-      <span className='navigator-label font-pixel text-[11px] uppercase tracking-[0.55em] text-[var(--color-ink-muted)] [writing-mode:vertical-rl] [text-orientation:upright] select-none'>
-        Atlas
+      <span
+        aria-label='Atlas'
+        className='flex flex-col items-center gap-[0.55em] font-pixel text-[11px] uppercase text-[var(--color-ink-muted)] select-none'
+      >
+        {ATLAS_CHARS.map((c, i) => (
+          <span
+            key={`${riseKey}-${i}`}
+            aria-hidden
+            style={{ animationDelay: `${i * 70}ms` }}
+            className={charAnimClass}
+          >
+            {c}
+          </span>
+        ))}
       </span>
     </button>
   );
