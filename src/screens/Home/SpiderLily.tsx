@@ -346,16 +346,20 @@ const WIND_SPEED = 0.0008;
 const WIND_STRENGTH_X = 4.5;
 const WIND_STRENGTH_Y = 2.0;
 
-// Capability flags captured once at module load. iOS Safari chokes on the
-// stacked SVG filters (feTurbulence + two Gaussian blurs + per-stamen glow)
-// re-rasterizing every rAF, so on coarse-pointer devices and under Reduce
-// Motion we skip the filter chain and the wind/sway loop entirely. Desktop
-// behavior is unchanged.
+// Capability flags captured once at module load. Safari (both desktop and
+// iOS) chokes on the stacked SVG filters (feTurbulence + two Gaussian blurs
+// + per-stamen glow) re-rasterizing every rAF, so on WebKit, coarse-pointer
+// devices, and under Reduce Motion we fall back to a static filtered render
+// — the filter rasterizes once at paint time instead of every frame. Chrome
+// and Firefox handle the animated path fine.
 const heavyEffectsEnabled = (() => {
   if (typeof window === 'undefined') return true;
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const coarse = window.matchMedia('(pointer: coarse)').matches;
-  return !reduce && !coarse;
+  const ua = navigator.userAgent;
+  const isSafari =
+    /Safari/.test(ua) && !/Chrome|Chromium|Edg|OPR|CriOS|FxiOS/.test(ua);
+  return !reduce && !coarse && !isSafari;
 })();
 
 type Vec2 = { x: number; y: number };
