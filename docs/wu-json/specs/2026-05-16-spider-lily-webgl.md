@@ -75,7 +75,7 @@ src/screens/Home/SpiderLily/
 
 WebGL2 is universal in target browsers in 2026 (iOS Safari ≥ 15). It buys
 us **multisample renderbuffers** (needed because `antialias: true` on the
-default framebuffer only AAs the *backbuffer*, not our offscreen scene
+default framebuffer only AAs the _backbuffer_, not our offscreen scene
 FBO), GLSL ES 3.00, and standard derivatives without an extension. If
 context creation fails, render nothing — the lily is decorative.
 
@@ -133,10 +133,10 @@ glow halos darken at low-opacity edges.
 - `u_bloomScale: float`, `u_bloomPivot: vec2` — per-petal scale-from-
   center driven by `lily-petal-bloom` ease (0.12, 0.8, 0.2, 1).
 - `u_reveal: float` — stamens, gates fragments by `step(a_arcLength,
-  u_reveal)`.
+u_reveal)`.
 - `u_revealY: float` — stem, fragment discards fragments below this
   world-y threshold (analog of `lily-stem-rise`'s `clip-path: inset(100%
-  0 0 0) → inset(0)`); CPU drives it with the same cubic-bezier ease.
+0 0 0) → inset(0)`); CPU drives it with the same cubic-bezier ease.
 - `u_opacity: float` — per-element entrance alpha.
 - `u_color: vec4` — re-read on theme change.
 
@@ -150,17 +150,17 @@ floats total. Cheap.
   `u_flowerPivot` → orthographic projection. Pass `v_worldY` and
   `v_arcLength` to fragment.
 - **Geometry fragment shader.** Alpha = `u_opacity * step(v_arcLength,
-  u_reveal)`; if `v_worldY < u_revealY` discard. Out: premultiplied
+u_reveal)`; if `v_worldY < u_revealY` discard. Out: premultiplied
   `vec4(u_color.rgb * alpha, u_color.a * alpha)`.
 - **Separable Gaussian blur.** Fullscreen tri-strip + 13-tap weights;
   parameterized by direction and stdDev. Used twice for wide (½-res,
   stdDev≈6) and twice for tight (full-res, stdDev≈2.5).
 - **Composite/displace pass.** Fullscreen quad. Samples scene + tight
-  + wide. Applies a static 3-octave value noise (~30 lines from Ashima
-  webgl-noise) at frequency 0.04 to perturb the scene sample by ±1.2 px
-  via R/G channels — matches `feTurbulence` + `feDisplacementMap`
-  parameters. Outputs `displaced_scene + tight_blur + wide_blur` with
-  additive premultiplied blending (`feMerge` analog).
+  - wide. Applies a static 3-octave value noise (~30 lines from Ashima
+    webgl-noise) at frequency 0.04 to perturb the scene sample by ±1.2 px
+    via R/G channels — matches `feTurbulence` + `feDisplacementMap`
+    parameters. Outputs `displaced_scene + tight_blur + wide_blur` with
+    additive premultiplied blending (`feMerge` analog).
 
 ### Stamen glow
 
@@ -192,7 +192,7 @@ inheritance the SVG's `fill: var(--color-ink)` already relies on.
 
 - Mouse/touch → client coords mapped to logical coords via
   `getBoundingClientRect` + inverse projection. Same `mouseRef = {x, y,
-  active}`, same hover-push math (`HOVER_RADIUS=140`, `HOVER_STRENGTH=8`,
+active}`, same hover-push math (`HOVER_RADIUS=140`, `HOVER_STRENGTH=8`,
   `LERP_SPEED=0.045`, `RETURN_SPEED=0.025`).
 - Click + Enter/Space → `toggle()` from `ThemeContext` (unchanged).
 - `role='button'`, `tabIndex={0}`, `aria-label='Toggle color scheme'`,
@@ -200,7 +200,7 @@ inheritance the SVG's `fill: var(--color-ink)` already relies on.
   from `<svg>` to `<canvas>`.
 - **Behavior change (intentional):** today the rAF doesn't run on
   coarse pointers, so touch-drag never animates petal push. With the
-  unified pipeline, touch-drag *does* push petals. Aligned with the
+  unified pipeline, touch-drag _does_ push petals. Aligned with the
   "no fork" goal, and the spec calls this out so the user can flag if
   they want it suppressed.
 
@@ -238,14 +238,14 @@ prevailing site convention).
   `lily-bract-open`, `lily-petal-bloom`, `lily-stamen-grow`,
   `lily-anther-appear`, `lily-center-pulse`. **Keep**
   `.spider-lily-container`, `@keyframes lily-glow-in`, `@keyframes
-  lily-breathe`, and the `prefers-reduced-motion / pointer: coarse`
+lily-breathe`, and the `prefers-reduced-motion / pointer: coarse`
   block that suppresses `lily-breathe` (still owns the outer halo).
 
 ## Files touched
 
 - `src/screens/Home/SpiderLily.tsx` — deleted.
 - `src/screens/Home/SpiderLily/{index.tsx, geometry.ts, renderer.ts,
-  shaders.ts, motion.ts}` — new.
+shaders.ts, motion.ts}` — new.
 - `src/screens/Home/sections/MainBanner/index.tsx` — no change needed;
   folder import already resolves.
 - `src/index.css` — prune as above.
