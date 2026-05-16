@@ -5,6 +5,7 @@ import {
   useRef,
   useState,
 } from 'react';
+import { InkCursor } from 'src/components/InkCursor';
 import { ScrollToTop } from 'src/components/ScrollToTop';
 import { Sidebar } from 'src/components/Sidebar';
 import { useLocation } from 'wouter';
@@ -224,6 +225,7 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
       </main>
       <ScrollReset scrollRef={mainRef} />
       <ScrollToTop scrollRef={mainRef} />
+      <InkCursor />
     </div>
   );
 };
