@@ -1,13 +1,6 @@
-import { lazy, Suspense } from 'react';
 import { useJitter } from 'src/hooks/useJitter';
 
-// The spider lily renders via WebGL so it runs at the same FPS on both
-// Skia (Chrome/Edge) and CoreGraphics (Safari). `lazy()` keeps three.js
-// out of the initial home bundle — the bio text and links render
-// immediately and the flower pops in once the chunk resolves.
-const SpiderLilyWebGL = lazy(() =>
-  import('../../SpiderLilyWebGL').then(m => ({ default: m.SpiderLilyWebGL })),
-);
+import { SpiderLily } from '../../SpiderLily';
 
 const linkClass =
   'font-mono text-sm sm:text-xs uppercase tracking-widest text-white/50 hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)] transition-all duration-300';
@@ -24,13 +17,13 @@ const MainBanner = () => {
           className='bio-glitch w-80 sm:w-88 md:w-[26rem] lg:w-[30rem]'
           style={jitter()}
         >
-          {/* spider-lily-container wraps the renderer so the CSS breathing
-              drop-shadow (lily-glow-in / lily-breathe) applies to whatever
-              the renderer outputs — currently a WebGL canvas. */}
+          {/* spider-lily-container lives on a wrapping HTML element rather
+              than the <svg> itself because iOS Safari doesn't apply CSS
+              `filter: drop-shadow(...)` to inline SVG roots (WebKit bug
+              261806). Wrapping in a div lets the glow animation render on
+              mobile Safari while keeping desktop behavior identical. */}
           <div className='spider-lily-container w-full h-auto'>
-            <Suspense fallback={null}>
-              <SpiderLilyWebGL className='w-full' />
-            </Suspense>
+            <SpiderLily className='w-full h-auto' />
           </div>
         </div>
         <div className='flex flex-col gap-4'>

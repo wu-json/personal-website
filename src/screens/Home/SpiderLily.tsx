@@ -8,11 +8,11 @@ import { useTheme } from 'src/theme/ThemeContext';
  * Petals and stamens react to hover — gently parting like fingers through a flower.
  */
 
-export const CX = 220;
-export const CY = 230;
+const CX = 220;
+const CY = 230;
 
 const W = 4;
-export const petals: { d: string; delay: number; cx: number; cy: number }[] = [
+const petals: { d: string; delay: number; cx: number; cy: number }[] = [
   // ==== UPPER DOME ====
   // Top center
   {
@@ -171,7 +171,7 @@ export const petals: { d: string; delay: number; cx: number; cy: number }[] = [
 
 const petalDelays = petals.map(p => p.delay);
 
-export const stamens: {
+const stamens: {
   d: string;
   tipX: number;
   tipY: number;
