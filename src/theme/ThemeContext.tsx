@@ -26,7 +26,7 @@ const STORAGE_KEY = 'theme';
  * provider resilient if the script is bypassed (tests, SSR previews, etc.).
  */
 function readInitialTheme(): Theme {
-  if (typeof document === 'undefined') return 'dark';
+  if (typeof document === 'undefined') return 'light';
   const attr = document.documentElement.getAttribute('data-theme');
   if (attr === 'light' || attr === 'dark') return attr;
   try {
@@ -35,7 +35,7 @@ function readInitialTheme(): Theme {
   } catch {
     /* ignore */
   }
-  return 'dark';
+  return 'light';
 }
 
 /**

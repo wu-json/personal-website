@@ -35,14 +35,14 @@ const MainBanner = () => {
           </p>
           <div className='flex flex-col gap-2.5'>
             <p className={bioClass} style={jitter()}>
-              Doing human things.
+              Paint the world in ink.
             </p>
             <p className={bioClass} style={jitter()}>
               Yale Undergrad, grew up in Princeton, lived in Atlanta, dragged to
               San Francisco.
             </p>
             <p className={bioClass} style={jitter()}>
-              Dance + capture humans and landscapes in monochrome
+              Capturing humans and landscapes in monochrome.
             </p>
           </div>
         </div>
