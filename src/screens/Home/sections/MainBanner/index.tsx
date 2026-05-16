@@ -1,6 +1,18 @@
+import { lazy, Suspense } from 'react';
 import { useJitter } from 'src/hooks/useJitter';
 
 import { SpiderLily } from '../../SpiderLily';
+
+// Opt into the WebGL renderer with `?webgl=1` so we can A/B the SVG and
+// shader versions side by side in the browser. SSR-safe via the window
+// guard. `lazy()` keeps three.js out of the initial bundle so the default
+// SVG path doesn't pay a 700KB cost for an experimental fork.
+const useWebGLLily =
+  typeof window !== 'undefined' &&
+  new URLSearchParams(window.location.search).has('webgl');
+const SpiderLilyWebGL = lazy(() =>
+  import('../../SpiderLilyWebGL').then(m => ({ default: m.SpiderLilyWebGL })),
+);
 
 const linkClass =
   'font-mono text-sm sm:text-xs uppercase tracking-widest text-white/50 hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)] transition-all duration-300';
@@ -23,7 +35,13 @@ const MainBanner = () => {
               261806). Wrapping in a div lets the glow animation render on
               mobile Safari while keeping desktop behavior identical. */}
           <div className='spider-lily-container w-full h-auto'>
-            <SpiderLily className='w-full h-auto' />
+            {useWebGLLily ? (
+              <Suspense fallback={null}>
+                <SpiderLilyWebGL className='w-full' />
+              </Suspense>
+            ) : (
+              <SpiderLily className='w-full h-auto' />
+            )}
           </div>
         </div>
         <div className='flex flex-col gap-4'>
