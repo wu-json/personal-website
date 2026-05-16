@@ -1,0 +1,7 @@
+[install]
+# Refuse package versions published less than 7 days ago. Most malicious
+# packages from supply-chain attacks (typo-squats, hijacked maintainer
+# accounts) are detected and pulled from the registry within a few days,
+# so a one-week cooldown sharply reduces our exposure window.
+# Requires Bun >= 1.3. Value is in seconds.
+minimumReleaseAge = 604800
