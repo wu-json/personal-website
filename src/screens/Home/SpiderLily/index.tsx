@@ -66,7 +66,13 @@ function parseCssColor(input: string): ColorVec {
   const s = input.trim();
   if (s.startsWith('#')) {
     let hex = s.slice(1);
-    if (hex.length === 3)
+    // Expand shorthand: #RGB and #RGBA both double each nibble.
+    // The 4-digit form matters in prod because Lightning CSS minifies
+    // light-mode `rgba(0, 0, 0, 0.6)` to `#0009` — without this branch
+    // the value falls through to the rgba parser, only finds one number,
+    // and bails to the default white, which is why the stamens (the only
+    // ink-muted shape) rendered white-on-white on deployed light mode.
+    if (hex.length === 3 || hex.length === 4)
       hex = hex
         .split('')
         .map(c => c + c)
