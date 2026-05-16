@@ -1,33 +1,24 @@
 import { useEffect, useRef } from 'react';
 
-import { InkCursorRenderer, type Layer, VERTEX_STRIDE } from './renderer';
+import { InkCursorRenderer, SEGMENT_STRIDE } from './renderer';
 
 // Ink-brush cursor trail rendered with WebGL2.
 //
-// The point-tracking logic mirrors the Canvas2D original: each mousemove
-// becomes a point with a width that tracks inverse cursor velocity (slow
-// → wet body, fast → hair-thin), plus a tiny per-point jitter to fake
-// bristle irregularity. Each frame we cull expired points, compute a
-// neighbor-averaged perpendicular per point (so adjacent quads share an
-// edge — no seams), pack everything into one Float32Array, and let the
-// GPU rasterize three layered triangle strips with per-vertex alpha
-// interpolation. The interpolated alpha across the strip replaces the
-// per-quad linearGradient that was the Canvas2D Safari bottleneck.
+// Point tracking: each mousemove becomes a point with a width that
+// tracks inverse cursor velocity (slow → wet body, fast → hair-thin)
+// and an ink-load that drops on fast strokes for sumi wet/dry contrast.
+//
+// Rendering: each cursor segment (consecutive point pair) is uploaded as
+// one instance and the GPU draws a bounding quad per segment. The
+// fragment shader does SDF distance-to-centerline + smooth gradient +
+// bristle noise. `gl.MAX` blending across overlapping quads makes
+// joints continuous through arbitrarily sharp corners — no bowtie ever
+// possible because no quad spans more than one segment.
 //
 // Disabled on coarse pointers and when prefers-reduced-motion is set.
 
 const POINT_LIFETIME = 1600;
 const MAX_POINTS = 500;
-
-// Layer recipe: widthScale (relative to point's brush width) and
-// alphaScale (multiplied into the point's age-derived alpha). The inner
-// core is wider and fainter than a centerline — its job is a subtle
-// density gradient inside the body, not a hard pen line.
-const LAYERS: Layer[] = [
-  { widthScale: 1.7, alphaScale: 0.08 }, // soft wet halo
-  { widthScale: 1.0, alphaScale: 0.7 }, // main ink body
-  { widthScale: 0.55, alphaScale: 0.28 }, // diffuse inner core
-];
 
 const parseColor = (raw: string): [number, number, number] => {
   const v = raw.trim();
@@ -185,12 +176,10 @@ const InkCursor = () => {
       attributeFilter: ['data-theme'],
     });
 
-    let perpsX = new Float32Array(MAX_POINTS);
-    let perpsY = new Float32Array(MAX_POINTS);
     let alphas = new Float32Array(MAX_POINTS);
-    let widthFactors = new Float32Array(MAX_POINTS);
+    let halfWs = new Float32Array(MAX_POINTS);
     let arcs = new Float32Array(MAX_POINTS);
-    const vertexBuffer = new Float32Array(MAX_POINTS * 2 * VERTEX_STRIDE);
+    const segBuffer = new Float32Array(MAX_POINTS * SEGMENT_STRIDE);
 
     let rafId = 0;
     const tick = () => {
@@ -207,49 +196,26 @@ const InkCursor = () => {
       }
 
       const n = points.length;
-      if (perpsX.length < n) {
-        perpsX = new Float32Array(n);
-        perpsY = new Float32Array(n);
+      if (alphas.length < n) {
         alphas = new Float32Array(n);
-        widthFactors = new Float32Array(n);
+        halfWs = new Float32Array(n);
         arcs = new Float32Array(n);
       }
 
-      // Per-point perpendiculars. For interior points use the chord from
-      // the previous to the next neighbor as a smoothed tangent — both
-      // adjacent quads see the same perpendicular at this shared vertex,
-      // so the strip is geometrically continuous (no seam artifacts).
-      for (let i = 0; i < n; i++) {
-        let tx: number;
-        let ty: number;
-        if (i === 0) {
-          tx = points[1].x - points[0].x;
-          ty = points[1].y - points[0].y;
-        } else if (i === n - 1) {
-          tx = points[i].x - points[i - 1].x;
-          ty = points[i].y - points[i - 1].y;
-        } else {
-          tx = points[i + 1].x - points[i - 1].x;
-          ty = points[i + 1].y - points[i - 1].y;
-        }
-        const tl = Math.hypot(tx, ty) || 1;
-        perpsX[i] = -ty / tl;
-        perpsY[i] = tx / tl;
-      }
-
-      // Per-point age-derived alpha + width. Alpha decays quadratically
-      // (ink holds vivid then fades). Width tapers as sqrt of remaining
-      // life — slower start, faster at the end — so the oldest end of
-      // the stroke narrows to a point like a brush lifting off paper.
+      // Per-point age-derived alpha + half-width. Alpha decays
+      // quadratically (ink holds vivid then fades). Half-width tapers
+      // as sqrt of remaining life — slower start, faster at the end —
+      // so the oldest end of the stroke narrows to a point like a
+      // brush lifting off paper.
       for (let i = 0; i < n; i++) {
         const age = now - points[i].bornAt;
         if (age >= POINT_LIFETIME) {
           alphas[i] = 0;
-          widthFactors[i] = 0;
+          halfWs[i] = 0;
         } else {
           const u = 1 - age / POINT_LIFETIME;
           alphas[i] = u * u;
-          widthFactors[i] = Math.sqrt(u);
+          halfWs[i] = points[i].w * 0.5 * Math.sqrt(u);
         }
       }
 
@@ -263,41 +229,30 @@ const InkCursor = () => {
         arcs[i] = arcs[i - 1] + Math.hypot(dx, dy);
       }
 
-      // Pack triangle-strip vertices: two per point (rails at +perp / -perp).
-      // Width and alpha scale happen in the vertex shader from layer uniforms,
-      // so this buffer is uploaded once and drawn three times.
-      for (let i = 0; i < n; i++) {
-        const off = i * 2 * VERTEX_STRIDE;
-        const p = points[i];
-        const halfW = p.w * 0.5 * widthFactors[i];
-        const px = perpsX[i];
-        const py = perpsY[i];
-        const a = alphas[i];
-        const arc = arcs[i];
-        const load = p.load;
-        // +side
-        vertexBuffer[off + 0] = p.x;
-        vertexBuffer[off + 1] = p.y;
-        vertexBuffer[off + 2] = px;
-        vertexBuffer[off + 3] = py;
-        vertexBuffer[off + 4] = halfW;
-        vertexBuffer[off + 5] = a;
-        vertexBuffer[off + 6] = 1;
-        vertexBuffer[off + 7] = arc;
-        vertexBuffer[off + 8] = load;
-        // -side
-        vertexBuffer[off + 9] = p.x;
-        vertexBuffer[off + 10] = p.y;
-        vertexBuffer[off + 11] = px;
-        vertexBuffer[off + 12] = py;
-        vertexBuffer[off + 13] = halfW;
-        vertexBuffer[off + 14] = a;
-        vertexBuffer[off + 15] = -1;
-        vertexBuffer[off + 16] = arc;
-        vertexBuffer[off + 17] = load;
+      // Pack per-segment instance data: one segment per consecutive
+      // point pair. The renderer extrudes a bounding quad per segment
+      // and SDF-renders it; MAX-blended overlap across adjacent quads
+      // makes joints continuous through any corner.
+      const segmentCount = n - 1;
+      for (let s = 0; s < segmentCount; s++) {
+        const off = s * SEGMENT_STRIDE;
+        const p0 = points[s];
+        const p1 = points[s + 1];
+        segBuffer[off + 0] = p0.x;
+        segBuffer[off + 1] = p0.y;
+        segBuffer[off + 2] = p1.x;
+        segBuffer[off + 3] = p1.y;
+        segBuffer[off + 4] = halfWs[s];
+        segBuffer[off + 5] = halfWs[s + 1];
+        segBuffer[off + 6] = alphas[s];
+        segBuffer[off + 7] = alphas[s + 1];
+        segBuffer[off + 8] = arcs[s];
+        segBuffer[off + 9] = arcs[s + 1];
+        segBuffer[off + 10] = p0.load;
+        segBuffer[off + 11] = p1.load;
       }
 
-      renderer.uploadAndDraw(vertexBuffer, n * 2, LAYERS);
+      renderer.uploadAndDraw(segBuffer, segmentCount);
 
       rafId = requestAnimationFrame(tick);
     };
