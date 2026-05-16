@@ -1,9 +1,10 @@
 import {
   ANTHER_MESHES,
+  buildStamenMeshes,
   CENTER_MESH,
   type Mesh,
   PETAL_MESHES,
-  STAMEN_MESHES,
+  STAMEN_HALF_WIDTH,
   STEM_BOTTOM_Y,
   STEM_MESH,
   STEM_TOP_Y,
@@ -135,6 +136,7 @@ export class SpiderLilyRenderer {
   private width = 0;
   private height = 0;
   private projection = new Float32Array(9);
+  private stamenHalfWidth = STAMEN_HALF_WIDTH;
 
   colors: Colors = {
     ink: [1, 1, 1, 1],
@@ -270,10 +272,22 @@ export class SpiderLilyRenderer {
       pivotX: m.pivot[0],
       pivotY: m.pivot[1],
     }));
-    this.stamenMeshes = STAMEN_MESHES.map(m => this.buildMesh(m));
+    this.stamenMeshes = buildStamenMeshes(this.stamenHalfWidth).map(m =>
+      this.buildMesh(m),
+    );
     this.antherMeshes = ANTHER_MESHES.map(m => this.buildMesh(m));
     this.stemMesh = this.buildMesh(STEM_MESH);
     this.centerMesh = this.buildMesh(CENTER_MESH);
+  }
+
+  private rebuildStamenMeshes() {
+    const gl = this.gl;
+    for (const m of this.stamenMeshes) {
+      gl.deleteVertexArray(m.vao);
+    }
+    this.stamenMeshes = buildStamenMeshes(this.stamenHalfWidth).map(m =>
+      this.buildMesh(m),
+    );
   }
 
   private buildQuad() {
@@ -358,6 +372,22 @@ export class SpiderLilyRenderer {
     if (width === this.width && height === this.height) return;
     this.width = width;
     this.height = height;
+
+    // Inflate the stamen stroke half-width on small canvases so the line is
+    // at least ~1 device pixel wide. At the baked 0.4 viewBox units the
+    // stamens go sub-pixel on mobile (≤640 device px wide), which under
+    // MSAA-4x resolves to such low alpha that the line nearly vanishes —
+    // imperceptible against the dark-mode black surface but rendering as
+    // white-on-white in light mode. The viewBox is 800 units wide, so
+    // halfWidth_view = 0.5 * 800 / width gives ~1 device px of total width.
+    const requiredHalfWidth = Math.max(
+      STAMEN_HALF_WIDTH,
+      (0.5 * VIEWBOX.w) / width,
+    );
+    if (requiredHalfWidth !== this.stamenHalfWidth) {
+      this.stamenHalfWidth = requiredHalfWidth;
+      this.rebuildStamenMeshes();
+    }
 
     this.disposeMSAA(this.sceneMS as MSAAFramebuffer | null);
     this.disposeFBO(this.scene as Framebuffer | null);
