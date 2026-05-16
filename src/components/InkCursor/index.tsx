@@ -104,13 +104,20 @@ const InkCursor = () => {
     applySize();
     window.addEventListener('resize', applySize);
 
-    type Point = { x: number; y: number; w: number; bornAt: number };
+    type Point = {
+      x: number;
+      y: number;
+      w: number;
+      load: number; // 0..1 — drier on fast strokes (sumi ink-depletion feel)
+      bornAt: number;
+    };
     const points: Point[] = [];
 
     let prevX = 0;
     let prevY = 0;
     let prevT = 0;
     let prevWidth = 0.5;
+    let prevLoad = 1;
     let hasPrev = false;
 
     const clamp = (v: number, lo: number, hi: number) =>
@@ -125,8 +132,9 @@ const InkCursor = () => {
         prevY = y;
         prevT = now;
         hasPrev = true;
-        points.push({ x, y, w: 0.5, bornAt: now });
+        points.push({ x, y, w: 0.5, load: 1, bornAt: now });
         prevWidth = 0.5;
+        prevLoad = 1;
         return;
       }
       const dx = x - prevX;
@@ -135,14 +143,20 @@ const InkCursor = () => {
       const dist = Math.hypot(dx, dy);
       if (dist < 1.5) return;
       const speed = dist / dt; // px/ms
-      // Slow drag pools to ~13px of wet ink; a fast flick narrows to a
-      // ~1.4px hair. Wide range gives the stroke a brushy body.
-      const targetWidth = clamp(13 - speed * 5.2, 1.4, 13);
+      // Slow drag pools to ~15px of wet ink; a fast flick narrows to a
+      // ~1.6px hair. Wide range gives the stroke a brushy body.
+      const targetWidth = clamp(15 - speed * 5.2, 1.6, 15);
       const w = prevWidth * 0.55 + targetWidth * 0.45;
       prevWidth = w;
+      // Ink load: slow strokes ride at full saturation; fast strokes
+      // deplete the brush. Same smoothing as width so the wet/dry feel
+      // tracks velocity without flicker.
+      const targetLoad = clamp(1 - speed * 0.22, 0.32, 1);
+      const load = prevLoad * 0.55 + targetLoad * 0.45;
+      prevLoad = load;
       // Tiny per-point width jitter — fakes irregular bristle edge.
       const jitter = 1 + (Math.random() - 0.5) * 0.18;
-      points.push({ x, y, w: w * jitter, bornAt: now });
+      points.push({ x, y, w: w * jitter, load, bornAt: now });
       if (points.length > MAX_POINTS) points.shift();
       prevX = x;
       prevY = y;
@@ -152,6 +166,7 @@ const InkCursor = () => {
     const onLeave = () => {
       hasPrev = false;
       prevWidth = 0.5;
+      prevLoad = 1;
     };
 
     document.addEventListener('mousemove', onMove, { passive: true });
@@ -173,6 +188,8 @@ const InkCursor = () => {
     let perpsX = new Float32Array(MAX_POINTS);
     let perpsY = new Float32Array(MAX_POINTS);
     let alphas = new Float32Array(MAX_POINTS);
+    let widthFactors = new Float32Array(MAX_POINTS);
+    let arcs = new Float32Array(MAX_POINTS);
     const vertexBuffer = new Float32Array(MAX_POINTS * 2 * VERTEX_STRIDE);
 
     let rafId = 0;
@@ -194,6 +211,8 @@ const InkCursor = () => {
         perpsX = new Float32Array(n);
         perpsY = new Float32Array(n);
         alphas = new Float32Array(n);
+        widthFactors = new Float32Array(n);
+        arcs = new Float32Array(n);
       }
 
       // Per-point perpendiculars. For interior points use the chord from
@@ -218,17 +237,30 @@ const InkCursor = () => {
         perpsY[i] = tx / tl;
       }
 
-      // Per-point age-derived alpha. Quadratic on the inverse age — ink
-      // holds vivid for the first half of its lifetime then dissipates
-      // gently, more like wet ink drying than a hard cutoff.
+      // Per-point age-derived alpha + width. Alpha decays quadratically
+      // (ink holds vivid then fades). Width tapers as sqrt of remaining
+      // life — slower start, faster at the end — so the oldest end of
+      // the stroke narrows to a point like a brush lifting off paper.
       for (let i = 0; i < n; i++) {
         const age = now - points[i].bornAt;
         if (age >= POINT_LIFETIME) {
           alphas[i] = 0;
+          widthFactors[i] = 0;
         } else {
           const u = 1 - age / POINT_LIFETIME;
           alphas[i] = u * u;
+          widthFactors[i] = Math.sqrt(u);
         }
+      }
+
+      // Cumulative arc length per point — feeds the bristle noise's
+      // along-stroke axis. Recomputed each frame from the oldest live
+      // point so values don't grow unbounded across long sessions.
+      arcs[0] = 0;
+      for (let i = 1; i < n; i++) {
+        const dx = points[i].x - points[i - 1].x;
+        const dy = points[i].y - points[i - 1].y;
+        arcs[i] = arcs[i - 1] + Math.hypot(dx, dy);
       }
 
       // Pack triangle-strip vertices: two per point (rails at +perp / -perp).
@@ -237,10 +269,12 @@ const InkCursor = () => {
       for (let i = 0; i < n; i++) {
         const off = i * 2 * VERTEX_STRIDE;
         const p = points[i];
-        const halfW = p.w * 0.5;
+        const halfW = p.w * 0.5 * widthFactors[i];
         const px = perpsX[i];
         const py = perpsY[i];
         const a = alphas[i];
+        const arc = arcs[i];
+        const load = p.load;
         // +side
         vertexBuffer[off + 0] = p.x;
         vertexBuffer[off + 1] = p.y;
@@ -249,14 +283,18 @@ const InkCursor = () => {
         vertexBuffer[off + 4] = halfW;
         vertexBuffer[off + 5] = a;
         vertexBuffer[off + 6] = 1;
+        vertexBuffer[off + 7] = arc;
+        vertexBuffer[off + 8] = load;
         // -side
-        vertexBuffer[off + 7] = p.x;
-        vertexBuffer[off + 8] = p.y;
-        vertexBuffer[off + 9] = px;
-        vertexBuffer[off + 10] = py;
-        vertexBuffer[off + 11] = halfW;
-        vertexBuffer[off + 12] = a;
-        vertexBuffer[off + 13] = -1;
+        vertexBuffer[off + 9] = p.x;
+        vertexBuffer[off + 10] = p.y;
+        vertexBuffer[off + 11] = px;
+        vertexBuffer[off + 12] = py;
+        vertexBuffer[off + 13] = halfW;
+        vertexBuffer[off + 14] = a;
+        vertexBuffer[off + 15] = -1;
+        vertexBuffer[off + 16] = arc;
+        vertexBuffer[off + 17] = load;
       }
 
       renderer.uploadAndDraw(vertexBuffer, n * 2, LAYERS);

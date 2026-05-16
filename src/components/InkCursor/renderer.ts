@@ -12,14 +12,19 @@ const VERTEX_SHADER = /* glsl */ `#version 300 es
 in vec2 a_position;     // centerline (CSS px)
 in vec2 a_perp;         // unit perpendicular (averaged from neighbors)
 in float a_halfWidth;   // base brush half-width (CSS px)
-in float a_alpha;       // base alpha (age-derived, 0..1)
+in float a_alpha;       // age-derived alpha (0..1), pre-ink-load
 in float a_side;        // +1 or -1 — which rail of the strip
+in float a_arcLength;   // cumulative arc length along the centerline (CSS px)
+in float a_inkLoad;     // 0..1 — how wet the brush is at this point
 
 uniform vec2 u_resolution;  // CSS pixel size of the canvas
 uniform float u_widthScale; // per-layer multiplier on width
 uniform float u_alphaScale; // per-layer multiplier on alpha
 
 out float v_alpha;
+out float v_side;       // interpolated -1..+1 across strip width
+out float v_arcLength;  // interpolated along stroke length
+out float v_inkLoad;    // interpolated 0..1 along stroke
 
 void main() {
   vec2 pos = a_position + a_perp * (a_halfWidth * u_widthScale) * a_side;
@@ -27,6 +32,9 @@ void main() {
   // Mouse coords are y-down; clip space is y-up — flip.
   gl_Position = vec4(ndc.x, -ndc.y, 0.0, 1.0);
   v_alpha = a_alpha * u_alphaScale;
+  v_side = a_side;
+  v_arcLength = a_arcLength;
+  v_inkLoad = a_inkLoad;
 }
 `;
 
@@ -36,15 +44,49 @@ precision mediump float;
 uniform vec3 u_color;  // straight RGB; alpha is multiplied in for premul out
 
 in float v_alpha;
+in float v_side;
+in float v_arcLength;
+in float v_inkLoad;
 out vec4 fragColor;
 
+// Hash-based 2D value noise (no textures, no extensions). Stable across
+// drivers — sin(x)*large isn't.
+float hash(vec2 p) {
+  p = fract(p * vec2(123.34, 456.21));
+  p += dot(p, p + 45.32);
+  return fract(p.x * p.y);
+}
+
+float valueNoise(vec2 p) {
+  vec2 i = floor(p);
+  vec2 f = fract(p);
+  float a = hash(i);
+  float b = hash(i + vec2(1.0, 0.0));
+  float c = hash(i + vec2(0.0, 1.0));
+  float d = hash(i + vec2(1.0, 1.0));
+  vec2 u = f * f * (3.0 - 2.0 * f);
+  return mix(mix(a, b, u.x), mix(c, d, u.x), u.y);
+}
+
 void main() {
-  float a = clamp(v_alpha, 0.0, 1.0);
+  // Ink load (drier on fast strokes) scales the base alpha — slow drags
+  // lay heavy black, fast flicks fade. This is the wet/dry contrast that
+  // defines sumi brushwork.
+  float load = clamp(v_inkLoad, 0.0, 1.0);
+  float a = clamp(v_alpha, 0.0, 1.0) * load;
+  // Soft feathered edge — replaces the hard MSAA cutoff with a falloff.
+  a *= 1.0 - smoothstep(0.55, 1.0, abs(v_side));
+  // Kasure (掠れ): bristle striations get sharper as the brush dries.
+  // dryness=0 → subtle texture; dryness=1 → pronounced dry-brush streaks.
+  float dryness = 1.0 - load;
+  float bristleStrength = mix(0.18, 0.85, dryness);
+  float n = valueNoise(vec2(v_side * 6.0, v_arcLength * 0.015));
+  a *= 1.0 - bristleStrength * (1.0 - n);
   fragColor = vec4(u_color * a, a);
 }
 `;
 
-export const VERTEX_STRIDE = 7; // floats per vertex (vec2 + vec2 + 3 floats)
+export const VERTEX_STRIDE = 9; // floats per vertex (vec2 + vec2 + 5 floats)
 
 export type Layer = { widthScale: number; alphaScale: number };
 
@@ -74,6 +116,8 @@ export class InkCursorRenderer {
     const aHalfWidth = gl.getAttribLocation(this.program, 'a_halfWidth');
     const aAlpha = gl.getAttribLocation(this.program, 'a_alpha');
     const aSide = gl.getAttribLocation(this.program, 'a_side');
+    const aArcLength = gl.getAttribLocation(this.program, 'a_arcLength');
+    const aInkLoad = gl.getAttribLocation(this.program, 'a_inkLoad');
 
     this.uResolution = gl.getUniformLocation(this.program, 'u_resolution')!;
     this.uColor = gl.getUniformLocation(this.program, 'u_color')!;
@@ -95,6 +139,10 @@ export class InkCursorRenderer {
     gl.vertexAttribPointer(aAlpha, 1, gl.FLOAT, false, stride, 20);
     gl.enableVertexAttribArray(aSide);
     gl.vertexAttribPointer(aSide, 1, gl.FLOAT, false, stride, 24);
+    gl.enableVertexAttribArray(aArcLength);
+    gl.vertexAttribPointer(aArcLength, 1, gl.FLOAT, false, stride, 28);
+    gl.enableVertexAttribArray(aInkLoad);
+    gl.vertexAttribPointer(aInkLoad, 1, gl.FLOAT, false, stride, 32);
     gl.bindVertexArray(null);
   }
 
