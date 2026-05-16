@@ -292,97 +292,10 @@ html[data-theme-flash-reset] .nav-glitch-active {
   animation: atlas-char-rise 350ms ease-out both;
 }
 
-/* Spider lily — side view bloom animation */
-
-@keyframes lily-stem-rise {
-  0% {
-    clip-path: inset(100% 0 0 0);
-    opacity: 0;
-  }
-  10% {
-    opacity: 0.8;
-  }
-  100% {
-    clip-path: inset(0 0 0 0);
-    opacity: 1;
-  }
-}
-
-@keyframes lily-bract-open {
-  0% {
-    stroke-dashoffset: 1;
-    opacity: 0;
-  }
-  100% {
-    stroke-dashoffset: 0;
-    opacity: 0.4;
-  }
-}
-
-@keyframes lily-petal-bloom {
-  0% {
-    opacity: 0;
-    transform: scale(0) rotate(8deg);
-  }
-  20% {
-    opacity: 0.5;
-    transform: scale(0.4) rotate(4deg);
-  }
-  50% {
-    opacity: 0.8;
-    transform: scale(0.75) rotate(1deg);
-  }
-  80% {
-    opacity: 0.9;
-    transform: scale(0.95) rotate(-0.5deg);
-  }
-  100% {
-    opacity: 0.92;
-    transform: scale(1) rotate(0deg);
-  }
-}
-
-@keyframes lily-stamen-grow {
-  0% {
-    stroke-dashoffset: 1;
-    opacity: 0;
-  }
-  25% {
-    stroke-dashoffset: 0.7;
-    opacity: 0.3;
-  }
-  60% {
-    stroke-dashoffset: 0.2;
-    opacity: 0.55;
-  }
-  100% {
-    stroke-dashoffset: 0;
-    opacity: 0.7;
-  }
-}
-
-@keyframes lily-anther-appear {
-  0% {
-    opacity: 0;
-  }
-  60% {
-    opacity: 0.85;
-  }
-  100% {
-    opacity: 0.75;
-  }
-}
-
-@keyframes lily-center-pulse {
-  0% {
-    opacity: 0;
-    r: 0;
-  }
-  100% {
-    opacity: 0.85;
-    r: 3;
-  }
-}
+/* Spider lily — the canvas itself owns geometry/bloom/wind/glow via a
+   WebGL2 renderer (see src/screens/Home/SpiderLily). What remains here is
+   the outer halo on the wrapping container, which still uses CSS
+   drop-shadow so it composites cheaply and respects the theme vars. */
 
 @keyframes lily-breathe {
   0%,
@@ -398,97 +311,13 @@ html[data-theme-flash-reset] .nav-glitch-active {
   }
 }
 
-/* Stem — brush stroke aesthetic */
-.spider-lily-stem {
-  fill: var(--color-ink);
-  opacity: 0;
-}
-
-.spider-lily-stem-active {
-  animation: lily-stem-rise 800ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  opacity: 0.8;
-}
-
-/* Bract */
-.spider-lily-bract {
-  fill: none;
-  stroke: var(--color-ink-faint);
-  stroke-width: 0.8;
-  stroke-linecap: round;
-  stroke-dasharray: 1;
-  stroke-dashoffset: 1;
-  opacity: 0;
-}
-
-.spider-lily-bract-active {
-  animation: lily-bract-open 600ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
-}
-
-/* Petals — ink on surface */
-.spider-lily-petal {
-  fill: var(--color-ink);
-  stroke: var(--color-ink);
-  stroke-width: 0.5;
-  stroke-linejoin: round;
-  opacity: 0;
-  transform-origin: 220px 230px;
-}
-
-.spider-lily-petal-active {
-  animation: lily-petal-bloom 700ms cubic-bezier(0.12, 0.8, 0.2, 1) forwards;
-}
-
-/* Stamens */
-.spider-lily-stamen {
-  fill: none;
-  stroke: var(--color-ink-muted);
-  stroke-width: 0.8;
-  stroke-linecap: round;
-  stroke-dasharray: 1;
-  stroke-dashoffset: 1;
-  opacity: 0;
-}
-
-.spider-lily-stamen-active {
-  animation: lily-stamen-grow 600ms cubic-bezier(0.12, 0.8, 0.2, 1) forwards;
-}
-
-/* Anther tips */
-.spider-lily-anther {
-  fill: var(--color-ink-soft);
-  opacity: 0;
-}
-
-.spider-lily-anther-active {
-  animation: lily-anther-appear 350ms cubic-bezier(0.12, 0.8, 0.2, 1) forwards;
-}
-
-/* Center node */
-.spider-lily-center {
-  fill: var(--color-ink);
-  opacity: 0;
-}
-
-.spider-lily-center-active {
-  animation: lily-center-pulse 500ms cubic-bezier(0.12, 0.8, 0.2, 1) forwards;
-}
-
-/* Ethereal glow — fades in during bloom, then breathes */
 .spider-lily-container {
   animation:
     lily-glow-in 2.5s ease-out 1.2s forwards,
     lily-breathe 7s ease-in-out 4s infinite;
 }
 
-/* Mobile / reduced-motion fallback for the spider lily.
-   iOS Safari can't composite the stacked SVG filters (feTurbulence + two
-   Gaussian blurs + per-stamen glow) at 60fps while the lily is animating.
-   SpiderLily.tsx drops those filters and the wind/sway rAF loop on coarse
-   pointers, and swaps the heavy #petal-glow for a slimmer two-pass
-   Gaussian blur merge (#petal-glow-lite) that self-colors from
-   SourceGraphic. Here we also skip the infinite breathing drop-shadow on
-   the container. Desktop behavior is unchanged. */
-@media (prefers-reduced-motion: reduce), (pointer: coarse) {
+@media (prefers-reduced-motion: reduce) {
   .spider-lily-container {
     animation: lily-glow-in 2.5s ease-out 1.2s forwards;
   }
