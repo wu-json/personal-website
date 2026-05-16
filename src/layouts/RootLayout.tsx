@@ -184,6 +184,7 @@ const SIDEBAR_COLLAPSED_KEY = 'sidebarCollapsed';
 
 const RootLayout = ({ children }: { children: React.ReactNode }) => {
   const mainRef = useRef<HTMLElement>(null);
+  const [pathname] = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
     if (typeof window === 'undefined') return false;
@@ -225,7 +226,7 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
       </main>
       <ScrollReset scrollRef={mainRef} />
       <ScrollToTop scrollRef={mainRef} />
-      <InkCursor />
+      {pathname === '/' && <InkCursor />}
     </div>
   );
 };
