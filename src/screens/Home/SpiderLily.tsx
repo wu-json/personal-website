@@ -346,16 +346,21 @@ const WIND_SPEED = 0.0008;
 const WIND_STRENGTH_X = 4.5;
 const WIND_STRENGTH_Y = 2.0;
 
-// Capability flags captured once at module load. iOS Safari chokes on the
+// Capability flags captured once at module load. Safari/WebKit chokes on the
 // stacked SVG filters (feTurbulence + two Gaussian blurs + per-stamen glow)
-// re-rasterizing every rAF, so on coarse-pointer devices and under Reduce
-// Motion we skip the filter chain and the wind/sway loop entirely. Desktop
+// re-rasterizing every rAF — the wind/sway loop writes `transform` to 26+
+// nodes inside the filtered group each frame, invalidating WebKit's filter
+// cache. Chromium (Skia) handles this fine; macOS and iOS Safari can't. So
+// on Safari, coarse-pointer devices, and under Reduce Motion we skip the
+// filter chain and the wind/sway loop entirely. Chromium/Firefox desktop
 // behavior is unchanged.
 const heavyEffectsEnabled = (() => {
   if (typeof window === 'undefined') return true;
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const coarse = window.matchMedia('(pointer: coarse)').matches;
-  return !reduce && !coarse;
+  const ua = navigator.userAgent;
+  const isSafari = /^((?!chrome|android|crios|fxios).)*safari/i.test(ua);
+  return !reduce && !coarse && !isSafari;
 })();
 
 type Vec2 = { x: number; y: number };
@@ -643,15 +648,15 @@ const SpiderLily = ({ className }: { className?: string }) => {
           </filter>
         </defs>
       ) : (
-        /* Mobile / reduced-motion path. Mirrors the desktop #petal-glow
-           (wide blur + tight blur + SourceGraphic merge) at smaller radii.
-           On this branch the flower subtree is static — no rAF transform
-           writes inside the filtered group — so iOS Safari rasterizes the
-           filter once at paint time instead of every frame, which keeps
-           it cheap. Self-coloring via SourceGraphic avoids a `flood-color`
-           CSS theming seam that iOS ignores on `<feDropShadow>`; the halo
-           inherits the petals' ink color and tracks the active theme
-           automatically. */
+        /* Safari / mobile / reduced-motion path. Mirrors the desktop
+           #petal-glow (wide blur + tight blur + SourceGraphic merge) at
+           smaller radii. On this branch the flower subtree is static — no
+           rAF transform writes inside the filtered group — so WebKit
+           rasterizes the filter once at paint time instead of every frame,
+           which keeps it cheap. Self-coloring via SourceGraphic avoids a
+           `flood-color` CSS theming seam that iOS ignores on
+           `<feDropShadow>`; the halo inherits the petals' ink color and
+           tracks the active theme automatically. */
         <defs>
           <filter
             id='petal-glow-lite'
