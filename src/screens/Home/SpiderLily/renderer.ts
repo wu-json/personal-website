@@ -375,15 +375,14 @@ export class SpiderLilyRenderer {
 
     // Inflate the stamen stroke half-width on small canvases so the line
     // survives the wide-blur composite (stdDev ≈ 6 device px) that this
-    // renderer applies to every shape — the old SVG version blurred stamens
-    // with stdDev≈1.2 *viewBox* units only, so a 0.8-unit stroke stayed
-    // visible. Here the wide blur spreads a thin line's energy over ~12
-    // device px and washes the scene contribution down to nearly transparent;
-    // ~1 device px (target = 0.5) wasn't enough. Target ≥2 device px total
-    // width so the scene layer keeps usable alpha at the line center.
+    // renderer applies to every shape — the old SVG only blurred stamens
+    // with stdDev ≈ 1.2 *viewBox* units, so a 0.8-unit stroke stayed
+    // visible. Target ~1 device px total width: enough that MSAA-4x gives
+    // consistent coverage and the scene layer keeps usable alpha at the
+    // line center, without crossing into "chunky" territory on desktop.
     const requiredHalfWidth = Math.max(
       STAMEN_HALF_WIDTH,
-      (1.0 * VIEWBOX.w) / width,
+      (0.5 * VIEWBOX.w) / width,
     );
     if (requiredHalfWidth !== this.stamenHalfWidth) {
       this.stamenHalfWidth = requiredHalfWidth;
