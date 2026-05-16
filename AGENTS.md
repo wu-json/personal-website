@@ -15,6 +15,7 @@ Personal site for Jason Wu ([jasonwu.ink](https://jasonwu.ink)): React + TypeScr
 - **3D**: `three`, `@react-three/fiber`, `@react-three/drei`
 - **Markdown**: `react-markdown`, `remark-gfm`, `rehype-raw`
 - **Runtime**: Bun (>=1.3.4)
+- **Typechecker**: [tsgo](https://github.com/microsoft/typescript-go) (`@typescript/native-preview`) — Go port of `tsc`, drop-in for `--noEmit` typecheck
 - **Lint / format**: Oxlint, Oxfmt
 - **Git hooks**: [prek](https://github.com/j178/prek) (runs on `bun install`, skipped in CI)
 
@@ -30,6 +31,7 @@ Personal site for Jason Wu ([jasonwu.ink](https://jasonwu.ink)): React + TypeScr
 - `bun run preview` — serve production build
 - `bun run lint` — oxlint
 - `bun run format` — oxfmt
+- `bun run typecheck` — tsgo (`--noEmit`)
 - `bun run optimize-photos` — image pipeline for fragments (see `scripts/optimize-photos.ts`)
 
 ## Code style
@@ -123,6 +125,6 @@ Long posts use a collapsed teaser on `/signals` unless frontmatter has `expanded
 
 ## When making changes
 
-1. Run `bun run lint` and `bun run format` before committing
+1. Run `bun run lint`, `bun run format`, and `bun run typecheck` before committing
 2. Keep TypeScript types accurate
 3. Follow existing component and file patterns
