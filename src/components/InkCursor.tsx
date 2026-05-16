@@ -84,8 +84,10 @@ const InkCursor = () => {
       if (dist < 1.5) return;
 
       const speed = dist / dt; // px/ms
-      // Slow = thick wet ink (target ~16px); fast = thin dry brush (~1.5px).
-      const targetWidth = clamp(16 - speed * 5.5, 1.5, 16);
+      // Slow = confident wet ink (target ~8.5px); fast = hair-thin dry brush
+      // (~0.8px). Kept restrained so the trail reads as calligraphy rather
+      // than a marker.
+      const targetWidth = clamp(8.5 - speed * 3.6, 0.8, 8.5);
       // Smooth width transitions so abrupt speed changes don't snap.
       const w = prevWidth * 0.55 + targetWidth * 0.45;
       prevWidth = w;
@@ -96,37 +98,31 @@ const InkCursor = () => {
       const cx = (prevX + x) / 2;
       const cy = (prevY + y) / 2;
 
-      // Bristle hairs: 2–4 thin lines parallel to the stroke, offset
-      // perpendicular. More bristles when moving fast (dry brush look).
-      const bristleCount = speed > 1.2 ? 4 : speed > 0.5 ? 3 : 2;
+      // Bristle hairs only appear above a velocity threshold — the
+      // "dry brush" / flying-white effect of a fast flick. Slow confident
+      // strokes stay a single clean line. Capped at 2 hairs so they read
+      // as accent, not texture spam.
       const bristles: Segment['bristles'] = [];
-      for (let i = 0; i < bristleCount; i++) {
-        const seed = Math.random();
-        bristles.push({
-          offset: (seed - 0.5) * w * 1.6,
-          opacity: 0.25 + seed * 0.45,
-          // Trim some bristles short on either end to fake split bristles.
-          head: Math.random() * 0.35,
-          tail: 0.65 + Math.random() * 0.35,
-        });
-      }
-
-      // Occasional ink splatters when the brush is pressing (slow & wet).
-      const splatters: Segment['splatters'] = [];
-      if (speed < 0.4 && Math.random() < 0.35) {
-        const count = 1 + Math.floor(Math.random() * 2);
-        for (let i = 0; i < count; i++) {
-          splatters.push({
-            dx: (Math.random() - 0.5) * w * 2.2,
-            dy: (Math.random() - 0.5) * w * 2.2,
-            r: 0.4 + Math.random() * 1.2,
-            a: 0.35 + Math.random() * 0.45,
+      if (speed > 0.7) {
+        const bristleCount = speed > 1.5 ? 2 : 1;
+        for (let i = 0; i < bristleCount; i++) {
+          const seed = Math.random();
+          bristles.push({
+            offset: (seed - 0.5) * w * 1.3,
+            opacity: 0.18 + seed * 0.22,
+            head: Math.random() * 0.4,
+            tail: 0.6 + Math.random() * 0.4,
           });
         }
       }
 
-      // Faster strokes evaporate quicker; slow wet ink lingers a bit longer.
-      const lifetime = speed > 1.5 ? 900 : speed > 0.6 ? 1200 : 1600;
+      // Splatters dropped — they read as noise next to a thin brush. Keep
+      // the field so the existing draw loop stays a no-op for old data.
+      const splatters: Segment['splatters'] = [];
+
+      // Faster strokes evaporate quicker; slow wet ink lingers a touch
+      // longer. Trimmed overall so the trail doesn't accumulate.
+      const lifetime = speed > 1.5 ? 650 : speed > 0.6 ? 850 : 1100;
 
       segments.push({
         x0: prevX,
@@ -214,25 +210,27 @@ const InkCursor = () => {
         // Ease-out cubic — ink stays vivid then fades quickly at the end.
         const fade = 1 - t * t * t;
 
-        // Layer 1: wet ink halo. Wide, soft, very faint — the bleed.
-        ctx.strokeStyle = `rgba(${inkColor}, ${0.08 * fade})`;
-        ctx.lineWidth = s.width * 1.9;
+        // Layer 1: wet ink halo. Just a whisper of bleed — slimmer and
+        // softer than the body so it doesn't dominate.
+        ctx.strokeStyle = `rgba(${inkColor}, ${0.04 * fade})`;
+        ctx.lineWidth = s.width * 1.35;
         ctx.beginPath();
         ctx.moveTo(s.x0, s.y0);
         ctx.quadraticCurveTo(s.cx, s.cy, s.x1, s.y1);
         ctx.stroke();
 
         // Layer 2: main body — the readable ink mark.
-        ctx.strokeStyle = `rgba(${inkColor}, ${0.72 * fade})`;
+        ctx.strokeStyle = `rgba(${inkColor}, ${0.45 * fade})`;
         ctx.lineWidth = s.width;
         ctx.beginPath();
         ctx.moveTo(s.x0, s.y0);
         ctx.quadraticCurveTo(s.cx, s.cy, s.x1, s.y1);
         ctx.stroke();
 
-        // Layer 3: sharp spine — a thin dark line down the middle.
+        // Layer 3: sharp spine — a thin dark line down the middle gives
+        // the brushstroke its definition without bulk.
         ctx.strokeStyle = `rgba(${inkColor}, ${0.55 * fade})`;
-        ctx.lineWidth = Math.max(s.width * 0.32, 0.6);
+        ctx.lineWidth = Math.max(s.width * 0.28, 0.5);
         ctx.beginPath();
         ctx.moveTo(s.x0, s.y0);
         ctx.quadraticCurveTo(s.cx, s.cy, s.x1, s.y1);
