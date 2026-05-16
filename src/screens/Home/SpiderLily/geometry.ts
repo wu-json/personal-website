@@ -534,7 +534,7 @@ function buildEllipseFan(
   return { vertices, indices };
 }
 
-const STAMEN_HALF_WIDTH = 0.4;
+export const STAMEN_HALF_WIDTH = 0.4;
 const ANTHER_SEGMENTS = 16;
 const CENTER_SEGMENTS = 16;
 const CENTER_RADIUS = 3;
@@ -544,9 +544,19 @@ export const PETAL_MESHES: PetalMesh[] = PETALS.map(p => {
   return { ...mesh, pivot: [p.cx, p.cy] };
 });
 
-export const STAMEN_MESHES: Mesh[] = STAMENS.map(s =>
-  buildStroke(samplePath(parsePath(s.d)), STAMEN_HALF_WIDTH),
-);
+// Sampled centerline points per stamen — kept around so the renderer can
+// rebuild stamen stroke meshes at a wider half-width on small/low-DPR
+// canvases, where the default 0.4 viewBox-unit half-width is sub-device-pixel
+// and MSAA-4x produces such low coverage that the line goes nearly
+// transparent (invisible against light-mode white; barely off against
+// dark-mode black, which is why the bug is mobile + light only).
+const STAMEN_POINTS: Pt[][] = STAMENS.map(s => samplePath(parsePath(s.d)));
+
+export function buildStamenMeshes(halfWidth: number): Mesh[] {
+  return STAMEN_POINTS.map(pts => buildStroke(pts, halfWidth));
+}
+
+export const STAMEN_MESHES: Mesh[] = buildStamenMeshes(STAMEN_HALF_WIDTH);
 
 export const ANTHER_MESHES: Mesh[] = STAMENS.map(s =>
   buildEllipseFan(
