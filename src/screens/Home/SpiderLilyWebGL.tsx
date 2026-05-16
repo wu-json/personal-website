@@ -60,37 +60,24 @@ const buildSvgString = (color: string): string => {
   return parts.join('');
 };
 
-type RasterPair = { sharp: HTMLCanvasElement; glow: HTMLCanvasElement };
-
-// Rasterize the SVG into two canvases — a sharp silhouette and a
-// pre-blurred halo. Doing the blur once at startup via ctx.filter (GPU-
-// accelerated in both Skia and CoreGraphics) collapses the shader's
-// per-frame work from 32 texture samples per pixel to 2. The shape never
-// changes, so the cached blur is always correct.
-const rasterize = (svg: string): Promise<RasterPair> =>
+const rasterize = (svg: string): Promise<HTMLCanvasElement> =>
   new Promise((resolve, reject) => {
     const blob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const img = new Image();
     img.onload = () => {
-      const make = (filter: string) => {
-        const canvas = document.createElement('canvas');
-        canvas.width = TEXTURE_W;
-        canvas.height = TEXTURE_H;
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return null;
-        ctx.filter = filter;
-        ctx.drawImage(img, 0, 0, TEXTURE_W, TEXTURE_H);
-        return canvas;
-      };
-      const sharp = make('none');
-      const glow = make('blur(14px)');
-      URL.revokeObjectURL(url);
-      if (!sharp || !glow) {
+      const canvas = document.createElement('canvas');
+      canvas.width = TEXTURE_W;
+      canvas.height = TEXTURE_H;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        URL.revokeObjectURL(url);
         reject(new Error('2d context unavailable'));
         return;
       }
-      resolve({ sharp, glow });
+      ctx.drawImage(img, 0, 0, TEXTURE_W, TEXTURE_H);
+      URL.revokeObjectURL(url);
+      resolve(canvas);
     };
     img.onerror = () => {
       URL.revokeObjectURL(url);
@@ -107,17 +94,14 @@ const VERTEX_SHADER = /* glsl */ `
   }
 `;
 
-// Fragment shader: warps uv with wind + hover, then does TWO texture
-// samples — sharp silhouette + pre-blurred halo. The blur is baked at
-// startup (see rasterize), so the per-frame cost is constant regardless
-// of halo radius. Earlier iterations did a 32-tap radial blur in the
-// shader which was fine on Chromium but stutter-y on Safari/Metal at
-// Retina dpr; this trades startup work for runtime smoothness.
+// Fragment shader: warps uv with wind + hover, samples the rasterized
+// flower silhouette as an alpha mask, builds a 12-tap radial blur for
+// the glow halo, multiplies by the theme color. With dpr=1 this is
+// ~13 texture samples per pixel per frame — within Safari's budget.
 const FRAGMENT_SHADER = /* glsl */ `
   precision mediump float;
 
-  uniform sampler2D uSharp;
-  uniform sampler2D uGlow;
+  uniform sampler2D uTexture;
   uniform float uTime;
   uniform vec2 uMouse;       // 0..1 uv space; (-1,-1) when inactive
   uniform vec3 uColor;
@@ -125,6 +109,10 @@ const FRAGMENT_SHADER = /* glsl */ `
   uniform float uAspect;
 
   varying vec2 vUv;
+
+  float sampleAlpha(vec2 uv) {
+    return texture2D(uTexture, uv).a;
+  }
 
   void main() {
     vec2 uv = vUv;
@@ -143,10 +131,18 @@ const FRAGMENT_SHADER = /* glsl */ `
       }
     }
 
-    float core = texture2D(uSharp, uv).a;
-    float halo = texture2D(uGlow, uv).a;
+    float core = sampleAlpha(uv);
 
-    float alpha = max(core, halo * 0.55) * uOpacity;
+    float halo = 0.0;
+    const int TAPS = 12;
+    for (int i = 0; i < TAPS; i++) {
+      float a = float(i) * 6.2831853 / float(TAPS);
+      vec2 dir = vec2(cos(a), sin(a));
+      halo += sampleAlpha(uv + dir * 0.018);
+    }
+    halo /= float(TAPS);
+
+    float alpha = max(core, halo * 0.5) * uOpacity;
     gl_FragColor = vec4(uColor, alpha);
   }
 `;
@@ -162,13 +158,11 @@ const hexToVec3 = (hex: string): Vec3 => {
 };
 
 const LilyMesh = ({
-  sharp,
-  glow,
+  texture,
   color,
   fadeStart,
 }: {
-  sharp: THREE.Texture;
-  glow: THREE.Texture;
+  texture: THREE.Texture;
   color: Vec3;
   fadeStart: number;
 }) => {
@@ -182,8 +176,7 @@ const LilyMesh = ({
 
   const uniforms = useMemo(
     () => ({
-      uSharp: { value: sharp },
-      uGlow: { value: glow },
+      uTexture: { value: texture },
       uTime: { value: 0 },
       uMouse: { value: new THREE.Vector2(-1, -1) },
       uColor: { value: new THREE.Vector3(...color) },
@@ -197,10 +190,9 @@ const LilyMesh = ({
   );
 
   useEffect(() => {
-    uniforms.uSharp.value = sharp;
-    uniforms.uGlow.value = glow;
+    uniforms.uTexture.value = texture;
     if (materialRef.current) materialRef.current.needsUpdate = true;
-  }, [sharp, glow, uniforms]);
+  }, [texture, uniforms]);
 
   useEffect(() => {
     uniforms.uColor.value.set(...color);
@@ -256,10 +248,7 @@ const LilyMesh = ({
 
 const SpiderLilyWebGL = ({ className }: { className?: string }) => {
   const { theme, toggle } = useTheme();
-  const [textures, setTextures] = useState<{
-    sharp: THREE.CanvasTexture;
-    glow: THREE.CanvasTexture;
-  } | null>(null);
+  const [texture, setTexture] = useState<THREE.CanvasTexture | null>(null);
 
   const color = useMemo<Vec3>(
     () => (theme === 'dark' ? hexToVec3('#ffffff') : hexToVec3('#000000')),
@@ -268,18 +257,15 @@ const SpiderLilyWebGL = ({ className }: { className?: string }) => {
 
   useEffect(() => {
     let cancelled = false;
-    const wrap = (canvas: HTMLCanvasElement) => {
-      const tex = new THREE.CanvasTexture(canvas);
-      tex.minFilter = THREE.LinearFilter;
-      tex.magFilter = THREE.LinearFilter;
-      tex.generateMipmaps = false;
-      tex.premultiplyAlpha = false;
-      return tex;
-    };
     rasterize(buildSvgString('#ffffff'))
-      .then(({ sharp, glow }) => {
+      .then(canvas => {
         if (cancelled) return;
-        setTextures({ sharp: wrap(sharp), glow: wrap(glow) });
+        const tex = new THREE.CanvasTexture(canvas);
+        tex.minFilter = THREE.LinearFilter;
+        tex.magFilter = THREE.LinearFilter;
+        tex.generateMipmaps = false;
+        tex.premultiplyAlpha = false;
+        setTexture(tex);
       })
       .catch(err => {
         // eslint-disable-next-line no-console
@@ -314,7 +300,7 @@ const SpiderLilyWebGL = ({ className }: { className?: string }) => {
       tabIndex={0}
       aria-label='Toggle color scheme'
     >
-      {textures && (
+      {texture && (
         <Canvas
           orthographic
           camera={{ position: [0, 0, 1], zoom: 1, near: 0.1, far: 10 }}
@@ -326,12 +312,7 @@ const SpiderLilyWebGL = ({ className }: { className?: string }) => {
           gl={{ alpha: true, antialias: true }}
           style={{ background: 'transparent' }}
         >
-          <LilyMesh
-            sharp={textures.sharp}
-            glow={textures.glow}
-            color={color}
-            fadeStart={0.2}
-          />
+          <LilyMesh texture={texture} color={color} fadeStart={0.2} />
         </Canvas>
       )}
     </div>
