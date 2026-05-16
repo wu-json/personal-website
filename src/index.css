@@ -1039,6 +1039,17 @@ html {
   }
 }
 
+/* Text selection — monochrome inverse of the active surface. Ink-colored
+   highlight with surface-colored glyphs reads cleanly in both themes. */
+::selection {
+  background-color: var(--color-ink);
+  color: var(--color-surface);
+}
+::-moz-selection {
+  background-color: var(--color-ink);
+  color: var(--color-surface);
+}
+
 /*
  * Light-theme overrides.
  *
