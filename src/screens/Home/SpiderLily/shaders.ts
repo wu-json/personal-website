@@ -10,22 +10,43 @@ uniform vec2 u_offset;
 uniform float u_flowerRotation;
 uniform vec2 u_flowerPivot;
 uniform float u_bloomScale;
+uniform float u_bloomRotation;
 uniform vec2 u_bloomPivot;
+uniform float u_headRotation;  // static -4° tilt of petals/stamens; 0 for stem
+uniform vec2 u_headPivot;
 
 out float v_arcLength;
 out float v_worldY;
 
 void main() {
-  // 1) per-element bloom scale around its own pivot
-  vec2 p = (a_position - u_bloomPivot) * u_bloomScale + u_bloomPivot;
-  // 2) per-element wind/hover offset
+  vec2 p = a_position;
+  // 1) per-element bloom scale + rotation around pivot (flower center for
+  //    petals; identity for stem/stamens which have bloomScale=1, rot=0)
+  {
+    vec2 r = p - u_bloomPivot;
+    float bc = cos(u_bloomRotation);
+    float bs = sin(u_bloomRotation);
+    r = vec2(r.x * bc - r.y * bs, r.x * bs + r.y * bc) * u_bloomScale;
+    p = r + u_bloomPivot;
+  }
+  // 2) head tilt around (CX, CY) — matches <g transform='rotate(-4 CX CY)'>
+  //    on the SVG flower head. Stem passes headRotation=0.
+  {
+    vec2 r = p - u_headPivot;
+    float hc = cos(u_headRotation);
+    float hs = sin(u_headRotation);
+    p = vec2(r.x * hc - r.y * hs, r.x * hs + r.y * hc) + u_headPivot;
+  }
+  // 3) per-element wind/hover offset
   p += u_offset;
-  // 3) whole-flower sway around (CX, FLOWER_PIVOT_Y)
-  float c = cos(u_flowerRotation);
-  float s = sin(u_flowerRotation);
-  vec2 r = p - u_flowerPivot;
-  p = vec2(r.x * c - r.y * s, r.x * s + r.y * c) + u_flowerPivot;
-  // 4) ortho projection
+  // 4) whole-flower sway around (CX, FLOWER_PIVOT_Y)
+  {
+    vec2 r = p - u_flowerPivot;
+    float c = cos(u_flowerRotation);
+    float s = sin(u_flowerRotation);
+    p = vec2(r.x * c - r.y * s, r.x * s + r.y * c) + u_flowerPivot;
+  }
+  // 5) ortho projection
   vec3 q = u_projection * vec3(p, 1.0);
   gl_Position = vec4(q.xy, 0.0, 1.0);
   v_arcLength = a_arcLength;
@@ -135,19 +156,23 @@ float fbm(vec2 p) {
 }
 
 void main() {
-  // feTurbulence baseFrequency=0.04 → noise period ≈ 25 px. Multiply pixel coords by 0.04.
+  // feTurbulence baseFrequency=0.04 → noise period ≈ 25 px.
   vec2 px = v_uv * u_resolution;
   float nx = fbm(px * 0.04) * 2.0 - 1.0;
   float ny = fbm(px * 0.04 + vec2(17.3, 41.7)) * 2.0 - 1.0;
-  vec2 displaceUV = (vec2(nx, ny) * u_displaceScale) / u_resolution;
+  vec2 duv = (vec2(nx, ny) * u_displaceScale) / u_resolution;
+  vec2 uv = v_uv + duv;
 
-  vec4 scene = texture(u_scene, v_uv + displaceUV);
-  vec4 tight = texture(u_tight, v_uv);
-  vec4 wide = texture(u_wide, v_uv);
+  vec4 scene = texture(u_scene, uv);
+  vec4 tight = texture(u_tight, uv);
+  vec4 wide = texture(u_wide, uv);
 
-  // feMerge analog: stack passes. Inputs are premultiplied, so plain add then
-  // clamp (with alpha clamped to 1) preserves the right look.
-  vec4 sum = scene + tight + wide;
-  fragColor = vec4(sum.rgb, min(sum.a, 1.0));
+  // feMerge is back-to-front *source-over*, not additive. wide is the
+  // bottom layer, tight blends on top, then scene (opaque petals) covers
+  // both. With premultiplied alpha: out = src + dst * (1 - src.a).
+  vec4 result = wide;
+  result = tight + result * (1.0 - tight.a);
+  result = scene + result * (1.0 - scene.a);
+  fragColor = result;
 }
 `;

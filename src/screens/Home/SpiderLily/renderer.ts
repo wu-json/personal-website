@@ -28,6 +28,7 @@ const WEIGHTS_WIDE = new Float32Array([
 ]);
 
 const DISPLACE_SCALE = 1.2; // matches feDisplacementMap scale='1.2'
+const HEAD_ROTATION_RAD = (-4 * Math.PI) / 180; // matches <g transform='rotate(-4 CX CY)'>
 
 export type ColorVec = [number, number, number, number];
 
@@ -64,6 +65,8 @@ type GeoProgram = {
     bloomScale: WebGLUniformLocation;
     bloomRotation: WebGLUniformLocation;
     bloomPivot: WebGLUniformLocation;
+    headRotation: WebGLUniformLocation;
+    headPivot: WebGLUniformLocation;
     color: WebGLUniformLocation;
     opacity: WebGLUniformLocation;
     reveal: WebGLUniformLocation;
@@ -196,6 +199,8 @@ export class SpiderLilyRenderer {
         bloomScale: gl.getUniformLocation(geoProgram, 'u_bloomScale')!,
         bloomRotation: gl.getUniformLocation(geoProgram, 'u_bloomRotation')!,
         bloomPivot: gl.getUniformLocation(geoProgram, 'u_bloomPivot')!,
+        headRotation: gl.getUniformLocation(geoProgram, 'u_headRotation')!,
+        headPivot: gl.getUniformLocation(geoProgram, 'u_headPivot')!,
         color: gl.getUniformLocation(geoProgram, 'u_color')!,
         opacity: gl.getUniformLocation(geoProgram, 'u_opacity')!,
         reveal: gl.getUniformLocation(geoProgram, 'u_reveal')!,
@@ -415,8 +420,11 @@ export class SpiderLilyRenderer {
     gl.uniformMatrix3fv(geo.uniforms.projection, false, this.projection);
     gl.uniform2f(geo.uniforms.flowerPivot, CX, FLOWER_PIVOT_Y);
     gl.uniform1f(geo.uniforms.flowerRotation, state.flowerRotation);
+    gl.uniform2f(geo.uniforms.headPivot, CX, CY);
 
-    // Stem
+    // Stem — no head tilt (stem is in the outer SVG <g>, outside the
+    // rotate(-4 CX CY) wrapper that holds the flower head)
+    gl.uniform1f(geo.uniforms.headRotation, 0);
     gl.uniform2f(geo.uniforms.offset, 0, 0);
     gl.uniform2f(geo.uniforms.bloomPivot, 0, 0);
     gl.uniform1f(geo.uniforms.bloomScale, 1);
@@ -439,8 +447,10 @@ export class SpiderLilyRenderer {
       0,
     );
 
-    // Reset revealY for everything else (no discard)
+    // Reset revealY for everything else (no discard); enable head tilt
+    // for petals/stamens/anthers/center.
     gl.uniform1f(geo.uniforms.revealY, -1e9);
+    gl.uniform1f(geo.uniforms.headRotation, HEAD_ROTATION_RAD);
 
     // Petals
     // Bloom pivot is the flower center for all petals (matches CSS
