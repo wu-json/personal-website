@@ -31,11 +31,11 @@ const MainBanner = () => {
             className='bio-glitch text-white text-base font-pixel text-left leading-relaxed [text-shadow:0_0_8px_rgba(255,255,255,0.4)]'
             style={jitter()}
           >
-            {'[BLOOM AND WILT]'}
+            {'[咲いて、枯れて]'}
           </p>
           <div className='flex flex-col gap-2.5'>
             <p className={bioClass} style={jitter()}>
-              Soul searching.
+              Doing human things.
             </p>
             <p className={bioClass} style={jitter()}>
               Yale Undergrad, grew up in Princeton, lived in Atlanta, dragged to
