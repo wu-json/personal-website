@@ -11,7 +11,7 @@ const bioClass =
 const MainBanner = () => {
   const jitter = useJitter();
   return (
-    <div className='w-full h-screen bg-black flex items-center justify-center md:pr-40'>
+    <div className='w-full h-dvh bg-black flex items-center justify-center md:pr-40'>
       <div className='flex flex-col items-start gap-6 md:gap-8 max-w-md lg:max-w-lg px-6'>
         <div
           className='bio-glitch w-80 sm:w-88 md:w-[26rem] lg:w-[30rem]'
