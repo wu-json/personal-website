@@ -15,7 +15,11 @@ import { InkCursorRenderer, SEGMENT_STRIDE } from './renderer';
 // joints continuous through arbitrarily sharp corners — no bowtie ever
 // possible because no quad spans more than one segment.
 //
-// Disabled on coarse pointers and when prefers-reduced-motion is set.
+// Touch input mirrors the mouse path: each touchmove emits a point, and
+// touchstart/touchend reset the previous-sample state so a fresh tap
+// never draws a line from where the last gesture ended.
+//
+// Disabled when prefers-reduced-motion is set.
 
 const POINT_LIFETIME = 1600;
 const MAX_POINTS = 500;
@@ -54,7 +58,6 @@ const InkCursor = () => {
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    if (window.matchMedia('(pointer: coarse)').matches) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
     const canvas = canvasRef.current;
@@ -114,10 +117,8 @@ const InkCursor = () => {
     const clamp = (v: number, lo: number, hi: number) =>
       Math.max(lo, Math.min(hi, v));
 
-    const onMove = (e: MouseEvent) => {
+    const pushSample = (x: number, y: number) => {
       const now = performance.now();
-      const x = e.clientX;
-      const y = e.clientY;
       if (!hasPrev) {
         prevX = x;
         prevY = y;
@@ -154,14 +155,38 @@ const InkCursor = () => {
       prevT = now;
     };
 
-    const onLeave = () => {
+    const resetPrev = () => {
       hasPrev = false;
       prevWidth = 0.5;
       prevLoad = 1;
     };
 
+    const onMove = (e: MouseEvent) => {
+      pushSample(e.clientX, e.clientY);
+    };
+
+    // Touch handlers: touchstart seeds the gesture (resetting prev so a
+    // new tap doesn't connect to the last one), touchmove streams points,
+    // touchend/cancel close the gesture. Single touch only — extra
+    // fingers are ignored to keep the stroke a clean line.
+    const onTouchStart = (e: TouchEvent) => {
+      const t = e.touches[0];
+      if (!t) return;
+      resetPrev();
+      pushSample(t.clientX, t.clientY);
+    };
+    const onTouchMove = (e: TouchEvent) => {
+      const t = e.touches[0];
+      if (!t) return;
+      pushSample(t.clientX, t.clientY);
+    };
+
     document.addEventListener('mousemove', onMove, { passive: true });
-    document.addEventListener('mouseleave', onLeave);
+    document.addEventListener('mouseleave', resetPrev);
+    document.addEventListener('touchstart', onTouchStart, { passive: true });
+    document.addEventListener('touchmove', onTouchMove, { passive: true });
+    document.addEventListener('touchend', resetPrev, { passive: true });
+    document.addEventListener('touchcancel', resetPrev, { passive: true });
 
     const refreshColor = () => {
       const raw = getComputedStyle(document.documentElement).getPropertyValue(
@@ -290,7 +315,11 @@ const InkCursor = () => {
       cancelAnimationFrame(rafId);
       window.removeEventListener('resize', applySize);
       document.removeEventListener('mousemove', onMove);
-      document.removeEventListener('mouseleave', onLeave);
+      document.removeEventListener('mouseleave', resetPrev);
+      document.removeEventListener('touchstart', onTouchStart);
+      document.removeEventListener('touchmove', onTouchMove);
+      document.removeEventListener('touchend', resetPrev);
+      document.removeEventListener('touchcancel', resetPrev);
       canvas.removeEventListener('webglcontextlost', onLost);
       canvas.removeEventListener('webglcontextrestored', onRestored);
       themeObserver.disconnect();
