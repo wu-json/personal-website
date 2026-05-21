@@ -5,6 +5,7 @@ import {
   useRef,
   useState,
 } from 'react';
+// eslint-disable-next-line no-unused-vars
 import { InkCursor } from 'src/components/InkCursor';
 import { ScrollToTop } from 'src/components/ScrollToTop';
 import { Sidebar } from 'src/components/Sidebar';
@@ -184,6 +185,7 @@ const SIDEBAR_COLLAPSED_KEY = 'sidebarCollapsed';
 
 const RootLayout = ({ children }: { children: React.ReactNode }) => {
   const mainRef = useRef<HTMLElement>(null);
+  // eslint-disable-next-line no-unused-vars
   const [pathname] = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
@@ -226,7 +228,8 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
       </main>
       <ScrollReset scrollRef={mainRef} />
       <ScrollToTop scrollRef={mainRef} />
-      {pathname === '/' && <InkCursor />}
+      {/* Ink cursor — not sure if gonna keep because it's a bit annoying sometimes lol */}
+      {/* {pathname === '/' && <InkCursor />} */}
     </div>
   );
 };
