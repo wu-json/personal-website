@@ -1,6 +1,6 @@
 ---
 id: '2026-05-27-permanent-upper-class'
-timestamp: '2026.05.27 // 12:00:00'
+timestamp: '2026.05.27 // 20:30:45'
 title: 'The Permanent Upper Class'
 expanded: false
 location: 'San Francisco, US'
