@@ -22,13 +22,18 @@ const STORAGE_KEY = 'theme';
 
 /**
  * Reads the initial theme from the attribute set by the bootstrap script in
- * index.html. Falling back through localStorage and then 'dark' keeps the
- * provider resilient if the script is bypassed (tests, SSR previews, etc.).
+ * index.html. Falling back through the `theme` URL param, then localStorage,
+ * then 'light' keeps the provider resilient if the script is bypassed (tests,
+ * SSR previews, etc.).
  */
 function readInitialTheme(): Theme {
   if (typeof document === 'undefined') return 'light';
   const attr = document.documentElement.getAttribute('data-theme');
   if (attr === 'light' || attr === 'dark') return attr;
+  if (typeof window !== 'undefined') {
+    const param = new URLSearchParams(window.location.search).get('theme');
+    if (param === 'light' || param === 'dark') return param;
+  }
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved === 'light' || saved === 'dark') return saved;

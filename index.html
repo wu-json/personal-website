@@ -48,9 +48,11 @@
     <script>
       (function () {
         try {
-          var t = localStorage.getItem('theme');
+          var q = new URLSearchParams(window.location.search).get('theme');
+          var t = q === 'light' || q === 'dark' ? q : localStorage.getItem('theme');
           if (t !== 'light' && t !== 'dark') t = 'light';
           document.documentElement.setAttribute('data-theme', t);
+          try { localStorage.setItem('theme', t); } catch (_) {}
         } catch (_) {
           document.documentElement.setAttribute('data-theme', 'light');
         }
