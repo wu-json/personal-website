@@ -33,10 +33,15 @@ const MarkdownBody = ({ children }: { children: string }) => (
         height?: string | number;
       }) => {
         if (!src || !width || !height) return <img src={src} alt={alt} />;
+        const placeholderSrc = src.replace(/-full\.webp$/, '-placeholder.webp');
+        const smallSrc = src.replace(/-full\.webp$/, '-small.webp');
+        const thumbSrc = src.replace(/-full\.webp$/, '-thumb.webp');
         return (
           <ProgressiveImage
-            placeholderSrc={src.replace(/-full\.webp$/, '-placeholder.webp')}
-            src={src}
+            placeholderSrc={placeholderSrc}
+            src={thumbSrc}
+            srcSet={`${smallSrc} 480w, ${thumbSrc} 800w, ${src} 1600w`}
+            sizes='(min-width: 768px) 672px, 100vw'
             alt={alt ?? ''}
             width={Number(width)}
             height={Number(height)}
