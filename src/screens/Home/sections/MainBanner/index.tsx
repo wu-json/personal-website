@@ -29,8 +29,13 @@ const MainBanner = () => {
               than the <svg> itself because iOS Safari doesn't apply CSS
               `filter: drop-shadow(...)` to inline SVG roots (WebKit bug
               261806). Wrapping in a div lets the glow animation render on
-              mobile Safari while keeping desktop behavior identical. */}
-          <div className='spider-lily-container w-full h-auto'>
+              mobile Safari while keeping desktop behavior identical.
+
+              aspect-[800/470] mirrors SpiderLily's VIEWBOX so the slot
+              reserves its final footprint before the dynamic({ ssr:false })
+              chunk lands. Without this the slot collapses to 0 height and
+              the bio text below visibly drops once the canvas mounts. */}
+          <div className='spider-lily-container w-full aspect-[800/470]'>
             <SpiderLily className='w-full h-auto' />
           </div>
         </div>
