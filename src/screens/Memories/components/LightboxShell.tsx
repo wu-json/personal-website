@@ -1,8 +1,10 @@
+'use client';
+
 import { useEffect, useRef } from 'react';
+import { photoUrl } from 'src/lib/photoUrl';
 
 import type { PhotoMeta } from '../types';
 
-import { photoUrl } from '../data';
 import { GroupSlide } from './GroupSlide';
 import { PhotoSlide } from './PhotoSlide';
 import { useSwipe } from './useSwipe';

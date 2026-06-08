@@ -13,5 +13,5 @@
   "arrowParens": "avoid",
   "endOfLine": "lf",
   "experimentalSortImports": {},
-  "ignorePatterns": ["build/**/*", "node_modules/**/*"]
+  "ignorePatterns": ["build/**/*", "node_modules/**/*", ".next/**/*"]
 }

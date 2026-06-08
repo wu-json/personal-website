@@ -1,6 +1,14 @@
+'use client';
+
+import dynamic from 'next/dynamic';
 import { useJitter } from 'src/hooks/useJitter';
 
-import { SpiderLily } from '../../SpiderLily';
+// SpiderLily inits WebGL2 + reads getComputedStyle(canvas) at mount, so it
+// must not be SSR'd — `ssr: false` keeps it client-only.
+const SpiderLily = dynamic(
+  () => import('../../SpiderLily').then(m => ({ default: m.SpiderLily })),
+  { ssr: false },
+);
 
 const linkClass =
   'font-mono text-sm sm:text-xs uppercase tracking-widest text-white/50 hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)] transition-all duration-300';

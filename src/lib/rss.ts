@@ -1,7 +1,4 @@
-import type { IncomingMessage, ServerResponse } from 'http';
-import type { Plugin } from 'vite';
-
-import { readFileSync, mkdirSync, writeFileSync, readdirSync } from 'fs';
+import { readFileSync, readdirSync } from 'fs';
 import { join } from 'path';
 import rehypeRaw from 'rehype-raw';
 import rehypeStringify from 'rehype-stringify';
@@ -84,7 +81,7 @@ export function stripFirstImage(html: string): string {
   return html.replace(/<img\s[^>]*\/?>/i, '');
 }
 
-async function generateFeed(): Promise<string> {
+export async function generateFeed(): Promise<string> {
   const entriesDir = join(process.cwd(), ENTRIES_DIR);
   const files = readdirSync(entriesDir).filter(f => f.endsWith('.md'));
 
@@ -148,35 +145,4 @@ ${items.join('\n')}
   </channel>
 </rss>
 `;
-}
-
-export function rssPlugin(): Plugin {
-  return {
-    name: 'rss-feed',
-    async writeBundle() {
-      const rss = await generateFeed();
-      const outFile = join(process.cwd(), 'build', 'signals', 'feed.xml');
-      mkdirSync(join(process.cwd(), 'build', 'signals'), { recursive: true });
-      writeFileSync(outFile, rss, 'utf-8');
-      console.log(`[rss-feed] wrote ${outFile}`);
-    },
-    configureServer(server) {
-      server.middlewares.use(
-        '/signals/feed.xml',
-        async (_req: IncomingMessage, res: ServerResponse) => {
-          try {
-            const rss = await generateFeed();
-            res.writeHead(200, {
-              'Content-Type': 'application/rss+xml; charset=utf-8',
-            });
-            res.end(rss);
-          } catch (err) {
-            console.error('[rss-feed] dev middleware error:', err);
-            res.writeHead(500);
-            res.end('Internal Server Error');
-          }
-        },
-      );
-    },
-  };
 }

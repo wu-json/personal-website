@@ -1,3 +1,5 @@
+'use client';
+
 import { PointerLockControls } from '@react-three/drei';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import {
@@ -147,7 +149,9 @@ export type MobileInput = {
   lookDeltaY: number;
 };
 
-import { fragments, photoUrl } from 'src/screens/Memories/data';
+import type { Fragment } from 'src/screens/Memories/types';
+
+import { photoUrl } from 'src/lib/photoUrl';
 
 const DEFAULT_COUNT = 19;
 
@@ -1250,7 +1254,11 @@ const Movement = ({
 
 type HintPhase = 'step-back' | 'click' | 'mouse' | 'done';
 
-const GalleryScreen = ({ fragmentId }: { fragmentId?: string }) => {
+const GalleryScreen = ({
+  fragment: fragmentProp,
+}: {
+  fragment?: Fragment | null;
+}) => {
   const { theme } = useTheme();
   const palette = useMemo(() => getPalette(theme), [theme]);
   const [locked, setLocked] = useState(false);
@@ -1263,10 +1271,7 @@ const GalleryScreen = ({ fragmentId }: { fragmentId?: string }) => {
   const mobileInputRef = useRef<MobileInput | null>(
     isMobile ? { moveX: 0, moveY: 0, lookDeltaX: 0, lookDeltaY: 0 } : null,
   );
-  const fragment = useMemo(
-    () => (fragmentId ? fragments.find(f => f.id === fragmentId) : null),
-    [fragmentId],
-  );
+  const fragment = useMemo(() => fragmentProp ?? null, [fragmentProp]);
   const layout = useMemo(() => {
     if (fragment) {
       const images: ImageSpec[] = fragment.photos.map(p => ({

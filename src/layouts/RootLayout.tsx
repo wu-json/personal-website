@@ -1,3 +1,6 @@
+'use client';
+
+import { usePathname } from 'next/navigation';
 import {
   type RefObject,
   useCallback,
@@ -9,14 +12,13 @@ import {
 import { InkCursor } from 'src/components/InkCursor';
 import { ScrollToTop } from 'src/components/ScrollToTop';
 import { Sidebar } from 'src/components/Sidebar';
-import { useLocation } from 'wouter';
 
 const ScrollReset = ({
   scrollRef,
 }: {
   scrollRef: RefObject<HTMLElement | null>;
 }) => {
-  const [pathname] = useLocation();
+  const pathname = usePathname();
   useEffect(() => {
     scrollRef.current?.scrollTo(0, 0);
   }, [pathname, scrollRef]);
@@ -185,13 +187,17 @@ const SIDEBAR_COLLAPSED_KEY = 'sidebarCollapsed';
 
 const RootLayout = ({ children }: { children: React.ReactNode }) => {
   const mainRef = useRef<HTMLElement>(null);
-  // eslint-disable-next-line no-unused-vars
-  const [pathname] = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
-    if (typeof window === 'undefined') return false;
-    return window.localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === 'true';
-  });
+  // Lazy initializer would run on the server too — guard with typeof window
+  // and reconcile after mount so SSR doesn't crash on localStorage.
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    setIsSidebarCollapsed(
+      window.localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === 'true',
+    );
+  }, []);
 
   const closeMobileMenu = useCallback(() => setIsMobileMenuOpen(false), []);
   const toggleMobileMenu = useCallback(

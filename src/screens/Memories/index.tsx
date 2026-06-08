@@ -1,10 +1,13 @@
+'use client';
+
+import Link from 'next/link';
 import { ProgressiveImage } from 'src/components/ProgressiveImage';
 import { useJitter } from 'src/hooks/useJitter';
-import { Link } from 'wouter';
+import { photoUrl } from 'src/lib/photoUrl';
 
-import { fragments, photoUrl } from './data';
+import type { Fragment } from './types';
 
-const MemoriesScreen = () => {
+const MemoriesScreen = ({ fragments }: { fragments: Fragment[] }) => {
   const jitter = useJitter();
   return (
     <div className='w-full min-h-screen bg-black md:pr-40'>
@@ -28,7 +31,7 @@ const MemoriesScreen = () => {
           {fragments.map((f, i) => (
             <Link
               key={f.id}
-              to={`/memories/${f.id}`}
+              href={`/memories/${f.id}`}
               className='bio-glitch group block'
               style={{ animationDelay: `${i * 40}ms` }}
             >

@@ -91,7 +91,7 @@ tagged.
   `useId()` + deterministic 32-bit hash; `useId()` returns the same
   value on both sides. No visual change.
 - **Theme bootstrap script** (PR 1). Inline `<script
-  dangerouslySetInnerHTML>` in `<head>` JSX, with
+dangerouslySetInnerHTML>` in `<head>` JSX, with
   `suppressHydrationWarning` on `<html>`. **Not** `next/script` with
   `strategy="beforeInteractive"` — in App Router that runs after body
   paint, defeating flash prevention. Don't pass an empty string to
@@ -99,7 +99,7 @@ tagged.
 - **Tailwind v4 + Next 15** (PR 1). `@tailwindcss/postcss` via
   `postcss.config.mjs`. Works with Turbopack on Tailwind ≥ 4.1 +
   Next ≥ 15.1. `@custom-variant`, `@theme`, `@layer base { @apply
-  ... }` all pass through. `@import url(...)` must be **above**
+... }` all pass through. `@import url(...)` must be **above**
   `@import 'tailwindcss';` (already the case in `src/index.css:1-2`).
 - **Bun on Vercel** (PR 1). Vercel autodetects `bun.lock`, runs
   `bun install`, builds under Node. No `vercel.json`, no
@@ -107,7 +107,7 @@ tagged.
 - **`vercel.json`** (PR 1). Delete. The SPA-rewrite would intercept
   Next routes and break everything.
 - **Font preloads** (PR 1). `<link rel="preload" as="font"
-  type="font/woff2" crossOrigin="">` as JSX in `<head>` (metadata
+type="font/woff2" crossOrigin="">` as JSX in `<head>` (metadata
   API has no `preload` field).
 - **`output` config** (PR 1). Leave unset. `standalone` is for
   self-hosting / Docker; redundant on Vercel.
@@ -193,13 +193,13 @@ instead of importing it.
   `typeof window === 'undefined' ? false : ...` and reconcile via
   post-mount `useEffect`. Otherwise SSR crashes.
 - `SpiderLily` wrapped in `dynamic(() => import('...'), { ssr: false
-  })` — it inits WebGL2 + reads `getComputedStyle(canvas)` at mount
+})` — it inits WebGL2 + reads `getComputedStyle(canvas)` at mount
   (`src/screens/Home/SpiderLily/index.tsx:186-210`).
 - `src/screens/Memories/components/loadedFullUrls.ts` gets `import
-  'client-only'` at the top — its module-level `Set<string>` would
+'client-only'` at the top — its module-level `Set<string>` would
   leak across requests if accidentally pulled into an RSC.
 - Gallery `import.meta.env.DEV` (`src/App.tsx:33`) → `process.env.NODE_ENV
-  === 'development'`. Grep `src/screens/Gallery/**` for other
+=== 'development'`. Grep `src/screens/Gallery/**` for other
   `import.meta` refs (none today — confirmed).
 - Delete `vite.config.mts`, `vite-env.d.ts`, `index.html`,
   `src/App.tsx`, `src/index.tsx`, `src/react-app-env.d.ts`,
@@ -221,86 +221,86 @@ instead of importing it.
 
 ### Tasks
 
-- [ ] Add `next` (≥ 15.1), `@tailwindcss/postcss` (≥ 4.1),
+- [x] Add `next` (≥ 15.1), `@tailwindcss/postcss` (≥ 4.1),
       `html-react-parser` to deps. Drop `vite`, `@vitejs/plugin-react`,
       `@tailwindcss/vite`, `wouter`. Keep `react`/`react-dom` 19.
       Update `scripts.dev` → `next dev`, `build` → `next build`,
       `preview` → `next start`.
-- [ ] Add `postcss.config.mjs` with `@tailwindcss/postcss` plugin.
-- [ ] Add `next.config.ts` (`images.unoptimized: true`,
+- [x] Add `postcss.config.mjs` with `@tailwindcss/postcss` plugin.
+- [x] Add `next.config.ts` (`images.unoptimized: true`,
       `eslint.ignoreDuringBuilds: true`, `src/*` alias). Add
       `next-env.d.ts`.
-- [ ] Update `tsconfig.json`: `plugins: [{ name: 'next' }]`, drop
+- [x] Update `tsconfig.json`: `plugins: [{ name: 'next' }]`, drop
       `vite/client`, add `.next/types/**/*.ts` to `include`.
-- [ ] Move `src/index.css` → `app/globals.css`. No rule changes —
+- [x] Move `src/index.css` → `app/globals.css`. No rule changes —
       verify `@import url(...)` stays above `@import 'tailwindcss';`.
-- [ ] Create `app/layout.tsx` (Server): `<html
-      suppressHydrationWarning>` / `<head>` / `<body>`. `<head>`
+- [x] Create `app/layout.tsx` (Server): `<html
+    suppressHydrationWarning>` / `<head>` / `<body>`. `<head>`
       contains the inline theme bootstrap `<script>`, font preload
       `<link>` tags, RSS `<link rel="alternate">`. `metadata` exports
       include `metadataBase` and the `index.html:45-60` defaults.
-- [ ] Create `src/app-providers.tsx` (`"use client"`) wrapping
+- [x] Create `src/app-providers.tsx` (`"use client"`) wrapping
       `ThemeProvider`.
-- [ ] Create `app/(site)/layout.tsx` rendering ported `RootLayout`
+- [x] Create `app/(site)/layout.tsx` rendering ported `RootLayout`
       around `{children}`. Sidebar / scroll container / toggles /
       ScrollReset / ScrollToTop all live here.
-- [ ] Port `src/layouts/RootLayout.tsx`: `"use client"`, wouter →
+- [x] Port `src/layouts/RootLayout.tsx`: `"use client"`, wouter →
       `next/navigation`. Guard `localStorage` reads (see "What
       changes").
-- [ ] Port `src/components/Sidebar`, `ScrollToTop`, `InkCursor`,
+- [x] Port `src/components/Sidebar`, `ScrollToTop`, `InkCursor`,
       `src/theme/ThemeContext.tsx` to Client Components. wouter →
       `next/link` + `usePathname` where used. Active-route highlight
       (`pathname.startsWith('/memories')`) ports directly.
-- [ ] Create `app/(site)/page.tsx` rendering `<HomeScreen />`. Mark
+- [x] Create `app/(site)/page.tsx` rendering `<HomeScreen />`. Mark
       `HomeScreen`/`MainBanner` as `"use client"`. Wrap `SpiderLily`
       in `dynamic({ ssr: false })`.
-- [ ] Rewrite `src/hooks/useJitter.ts` to use `useId()` +
+- [x] Rewrite `src/hooks/useJitter.ts` to use `useId()` +
       deterministic hash. Shape:
-      ```ts
-      const useJitter = (maxMs = 120) => {
-        const baseId = useId();
-        const i = useRef(0); i.current = 0;
-        return () => {
-          const h = hash(`${baseId}:${i.current++}`);
-          return { animationDelay: `${(h % 1000) / 1000 * maxMs}ms` };
-        };
+      ``ts
+    const useJitter = (maxMs = 120) => {
+      const baseId = useId();
+      const i = useRef(0); i.current = 0;
+      return () => {
+        const h = hash(`${baseId}:${i.current++}`);
+        return { animationDelay: `${(h % 1000) / 1000 * maxMs}ms` };
       };
-      ```
-- [ ] Create `src/lib/content/{signals,fragments,constructs,heroes}.ts`
+    };
+    ``
+- [x] Create `src/lib/content/{signals,fragments,constructs,heroes}.ts`
       (server-only, memoized). Replace `import.meta.glob` with
       `readdirSync` + `readFileSync`. Same exported shape as today's
       `data.ts`.
-- [ ] Move `photoUrl()` to `src/lib/photoUrl.ts` (no `server-only`).
-- [ ] Add `import 'client-only'` to
+- [x] Move `photoUrl()` to `src/lib/photoUrl.ts` (no `server-only`).
+- [x] Add `import 'client-only'` to
       `src/screens/Memories/components/loadedFullUrls.ts`.
-- [ ] Port `src/plugins/rss.ts` helpers to `src/lib/rss.ts` (no
+- [x] Port `src/plugins/rss.ts` helpers to `src/lib/rss.ts` (no
       Vite-specific code). Move test to `src/lib/rss.test.ts`.
-- [ ] Create `app/(site)/signals/feed.xml/route.ts` exporting `GET`
+- [x] Create `app/(site)/signals/feed.xml/route.ts` exporting `GET`
       that calls `generateFeed()`. `export const dynamic =
-      'force-static'` so it bakes at build time.
-- [ ] Create page wrappers for every route under `app/(site)/` and
+    'force-static'` so it bakes at build time.
+- [x] Create page wrappers for every route under `app/(site)/` and
       `app/gallery/`. Each is an RSC that loads via the new content
       lib and renders the existing screen as `"use client"`, passing
       data as props. List of screens to wire up:
       `MemoriesScreen`, `FragmentDetail`, `SignalsScreen`,
       `SignalDetail`, `ConstructsScreen`, `ConstructDetail`,
       `HeroesScreen`, `HeroDetail`, `GalleryScreen`.
-- [ ] Replace wouter `useLocation` / `<Link>` in every ported screen
+- [x] Replace wouter `useLocation` / `<Link>` in every ported screen
       with `next/navigation` + `next/link`. Replace lightbox
       `navigate(url, { replace: true })` with `router.replace(url, {
-      scroll: false })`.
-- [ ] Wrap `GalleryScreen` in `dynamic({ ssr: false })` at the
+    scroll: false })`.
+- [x] Wrap `GalleryScreen` in `dynamic({ ssr: false })` at the
       `app/gallery/[fragmentId]/page.tsx` page wrapper. Replace any
       `import.meta.env.DEV` inside Gallery with `process.env.NODE_ENV
-      === 'development'`. `app/gallery/page.tsx` returns `notFound()`
+    === 'development'`. `app/gallery/page.tsx` returns `notFound()`
       unless `NODE_ENV === 'development'`.
-- [ ] Create `app/not-found.tsx` reusing the "SIGNAL LOST" aesthetic
+- [x] Create `app/not-found.tsx` reusing the "SIGNAL LOST" aesthetic
       from `SignalDetail.tsx`'s not-found branch. Extract to a shared
       `NotFoundScreen` if PRs 2–5 will reuse it.
-- [ ] Delete `vite.config.mts`, `vite-env.d.ts`, `index.html`,
+- [x] Delete `vite.config.mts`, `vite-env.d.ts`, `index.html`,
       `src/App.tsx`, `src/index.tsx`, `src/react-app-env.d.ts`,
       `vercel.json`. Delete `src/plugins/` after porting RSS.
-- [ ] Smoke-test `bun run dev` + `bun run build` + `bun run preview`.
+- [x] Smoke-test `bun run dev` + `bun run build` + `bun run preview`.
       `bun run lint` / `bun run format` / `bun run typecheck` clean.
 
 ---
@@ -315,10 +315,10 @@ PRs 4/5 will reuse.
 ### What changes
 
 - New `src/lib/markdown.ts` exporting `renderMarkdown(body: string):
-  Promise<string>` — the `unified()` chain currently duplicated in
+Promise<string>` — the `unified()` chain currently duplicated in
   `src/plugins/rss.ts` / `src/lib/rss.ts`.
 - New `src/components/MarkdownBody.tsx` (`"use client"`) takes `html:
-  string`, walks it via `html-react-parser` to swap `<img>` for
+string`, walks it via `html-react-parser` to swap `<img>` for
   `<ProgressiveImage>` (preserving the existing
   `-placeholder/-small/-thumb/-full.webp` srcset derivation) and
   external `<a>` for the new-tab wrapper.
@@ -355,14 +355,13 @@ PRs 4/5 will reuse.
       swap (with the existing srcset / sizes logic) and external
       `<a>` → new-tab wrapper.
 - [ ] Convert `app/(site)/signals/[id]/page.tsx` to RSC: pre-render
-      body HTML, pass to client view. Export `generateStaticParams`
-      + `generateMetadata`.
+      body HTML, pass to client view. Export `generateStaticParams` + `generateMetadata`.
 - [ ] Convert `app/(site)/signals/page.tsx` similarly: pre-render
       every signal body, pass HTML strings down.
 - [ ] Refactor `src/lib/rss.ts` to call `renderMarkdown()` instead
       of duplicating the unified chain.
 - [ ] Verify footnote rendering. `remark-gfm` emits `<section
-      data-footnotes>` with `<sup>` refs + `<ol>`; today the styling
+    data-footnotes>` with `<sup>` refs + `<ol>`; today the styling
       lives in `index.css` under `.signal-prose section[data-footnotes]`.
       Confirm `html-react-parser` preserves the `data-footnotes`
       attribute and `id`/`href` linking on a known footnote-heavy
@@ -442,7 +441,7 @@ content loaders.
       `lastModified` from the markdown file mtime or frontmatter
       date.
 - [ ] Add `app/robots.ts` exporting `{ rules: [{ userAgent: '*',
-      allow: '/' }], sitemap: 'https://jasonwu.ink/sitemap.xml' }`.
+    allow: '/' }], sitemap: 'https://jasonwu.ink/sitemap.xml' }`.
       Delete `public/robots.txt`.
 - [ ] Submit the sitemap to Google Search Console manually after
       deploy.
@@ -509,7 +508,7 @@ generic `og-image.png` for every share.
       title, mono timestamp / location — mirror the `SignalDetail`
       header).
 - [ ] `app/(site)/signals/[id]/opengraph-image.tsx` returns `new
-      ImageResponse(...)`. Same for
+    ImageResponse(...)`. Same for
       `app/(site)/memories/[id]/opengraph-image.tsx` (cover image +
       title + location).
 - [ ] Validate via Twitter card validator + Facebook OG debugger.

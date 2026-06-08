@@ -1,5 +1,8 @@
+'use client';
+
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
-import { Link, useLocation } from 'wouter';
 
 const PETAL_ANGLES = [0, 72, 144, 216, 288];
 
@@ -47,7 +50,7 @@ const NavLink = ({
   const className = `group flex items-center gap-1.5 font-pixel text-sm md:text-xs uppercase whitespace-nowrap transition-all duration-300 ${active ? 'nav-glitch-active text-white [text-shadow:0_0_8px_rgba(255,255,255,0.6)]' : 'text-white/80 hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)]'}`;
 
   return (
-    <Link to={to} onClick={onClick} className={className}>
+    <Link href={to} onClick={onClick} className={className}>
       <LunarTear active={active} />
       {children}
     </Link>
@@ -82,7 +85,7 @@ const Sidebar = ({
   isDesktopCollapsed: boolean;
   onDesktopToggle: () => void;
 }) => {
-  const [pathname] = useLocation();
+  const pathname = usePathname() ?? '/';
 
   useEffect(() => {
     onClose();

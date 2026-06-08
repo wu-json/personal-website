@@ -8,6 +8,8 @@
  *
  * @see AGENTS.md → "Signals markdown reference"
  */
+'use client';
+
 import type { AnchorHTMLAttributes, ReactNode } from 'react';
 
 import Markdown from 'react-markdown';
@@ -21,18 +23,11 @@ const MarkdownBody = ({ children }: { children: string }) => (
     remarkPlugins={[remarkGfm]}
     rehypePlugins={[rehypeRaw]}
     components={{
-      img: ({
-        src,
-        alt,
-        width,
-        height,
-      }: {
-        src?: string;
-        alt?: string;
-        width?: string | number;
-        height?: string | number;
-      }) => {
-        if (!src || !width || !height) return <img src={src} alt={alt} />;
+      img: ({ src, alt, width, height }) => {
+        if (typeof src !== 'string' || !width || !height)
+          return (
+            <img src={typeof src === 'string' ? src : undefined} alt={alt} />
+          );
         const placeholderSrc = src.replace(/-full\.webp$/, '-placeholder.webp');
         const smallSrc = src.replace(/-full\.webp$/, '-small.webp');
         const thumbSrc = src.replace(/-full\.webp$/, '-thumb.webp');

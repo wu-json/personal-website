@@ -1,9 +1,11 @@
+'use client';
+
 import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import Markdown from 'react-markdown';
+import { photoUrl } from 'src/lib/photoUrl';
 
 import type { PhotoMeta } from '../types';
 
-import { photoUrl } from '../data';
 import { loadedFullUrls } from './loadedFullUrls';
 
 const GroupSlide = ({

@@ -1,10 +1,13 @@
+'use client';
+
+import Link from 'next/link';
 import { ProgressiveImage } from 'src/components/ProgressiveImage';
 import { useJitter } from 'src/hooks/useJitter';
-import { Link } from 'wouter';
+import { heroImageUrl } from 'src/lib/photoUrl';
 
-import { heroImageUrl, heroes } from './data';
+import type { Hero } from './types';
 
-const HeroesScreen = () => {
+const HeroesScreen = ({ heroes }: { heroes: Hero[] }) => {
   const jitter = useJitter();
   return (
     <div className='w-full min-h-screen bg-black md:pr-40'>
@@ -28,7 +31,7 @@ const HeroesScreen = () => {
           {heroes.map((h, i) => (
             <Link
               key={h.id}
-              to={`/heroes/${h.id}`}
+              href={`/heroes/${h.id}`}
               className='bio-glitch group block'
               style={{ animationDelay: `${i * 40}ms` }}
             >

@@ -1,41 +1,22 @@
+'use client';
+
+import Link from 'next/link';
 import Markdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import { useJitter } from 'src/hooks/useJitter';
-import { Link } from 'wouter';
+
+import type { Hero } from './types';
 
 import { ProgressiveImage } from '../../components/ProgressiveImage';
-import { heroes } from './data';
 
-const HeroDetail = ({ id }: { id: string }) => {
+const HeroDetail = ({ hero: h }: { hero: Hero }) => {
   const jitter = useJitter();
-  const h = heroes.find(x => x.id === id);
-
-  if (!h) {
-    return (
-      <div className='w-full min-h-screen bg-black flex items-center justify-center md:pr-40'>
-        <div className='flex flex-col items-center gap-3'>
-          <h1 className='bio-glitch text-white text-2xl font-pixel'>
-            HERO LOST
-          </h1>
-          <p className='bio-glitch text-white/30 text-xs font-mono'>
-            {'// icon not found in archive'}
-          </p>
-          <Link
-            to='/heroes'
-            className='mt-4 text-white/30 text-xs sm:text-[10px] font-mono uppercase tracking-widest hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)] transition-all duration-300'
-          >
-            {'< return to heroes'}
-          </Link>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className='w-full min-h-screen bg-black md:pr-40'>
       <div className='max-w-2xl mx-auto px-6 py-16 pb-32'>
         <Link
-          to='/heroes'
+          href='/heroes'
           className='bio-glitch inline-block mb-8 text-white/30 text-xs sm:text-[10px] font-mono uppercase tracking-widest hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)] transition-all duration-300'
           style={jitter()}
         >
@@ -85,19 +66,14 @@ const HeroDetail = ({ id }: { id: string }) => {
           <Markdown
             rehypePlugins={[rehypeRaw]}
             components={{
-              img: ({
-                src,
-                alt,
-                width,
-                height,
-              }: {
-                src?: string;
-                alt?: string;
-                width?: string | number;
-                height?: string | number;
-              }) => {
-                if (!src || !width || !height)
-                  return <img src={src} alt={alt} />;
+              img: ({ src, alt, width, height }) => {
+                if (typeof src !== 'string' || !width || !height)
+                  return (
+                    <img
+                      src={typeof src === 'string' ? src : undefined}
+                      alt={alt}
+                    />
+                  );
                 return (
                   <ProgressiveImage
                     placeholderSrc={src.replace(

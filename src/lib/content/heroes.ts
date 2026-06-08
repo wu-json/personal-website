@@ -1,6 +1,11 @@
+import 'server-only';
+import type { Hero } from 'src/screens/Heroes/types';
+
+import { readFileSync, readdirSync } from 'fs';
+import { join } from 'path';
 import { parse as parseYaml } from 'yaml';
 
-import type { Construct } from './types';
+const ENTRIES_DIR = 'src/screens/Heroes/entries';
 
 function parseFrontmatter(raw: string) {
   const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/);
@@ -11,25 +16,26 @@ function parseFrontmatter(raw: string) {
   };
 }
 
-const modules = import.meta.glob('./entries/*.md', {
-  query: '?raw',
-  import: 'default',
-  eager: true,
-}) as Record<string, string>;
+let cache: Hero[] | null = null;
 
-export const constructs: Construct[] = Object.entries(modules)
-  .sort(([pathA], [pathB]) => pathB.localeCompare(pathA))
-  .map(([, raw]) => {
+export function getHeroes(): Hero[] {
+  if (cache) return cache;
+  const dir = join(process.cwd(), ENTRIES_DIR);
+  const files = readdirSync(dir)
+    .filter(f => f.endsWith('.md'))
+    .sort((a, b) => a.localeCompare(b));
+  cache = files.map(f => {
+    const raw = readFileSync(join(dir, f), 'utf-8');
     const { data, content } = parseFrontmatter(raw);
     return {
       id: String(data.id ?? ''),
       title: String(data.title ?? ''),
       subtitle: String(data.subtitle ?? ''),
-      date: String(data.date ?? ''),
       cover: String(data.cover ?? ''),
       coverWidth: Number(data.coverWidth ?? 0),
       coverHeight: Number(data.coverHeight ?? 0),
       body: content.trim(),
+      location: data.location ? String(data.location) : undefined,
       coverPosition: data.coverPosition
         ? String(data.coverPosition)
         : undefined,
@@ -37,11 +43,5 @@ export const constructs: Construct[] = Object.entries(modules)
       link: data.link ? String(data.link) : undefined,
     };
   });
-
-export function constructImageUrl(
-  id: string,
-  file: string,
-  size: 'placeholder' | 'thumb' | 'full',
-): string {
-  return `/images/constructs/${id}/${file}-${size}.webp`;
+  return cache;
 }

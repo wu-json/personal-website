@@ -1,3 +1,5 @@
+'use client';
+
 import { useEffect, useRef } from 'react';
 
 import { InkCursorRenderer, SEGMENT_STRIDE } from './renderer';

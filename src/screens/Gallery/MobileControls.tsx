@@ -1,3 +1,5 @@
+'use client';
+
 import type { RefObject } from 'react';
 
 import { useRef, useCallback } from 'react';

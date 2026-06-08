@@ -1,6 +1,11 @@
+import 'server-only';
+import type { Fragment, Grouping, PhotoMeta } from 'src/screens/Memories/types';
+
+import { readFileSync, readdirSync } from 'fs';
+import { join } from 'path';
 import { parse as parseYaml } from 'yaml';
 
-import type { Fragment, Grouping, PhotoMeta } from './types';
+const FRAGMENTS_DIR = 'src/screens/Memories/fragments';
 
 function parseFrontmatter(raw: string) {
   const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/);
@@ -11,15 +16,16 @@ function parseFrontmatter(raw: string) {
   };
 }
 
-const modules = import.meta.glob('./fragments/*.md', {
-  query: '?raw',
-  import: 'default',
-  eager: true,
-}) as Record<string, string>;
+let cache: Fragment[] | null = null;
 
-export const fragments: Fragment[] = Object.entries(modules)
-  .sort(([pathA], [pathB]) => pathB.localeCompare(pathA))
-  .map(([, raw]) => {
+export function getFragments(): Fragment[] {
+  if (cache) return cache;
+  const dir = join(process.cwd(), FRAGMENTS_DIR);
+  const files = readdirSync(dir)
+    .filter(f => f.endsWith('.md'))
+    .sort((a, b) => b.localeCompare(a));
+  cache = files.map(f => {
+    const raw = readFileSync(join(dir, f), 'utf-8');
     const { data, content } = parseFrontmatter(raw);
     return {
       id: String(data.id ?? ''),
@@ -33,11 +39,5 @@ export const fragments: Fragment[] = Object.entries(modules)
       groupings: data.groupings as Record<string, Grouping> | undefined,
     };
   });
-
-export function photoUrl(
-  fragmentId: string,
-  file: string,
-  size: 'placeholder' | 'small' | 'thumb' | 'full',
-): string {
-  return `/images/fragments/${fragmentId}/${file}-${size}.webp`;
+  return cache;
 }

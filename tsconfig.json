@@ -14,12 +14,20 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react-jsx",
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [{ "name": "next" }],
     "paths": {
       "src/*": ["./src/*"]
     },
-    "types": ["vite/client", "bun", "node"]
+    "types": ["bun", "node"]
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules/**/*", "build/**/*"]
+  "include": [
+    "src/**/*",
+    "app/**/*",
+    "next-env.d.ts",
+    "global.d.ts",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": ["node_modules/**/*", "build/**/*", ".next/**/*"]
 }

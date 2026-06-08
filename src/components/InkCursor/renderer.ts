@@ -156,12 +156,7 @@ void main() {
 export const SEGMENT_STRIDE = 12; // floats per per-segment instance
 
 // Unit quad coords: (along, side) for the 4 corners of every segment.
-const UNIT_QUAD = new Float32Array([
-  0, -1,
-  0, 1,
-  1, -1,
-  1, 1,
-]);
+const UNIT_QUAD = new Float32Array([0, -1, 0, 1, 1, -1, 1, 1]);
 
 const SOFT_MARGIN = 2; // CSS px of padding past halfW for AA + round joins
 

@@ -1,3 +1,5 @@
+import 'client-only';
+
 // Module-level cache of full-resolution image URLs that have already loaded
 // once during this session. Shared between PhotoSlide and GroupSlide so a
 // photo seen inside a group neighbor is still treated as "already loaded"

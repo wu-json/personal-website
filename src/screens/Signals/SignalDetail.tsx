@@ -1,39 +1,20 @@
-import { useJitter } from 'src/hooks/useJitter';
-import { Link } from 'wouter';
+'use client';
 
-import { signals } from './data';
+import Link from 'next/link';
+import { useJitter } from 'src/hooks/useJitter';
+
+import type { Signal } from './types';
+
 import { MarkdownBody } from './MarkdownBody';
 
-const SignalDetail = ({ id }: { id: string }) => {
+const SignalDetail = ({ signal: s }: { signal: Signal }) => {
   const jitter = useJitter();
-  const s = signals.find(sx => sx.id === id);
-
-  if (!s) {
-    return (
-      <div className='w-full min-h-screen bg-black flex items-center justify-center md:pr-40'>
-        <div className='flex flex-col items-center gap-3'>
-          <h1 className='bio-glitch text-white text-2xl font-pixel'>
-            SIGNAL LOST
-          </h1>
-          <p className='bio-glitch text-white/30 text-xs font-mono'>
-            {'// signal not found in relay logs'}
-          </p>
-          <Link
-            to='/signals'
-            className='mt-4 text-white/30 text-xs sm:text-[10px] font-mono uppercase tracking-widest hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)] transition-all duration-300'
-          >
-            {'< return to signals'}
-          </Link>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className='w-full min-h-screen bg-black md:pr-40'>
       <div className='max-w-2xl mx-auto px-6 py-16 pb-32'>
         <Link
-          to='/signals'
+          href='/signals'
           className='bio-glitch inline-block mb-8 text-white/30 text-xs sm:text-[10px] font-mono uppercase tracking-widest hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)] transition-all duration-300'
           style={jitter()}
         >

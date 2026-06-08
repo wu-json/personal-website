@@ -8,9 +8,9 @@
   },
   "type": "module",
   "scripts": {
-    "dev": "vite dev",
-    "build": "vite build",
-    "preview": "vite preview",
+    "dev": "next dev",
+    "build": "next build",
+    "preview": "next start",
     "postinstall": "test \"$CI\" = true || prek install",
     "format": "oxfmt .",
     "lint": "oxlint .",
@@ -23,10 +23,12 @@
     "@fontsource-variable/geist-mono": "^5.2.7",
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.5.0",
-    "@tailwindcss/vite": "^4.1.18",
+    "@tailwindcss/postcss": "^4.1.18",
     "earcut": "^3.0.2",
     "geist": "^1.7.0",
+    "html-react-parser": "^5.2.7",
     "lucide-react": "^1.11.0",
+    "next": "^15.1.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-markdown": "^10.1.0",
@@ -34,7 +36,6 @@
     "remark-gfm": "^4.0.1",
     "tailwindcss": "^4.1.18",
     "three": "^0.183.1",
-    "wouter": "^3.9.0",
     "yaml": "^2.7.1"
   },
   "devDependencies": {
@@ -46,15 +47,13 @@
     "@types/react-dom": "^19.2.3",
     "@types/three": "^0.183.1",
     "@typescript/native-preview": "7.0.0-dev.20260516.1",
-    "@vitejs/plugin-react": "^5.1.4",
     "oxfmt": "^0.32.0",
     "oxlint": "^1.35.0",
     "rehype-stringify": "^10.0.1",
     "remark-parse": "^11.0.0",
     "remark-rehype": "^11.1.2",
     "sharp": "^0.34.5",
-    "unified": "^11.0.5",
-    "vite": "^7.3.1"
+    "unified": "^11.0.5"
   },
   "browserslist": {
     "production": [

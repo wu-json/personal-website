@@ -1,10 +1,13 @@
+'use client';
+
+import Link from 'next/link';
 import { ProgressiveImage } from 'src/components/ProgressiveImage';
 import { useJitter } from 'src/hooks/useJitter';
-import { Link } from 'wouter';
+import { constructImageUrl } from 'src/lib/photoUrl';
 
-import { constructImageUrl, constructs } from './data';
+import type { Construct } from './types';
 
-const ConstructsScreen = () => {
+const ConstructsScreen = ({ constructs }: { constructs: Construct[] }) => {
   const jitter = useJitter();
   return (
     <div className='w-full min-h-screen bg-black md:pr-40'>
@@ -28,7 +31,7 @@ const ConstructsScreen = () => {
           {constructs.map((c, i) => (
             <Link
               key={c.id}
-              to={`/constructs/${c.id}`}
+              href={`/constructs/${c.id}`}
               className='bio-glitch group block'
               style={{ animationDelay: `${i * 40}ms` }}
             >

@@ -1,13 +1,16 @@
+'use client';
+
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useMemo } from 'react';
 import Markdown from 'react-markdown';
 import { ProgressiveImage } from 'src/components/ProgressiveImage';
 import { useJitter } from 'src/hooks/useJitter';
-import { Link, useLocation } from 'wouter';
+import { photoUrl } from 'src/lib/photoUrl';
 
-import type { Grouping, PhotoMeta } from './types';
+import type { Fragment, Grouping, PhotoMeta } from './types';
 
 import { LightboxShell, type SlideView } from './components/LightboxShell';
-import { fragments, photoUrl } from './data';
 
 const layoutClasses: Record<string, { wrapper: string; item: string }> = {
   row: { wrapper: 'flex gap-1', item: 'flex-1 min-w-0' },
@@ -80,18 +83,24 @@ function filesFromGridItem(item: GridItem): string[] {
     : item.photos.map(p => p.file);
 }
 
-const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
-  const [, navigate] = useLocation();
+const FragmentDetail = ({
+  fragment,
+  photo,
+}: {
+  fragment: Fragment;
+  photo?: string;
+}) => {
+  const router = useRouter();
   const jitter = useJitter();
-  const fragment = fragments.find(f => f.id === id);
+  const id = fragment.id;
 
   const gridItems = useMemo(
-    () => (fragment ? buildGridItems(fragment.photos, fragment.groupings) : []),
+    () => buildGridItems(fragment.photos, fragment.groupings),
     [fragment],
   );
 
   const lightboxView = useMemo((): LightboxView => {
-    if (!photo || !fragment) return null;
+    if (!photo) return null;
 
     if (fragment.groupings?.[photo]) {
       const gi = gridItems.findIndex(
@@ -137,32 +146,11 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
   const navigateToGridItem = (gi: number) => {
     const item = gridItems[gi];
     if (item.kind === 'group') {
-      navigate(`/memories/${id}/${item.groupId}`, { replace: true });
+      router.replace(`/memories/${id}/${item.groupId}`, { scroll: false });
     } else {
-      navigate(`/memories/${id}/${item.photo.file}`, { replace: true });
+      router.replace(`/memories/${id}/${item.photo.file}`, { scroll: false });
     }
   };
-
-  if (!fragment) {
-    return (
-      <div className='w-full min-h-screen bg-black flex items-center justify-center md:pr-40'>
-        <div className='flex flex-col items-center gap-3'>
-          <h1 className='bio-glitch text-white text-2xl font-pixel'>
-            FRAGMENT LOST
-          </h1>
-          <p className='bio-glitch text-white/30 text-xs font-mono'>
-            {'// memory not found in archive'}
-          </p>
-          <Link
-            to='/memories'
-            className='mt-4 text-white/30 text-xs sm:text-[10px] font-mono uppercase tracking-widest hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)] transition-all duration-300'
-          >
-            {'< return to memories'}
-          </Link>
-        </div>
-      </div>
-    );
-  }
 
   const gridPreloadFiles = useMemo(() => {
     if (!lightboxView) return [];
@@ -194,7 +182,7 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
       caption: item.caption,
       counter,
       onPhotoClick: p =>
-        navigate(`/memories/${id}/${p.file}`, { replace: true }),
+        router.replace(`/memories/${id}/${p.file}`, { scroll: false }),
     };
   };
 
@@ -225,7 +213,7 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
           prev={prev}
           current={current}
           next={next}
-          onClose={() => navigate(`/memories/${id}`, { replace: true })}
+          onClose={() => router.replace(`/memories/${id}`, { scroll: false })}
           onPrev={
             wraps ? () => navigateToGridItem((gridIndex - 1 + N) % N) : null
           }
@@ -283,16 +271,22 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
           current={current}
           next={next}
           onClose={() =>
-            navigate(`/memories/${id}/${fromGroup}`, { replace: true })
+            router.replace(`/memories/${id}/${fromGroup}`, { scroll: false })
           }
           onPrev={
             prevFile
-              ? () => navigate(`/memories/${id}/${prevFile}`, { replace: true })
+              ? () =>
+                  router.replace(`/memories/${id}/${prevFile}`, {
+                    scroll: false,
+                  })
               : null
           }
           onNext={
             nextFile
-              ? () => navigate(`/memories/${id}/${nextFile}`, { replace: true })
+              ? () =>
+                  router.replace(`/memories/${id}/${nextFile}`, {
+                    scroll: false,
+                  })
               : null
           }
           preloadFiles={[...preload, ...gridPreloadFiles]}
@@ -325,7 +319,7 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
           prev={prev}
           current={current}
           next={next}
-          onClose={() => navigate(`/memories/${id}`, { replace: true })}
+          onClose={() => router.replace(`/memories/${id}`, { scroll: false })}
           onPrev={
             wraps ? () => navigateToGridItem((gridIndex - 1 + N) % N) : null
           }
@@ -340,7 +334,7 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
     <div className='w-full min-h-screen bg-black md:pr-40'>
       <div className='max-w-4xl mx-auto px-6 py-16 pb-32'>
         <Link
-          to='/memories'
+          href='/memories'
           className='bio-glitch inline-block mb-8 text-white/30 text-xs sm:text-[10px] font-mono uppercase tracking-widest hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)] transition-all duration-300'
           style={jitter()}
         >
@@ -369,7 +363,7 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
             </span>
           </div>
           <Link
-            to={`/gallery/${fragment.id}`}
+            href={`/gallery/${fragment.id}`}
             className='bio-glitch text-white/30 text-xs sm:text-[10px] font-mono uppercase tracking-widest hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)] transition-all duration-300 mt-3 inline-block'
             style={jitter()}
           >
@@ -414,7 +408,9 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
                     fetchPriority={i < 2 ? 'high' : undefined}
                     className='rounded-sm'
                     onClick={() =>
-                      navigate(`/memories/${id}/${p.file}`, { replace: true })
+                      router.replace(`/memories/${id}/${p.file}`, {
+                        scroll: false,
+                      })
                     }
                   />
                 </div>
@@ -434,8 +430,8 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
               : base.wrapper;
             const itemCls = shouldStack ? 'sm:flex-1 sm:min-w-0' : base.item;
             const openGroup = () =>
-              navigate(`/memories/${id}/${item.groupId}`, {
-                replace: true,
+              router.replace(`/memories/${id}/${item.groupId}`, {
+                scroll: false,
               });
             return (
               <button

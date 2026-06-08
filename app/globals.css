@@ -862,10 +862,6 @@ html {
     background-color: var(--color-surface);
     color: var(--color-ink);
   }
-
-  #root {
-    @apply h-full w-full;
-  }
 }
 
 /* Text selection — monochrome inverse of the active surface. Ink-colored

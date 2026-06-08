@@ -1,12 +1,15 @@
+'use client';
+
 import type { KeyboardEvent, MouseEvent } from 'react';
 
 import { Rss } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { ProgressiveImage } from 'src/components/ProgressiveImage';
 import { useInfiniteList } from 'src/hooks/useInfiniteList';
 import { useJitter } from 'src/hooks/useJitter';
-import { useLocation } from 'wouter';
 
-import { signals } from './data';
+import type { Signal } from './types';
+
 import { MarkdownBody } from './MarkdownBody';
 import {
   parseFirstImgFromSignalBody,
@@ -37,8 +40,8 @@ const CollapsedListHeroImage = ({ src, alt }: { src: string; alt: string }) => {
   );
 };
 
-const SignalsScreen = () => {
-  const [, navigate] = useLocation();
+const SignalsScreen = ({ signals }: { signals: Signal[] }) => {
+  const router = useRouter();
   const jitter = useJitter();
   const { visibleCount, sentinelRef, done } = useInfiniteList(signals.length, {
     pageSize: 6,
@@ -73,7 +76,7 @@ const SignalsScreen = () => {
             const hero = parseFirstImgFromSignalBody(s.body);
             const excerpt = signalPlainExcerpt(s.body);
 
-            const go = () => navigate(`/signals/${s.id}`);
+            const go = () => router.push(`/signals/${s.id}`);
 
             const onPreviewClick = (e: MouseEvent<HTMLDivElement>) => {
               if ((e.target as HTMLElement).closest('a, button')) return;
