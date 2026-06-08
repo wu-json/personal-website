@@ -9,6 +9,9 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  // Mirrors the Vite dev server's allowedHosts so `next dev` accepts
+  // Host headers from Cloudflare quick tunnels.
+  allowedDevOrigins: ['*.trycloudflare.com'],
   webpack: config => {
     config.resolve = config.resolve ?? {};
     config.resolve.alias = {
