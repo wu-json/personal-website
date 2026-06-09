@@ -18,7 +18,7 @@ It's ridiculous how many times I've heard this take come up unironically in San 
 
 While I understand the concern itself, the part that baffles me is that people think making it into the upper class before the Armageddon somehow means you're safe. I made a short game called [Permanent Upper Crow](https://permanent-upper-crow.jasonwu.ink/) to show the futility of it all.
 
-A world where a majority of the population is suffering is not a world good for anyone. Dollars will only protect you from those that still respect it.
+A world where a majority of the population is suffering is not a world good for anyone. Dollars will only protect you from those that still respect them.
 
 Be bullish on humanity before yourself.
 
