@@ -30,4 +30,4 @@ What if prices were represented in time instead of dollars? Would it make you fe
 
 I made a simple site to visualize prices from this lens. [Money Is Time](https://money-is-time.jasonwu.ink/) allows you to enter your annual salary and visualize common purchases as a measure of your hard-working hours. It uses prices in San Francisco but if you want to fork it and localize it to your region it should take one or two prompts to do so.
 
-Use your time wisely!
+Use your time wisely.
