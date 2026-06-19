@@ -6,8 +6,6 @@ expanded: false
 location: 'San Francisco, US'
 ---
 
-<img src="/images/signals/2026-06-14-money-is-time/money-is-time-full.webp" alt="Money Is Time" width="1200" height="630">
-
 _"Time is money."_ — Benjamin Franklin, 1748
 
 We hear this wisdom so often, yet there is no interesting UI that reflects this in a practical way.
