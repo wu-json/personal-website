@@ -1,7 +1,7 @@
 ---
 id: '2026-06-18-palantir-square'
 timestamp: '2026.06.18 // 19:32:10'
-title: 'What if the Palantir Logo Was Square'
+title: "What if Palantir's Logo Was Square?"
 expanded: false
 location: 'San Francisco, US'
 ---
