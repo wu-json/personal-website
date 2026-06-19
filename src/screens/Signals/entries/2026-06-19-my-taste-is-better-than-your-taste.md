@@ -6,7 +6,7 @@ expanded: false
 location: 'San Francisco, US'
 ---
 
-With the public launch of [Taste Labs](https://tastelabs.com), there's been a lot of strife on X as to what good taste is. Here are my two cents that no one asked for.
+With the public launch of [Taste Labs](https://tastelabs.com), there's been a lot of strife on social media as to what good taste is. Here are my two cents that no one asked for.
 
 > **taste** _(n.)_ — the sensory perception of flavor when substances interact with receptors on the tongue, or a person's individual aesthetic preference and discernment.
 
