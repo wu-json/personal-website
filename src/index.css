@@ -829,7 +829,7 @@ html[data-theme-flash-reset] .nav-glitch-active {
 /* Firefox */
 html {
   scrollbar-width: thin;
-  scrollbar-color: var(--color-ink-hair) transparent;
+  scrollbar-color: var(--color-ink-ghost) transparent;
 }
 
 /* WebKit */
@@ -843,12 +843,12 @@ html {
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: var(--color-ink-hair);
+  background-color: var(--color-ink-ghost);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background-color: var(--color-ink-trace);
+  background-color: var(--color-ink-faint);
 }
 
 ::-webkit-scrollbar-corner {
