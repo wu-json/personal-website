@@ -24,7 +24,7 @@ How does Carol's opinion affect who has "good taste"?
 
 However you answered says more about you than it does about Carol.
 
-A lot of this taste talk is rooted in insecurity. When your skills get encoded into an LLM, you need to justify your existence with something. The easiest thing to reach for is to claim unique value in something inherently subjective, because no one can prove you wrong.
+A lot of this taste talk is rooted in insecurity. When your skills get encoded into an LLM, you need to justify your existence with something. The easiest thing to reach for is to claim your unique value in something inherently subjective, because no one can prove you wrong.
 
 I'm not saying this in a judgemental way; this just seems to be a really common thing among humans in the industry right now, and is definitely a feeling that I have not been spared from myself.
 
