@@ -4,6 +4,9 @@ import { Link } from 'wouter';
 import { signals } from './data';
 import { MarkdownBody } from './MarkdownBody';
 
+const socialLinkClass =
+  'font-mono text-xs sm:text-[10px] uppercase tracking-widest text-white/50 hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)] transition-all duration-300';
+
 const SignalDetail = ({ id }: { id: string }) => {
   const jitter = useJitter();
   const s = signals.find(sx => sx.id === id);
@@ -78,10 +81,47 @@ const SignalDetail = ({ id }: { id: string }) => {
           <MarkdownBody>{s.body}</MarkdownBody>
         </div>
 
-        <footer className='mt-12 pt-6 border-t border-white/5'>
+        <footer className='mt-12 pt-6 border-t border-white/5 flex items-center justify-between flex-wrap gap-4'>
           <p className='text-white/20 text-xs sm:text-[10px] font-mono uppercase tracking-widest'>
             {'// end'}
           </p>
+          <div className='flex items-center gap-3'>
+            <a
+              href='https://github.com/wu-json'
+              target='_blank'
+              rel='noopener noreferrer'
+              className={socialLinkClass}
+            >
+              GitHub
+            </a>
+            <span className='text-white/20 text-xs sm:text-[10px]'>/</span>
+            <a
+              href='https://www.linkedin.com/in/wu-json/'
+              target='_blank'
+              rel='noopener noreferrer'
+              className={socialLinkClass}
+            >
+              LinkedIn
+            </a>
+            <span className='text-white/20 text-xs sm:text-[10px]'>/</span>
+            <a
+              href='https://www.instagram.com/jasoncuiwu/'
+              target='_blank'
+              rel='noopener noreferrer'
+              className={socialLinkClass}
+            >
+              Instagram
+            </a>
+            <span className='text-white/20 text-xs sm:text-[10px]'>/</span>
+            <a
+              href='https://x.com/jasoncuiwu'
+              target='_blank'
+              rel='noopener noreferrer'
+              className={socialLinkClass}
+            >
+              X
+            </a>
+          </div>
         </footer>
       </div>
     </div>
