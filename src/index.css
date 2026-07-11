@@ -555,12 +555,14 @@ html[data-theme-flash-reset] .nav-glitch-active {
 .signal-prose ol ol {
   padding-left: 1.25em;
 }
+/* Quotes carry body content — the border + background tint already set them
+   apart, so the text tracks the body ink instead of dropping to a softer token. */
 .signal-prose blockquote {
   border-left: 2px solid var(--color-ink-ghost);
   background: var(--color-ink-hair);
   padding: 0.75em 1em;
   border-radius: 0 4px 4px 0;
-  color: var(--color-ink-soft);
+  color: inherit;
   margin: 0.75em 0;
 }
 .signal-prose h1,
@@ -921,6 +923,9 @@ html {
 
 /* Opacity-tinted white text — map each percentage used in the codebase to an
    ink token. Values correspond to what Tailwind generates for text-white/<n>. */
+[data-theme='light'] .text-white\/90 {
+  color: var(--color-ink-soft);
+}
 [data-theme='light'] .text-white\/80 {
   color: var(--color-ink-soft);
 }
