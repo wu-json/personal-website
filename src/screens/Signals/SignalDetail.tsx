@@ -75,7 +75,7 @@ const SignalDetail = ({ id }: { id: string }) => {
         </header>
 
         <div
-          className='bio-glitch signal-prose signal-entry text-white/70 text-sm font-mono'
+          className='bio-glitch signal-prose signal-entry text-white/80 text-[15px] font-mono'
           style={jitter()}
         >
           <MarkdownBody>{s.body}</MarkdownBody>

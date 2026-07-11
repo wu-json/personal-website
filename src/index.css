@@ -406,13 +406,19 @@ html[data-theme-flash-reset] .nav-glitch-active {
 
 /* Signal entries only — long-form rhythm (generous paragraph gaps like overreacted-style blogs) */
 .signal-prose.signal-entry {
-  line-height: 1.78;
+  line-height: 1.8;
 }
 .signal-prose.signal-entry p {
   margin-bottom: 1.45em;
 }
 .signal-prose.signal-entry p:last-child {
   margin-bottom: 0;
+}
+/* Avoid single-word orphan lines in long-form bodies (no-op where unsupported) */
+.signal-prose.signal-entry p,
+.signal-prose.signal-entry li,
+.signal-prose.signal-entry blockquote {
+  text-wrap: pretty;
 }
 .signal-prose.signal-entry h1,
 .signal-prose.signal-entry h2,
@@ -461,13 +467,17 @@ html[data-theme-flash-reset] .nav-glitch-active {
   color: var(--color-ink);
   font-weight: 600;
 }
+/* Emphasis must not drop below body contrast — it marks the words that
+   matter most, so it inherits the body ink instead of a muted token. */
 .signal-prose em {
   font-style: italic;
-  color: var(--color-ink-muted);
+  color: inherit;
 }
 .signal-prose a {
   text-decoration: underline;
   text-decoration-color: var(--color-ink-faint);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
   transition: all 300ms;
 }
 .signal-prose a:hover {
@@ -562,6 +572,7 @@ html[data-theme-flash-reset] .nav-glitch-active {
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin: 1em 0 0.5em;
+  text-wrap: balance;
 }
 .signal-prose h1 {
   font-size: 1.5em;
