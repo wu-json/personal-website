@@ -3,7 +3,7 @@ id: tokyo-revengers
 title: Tokyo Revengers
 date: '2026.06.01'
 location: 東京、日本
-cover: DSCF2411
+cover: DSCF2570
 photos:
   - file: DSCF2372
     width: 2394
