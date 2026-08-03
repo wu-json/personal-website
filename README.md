@@ -28,7 +28,7 @@ Other useful scripts:
 bun run build    # production build
 bun run preview  # serve production build locally
 bun run lint     # oxlint
-bun run format   # oxfmt
+bun run fmt      # oxfmt
 ```
 
 Git hooks are installed with [prek](https://github.com/j178/prek) on `bun install` (skipped in CI).

@@ -30,7 +30,7 @@ Personal site for Jason Wu ([jasonwu.ink](https://jasonwu.ink)): React + TypeScr
 - `bun run build` — production build
 - `bun run preview` — serve production build
 - `bun run lint` — oxlint
-- `bun run format` — oxfmt
+- `bun run fmt` — oxfmt
 - `bun run typecheck` — tsgo (`--noEmit`)
 - `bun run optimize-photos` — image pipeline for fragments (see `scripts/optimize-photos.ts`)
 
@@ -125,6 +125,6 @@ Long posts use a collapsed teaser on `/signals` unless frontmatter has `expanded
 
 ## When making changes
 
-1. Run `bun run lint`, `bun run format`, and `bun run typecheck` before committing
+1. Run `bun run lint`, `bun run fmt`, and `bun run typecheck` before committing
 2. Keep TypeScript types accurate
 3. Follow existing component and file patterns

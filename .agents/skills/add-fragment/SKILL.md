@@ -55,4 +55,4 @@ Routes: listed on `/memories`, detail at `/memories/<slug>` (slug is `id`).
 
 ## 3. Before commit
 
-Run `bun run lint` and `bun run format` per project convention.
+Run `bun run lint` and `bun run fmt` per project convention.

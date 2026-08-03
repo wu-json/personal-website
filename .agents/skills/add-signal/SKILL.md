@@ -75,4 +75,4 @@ Routes: `/signals` and `/signals/<date-slug>`.
 
 ## 4. Before commit
 
-Run `bun run lint` and `bun run format`.
+Run `bun run lint` and `bun run fmt`.

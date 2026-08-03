@@ -57,4 +57,4 @@ Routes: `/constructs` and `/constructs/<slug>`.
 
 ## 3. Before commit
 
-Run `bun run lint` and `bun run format`.
+Run `bun run lint` and `bun run fmt`.
