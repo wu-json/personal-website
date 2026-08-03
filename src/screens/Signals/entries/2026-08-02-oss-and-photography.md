@@ -61,7 +61,7 @@ My finger slipped and somehow I had deleted every photo on my camera.
 
 > Dear FujiFilm,
 >
-> Please do not put the "DELETE ALL FRAMES" option right below "DELETE SINGLE FRAME". It seems that I'm not the only [victim](https://www.reddit.com/r/fujifilm/comments/1ijselx/why_the_fuck_is_delete_all_frames_next_to_delete/).
+> Please do not put the "DELETE ALL FRAMES" option right below "DELETE SINGLE FRAME". I'm not the only [victim of this footgun](https://www.reddit.com/r/fujifilm/comments/1ijselx/why_the_fuck_is_delete_all_frames_next_to_delete/).
 >
 > This UX has possibly improved with software updates by now, but it's still mind-boggling to me that this design ever made it past review.
 
@@ -95,7 +95,7 @@ You could throw them in Google Photos and call it a day, but personally I take a
 
 And also bought a [NAS](https://en.wikipedia.org/wiki/Network-attached_storage) on a whim after seeing some obnoxious ad-read on YouTube (these work sometimes unfortunately).
 
-This is where we introduce the holy grail of OSS photo management. [Immich](https://github.com/immich-app/immich) provides a fully self-hosted Google Photos experience. It's also configurable via Docker which is perfect for those who already run Docker on their NAS for other apps.
+This is where we introduce the holy grail of OSS photo management. [Immich](https://github.com/immich-app/immich) provides a fully self-hosted Google Photos-like experience. It's also configurable via Docker which is perfect for those who already run Docker on their NAS for other apps.
 
 <figure>
 <img src="/images/signals/2026-08-02-oss-and-photography/immich-full.webp" alt="Immich photo grid" width="2518" height="1312">
@@ -133,7 +133,7 @@ Though I briefly hinted at this in my JPEG rescue mission story, I want to point
 
 Coding agents helped drive the rescue of my JPEGs, write yaml configurations to set up my photo storage solution, and organize my photo archives.
 
-When it comes to actually editing photos, I like to do that by hand in darktable. However, everything leading up to that point (e.g. organizing files + configuring storage and backups) is not creatively stimulating for me and I'm glad AI can help me in those areas.
+When it comes to actually editing photos, I like to do that by hand in darktable. However, everything leading up to that point besides shooting (e.g. organizing files + configuring storage and backups) is not creatively stimulating for me and I'm glad AI can help me in those areas.
 
 ## Ending Note
 
