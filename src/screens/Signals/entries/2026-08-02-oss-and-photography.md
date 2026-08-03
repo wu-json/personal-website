@@ -51,7 +51,7 @@ Even this early into the process, one can make catastrophic mistakes.
 
 ## Fat Fingers
 
-Maybe around 4 months ago, I ended up in the Panhandle after 8 hours of shooting around San Francisco. I had captured several surreal scenes. A man riding a bike with bubbles flying out the back making sounds of popping bubblegum, and a singer with a ukulele posted under a perfect topologically imperfect tree with a grand statue protecting him from behind.
+Maybe around 4 months ago, I ended up in the Panhandle after 8 hours of shooting around San Francisco. I had captured several surreal scenes. A man riding a bike with bubbles shooting out the back making sounds of popping bubblegum, and a singer with a ukulele posted under a perfect topologically imperfect tree with a grand statue protecting him from behind.
 
 I giddily reviewed the photos while taking cover under a tree myself, deleting duds. It's here that I would learn a very important lesson.
 
