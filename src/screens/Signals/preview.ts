@@ -16,9 +16,20 @@ export function parseFirstImgFromSignalBody(body: string): {
   return { src, alt, width: Number(w), height: Number(h) };
 }
 
+/**
+ * Hero media never counts as list text — that includes the <figure> wrapper and
+ * its <figcaption>, whose words would otherwise open the collapsed excerpt.
+ */
+function stripMedia(body: string): string {
+  return body
+    .replace(/<figcaption[^>]*>[\s\S]*?<\/figcaption>/gi, ' ')
+    .replace(/<\/?figure[^>]*>/gi, ' ')
+    .replace(/<img\s[^>]*\/?>/gi, ' ')
+    .trim();
+}
+
 function bodyPlainTextLength(body: string): number {
-  const withoutImg = body.replace(/<img\s[^>]*\/?>/gi, ' ').trim();
-  return withoutImg.replace(/\s+/g, ' ').length;
+  return stripMedia(body).replace(/\s+/g, ' ').length;
 }
 
 /**
@@ -34,8 +45,7 @@ export function shouldCollapseSignalList(
 
 /** Plain excerpt for collapsed list rows (after stripping hero images). */
 export function signalPlainExcerpt(body: string, maxLen = 300): string {
-  const noImg = body.replace(/<img\s[^>]*\/?>/gi, ' ').trim();
-  const plain = noImg
+  const plain = stripMedia(body)
     .replace(/^\[\^[^\]]+\]:.*$\n?/gm, '') // strip footnote definition lines
     .replace(/\[\^[^\]]+\]/g, '') // strip footnote reference markers
     .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // inline links → link text

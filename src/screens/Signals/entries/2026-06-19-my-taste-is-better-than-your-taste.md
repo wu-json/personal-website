@@ -34,4 +34,4 @@ The easiest defense is to claim unique value in something inherently subjective,
 
 Imagine how boring the world would be if we all took a bite of the klineapple and said, unanimously,
 
-*"This is delicious!"*
+_"This is delicious!"_

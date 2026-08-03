@@ -452,6 +452,34 @@ html[data-theme-flash-reset] .nav-glitch-active {
   margin-top: 1.65em;
   margin-bottom: 1.65em;
 }
+/* A captioned image is one unit: the figure owns the outer spacing so the
+   caption sits tight under the photo instead of drifting a full gap away. */
+.signal-prose.signal-entry figure {
+  margin-top: 1.65em;
+  margin-bottom: 1.65em;
+}
+/* (0,3,1) so it outranks `.signal-prose.signal-entry .construct-body-img`
+   (0,3,0) — otherwise the image keeps its standalone 1.65em bottom margin and
+   the caption floats away from the photo. */
+.signal-prose.signal-entry figure img,
+.signal-prose.signal-entry figure .construct-body-img,
+.signal-prose figure img,
+.signal-prose figure .construct-body-img {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+.signal-prose figcaption {
+  margin-top: 0.75em;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--color-ink-faint);
+}
+@media (min-width: 640px) {
+  .signal-prose figcaption {
+    font-size: 0.6875rem;
+  }
+}
 .signal-prose.signal-entry section[data-footnotes] {
   margin-top: 2.5rem;
 }

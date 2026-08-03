@@ -84,6 +84,20 @@ describe('signalPlainExcerpt', () => {
     expect(result).toContain('and more.');
   });
 
+  it('strips figure wrappers and figcaption text', () => {
+    const body =
+      '<figure>\n<img src="x.webp" width="10" height="10">\n<figcaption>A dog eating a pork bun</figcaption>\n</figure>\n\nBody text.';
+    expect(signalPlainExcerpt(body)).toBe('Body text.');
+  });
+
+  it('strips a figcaption spanning multiple lines', () => {
+    const body =
+      '<figure><img src="x.webp"><figcaption>Line one\nline two</figcaption></figure>Body.';
+    const result = signalPlainExcerpt(body);
+    expect(result).toBe('Body.');
+    expect(result).not.toContain('figure');
+  });
+
   it('collapses whitespace', () => {
     expect(signalPlainExcerpt('a    b   c')).toBe('a b c');
   });
@@ -120,5 +134,10 @@ describe('shouldCollapseSignalList', () => {
 
   it('does not collapse non-expanded signals with short body', () => {
     expect(shouldCollapseSignalList(false, 'short')).toBe(false);
+  });
+
+  it('does not count hero figure caption toward body length', () => {
+    const body = `<figure><img src="x.webp"><figcaption>${'caption '.repeat(200)}</figcaption></figure>short`;
+    expect(shouldCollapseSignalList(false, body)).toBe(false);
   });
 });
