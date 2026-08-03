@@ -77,6 +77,14 @@ I installed it with Homebrew, had a coding agent inspect the source code to lear
 
 Within a few minutes, I started to see my photos rise from the dead into a new directory on my computer.
 
+<figure>
+<img src="/images/signals/2026-08-02-oss-and-photography/bubble-bike-full.webp" alt="Cyclist trailing soap bubbles down a park path" width="3192" height="2128">
+</figure>
+
+<figure>
+<img src="/images/signals/2026-08-02-oss-and-photography/ukulele-tree-full.webp" alt="Ukulele player seated under a tree below a statue" width="2818" height="4227">
+</figure>
+
 Not all of them were recoverable and some had major visual artifacts from corruption (perhaps the camera was writing some new data there when I was fiddling with the menus), but 95% of them made it back home safe and sound.
 
 I hope none of you experience this, but if you do, know that you might be able to prompt your way out of this situation too.
