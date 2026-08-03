@@ -1,5 +1,5 @@
 ---
-id: '2026-08-02-my-oss-photography-stack'
+id: '2026-08-02-oss-and-photography'
 timestamp: '2026.08.02 // 14:43:45'
 title: 'OSS & Photography'
 expanded: false
