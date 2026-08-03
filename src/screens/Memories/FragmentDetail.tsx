@@ -4,10 +4,9 @@ import { ProgressiveImage } from 'src/components/ProgressiveImage';
 import { useJitter } from 'src/hooks/useJitter';
 import { Link, useLocation } from 'wouter';
 
-import type { Grouping, PhotoMeta } from './types';
-
 import { LightboxShell, type SlideView } from './components/LightboxShell';
 import { fragments, photoUrl } from './data';
+import type { Grouping, PhotoMeta } from './types';
 
 const layoutClasses: Record<string, { wrapper: string; item: string }> = {
   row: { wrapper: 'flex gap-1', item: 'flex-1 min-w-0' },

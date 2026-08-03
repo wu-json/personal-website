@@ -1,5 +1,6 @@
 import { existsSync, mkdirSync, readdirSync, statSync } from 'fs';
 import { join, parse } from 'path';
+
 import sharp from 'sharp';
 
 const SIZES = [

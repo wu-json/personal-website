@@ -12,9 +12,7 @@ Photography has been my creative cigarette for around 3 years now, and in the mi
 >
 > — 森山大道
 
-
 While I prefer Moriyama's primal "stray dog" philosophy when capturing photos, my post-processing routine is rather domesticated by comparison.
-
 
 Once the bytes leave my camera, they are sent to a humble digital fortress of software tools where they get forged into works of art or works of trash.
 
@@ -22,7 +20,7 @@ I'll quickly tour you around this fortress today. It will be a nice opportunity 
 
 # My Camera
 
-Before we go into the fortress, let's take a quick look at the blades I've taken with me in my excursions. 
+Before we go into the fortress, let's take a quick look at the blades I've taken with me in my excursions.
 
 I mainly shoot with a second-hand FujiFilm XE4 I bought on Ebay a few years ago. It has interchangeable lenses so I can use old German and Soviet lenses with the help of many obscure adapters, but I find myself leaning into pancake primes more often than not for the portability.
 
@@ -50,7 +48,7 @@ I giddily reviewed the photos while taking cover under a tree myself, deleting t
 
 My finger slipped while attempting to clean out a blurry photo of the grass I had taken by accident, and somehow I had deleted every photo on my camera.
 
-> To FujiFilm, 
+> To FujiFilm,
 >
 > Please do not put the "DELETE ALL FRAMES" menu item right next to the "DELETE SINGLE FRAME" menu item. It seems that I'm not the only one who has made [this fatal mistake](https://www.reddit.com/r/fujifilm/comments/1ijselx/why_the_fuck_is_delete_all_frames_next_to_delete/).
 >
@@ -60,7 +58,7 @@ I immediately panicked, and even reopened the playback menu a few times only to 
 
 > If you happen to be in this situation at any point, make sure to stop taking any new photos. Turn the camera off, or you risk overwriting your hopes and dreams of recovering that data.
 
-It turns out, that magical software did indeed exist: [PhotoRec](https://github.com/cgsecurity/testdisk). PhotoRec recovers lost images by scanning your disk against a known dictionary of file signatures and essentially fishing out the right boundaries in your bytes, between which the survivors of your photoshoot may lie. 
+It turns out, that magical software did indeed exist: [PhotoRec](https://github.com/cgsecurity/testdisk). PhotoRec recovers lost images by scanning your disk against a known dictionary of file signatures and essentially fishing out the right boundaries in your bytes, between which the survivors of your photoshoot may lie.
 
 I installed it with Homebrew, had a coding agent inspect the source code to learn the ropes, and sent it on the task of recovering my snapshots.
 
@@ -78,7 +76,7 @@ This is where we get to the holy grail of OSS photo management. [Immich](https:/
 
 By adding this and connecting it to my [Tailnet](https://tailscale.com/docs/concepts/tailnet), I'm also able to access my photos securely even when I'm not at home.
 
-Now I can store a bunch of images using my own drives and not have to worry about Google One costs! 
+Now I can store a bunch of images using my own drives and not have to worry about Google One costs!
 
 ## Hold On... Let's Back Up
 
@@ -92,7 +90,7 @@ For me, editing is one of the most satisfying parts of the process as it's where
 
 I've been using [darktable](https://www.darktable.org/) for as long as I can remember. It's great because the image editing is non-destructive, which means you can directly import photos and edit without worrying if that grain effect you saved by accident will ever come out.
 
-I haven't used other equivalent closed source options before (e.g. Adobe Lightroom), but to be honest I never felt the need to try other options. 
+I haven't used other equivalent closed source options before (e.g. Adobe Lightroom), but to be honest I never felt the need to try other options.
 
 Darktable feels quite ergonomic to me and I expect to stick with it for a very long time.
 
@@ -107,4 +105,3 @@ When it comes to actually editing the photos, I like to do those by hand. But ev
 ## An Ending Note
 
 Use OSS tools and build systems to help you manage the parts of your artistic process that aren't artistic. That way you can focus on the fun part.
-

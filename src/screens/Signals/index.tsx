@@ -1,6 +1,5 @@
-import type { KeyboardEvent, MouseEvent } from 'react';
-
 import { Rss } from 'lucide-react';
+import type { KeyboardEvent, MouseEvent } from 'react';
 import { ProgressiveImage } from 'src/components/ProgressiveImage';
 import { useInfiniteList } from 'src/hooks/useInfiniteList';
 import { useJitter } from 'src/hooks/useJitter';

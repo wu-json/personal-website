@@ -35,4 +35,3 @@ On a more positive note, diversity of taste is what makes the world interesting.
 Imagine how boring the world would be if we all took a bite of the klineapple and said, unanimously,
 
 "This is delicious!"
-

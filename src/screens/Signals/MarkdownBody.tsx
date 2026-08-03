@@ -9,7 +9,6 @@
  * @see AGENTS.md → "Signals markdown reference"
  */
 import type { AnchorHTMLAttributes, ReactNode } from 'react';
-
 import Markdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';

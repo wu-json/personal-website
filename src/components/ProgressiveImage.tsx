@@ -1,5 +1,4 @@
 import type { CSSProperties } from 'react';
-
 import { useEffect, useRef } from 'react';
 
 type CSSVars = CSSProperties & Record<string, string>;

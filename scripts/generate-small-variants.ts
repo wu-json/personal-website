@@ -12,6 +12,7 @@
 
 import { existsSync, readdirSync, statSync } from 'fs';
 import { join } from 'path';
+
 import sharp from 'sharp';
 
 const ROOT = join('public', 'images');

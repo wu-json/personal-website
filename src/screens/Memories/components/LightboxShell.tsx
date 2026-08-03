@@ -1,8 +1,7 @@
 import { useEffect, useRef } from 'react';
 
-import type { PhotoMeta } from '../types';
-
 import { photoUrl } from '../data';
+import type { PhotoMeta } from '../types';
 import { GroupSlide } from './GroupSlide';
 import { PhotoSlide } from './PhotoSlide';
 import { useSwipe } from './useSwipe';

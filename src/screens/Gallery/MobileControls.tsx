@@ -1,5 +1,4 @@
 import type { RefObject } from 'react';
-
 import { useRef, useCallback } from 'react';
 
 import type { MobileInput } from './index';

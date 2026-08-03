@@ -1,9 +1,8 @@
 import { useLayoutEffect, useRef, useState } from 'react';
 import Markdown from 'react-markdown';
 
-import type { PhotoMeta } from '../types';
-
 import { photoUrl } from '../data';
+import type { PhotoMeta } from '../types';
 import { loadedFullUrls } from './loadedFullUrls';
 
 const PhotoSlide = ({

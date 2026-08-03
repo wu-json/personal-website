@@ -48,16 +48,28 @@
     <meta property="og:title" content="Jason Cui Wu" />
     <meta property="og:description" content="Paint the world in ink." />
     <meta property="og:url" content="https://jasonwu.ink/" />
-    <meta property="og:image" content="https://jasonwu.ink/images/og-image.png" />
+    <meta
+      property="og:image"
+      content="https://jasonwu.ink/images/og-image.png"
+    />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="Jason Cui Wu — Paint the world in ink." />
+    <meta
+      property="og:image:alt"
+      content="Jason Cui Wu — Paint the world in ink."
+    />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Jason Cui Wu" />
     <meta name="twitter:description" content="Paint the world in ink." />
-    <meta name="twitter:image" content="https://jasonwu.ink/images/og-image.png" />
-    <meta name="twitter:image:alt" content="Jason Cui Wu — Paint the world in ink." />
+    <meta
+      name="twitter:image"
+      content="https://jasonwu.ink/images/og-image.png"
+    />
+    <meta
+      name="twitter:image:alt"
+      content="Jason Cui Wu — Paint the world in ink."
+    />
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
@@ -66,10 +78,13 @@
       (function () {
         try {
           var q = new URLSearchParams(window.location.search).get('theme');
-          var t = q === 'light' || q === 'dark' ? q : localStorage.getItem('theme');
+          var t =
+            q === 'light' || q === 'dark' ? q : localStorage.getItem('theme');
           if (t !== 'light' && t !== 'dark') t = 'dark';
           document.documentElement.setAttribute('data-theme', t);
-          try { localStorage.setItem('theme', t); } catch (_) {}
+          try {
+            localStorage.setItem('theme', t);
+          } catch (_) {}
         } catch (_) {
           document.documentElement.setAttribute('data-theme', 'dark');
         }

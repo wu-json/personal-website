@@ -56,7 +56,7 @@ via `index.tsx`. No call-site changes.
 
 WebGL2 is universal in target browsers in 2026 (iOS Safari ≥ 15). It
 buys us **multisample renderbuffers** (needed because `antialias: true`
-on the default framebuffer only AAs the *backbuffer*, not our offscreen
+on the default framebuffer only AAs the _backbuffer_, not our offscreen
 scene FBO), GLSL ES 3.00, and standard derivatives without an extension.
 If context creation fails, the component renders nothing — the lily is
 decorative.
@@ -127,8 +127,8 @@ glow halos darken at low-opacity edges.
 - `u_reveal: float` — stamens, gates fragments by
   `step(a_arcLength, u_reveal)` (replaces `stroke-dashoffset`).
 - `u_revealY: float` — stem, fragment discards where `v_worldY <
-  u_revealY` (analog of `lily-stem-rise`'s `clip-path: inset(100% 0 0 0)
-  → inset(0)`); CPU drives it with the same cubic-bezier ease.
+u_revealY` (analog of `lily-stem-rise`'s `clip-path: inset(100% 0 0 0)
+→ inset(0)`); CPU drives it with the same cubic-bezier ease.
 - `u_opacity: float` — per-element entrance alpha.
 - `u_color: vec4` — re-read on theme change.
 
@@ -147,8 +147,8 @@ uploads are ~50 floats total. Cheap.
   `v_arcLength` to fragment.
 - **Geometry fragment shader.** `discard` where `v_worldY < u_revealY`;
   otherwise alpha = `u_color.a * u_opacity * step(v_arcLength,
-  u_reveal)`. Output is premultiplied: `vec4(u_color.rgb * alpha,
-  alpha)`.
+u_reveal)`. Output is premultiplied: `vec4(u_color.rgb * alpha,
+alpha)`.
 - **Separable Gaussian blur.** Fullscreen triangle + 13-tap weights
   (precomputed for stdDev 2.5 and stdDev 3 in half-res). Two passes for
   tight (full-res, stdDev≈2.5), two for wide (half-res, stdDev≈3 ≈
@@ -168,8 +168,8 @@ uploads are ~50 floats total. Cheap.
 
   This matches `feMerge` semantics. (An earlier additive form
   (`scene + tight + wide`) washed petals into a uniform white blob
-  because the opaque scene was being summed *with* its own blurred
-  copy instead of *covering* it.)
+  because the opaque scene was being summed _with_ its own blurred
+  copy instead of _covering_ it.)
 
 ### Stamen glow
 
@@ -236,7 +236,7 @@ convention).
   the lily.
 - The rAF callback guards against React StrictMode's dev double-mount
   with `if (renderer.disposed || rendererRef.current !== renderer)
-  return;`. A stale `tick` closure from a torn-down mount can otherwise
+return;`. A stale `tick` closure from a torn-down mount can otherwise
   fire after its programs were `gl.deleteProgram`'d, throwing
   `INVALID_OPERATION: no valid shader program in use` on every frame.
 
@@ -249,7 +249,7 @@ convention).
   `.spider-lily-stamen*`, `.spider-lily-anther*`, `.spider-lily-center*`,
   `.spider-lily-bract*` rules and the matching
   `@keyframes lily-stem-rise / bract-open / petal-bloom / stamen-grow /
-  anther-appear / center-pulse`. Kept: `.spider-lily-container`,
+anther-appear / center-pulse`. Kept: `.spider-lily-container`,
   `@keyframes lily-glow-in`, `@keyframes lily-breathe`, and the
   `prefers-reduced-motion` block that suppresses `lily-breathe`
   (the wrapping container still owns the outer halo).
@@ -258,7 +258,7 @@ convention).
 
 - `src/screens/Home/SpiderLily.tsx` — deleted.
 - `src/screens/Home/SpiderLily/{index.tsx, geometry.ts, renderer.ts,
-  shaders.ts, motion.ts}` — new.
+shaders.ts, motion.ts}` — new.
 - `src/screens/Home/sections/MainBanner/index.tsx` — unchanged; folder
   import already resolves.
 - `src/index.css` — pruned as above.
