@@ -99,6 +99,11 @@ And also bought a [NAS](https://en.wikipedia.org/wiki/Network-attached_storage) 
 
 This is where we get to the holy grail of OSS photo management. [Immich](https://github.com/immich-app/immich) provides a fully self-hosted Google Photos experience. It's also configurable via Docker which is perfect for those who run Docker on their NAS for other use-cases already.
 
+<figure>
+<img src="/images/signals/2026-08-02-oss-and-photography/immich-full.webp" alt="Immich photo grid" width="2518" height="1312">
+<figcaption>Immich interface.</figcaption>
+</figure>
+
 With the help of [Tailscale](https://tailscale.com/), I was able to also make this available in my Tailnet so I could access my photos securely even outside my local network.
 
 Now I can store a bunch of images using my own drives and not have to worry about Google One costs.
@@ -115,6 +120,11 @@ For me, editing is one of the most satisfying parts of the process as it's where
 
 I've been using [darktable](https://www.darktable.org/) for as long as I can remember. It's great because it's non-destructive, which means you can directly import photos and make changes without worrying whether that grain effect you saved by accident just altered history.
 
+<figure>
+<img src="/images/signals/2026-08-02-oss-and-photography/darktable-full.webp" alt="darktable lighttable view with a grid of photos" width="2394" height="942">
+<figcaption>Darktable's lighttable.</figcaption>
+</figure>
+
 I haven't used other competitive closed-source alternatives before (e.g. Adobe Lightroom), but to be honest I never felt the need to try other options.
 
 Darktable is free and feels ergonomic, so I expect to stick with it for a very long time.
@@ -130,3 +140,8 @@ When it comes to actually editing the photos, I like to do those by hand in dark
 ## An Ending Note
 
 Use OSS tools and build systems to help you manage the parts of your artistic process that aren't artistic. That way you can focus on the fun parts.
+
+<figure>
+<img src="/images/signals/2026-08-02-oss-and-photography/shanghai-dancers-full.webp" alt="Couples ballroom dancing at night under lit trees" width="3929" height="2619">
+<figcaption>Shanghai Waltz</figcaption>
+</figure>
