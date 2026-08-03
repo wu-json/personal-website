@@ -29,7 +29,15 @@ First, let's take a quick look at the blades I've taken with me in my excursions
 
 I mainly shoot with a second-hand FujiFilm XE4 I bought on Ebay a few years ago. It has interchangeable lenses so I can use old German and Soviet lenses with the help of many obscure adapters, but I find myself leaning into pancake primes more often than not for the portability.
 
+<figure class="figure-inset" style="--figure-width: 65%">
+<img src="/images/signals/2026-08-02-oss-and-photography/fujifilm-xe4-full.webp" alt="FujiFilm X-E4 with a pancake prime attached" width="4032" height="3024">
+</figure>
+
 Don't tell my XE4 about this, but on occasion I will also do photo-walks with very inexpensive used digital cameras on Ebay. The Canon IXUS H200 has been one of my favorites, and has a design that makes me wish we froze the state of hardware in 2009.
+
+<figure class="figure-inset" style="--figure-width: 65%">
+<img src="/images/signals/2026-08-02-oss-and-photography/canon-ixus-full.webp" alt="Silver Canon compact camera" width="4032" height="3024">
+</figure>
 
 None of the cameras I shoot with are newer models, and each have many physical faults, some by design and some by prior mistreatment.
 
