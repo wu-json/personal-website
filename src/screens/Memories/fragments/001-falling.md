@@ -10,10 +10,6 @@ date: '2026.01.03'
 location: Japantown, San Francisco
 cover: DSCF0618
 photos:
-  - file: DSCF0610
-    width: 4992
-    height: 3328
-    caption: Concrete
   - file: DSCF0613
     width: 3328
     height: 4992
@@ -54,10 +50,6 @@ photos:
     width: 4992
     height: 3328
     caption: Aliens
-  - file: DSCF0652
-    width: 4992
-    height: 3328
-    caption: Forest Parking
   - file: DSCF0656
     width: 3328
     height: 4992

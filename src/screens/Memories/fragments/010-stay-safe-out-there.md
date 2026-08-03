@@ -13,10 +13,6 @@ photos:
     width: 2900
     height: 2917
     caption: Untitled
-  - file: P3290051
-    width: 5184
-    height: 3888
-    caption: Untitled
   - file: P3290063
     width: 5184
     height: 3888
