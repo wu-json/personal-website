@@ -452,6 +452,50 @@ html[data-theme-flash-reset] .nav-glitch-active {
   margin-top: 1.65em;
   margin-bottom: 1.65em;
 }
+/* A captioned image is one unit: the figure owns the outer spacing so the
+   caption sits tight under the photo instead of drifting a full gap away. */
+.signal-prose.signal-entry figure {
+  margin-top: 1.65em;
+  margin-bottom: 1.65em;
+}
+/* (0,3,1) so it outranks `.signal-prose.signal-entry .construct-body-img`
+   (0,3,0) — otherwise the image keeps its standalone 1.65em bottom margin and
+   the caption floats away from the photo. */
+.signal-prose.signal-entry figure img,
+.signal-prose.signal-entry figure .construct-body-img,
+.signal-prose figure img,
+.signal-prose figure .construct-body-img {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+/* Supporting shots (a camera on a desk) don't earn the full column the way a
+   hero frame does — inset them so they read as illustration, not headline.
+   Per-image width comes from the entry markdown via `style="--figure-width: …"`
+   (a custom property, not `max-width` directly, so the mobile rule below can
+   still override it — an inline `max-width` would outrank the media query).
+   Full width below the breakpoint, where a fraction is too small to see. */
+.signal-prose figure.figure-inset {
+  max-width: var(--figure-width, 65%);
+  margin-left: auto;
+  margin-right: auto;
+}
+@media (max-width: 640px) {
+  .signal-prose figure.figure-inset {
+    max-width: 100%;
+  }
+}
+.signal-prose figcaption {
+  margin-top: 0.75em;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--color-ink-faint);
+}
+@media (min-width: 640px) {
+  .signal-prose figcaption {
+    font-size: 0.6875rem;
+  }
+}
 .signal-prose.signal-entry section[data-footnotes] {
   margin-top: 2.5rem;
 }

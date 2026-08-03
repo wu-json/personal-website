@@ -28,10 +28,6 @@ photos:
     width: 4992
     height: 3328
     caption: Point
-  - file: DSCF0738
-    width: 4992
-    height: 3328
-    caption: Downhill
   - file: DSCF0740
     width: 4992
     height: 3328
@@ -48,10 +44,6 @@ photos:
     width: 4992
     height: 3328
     caption: Healthy Future
-  - file: DSCF0748
-    width: 4992
-    height: 3328
-    caption: Fuck the Rules
   - file: DSCF0750
     width: 4992
     height: 3328
@@ -60,10 +52,6 @@ photos:
     width: 4992
     height: 3328
     caption: Hanging Out
-  - file: DSCF0755
-    width: 4992
-    height: 3328
-    caption: Pipes
   - file: DSCF0756
     width: 4992
     height: 3328
@@ -72,14 +60,6 @@ photos:
     width: 4992
     height: 3328
     caption: Mind Control
-  - file: DSCF0770
-    width: 4992
-    height: 3328
-    caption: Stairway to Heaven
-  - file: DSCF0771
-    width: 4992
-    height: 3328
-    caption: Rocks
   - file: DSCF0772
     width: 4992
     height: 3328

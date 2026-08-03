@@ -13,14 +13,6 @@ photos:
     width: 4992
     height: 3328
     caption: Under Cover
-  - file: DSCF0821
-    width: 4992
-    height: 3328
-    caption: Clifford
-  - file: DSCF0824
-    width: 4992
-    height: 3328
-    caption: Old Reliable
   - file: DSCF0825
     width: 4992
     height: 3328
@@ -33,26 +25,10 @@ photos:
     width: 4992
     height: 3328
     caption: One For the Road
-  - file: DSCF0829
-    width: 4992
-    height: 3328
-    caption: Printed Whip
   - file: DSCF0830
     width: 4992
     height: 3328
     caption: Just Us
-  - file: DSCF0831
-    width: 4992
-    height: 3328
-    caption: A Playground In The Sky
-  - file: DSCF0832
-    width: 4992
-    height: 3328
-    caption: Is This The Way?
-  - file: DSCF0837
-    width: 4992
-    height: 3328
-    caption: Under Construction
   - file: DSCF0839
     width: 3328
     height: 4992
@@ -69,10 +45,6 @@ photos:
     width: 4992
     height: 3328
     caption: Printed Whip 2
-  - file: DSCF0845
-    width: 4992
-    height: 3328
-    caption: Spin
   - file: DSCF0847
     width: 4992
     height: 3328
@@ -85,14 +57,6 @@ photos:
     width: 4992
     height: 3328
     caption: Believe
-  - file: DSCF0859
-    width: 3328
-    height: 4992
-    caption: Levels
-  - file: DSCF0860
-    width: 2956
-    height: 1971
-    caption: Routine
   - file: DSCF0867
     width: 4992
     height: 3328

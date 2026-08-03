@@ -5,18 +5,10 @@ date: '2026.02.07'
 location: Richmond, San Francisco
 cover: DSCF0978
 photos:
-  - file: DSCF0910
-    width: 4992
-    height: 3328
-    caption: Lion King
   - file: DSCF0915
     width: 4992
     height: 3328
     caption: Ankh
-  - file: DSCF0919
-    width: 4992
-    height: 3328
-    caption: Pants Off
   - file: DSCF0925
     width: 4992
     height: 3328
@@ -49,14 +41,6 @@ photos:
     width: 4992
     height: 3328
     caption: Succulents
-  - file: DSCF0953
-    width: 4992
-    height: 3328
-    caption: Hide and Seek
-  - file: DSCF0968
-    width: 3328
-    height: 4992
-    caption: Windmill (Color)
   - file: DSCF0969
     width: 3328
     height: 4992
