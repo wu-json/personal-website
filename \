@@ -76,9 +76,7 @@ While you could just throw them on Google Photos and call it a day, I take a lot
 
 This is where we get to the holy grail of OSS photo management. [Immich](https://github.com/immich-app/immich) provides a Google Photos like experience, but for people who want to self-host. It's also configurable via Docker which is perfect for those who run `docker-compose` configurations on their NAS.
 
-By adding this and connecting it to my [Tailnet](https://tailscale.com/docs/concepts/tailnet), I'm also able to access my photos securely even when I'm not at home.
-
-Now I can store a bunch of images using my own drives and not have to worry about Google One costs! 
+It was pretty straightforward to configure and now I can store a bunch of images using my own drives and not have to worry about Google One costs!
 
 ## Hold On... Let's Back Up
 
@@ -90,21 +88,9 @@ For backups, I configured a simple cron job on my NAS that uses [rsync](https://
 
 For me, editing is one of the most satisfying parts of the process as it's where the vision is refined and everything truly comes together.
 
-I've been using [darktable](https://www.darktable.org/) for as long as I can remember. It's great because the image editing is non-destructive, which means you can directly import photos and edit without worrying if that grain effect you saved by accident will ever come out.
+I've been using [darktable](https://www.darktable.org/) for as long as I can remember. It's great because the image editing is non-destructive, which means you can directly import photos without worrying if that grain effect will ever come out.
 
-I haven't used other equivalent closed source options before (e.g. Adobe Lightroom), but to be honest I never felt the need to try other options. 
-
-Darktable feels quite ergonomic to me and I expect to stick with it for a very long time.
+I haven't used other equivalent closed source options before (e.g. Adobe Lightroom), but to be honest I've never had the urge to. Darktable feels quite ergonomic to me and I expect to stick with it for a very long time.
 
 ## AI & Photography
-
-Though I briefly hinted at this in my JPEG rescue mission story, I want to point out that AI was quite helpful in setting this whole system up.
-
-Coding agents helped drive the rescue of my JPEGs, write yaml configurations to set up my photo storage solution, and prepare my files for use in darktable.
-
-When it comes to actually editing the photos, I like to do those by hand. But everything leading up to that point (e.g. naming + organizing files, removing dud images, configuring storage and backups) is not that creatively stimulating and I'm thankful I no longer have to worry about it.
-
-## An Ending Note
-
-Use OSS tools and build systems to help you manage the parts of your artistic process that aren't artistic. That way you can focus on the fun part.
 
