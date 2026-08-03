@@ -8,7 +8,7 @@ location: '上海，中国'
 
 <figure>
 <img src="/images/signals/2026-08-02-oss-and-photography/DSCF3239-full.webp" alt="Stray dog on the pavement" width="4992" height="3328">
-<figcaption>A dog eating a pork bun at the summit of a cable car path in 无锡，中国.</figcaption>
+<figcaption>A stray dog eating a pork bun at the summit of a cable car path in 无锡，中国.</figcaption>
 </figure>
 
 Photography has been my creative cigarette for around 3 years now, and in the midst of this career break I've been flicking the ashes of my shutter button into various visual projects across Asia.
