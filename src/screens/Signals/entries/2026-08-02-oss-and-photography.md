@@ -21,27 +21,25 @@ While I prefer Moriyama's primal "stray dog" philosophy when capturing photos, m
 
 Once the bytes leave my camera, they are sent to a digital fortress of software tools where they get forged into works of art or works of trash.
 
-I'll quickly tour you around this fortress. It will be a nice opportunity to shout-out some of the excellent tools that have helped me express myself over the years, and hopefully inspire some new photographers and homelabbers (we really need a better name for this).
+I'll quickly tour you around this fortress. It will be a nice opportunity to shout-out some of the excellent tools that have helped me express myself over the years, and hopefully inspire some new photographers and homelabbers.
 
 # Cameras
 
 First, let's take a quick look at the blades I've taken with me in my excursions.
 
-I mainly shoot with a second-hand FujiFilm XE4 I bought on Ebay a few years ago. It has interchangeable lenses so I can use old German and Soviet lenses with the help of many obscure adapters, but I find myself leaning into pancake primes more often than not for the portability.
+I mainly shoot with a second-hand FujiFilm XE4 I bought on Ebay a few years ago. It has interchangeable lenses so I can use old German and Soviet lenses with the help of many obscure X-mount adapters, but I find myself leaning into pancake primes more often than not for portability.
 
 <figure class="figure-inset" style="--figure-width: 65%">
 <img src="/images/signals/2026-08-02-oss-and-photography/fujifilm-xe4-full.webp" alt="FujiFilm X-E4 with a pancake prime attached" width="4032" height="3024">
 </figure>
 
-Don't tell my XE4 about this, but on occasion I will also do photo-walks with very inexpensive used digital cameras on Ebay. The Canon IXUS H200 has been one of my favorites, and has a design that makes me wish we froze the state of hardware in 2009.
+Don't tell my XE4 about this, but I'll occasionally do photowalks with inexpensive used digital cameras on Ebay. The Canon IXY has been one of my favorites, and has a design that makes me wish we froze the state of hardware in 2004.
 
 <figure class="figure-inset" style="--figure-width: 65%">
 <img src="/images/signals/2026-08-02-oss-and-photography/canon-ixus-full.webp" alt="Silver Canon compact camera" width="4032" height="3024">
 </figure>
 
-None of the cameras I shoot with are newer models, and each have many physical faults, some by design and some by prior mistreatment.
-
-This is great because I find perfect devices to be uninspiring.
+None of the cameras I shoot with are up to date flagships, and each have many physical faults, some by design and some by prior mistreatment. This is great because I find perfect devices to be uninspiring.
 
 # After the Shoot
 
@@ -53,9 +51,9 @@ Even this early into the process, one can make catastrophic mistakes.
 
 ## Fat Fingers
 
-Maybe around 4 months ago, I ended up in the Panhandle after 8 hours of shooting around San Francisco. I had captured several surreal scenes. A man rode a bike with bubbles flying out the back making sounds of popping bubblegum, and a singer with a ukulele posted under a perfect topologically imperfect tree with a grand statue protecting him from behind.
+Maybe around 4 months ago, I ended up in the Panhandle after 8 hours of shooting around San Francisco. I had captured several surreal scenes. A man riding a bike with bubbles flying out the back making sounds of popping bubblegum, and a singer with a ukulele posted under a perfect topologically imperfect tree with a grand statue protecting him from behind.
 
-I giddily reviewed the photos while taking cover under a tree myself, deleting the misfires. It is here that I would learn a very important rule of photography.
+I giddily reviewed the photos while taking cover under a tree myself, deleting duds. It's here that I would learn a very important lesson.
 
 > Never delete photos in the field.
 
@@ -63,13 +61,13 @@ My finger slipped and somehow I had deleted every photo on my camera.
 
 > Dear FujiFilm,
 >
-> Please do not put the "DELETE ALL FRAMES" menu item right next to the "DELETE SINGLE FRAME" menu item. It seems that I'm not the only [victim](https://www.reddit.com/r/fujifilm/comments/1ijselx/why_the_fuck_is_delete_all_frames_next_to_delete/).
+> Please do not put the "DELETE ALL FRAMES" option right below "DELETE SINGLE FRAME". It seems that I'm not the only [victim](https://www.reddit.com/r/fujifilm/comments/1ijselx/why_the_fuck_is_delete_all_frames_next_to_delete/).
 >
-> It's possible this UX has improved with software updates, but it's still mind-boggling to me that this design ever made it past review.
+> This UX has possibly improved with software updates by now, but it's still mind-boggling to me that this design ever made it past review.
 
-I panicked, and even reopened the playback menu a few times only to be met with a "no images" screen on every attempt. I walked back home, holding on to nothing but the hope that I'd be able to find some magical software when I got back to my computer.
+I panicked and even reopened the playback menu a few times only to be met with a "no images" screen on every attempt. I walked back home, holding on to nothing but the hope that I'd be able to find some magical software to save the day when I got back to my computer.
 
-> If you happen find yourself in this situation, make sure to stop shooting or you risk overwriting your hopes of recovering that data.
+> If you happen find yourself in this situation, make sure to stop shooting at once or you risk overwriting your precious data.
 
 It turns out, magical software did indeed exist. [PhotoRec](https://github.com/cgsecurity/testdisk) recovers lost images by scanning your disk against a known dictionary of file signatures and essentially fishing out the right boundaries in the bytes, where the survivors of your photoshoot may lie.
 
@@ -97,7 +95,7 @@ You could throw them in Google Photos and call it a day, but personally I take a
 
 And also bought a [NAS](https://en.wikipedia.org/wiki/Network-attached_storage) on a whim after seeing some obnoxious ad-read on YouTube (these work sometimes unfortunately).
 
-This is where we get to the holy grail of OSS photo management. [Immich](https://github.com/immich-app/immich) provides a fully self-hosted Google Photos experience. It's also configurable via Docker which is perfect for those who run Docker on their NAS for other use-cases already.
+This is where we introduce the holy grail of OSS photo management. [Immich](https://github.com/immich-app/immich) provides a fully self-hosted Google Photos experience. It's also configurable via Docker which is perfect for those who already run Docker on their NAS for other apps.
 
 <figure>
 <img src="/images/signals/2026-08-02-oss-and-photography/immich-full.webp" alt="Immich photo grid" width="2518" height="1312">
@@ -106,38 +104,38 @@ This is where we get to the holy grail of OSS photo management. [Immich](https:/
 
 With the help of [Tailscale](https://tailscale.com/), I was able to also make this available in my Tailnet so I could access my photos securely even outside my local network.
 
-Now I can store a bunch of images using my own drives and not have to worry about Google One costs.
+Now I can store a bunch of images using my own drives and not have to worry about ballooning Google One costs.
 
 ## Hold On... Let's Back Up
 
 We still need backups, and personally the chances of my clumsy hands spilling coffee on my NAS is non-zero so there is still work to be done on the storage side.
 
-For backups, I configured a simple cron job on my NAS that uses [rsync](https://github.com/RsyncProject/rsync) to back up encrypted Immich media directories to [Backblaze B2](https://www.backblaze.com/). This job runs every night when I sleep and notifies me when it fails.
+For backups, I configured a simple cron job on my NAS that uses [rsync](https://github.com/RsyncProject/rsync) to back up encrypted Immich media directories to [Backblaze B2](https://www.backblaze.com/). This job runs every night when I sleep and notifies me when it fails (hasn't happened yet... I should probably check on it).
 
 ## Editing
 
 For me, editing is one of the most satisfying parts of the process as it's where the vision is refined and everything truly comes together.
 
-I've been using [darktable](https://www.darktable.org/) for as long as I can remember. It's great because it's non-destructive, which means you can directly import photos and make changes without worrying whether that grain effect you saved by accident just altered history.
+I've been using [darktable](https://www.darktable.org/) to edit photos for as long as I can remember. It's great because it's non-destructive, which means you can directly import photos and make changes without worrying whether that grain effect you saved by accident just altered history forever.
 
 <figure>
 <img src="/images/signals/2026-08-02-oss-and-photography/darktable-full.webp" alt="darktable lighttable view with a grid of photos" width="2394" height="942">
 <figcaption>Darktable's lighttable.</figcaption>
 </figure>
 
-I haven't used other competitive closed-source alternatives before (e.g. Adobe Lightroom), but to be honest I never felt the need to try other options.
+I haven't used other competitive closed-source alternatives before (Adobe Lightroom), but I've never felt the need to try other options.
 
-Darktable is free and feels ergonomic, so I expect to stick with it for a very long time.
+Darktable is free and ergonomic, so I think I'll stick with it for some time.
 
 ## AI & Photography
 
 Though I briefly hinted at this in my JPEG rescue mission story, I want to point out that AI was quite helpful in setting this whole system up.
 
-Coding agents helped drive the rescue of my JPEGs, write yaml configurations to set up my photo storage solution, and prepare my files for use in darktable.
+Coding agents helped drive the rescue of my JPEGs, write yaml configurations to set up my photo storage solution, and organize my photo archives.
 
-When it comes to actually editing the photos, I like to do those by hand in darktable. However, everything leading up to that point (e.g. organizing files + configuring storage and backups) is not creatively stimulating for me and I'm glad AI can help me there.
+When it comes to actually editing photos, I like to do that by hand in darktable. However, everything leading up to that point (e.g. organizing files + configuring storage and backups) is not creatively stimulating for me and I'm glad AI can help me in those areas.
 
-## An Ending Note
+## Ending Note
 
 Use OSS tools and build systems to help you manage the parts of your artistic process that aren't artistic. That way you can focus on the fun parts.
 
