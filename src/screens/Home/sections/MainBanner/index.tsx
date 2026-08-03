@@ -3,7 +3,7 @@ import { useJitter } from 'src/hooks/useJitter';
 import { SpiderLily } from '../../SpiderLily';
 
 const linkClass =
-  'font-mono text-sm sm:text-xs uppercase tracking-widest text-white/50 hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)] transition-all duration-300';
+  'font-mono text-xs uppercase tracking-widest text-white/50 hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)] transition-all duration-300';
 
 const bioClass =
   'bio-glitch text-white text-sm font-pixel text-left leading-relaxed';
@@ -46,7 +46,10 @@ const MainBanner = () => {
             </p>
           </div>
         </div>
-        <div className='bio-glitch flex items-center gap-3' style={jitter()}>
+        <div
+          className='bio-glitch flex flex-wrap items-center gap-x-3 gap-y-2'
+          style={jitter()}
+        >
           <a
             href='https://github.com/wu-json'
             target='_blank'
@@ -55,7 +58,16 @@ const MainBanner = () => {
           >
             GitHub
           </a>
-          <span className='text-white/20 text-sm sm:text-xs'>/</span>
+          <span className='text-white/20 text-xs'>/</span>
+          <a
+            href='/resume.pdf'
+            target='_blank'
+            rel='noopener noreferrer'
+            className={linkClass}
+          >
+            Resume
+          </a>
+          <span className='text-white/20 text-xs'>/</span>
           <a
             href='https://www.linkedin.com/in/wu-json/'
             target='_blank'
@@ -64,16 +76,16 @@ const MainBanner = () => {
           >
             LinkedIn
           </a>
-          <span className='text-white/20 text-sm sm:text-xs'>/</span>
+          <span className='text-white/20 text-xs'>/</span>
           <a
             href='https://www.instagram.com/jasoncuiwu/'
             target='_blank'
             rel='noopener noreferrer'
             className={linkClass}
           >
-            Instagram
+            IG
           </a>
-          <span className='text-white/20 text-sm sm:text-xs'>/</span>
+          <span className='text-white/20 text-xs'>/</span>
           <a
             href='https://x.com/jasoncuiwu'
             target='_blank'
