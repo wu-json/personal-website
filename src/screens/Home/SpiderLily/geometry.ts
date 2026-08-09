@@ -556,8 +556,6 @@ export function buildStamenMeshes(halfWidth: number): Mesh[] {
   return STAMEN_POINTS.map(pts => buildStroke(pts, halfWidth));
 }
 
-export const STAMEN_MESHES: Mesh[] = buildStamenMeshes(STAMEN_HALF_WIDTH);
-
 export const ANTHER_MESHES: Mesh[] = STAMENS.map(s =>
   buildEllipseFan(
     s.tipX,

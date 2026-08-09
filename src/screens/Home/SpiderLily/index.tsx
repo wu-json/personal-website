@@ -123,16 +123,6 @@ const SpiderLily = ({ className }: { className?: string }) => {
   const rendererRef = useRef<SpiderLilyRenderer | null>(null);
   const mouseRef = useRef({ x: 0, y: 0, active: false });
 
-  // Progress state — set by entrance timers, read by rAF loop
-  const progressRef = useRef({
-    stemActive: false,
-    stemStart: 0,
-    petalsActive: false,
-    petalsStart: 0,
-    stamenActive: new Array<boolean>(STAMENS.length).fill(false),
-    stamenStart: new Array<number>(STAMENS.length).fill(0),
-  });
-
   const toCanvasCoords = useCallback((clientX: number, clientY: number) => {
     const canvas = canvasRef.current;
     if (!canvas) return { x: 0, y: 0 };
@@ -188,7 +178,11 @@ const SpiderLily = ({ className }: { className?: string }) => {
     const gl =
       canvas.getContext('webgl2', {
         alpha: true,
-        antialias: true,
+        // The default framebuffer only ever receives a post-processed
+        // full-screen triangle — geometry AA comes from the renderer's own
+        // MSAA FBO. antialias:true would add a second multisample resolve
+        // (and the memory for it) per frame for nothing.
+        antialias: false,
         premultipliedAlpha: true,
         preserveDrawingBuffer: false,
         depth: false,
@@ -223,26 +217,18 @@ const SpiderLily = ({ className }: { className?: string }) => {
     const ro = new ResizeObserver(applySize);
     ro.observe(canvas);
 
-    // Entrance timers
-    const t0 = performance.now();
-    const progress = progressRef.current;
-    const stemTimer = setTimeout(() => {
-      progress.stemActive = true;
-      progress.stemStart = performance.now();
-    }, STEM_DELAY);
-    const petalTimer = setTimeout(() => {
-      progress.petalsActive = true;
-      progress.petalsStart = performance.now();
-    }, PETAL_DELAY);
-    const stamenTimers = STAMENS.map((_, i) =>
-      setTimeout(
-        () => {
-          progress.stamenActive[i] = true;
-          progress.stamenStart[i] = performance.now();
-        },
-        STAMEN_BASE_DELAY + STAMEN_RANK[i] * STAMEN_STAGGER,
-      ),
+    // Entrance timeline — advanced per rAF frame with a clamped delta
+    // instead of wall-clock setTimeout anchors. On a cold first load the
+    // main thread stalls on hydration/decoding; with wall-clock timing
+    // those stalls made the bloom skip ahead (dropped frames read as lag).
+    // With a clamped delta the bloom slows down under load and plays every
+    // eased step once frames flow — same total choreography, no skipping.
+    const MAX_FRAME_STEP = 50; // ms — below this a frame just plays slower
+    const stamenDelays = STAMENS.map(
+      (_, i) => STAMEN_BASE_DELAY + STAMEN_RANK[i] * STAMEN_STAGGER,
     );
+    let timeline = 0;
+    let lastNow = 0;
 
     // Wind phase tables (same shape as old SpiderLily.tsx)
     const petalPhases = PETALS.map((_, i) => i * 0.7 + Math.sin(i * 2.3) * 0.5);
@@ -274,8 +260,22 @@ const SpiderLily = ({ className }: { className?: string }) => {
       // (disposed by us, or replaced in the ref by a remount).
       if (renderer.disposed || rendererRef.current !== renderer) return;
       const now = performance.now();
-      const t = (now - t0) * WIND_SPEED;
+      if (lastNow === 0) lastNow = now;
+      timeline += Math.min(now - lastNow, MAX_FRAME_STEP);
+      lastNow = now;
+      const t = timeline * WIND_SPEED;
       const mouse = mouseRef.current;
+
+      // Nothing is drawn before the stem starts — skip the whole GPU
+      // pipeline (8 render passes) while the page is at its busiest.
+      if (timeline < STEM_DELAY) {
+        if (document.visibilityState === 'hidden') {
+          rafId = 0;
+          return;
+        }
+        rafId = requestAnimationFrame(tick);
+        return;
+      }
 
       // Theme attribute can flip mid-frame (ThemeContext writes data-theme
       // before React re-renders); refresh colors when it changes.
@@ -316,20 +316,15 @@ const SpiderLily = ({ className }: { className?: string }) => {
         petalOffsets[i * 2] = ox + (targetX - ox) * speed;
         petalOffsets[i * 2 + 1] = oy + (targetY - oy) * speed;
 
-        // Entrance: bloom scale / rotation / opacity per petal with stagger
-        if (progress.petalsActive) {
-          const staggerMs = PETALS[i].delay;
-          const elapsed = now - progress.petalsStart - staggerMs;
-          const p = Math.max(0, Math.min(1, elapsed / PETAL_DURATION));
-          const eased = easeBloom(p);
-          petalBloomScale[i] = eased;
-          petalBloomRotation[i] = PETAL_BLOOM_START_ROTATION * (1 - eased);
-          petalOpacity[i] = PETAL_FINAL_OPACITY * eased;
-        } else {
-          petalBloomScale[i] = 0;
-          petalBloomRotation[i] = PETAL_BLOOM_START_ROTATION;
-          petalOpacity[i] = 0;
-        }
+        // Entrance: bloom scale / rotation / opacity per petal with stagger.
+        // Before its start (elapsed < 0) eased is 0, which reproduces the
+        // hidden state exactly — no separate inactive branch needed.
+        const elapsed = timeline - PETAL_DELAY - PETALS[i].delay;
+        const p = Math.max(0, Math.min(1, elapsed / PETAL_DURATION));
+        const eased = easeBloom(p);
+        petalBloomScale[i] = eased;
+        petalBloomRotation[i] = PETAL_BLOOM_START_ROTATION * (1 - eased);
+        petalOpacity[i] = PETAL_FINAL_OPACITY * eased;
       }
 
       // === Per-stamen wind + hover + entrance
@@ -362,51 +357,41 @@ const SpiderLily = ({ className }: { className?: string }) => {
         stamenOffsets[i * 2] = ox + (targetX - ox) * speed;
         stamenOffsets[i * 2 + 1] = oy + (targetY - oy) * speed;
 
-        if (progress.stamenActive[i]) {
-          const elapsed = now - progress.stamenStart[i];
-          const p = Math.max(0, Math.min(1, elapsed / STAMEN_DURATION));
-          const eased = easeBloom(p);
-          stamenReveal[i] = eased;
-          stamenOpacity[i] = STAMEN_FINAL_OPACITY * eased;
-          // Anther appears after stamen finishes drawing.
-          const aElapsed = elapsed - STAMEN_DURATION;
-          const ap = Math.max(0, Math.min(1, aElapsed / ANTHER_DURATION));
-          antherOpacity[i] = ANTHER_FINAL_OPACITY * easeBloom(ap);
-        } else {
-          stamenReveal[i] = 0;
-          stamenOpacity[i] = 0;
-          antherOpacity[i] = 0;
-        }
+        const elapsed = timeline - stamenDelays[i];
+        const p = Math.max(0, Math.min(1, elapsed / STAMEN_DURATION));
+        const eased = easeBloom(p);
+        stamenReveal[i] = eased;
+        stamenOpacity[i] = STAMEN_FINAL_OPACITY * eased;
+        // Anther appears after stamen finishes drawing.
+        const aElapsed = elapsed - STAMEN_DURATION;
+        const ap = Math.max(0, Math.min(1, aElapsed / ANTHER_DURATION));
+        antherOpacity[i] = ANTHER_FINAL_OPACITY * easeBloom(ap);
       }
 
       // === Stem
       let stemOpacity = 0;
-      let stemRevealProgress = 0;
-      if (progress.stemActive) {
-        const elapsed = now - progress.stemStart;
-        const p = Math.max(0, Math.min(1, elapsed / STEM_DURATION));
-        const eased = easeStem(p);
-        stemRevealProgress = eased;
-        // CSS keyframe: opacity 0 → 0.8 in first 10% then → 1.0 at 100%.
-        if (eased < 0.1) {
-          stemOpacity = (eased / 0.1) * 0.8;
-        } else {
-          stemOpacity = 0.8 + ((eased - 0.1) / 0.9) * 0.2;
-        }
-        stemOpacity *= STEM_FINAL_OPACITY;
+      const stemP = Math.max(
+        0,
+        Math.min(1, (timeline - STEM_DELAY) / STEM_DURATION),
+      );
+      const stemRevealProgress = easeStem(stemP);
+      // CSS keyframe: opacity 0 → 0.8 in first 10% then → 1.0 at 100%.
+      if (stemRevealProgress < 0.1) {
+        stemOpacity = (stemRevealProgress / 0.1) * 0.8;
+      } else {
+        stemOpacity = 0.8 + ((stemRevealProgress - 0.1) / 0.9) * 0.2;
       }
+      stemOpacity *= STEM_FINAL_OPACITY;
       const stemRevealY = stemRevealYFromProgress(stemRevealProgress);
 
       // === Center (pulses with the petal start)
-      let centerScale = 0;
-      let centerOpacity = 0;
-      if (progress.petalsActive) {
-        const elapsed = now - progress.petalsStart;
-        const p = Math.max(0, Math.min(1, elapsed / CENTER_DURATION));
-        const eased = easeBloom(p);
-        centerScale = eased;
-        centerOpacity = CENTER_FINAL_OPACITY * eased;
-      }
+      const centerP = Math.max(
+        0,
+        Math.min(1, (timeline - PETAL_DELAY) / CENTER_DURATION),
+      );
+      const centerEased = easeBloom(centerP);
+      const centerScale = centerEased;
+      const centerOpacity = CENTER_FINAL_OPACITY * centerEased;
 
       // === Whole-flower sway
       const flowerRotation = reduceMotion
@@ -474,9 +459,6 @@ const SpiderLily = ({ className }: { className?: string }) => {
       canvas.removeEventListener('webglcontextlost', onLost);
       canvas.removeEventListener('webglcontextrestored', onRestored);
       ro.disconnect();
-      clearTimeout(stemTimer);
-      clearTimeout(petalTimer);
-      for (const t of stamenTimers) clearTimeout(t);
       renderer.dispose();
       rendererRef.current = null;
     };

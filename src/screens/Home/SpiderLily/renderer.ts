@@ -15,6 +15,7 @@ import {
   COMPOSITE_FS,
   GEOMETRY_FS,
   GEOMETRY_VS,
+  NOISE_FS,
   QUAD_VS,
 } from './shaders';
 
@@ -27,6 +28,27 @@ const WEIGHTS_TIGHT = new Float32Array([
 const WEIGHTS_WIDE = new Float32Array([
   0.13701, 0.12961, 0.1097, 0.08311, 0.05634, 0.03418, 0.01853,
 ]);
+
+type BilinearKernel = { offsets: Float32Array; weights: Float32Array };
+
+// Collapse each symmetric pair of integer taps (1,2), (3,4), (5,6) into one
+// bilinear fetch: sampling at offset i + w[i+1]/(w[i]+w[i+1]) with LINEAR
+// filtering reproduces the exact weighted pair sum. 13 fetches → 7.
+function toBilinearKernel(w13: Float32Array): BilinearKernel {
+  const weights = new Float32Array(4);
+  const offsets = new Float32Array(3);
+  weights[0] = w13[0];
+  for (let i = 0; i < 3; i++) {
+    const a = w13[1 + i * 2];
+    const b = w13[2 + i * 2];
+    weights[i + 1] = a + b;
+    offsets[i] = 1 + i * 2 + b / (a + b);
+  }
+  return { offsets, weights };
+}
+
+const KERNEL_TIGHT = toBilinearKernel(WEIGHTS_TIGHT);
+const KERNEL_WIDE = toBilinearKernel(WEIGHTS_WIDE);
 
 const DISPLACE_SCALE = 1.2; // matches feDisplacementMap scale='1.2'
 const HEAD_ROTATION_RAD = (-4 * Math.PI) / 180; // matches <g transform='rotate(-4 CX CY)'>
@@ -42,7 +64,7 @@ export type Colors = {
 export type RenderState = {
   flowerRotation: number; // radians
   petalOffsets: Float32Array; // length PETAL_MESHES.length * 2
-  stamenOffsets: Float32Array; // length STAMEN_MESHES.length * 2
+  stamenOffsets: Float32Array; // length STAMENS.length * 2
   petalBloomScale: Float32Array; // [0,1]
   petalBloomRotation: Float32Array; // radians
   petalOpacity: Float32Array; // [0, 0.92]
@@ -80,7 +102,15 @@ type BlurProgram = {
   uniforms: {
     src: WebGLUniformLocation;
     texelDir: WebGLUniformLocation;
+    offsets: WebGLUniformLocation;
     weights: WebGLUniformLocation;
+  };
+};
+
+type NoiseProgram = {
+  program: WebGLProgram;
+  uniforms: {
+    resolution: WebGLUniformLocation;
   };
 };
 
@@ -90,6 +120,7 @@ type CompositeProgram = {
     scene: WebGLUniformLocation;
     tight: WebGLUniformLocation;
     wide: WebGLUniformLocation;
+    noise: WebGLUniformLocation;
     resolution: WebGLUniformLocation;
     displaceScale: WebGLUniformLocation;
   };
@@ -118,6 +149,7 @@ export class SpiderLilyRenderer {
   private gl: WebGL2RenderingContext;
   private geo!: GeoProgram;
   private blur!: BlurProgram;
+  private noise!: NoiseProgram;
   private composite!: CompositeProgram;
   private quadVao!: WebGLVertexArrayObject;
   private petalMeshes: (MeshHandle & { pivotX: number; pivotY: number })[] = [];
@@ -132,6 +164,7 @@ export class SpiderLilyRenderer {
   private tight!: Framebuffer;
   private wideTmp!: Framebuffer;
   private wide!: Framebuffer;
+  private noiseTex!: Framebuffer;
 
   private width = 0;
   private height = 0;
@@ -215,7 +248,15 @@ export class SpiderLilyRenderer {
       uniforms: {
         src: gl.getUniformLocation(blurProgram, 'u_src')!,
         texelDir: gl.getUniformLocation(blurProgram, 'u_texelDir')!,
+        offsets: gl.getUniformLocation(blurProgram, 'u_offsets[0]')!,
         weights: gl.getUniformLocation(blurProgram, 'u_weights[0]')!,
+      },
+    };
+    const noiseProgram = this.link(QUAD_VS, NOISE_FS);
+    this.noise = {
+      program: noiseProgram,
+      uniforms: {
+        resolution: gl.getUniformLocation(noiseProgram, 'u_resolution')!,
       },
     };
     const compProgram = this.link(QUAD_VS, COMPOSITE_FS);
@@ -225,6 +266,7 @@ export class SpiderLilyRenderer {
         scene: gl.getUniformLocation(compProgram, 'u_scene')!,
         tight: gl.getUniformLocation(compProgram, 'u_tight')!,
         wide: gl.getUniformLocation(compProgram, 'u_wide')!,
+        noise: gl.getUniformLocation(compProgram, 'u_noise')!,
         resolution: gl.getUniformLocation(compProgram, 'u_resolution')!,
         displaceScale: gl.getUniformLocation(compProgram, 'u_displaceScale')!,
       },
@@ -395,6 +437,7 @@ export class SpiderLilyRenderer {
     this.disposeFBO(this.tight as Framebuffer | null);
     this.disposeFBO(this.wideTmp as Framebuffer | null);
     this.disposeFBO(this.wide as Framebuffer | null);
+    this.disposeFBO(this.noiseTex as Framebuffer | null);
 
     this.sceneMS = this.makeMSAA(width, height, 4);
     this.scene = this.makeFBO(width, height);
@@ -404,6 +447,8 @@ export class SpiderLilyRenderer {
     const hh = Math.max(1, height >> 1);
     this.wideTmp = this.makeFBO(hw, hh);
     this.wide = this.makeFBO(hw, hh);
+    this.noiseTex = this.makeFBO(width, height);
+    this.bakeNoise();
 
     // Orthographic projection: viewBox (-180, 10, 800, 470) → clip space (-1..1)
     // y axis is preserved (SVG y-down, but we render with the same convention
@@ -579,7 +624,7 @@ export class SpiderLilyRenderer {
     src: Framebuffer,
     dst: Framebuffer,
     direction: 'h' | 'v',
-    weights: Float32Array,
+    kernel: BilinearKernel,
   ) {
     const gl = this.gl;
     this.bindFramebuffer(dst.fb, dst.width, dst.height);
@@ -593,26 +638,23 @@ export class SpiderLilyRenderer {
     } else {
       gl.uniform2f(this.blur.uniforms.texelDir, 0, 1 / src.height);
     }
-    gl.uniform1fv(this.blur.uniforms.weights, weights);
+    gl.uniform1fv(this.blur.uniforms.offsets, kernel.offsets);
+    gl.uniform1fv(this.blur.uniforms.weights, kernel.weights);
     gl.bindVertexArray(this.quadVao);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
   }
 
-  private copyPass(src: Framebuffer, dst: Framebuffer) {
-    // Identity blur (weights = [1, 0, 0, ...]) used as a downsample copy.
+  // Render the static displacement noise into noiseTex. Called once per
+  // resize — every composited frame then reads it with a single fetch.
+  private bakeNoise() {
     const gl = this.gl;
-    this.bindFramebuffer(dst.fb, dst.width, dst.height);
-    gl.useProgram(this.blur.program);
+    this.bindFramebuffer(this.noiseTex.fb, this.width, this.height);
+    gl.useProgram(this.noise.program);
     gl.disable(gl.BLEND);
-    gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D, src.tex);
-    gl.uniform1i(this.blur.uniforms.src, 0);
-    gl.uniform2f(this.blur.uniforms.texelDir, 0, 0);
-    const identity = new Float32Array(7);
-    identity[0] = 1;
-    gl.uniform1fv(this.blur.uniforms.weights, identity);
+    gl.uniform2f(this.noise.uniforms.resolution, this.width, this.height);
     gl.bindVertexArray(this.quadVao);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
+    gl.bindVertexArray(null);
   }
 
   render(state: RenderState) {
@@ -644,13 +686,26 @@ export class SpiderLilyRenderer {
     gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, null);
 
     // 3) Tight blur (full-res): scene → tightTmp (H) → tight (V)
-    this.blurPass(this.scene, this.tightTmp, 'h', WEIGHTS_TIGHT);
-    this.blurPass(this.tightTmp, this.tight, 'v', WEIGHTS_TIGHT);
+    this.blurPass(this.scene, this.tightTmp, 'h', KERNEL_TIGHT);
+    this.blurPass(this.tightTmp, this.tight, 'v', KERNEL_TIGHT);
 
-    // 4) Wide blur (half-res): scene → wideTmp (downsample copy) → wide (H) → wideTmp (V) → wide
-    this.copyPass(this.scene, this.wideTmp);
-    this.blurPass(this.wideTmp, this.wide, 'h', WEIGHTS_WIDE);
-    this.blurPass(this.wide, this.wideTmp, 'v', WEIGHTS_WIDE);
+    // 4) Wide blur (half-res): scene → wideTmp (downsample blit) → wide (H) → wideTmp (V) → wideTmp
+    gl.bindFramebuffer(gl.READ_FRAMEBUFFER, this.scene.fb);
+    gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, this.wideTmp.fb);
+    gl.blitFramebuffer(
+      0,
+      0,
+      this.width,
+      this.height,
+      0,
+      0,
+      this.wideTmp.width,
+      this.wideTmp.height,
+      gl.COLOR_BUFFER_BIT,
+      gl.LINEAR,
+    );
+    this.blurPass(this.wideTmp, this.wide, 'h', KERNEL_WIDE);
+    this.blurPass(this.wide, this.wideTmp, 'v', KERNEL_WIDE);
     // Final wide result is in wideTmp; alias it
     const wideResult = this.wideTmp;
 
@@ -670,6 +725,9 @@ export class SpiderLilyRenderer {
     gl.activeTexture(gl.TEXTURE2);
     gl.bindTexture(gl.TEXTURE_2D, wideResult.tex);
     gl.uniform1i(this.composite.uniforms.wide, 2);
+    gl.activeTexture(gl.TEXTURE3);
+    gl.bindTexture(gl.TEXTURE_2D, this.noiseTex.tex);
+    gl.uniform1i(this.composite.uniforms.noise, 3);
     gl.uniform2f(this.composite.uniforms.resolution, this.width, this.height);
     gl.uniform1f(this.composite.uniforms.displaceScale, DISPLACE_SCALE);
     gl.bindVertexArray(this.quadVao);
@@ -686,8 +744,10 @@ export class SpiderLilyRenderer {
     this.disposeFBO(this.tight as Framebuffer | null);
     this.disposeFBO(this.wideTmp as Framebuffer | null);
     this.disposeFBO(this.wide as Framebuffer | null);
+    this.disposeFBO(this.noiseTex as Framebuffer | null);
     gl.deleteProgram(this.geo.program);
     gl.deleteProgram(this.blur.program);
+    gl.deleteProgram(this.noise.program);
     gl.deleteProgram(this.composite.program);
     // VAOs/VBOs leak intentionally on dispose — context teardown reclaims them.
   }
