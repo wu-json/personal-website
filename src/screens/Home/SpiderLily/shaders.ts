@@ -86,42 +86,43 @@ void main() {
 }
 `;
 
-// 13-tap separable Gaussian. Weights precomputed for stdDev ≈ 6 and ≈ 2.5;
-// we just pass the texel offset (1/size, 0) or (0, 1/size) for direction.
-// One shader handles both radii because the kernel is sampled symmetrically
-// at integer pixel offsets — we just upload the right weights uniform.
+// 13-tap separable Gaussian, sampled as 7 fetches via hardware bilinear
+// filtering: each symmetric pair of integer-offset taps (1,2), (3,4), (5,6)
+// collapses into one fetch at a fractional offset weighted so LINEAR
+// filtering reproduces the exact pair sum. Same kernel as the naive 13-tap
+// version, ~half the texture fetches. One shader handles both radii — the
+// renderer uploads precombined offsets/weights per pass.
 export const BLUR_FS = /* glsl */ `#version 300 es
 precision mediump float;
 
 uniform sampler2D u_src;
-uniform vec2 u_texelDir;    // (1/width, 0) or (0, 1/height) scaled by stride
-uniform float u_weights[7]; // weights for offset 0..6 (symmetric)
+uniform vec2 u_texelDir;    // (1/width, 0) or (0, 1/height)
+uniform float u_offsets[3]; // fractional texel offsets for the 3 paired taps
+uniform float u_weights[4]; // [center, pair1, pair2, pair3]
 
 in vec2 v_uv;
 out vec4 fragColor;
 
 void main() {
   vec4 acc = texture(u_src, v_uv) * u_weights[0];
-  for (int i = 1; i < 7; i++) {
-    vec2 o = u_texelDir * float(i);
-    acc += texture(u_src, v_uv + o) * u_weights[i];
-    acc += texture(u_src, v_uv - o) * u_weights[i];
+  for (int i = 0; i < 3; i++) {
+    vec2 o = u_texelDir * u_offsets[i];
+    acc += texture(u_src, v_uv + o) * u_weights[i + 1];
+    acc += texture(u_src, v_uv - o) * u_weights[i + 1];
   }
   fragColor = acc;
 }
 `;
 
-// Composite: scene + tight blur + wide blur, with a static 3-octave value
-// noise displacing the scene sample (matches feTurbulence + feDisplacementMap
-// baseFrequency=0.04, numOctaves=3, scale=1.2).
-export const COMPOSITE_FS = /* glsl */ `#version 300 es
+// Displacement-noise bake: 3-octave value noise (matches feTurbulence
+// baseFrequency=0.04, numOctaves=3) rendered ONCE per resize into an RG
+// texture. The noise is static per-pixel, so recomputing ~24 hashes per
+// fragment every frame in the composite pass was pure waste — the composite
+// now does a single texture fetch instead.
+export const NOISE_FS = /* glsl */ `#version 300 es
 precision mediump float;
 
-uniform sampler2D u_scene;
-uniform sampler2D u_tight;
-uniform sampler2D u_wide;
 uniform vec2 u_resolution;
-uniform float u_displaceScale; // 1.2 px, scaled to UV in shader
 
 in vec2 v_uv;
 out vec4 fragColor;
@@ -158,9 +159,32 @@ float fbm(vec2 p) {
 void main() {
   // feTurbulence baseFrequency=0.04 → noise period ≈ 25 px.
   vec2 px = v_uv * u_resolution;
-  float nx = fbm(px * 0.04) * 2.0 - 1.0;
-  float ny = fbm(px * 0.04 + vec2(17.3, 41.7)) * 2.0 - 1.0;
-  vec2 duv = (vec2(nx, ny) * u_displaceScale) / u_resolution;
+  float nx = fbm(px * 0.04);
+  float ny = fbm(px * 0.04 + vec2(17.3, 41.7));
+  // Stored as [0,1]; composite maps back to [-1,1].
+  fragColor = vec4(nx, ny, 0.0, 1.0);
+}
+`;
+
+// Composite: scene + tight blur + wide blur, with the pre-baked displacement
+// noise texture perturbing the sample position (matches feDisplacementMap
+// scale=1.2).
+export const COMPOSITE_FS = /* glsl */ `#version 300 es
+precision mediump float;
+
+uniform sampler2D u_scene;
+uniform sampler2D u_tight;
+uniform sampler2D u_wide;
+uniform sampler2D u_noise;
+uniform vec2 u_resolution;
+uniform float u_displaceScale; // 1.2 px, scaled to UV in shader
+
+in vec2 v_uv;
+out vec4 fragColor;
+
+void main() {
+  vec2 n = texture(u_noise, v_uv).rg * 2.0 - 1.0;
+  vec2 duv = (n * u_displaceScale) / u_resolution;
   vec2 uv = v_uv + duv;
 
   vec4 scene = texture(u_scene, uv);
