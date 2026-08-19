@@ -1,3 +1,4 @@
+import type { AnchorHTMLAttributes, ReactNode } from 'react';
 import Markdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import { useJitter } from 'src/hooks/useJitter';
@@ -108,6 +109,32 @@ const ConstructDetail = ({ id }: { id: string }) => {
                     height={Number(height)}
                     className='construct-body-img'
                   />
+                );
+              },
+              a: ({
+                href,
+                children: linkChildren,
+                ...rest
+              }: AnchorHTMLAttributes<HTMLAnchorElement> & {
+                children?: ReactNode;
+              }) => {
+                const external = href?.startsWith('http');
+                if (external) {
+                  return (
+                    <a
+                      href={href}
+                      target='_blank'
+                      rel='noopener noreferrer'
+                      {...rest}
+                    >
+                      {linkChildren}
+                    </a>
+                  );
+                }
+                return (
+                  <a href={href} {...rest}>
+                    {linkChildren}
+                  </a>
                 );
               },
             }}

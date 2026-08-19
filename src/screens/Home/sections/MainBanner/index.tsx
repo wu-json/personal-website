@@ -42,7 +42,8 @@ const MainBanner = () => {
               San Francisco.
             </p>
             <p className={bioClass} style={jitter()}>
-              I draw software, breakdance, and capture humans and landscapes in time.
+              I draw software, breakdance, and capture humans and landscapes in
+              time.
             </p>
           </div>
         </div>

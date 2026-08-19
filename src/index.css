@@ -711,33 +711,19 @@ html[data-theme-flash-reset] .nav-glitch-active {
   max-width: 100%;
   border-radius: 2px;
   margin: 1em 0;
-  opacity: 0.85;
-  filter: grayscale(0.2);
 }
 .signal-prose .construct-body-img {
   max-width: 100%;
   border-radius: 2px;
   margin: 1em 0;
-  opacity: 0.85;
-  filter: grayscale(0.2);
 }
 .signal-prose .construct-body-img img {
-  opacity: 1;
-  filter: none;
   margin: 0;
   border-radius: 0;
 }
 
-/* In light mode the 0.85 opacity / grayscale mute applied above reads as
-   "washed out" — especially for the dark-background code screenshots in
-   constructs like yuki.nvim and chainsaw-nvim, where the WebPs sit on the
-   paper surface and blend toward white. Render images at full fidelity on
-   light and skip the wrapper tint behind them. */
-[data-theme='light'] .signal-prose img,
-[data-theme='light'] .signal-prose .construct-body-img {
-  opacity: 1;
-  filter: none;
-}
+/* On light paper the placeholder tint behind ProgressiveImage blends
+   toward white — keep the wrapper transparent there. */
 [data-theme='light'] .signal-prose .construct-body-img {
   background-color: transparent;
 }
