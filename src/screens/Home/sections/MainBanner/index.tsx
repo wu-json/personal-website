@@ -42,7 +42,7 @@ const MainBanner = () => {
               San Francisco.
             </p>
             <p className={bioClass} style={jitter()}>
-              Capturing humans and landscapes in monochrome.
+              I draw software, breakdance, and capture humans and landscapes in time.
             </p>
           </div>
         </div>
