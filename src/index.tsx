@@ -1,3 +1,4 @@
+import { Analytics } from '@vercel/analytics/react';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 
@@ -14,6 +15,7 @@ root.render(
   <React.StrictMode>
     <ThemeProvider>
       <App />
+      <Analytics />
     </ThemeProvider>
   </React.StrictMode>,
 );

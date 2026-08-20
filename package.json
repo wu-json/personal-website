@@ -25,6 +25,7 @@
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.6.1",
     "@tailwindcss/vite": "^4.3.3",
+    "@vercel/analytics": "^2.0.1",
     "earcut": "^3.2.3",
     "geist": "^1.7.2",
     "lucide-react": "^1.27.0",
