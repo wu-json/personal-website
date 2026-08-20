@@ -15,7 +15,7 @@ root.render(
   <React.StrictMode>
     <ThemeProvider>
       <App />
-      <Analytics />
+      <Analytics scriptSrc='/vitals/script.js' endpoint='/vitals' />
     </ThemeProvider>
   </React.StrictMode>,
 );

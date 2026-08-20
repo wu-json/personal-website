@@ -1,5 +1,12 @@
 {
   "buildCommand": "bun run build",
   "outputDirectory": "build",
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+  "rewrites": [
+    {
+      "source": "/vitals/script.js",
+      "destination": "/_vercel/insights/script.js"
+    },
+    { "source": "/vitals/:path*", "destination": "/_vercel/insights/:path*" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
 }
