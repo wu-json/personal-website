@@ -28,9 +28,7 @@ Regardless, one thing is clear - your judgment of Carol's taste says more about 
 
 I feel that a lot of this taste talk is rooted in insecurity. When humans have their skills encoded into an LLM, they will do anything to justify their existence.
 
-The easiest defense is to claim unique value in something inherently subjective, because no one can prove you wrong.
-
-> That said, diversity of taste is also what makes the world interesting.
+The easiest defense is to claim unique value in something inherently subjective, because no one can prove you wrong. That said, diversity of taste is also what makes the world interesting.
 
 Imagine how boring the world would be if we all took a bite of the klineapple and said, unanimously,
 
