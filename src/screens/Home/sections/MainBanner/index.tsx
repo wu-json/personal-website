@@ -61,7 +61,7 @@ const MainBanner = () => {
           </a>
           <span className='text-white/20 text-xs'>/</span>
           <a
-            href='/resume.pdf'
+            href='/jasonwu_resume.pdf'
             target='_blank'
             rel='noopener noreferrer'
             className={linkClass}
