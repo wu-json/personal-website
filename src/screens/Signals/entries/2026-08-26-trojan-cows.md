@@ -72,6 +72,6 @@ Transactional relationships are fine on their own, as long as everyone is out of
 
 When it comes to business, ethos is a currency that gets devalued the more you use it. At some point, the person on the other end throws your empathetic coins on the ground and asks how much they are really worth. If you choose to be transactional, rely on incentives instead. It keeps the relationship more robust, and doesn't create these awkward emotional dynamics.
 
-If your goal is real human connection, then blind yourself to the lust of incentives, otherwise you'll find yourself waking up in a wooden cow. If incentives are human physics, then breaking them produces miracles.
+If your goal is real human connection, then blind yourself to the lust of incentives, otherwise you'll find yourself waking up inside a wooden cow. If incentives are human physics, then breaking them produces miracles.
 
 I still choose to believe in miracles.
