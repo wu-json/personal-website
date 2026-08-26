@@ -223,7 +223,16 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
       />
       <SidebarToggle visible={isSidebarCollapsed} onClick={toggleSidebar} />
       <MenuToggle open={isMobileMenuOpen} onClick={toggleMobileMenu} />
-      <main ref={mainRef} className='flex-1 min-w-0 overflow-y-auto'>
+      {/* The sidebar renders as a fixed overlay, so <main> spans the full
+          viewport width and pads left by the rail's w-40 instead of sitting
+          beside it in flow. This keeps the empty rail area part of the scroll
+          container (touch gestures there scroll natively); the padding
+          transition mirrors the rail's width animation so collapse/expand
+          stays in sync. */}
+      <main
+        ref={mainRef}
+        className={`flex-1 min-w-0 overflow-y-auto transition-[padding] duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] ${isSidebarCollapsed ? '' : 'md:pl-40'}`}
+      >
         {children}
       </main>
       <ScrollReset scrollRef={mainRef} />

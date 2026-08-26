@@ -126,13 +126,18 @@ const Sidebar = ({
 
   return (
     <>
-      {/* Desktop sidebar */}
+      {/* Desktop sidebar. Rendered as a fixed overlay (RootLayout's <main>
+          pads left by the same w-40 underneath) with pointer-events disabled
+          on the rail itself: the empty column below the links must let touch
+          and wheel gestures fall through to the main scroll container, or
+          tablet users thumb-scrolling the rail get a dead zone. Only the
+          links block re-enables pointer input. */}
       <nav
         aria-hidden={isDesktopCollapsed}
-        className={`hidden md:flex flex-col px-4 py-6 h-full bg-black overflow-hidden transition-[width] duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] ${isDesktopCollapsed ? 'w-0' : 'w-40'}`}
+        className={`hidden md:flex fixed inset-y-0 left-0 z-40 pointer-events-none flex-col px-4 py-6 bg-black overflow-hidden transition-[width] duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] ${isDesktopCollapsed ? 'w-0' : 'w-40'}`}
       >
         <div
-          className={`flex flex-col items-start gap-5 transition-[opacity,transform] duration-300 ease-out ${isDesktopCollapsed ? 'opacity-0 -translate-x-2 pointer-events-none' : 'opacity-100 translate-x-0 delay-150'}`}
+          className={`flex flex-col items-start gap-5 transition-[opacity,transform] duration-300 ease-out ${isDesktopCollapsed ? 'opacity-0 -translate-x-2 pointer-events-none' : 'pointer-events-auto opacity-100 translate-x-0 delay-150'}`}
         >
           {links()}
           <CollapseLink onClick={onDesktopToggle} />
