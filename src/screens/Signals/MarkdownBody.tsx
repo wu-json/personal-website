@@ -3,7 +3,8 @@
  *
  * Extend here only — do not fork another Markdown + remark stack for Signals.
  * - remark-gfm: tables, footnotes [^id], etc.
- * - rehype-raw: <img> with dimensions for ProgressiveImage
+ * - rehype-raw: <img> with dimensions for ProgressiveImage; <iframe> for
+ *   responsive 16:9 video embeds (use youtube-nocookie.com embed URLs)
  * - Footnote block styling: `.signal-prose section[data-footnotes]` in index.css
  *
  * @see AGENTS.md → "Signals markdown reference"
@@ -31,7 +32,8 @@ const MarkdownBody = ({ children }: { children: string }) => (
         width?: string | number;
         height?: string | number;
       }) => {
-        if (!src || !width || !height) return <img src={src} alt={alt} />;
+        if (!src || !width || !height)
+          return <img src={src} alt={alt} loading='lazy' />;
         const placeholderSrc = src.replace(/-full\.webp$/, '-placeholder.webp');
         const smallSrc = src.replace(/-full\.webp$/, '-small.webp');
         const thumbSrc = src.replace(/-full\.webp$/, '-thumb.webp');
@@ -48,6 +50,35 @@ const MarkdownBody = ({ children }: { children: string }) => (
           />
         );
       },
+      video: ({
+        src,
+        'aria-label': ariaLabel,
+      }: {
+        src?: string;
+        'aria-label'?: string;
+      }) => (
+        <video
+          src={src}
+          aria-label={ariaLabel}
+          className='construct-body-img w-full'
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload='metadata'
+        />
+      ),
+      iframe: ({ src, title }: { src?: string; title?: string }) => (
+        <iframe
+          src={src}
+          title={title}
+          className='aspect-video w-full rounded-sm border border-white/5 !my-3'
+          allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share'
+          referrerPolicy='strict-origin-when-cross-origin'
+          allowFullScreen
+          loading='lazy'
+        />
+      ),
       a: ({
         href,
         children: linkChildren,

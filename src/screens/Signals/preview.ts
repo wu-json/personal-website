@@ -25,6 +25,7 @@ function stripMedia(body: string): string {
     .replace(/<figcaption[^>]*>[\s\S]*?<\/figcaption>/gi, ' ')
     .replace(/<\/?figure[^>]*>/gi, ' ')
     .replace(/<img\s[^>]*\/?>/gi, ' ')
+    .replace(/<video\s[^>]*>[\s\S]*?<\/video>/gi, ' ')
     .trim();
 }
 

@@ -49,8 +49,15 @@ export function escapeXml(s: string): string {
 }
 
 export function plainExcerpt(body: string, maxLen = 300): string {
-  const noImg = body.replace(/<img\s[^>]*\/?>/gi, ' ').trim();
-  const plain = noImg
+  // Same media stripping as preview.ts stripMedia — captions and media tags
+  // must not leak tag fragments into the feed <description>.
+  const noMedia = body
+    .replace(/<figcaption[^>]*>[\s\S]*?<\/figcaption>/gi, ' ')
+    .replace(/<\/?figure[^>]*>/gi, ' ')
+    .replace(/<img\s[^>]*\/?>/gi, ' ')
+    .replace(/<video\s[^>]*>[\s\S]*?<\/video>/gi, ' ')
+    .trim();
+  const plain = noMedia
     .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
     .replace(/[`#>*_-]/g, '')
     .replace(/\s+/g, ' ')
@@ -99,7 +106,10 @@ async function generateFeed(): Promise<string> {
         body,
       };
     })
-    .sort((a, b) => b.id.localeCompare(a.id))
+    .sort(
+      (a, b) =>
+        b.timestamp.localeCompare(a.timestamp) || b.id.localeCompare(a.id),
+    )
     .slice(0, 20);
 
   const items = await Promise.all(
