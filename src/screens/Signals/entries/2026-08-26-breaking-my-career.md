@@ -120,7 +120,7 @@ This was one of the first projects I worked on where I had access to frontier mo
 
 <figure>
   <img src="/images/signals/2026-08-26-breaking-my-career/commit-history-full.webp" alt="GitHub contribution graph showing 9,406 contributions in the last year, with a red box around the months from May to August" width="1470" height="432">
-  <figcaption>Commits are never a good measure of productivity, but if you're mostly prompting specs it can be an (unreliable) proxy of decisions made. Red is when my break started.</figcaption>
+  <figcaption>Red is when my break started. Commits are never a good measure of productivity, but if you're mostly prompting specs it can be an (unreliable) proxy of decisions made.</figcaption>
 </figure>
 
 All of this is to say that I don't think we've gotten to a point where AI sandbox + coding agent + yolo is a formula for a great product. Craft still matters, and I don't see the core of that changing any time soon.
