@@ -99,7 +99,10 @@ async function generateFeed(): Promise<string> {
         body,
       };
     })
-    .sort((a, b) => b.id.localeCompare(a.id))
+    .sort(
+      (a, b) =>
+        b.timestamp.localeCompare(a.timestamp) || b.id.localeCompare(a.id),
+    )
     .slice(0, 20);
 
   const items = await Promise.all(

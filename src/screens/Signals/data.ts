@@ -47,4 +47,7 @@ export const signals: Signal[] = Object.values(modules)
       location: attrs.location ?? '',
     };
   })
-  .sort((a, b) => b.id.localeCompare(a.id));
+  .sort(
+    (a, b) =>
+      b.timestamp.localeCompare(a.timestamp) || b.id.localeCompare(a.id),
+  );
