@@ -32,7 +32,8 @@ const MarkdownBody = ({ children }: { children: string }) => (
         width?: string | number;
         height?: string | number;
       }) => {
-        if (!src || !width || !height) return <img src={src} alt={alt} />;
+        if (!src || !width || !height)
+          return <img src={src} alt={alt} loading='lazy' />;
         const placeholderSrc = src.replace(/-full\.webp$/, '-placeholder.webp');
         const smallSrc = src.replace(/-full\.webp$/, '-small.webp');
         const thumbSrc = src.replace(/-full\.webp$/, '-thumb.webp');
@@ -49,6 +50,24 @@ const MarkdownBody = ({ children }: { children: string }) => (
           />
         );
       },
+      video: ({
+        src,
+        'aria-label': ariaLabel,
+      }: {
+        src?: string;
+        'aria-label'?: string;
+      }) => (
+        <video
+          src={src}
+          aria-label={ariaLabel}
+          className='construct-body-img w-full'
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload='metadata'
+        />
+      ),
       iframe: ({ src, title }: { src?: string; title?: string }) => (
         <iframe
           src={src}
