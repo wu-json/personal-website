@@ -122,6 +122,18 @@ describe('plainExcerpt', () => {
     expect(result).toContain('and more.');
   });
 
+  it('strips figure wrappers, captions, and videos without leaking tag fragments', () => {
+    const body = `<figure>
+  <img src="/images/x-full.webp" alt="A photo" width="100" height="100">
+  <figcaption>Caption text here.</figcaption>
+</figure>
+
+Body text starts here.
+
+<video src="/images/clip.mp4" aria-label="A clip"></video>`;
+    expect(plainExcerpt(body)).toBe('Body text starts here.');
+  });
+
   it('strips markdown link syntax leaving link text', () => {
     const body = 'Click [here](https://example.com) for info.';
     expect(plainExcerpt(body)).toBe('Click here for info.');
