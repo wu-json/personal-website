@@ -43,7 +43,7 @@ I experimented with local models for a variety of use-cases like organizing phot
 
 Besides breakdancing, studying Japanese is one of the few hobbies I've actually kept up with in the last few years. I started studying around three years ago and my hours had certainly taken a hit during my most recent job, but this break was a good opportunity to get serious about it again.
 
-<figure>
+<figure class="figure-inset" style="--figure-width: 50%; margin-left: 0">
   <video src="/images/signals/2026-08-26-breaking-my-career/breakdance.mp4" aria-label="Looping black-and-white clip of me breakdancing in a gym"></video>
   <figcaption>Fun fact: breakdancing is my main form of exercise.</figcaption>
 </figure>
