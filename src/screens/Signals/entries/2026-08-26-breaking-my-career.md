@@ -118,6 +118,11 @@ Looking at Oxalis at the surface level, I think it's an app some people would cl
 
 This was one of the first projects I worked on where I had access to frontier models since its conception. I used Opus 4.7 and Fable 5 from the very beginning of Oxalis. I can assure you that if I could have vibe-coded the whole thing in one sitting I would have. Instead, it took around 3 months of consistent work to create and iterate on the product, and also write all of the blog posts and graphics to explain what it even is.
 
+<figure>
+  <img src="/images/signals/2026-08-26-breaking-my-career/commit-history-full.webp" alt="GitHub contribution graph showing 9,406 contributions in the last year, with a red box around the months from May to August" width="1470" height="432">
+  <figcaption>Receipts on the prompting that went into this project. The red box is my career break.</figcaption>
+</figure>
+
 All of this is to say that I don't think we've gotten to a point where AI sandbox + coding agent + yolo is a formula for a great product. Craft still matters, and I don't see the core of that changing any time soon.
 
 <figure>
