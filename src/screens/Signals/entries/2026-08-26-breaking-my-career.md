@@ -65,7 +65,7 @@ The local inference side of this was especially interesting to me, as it fundame
 
 Also, from first principles it would make sense that language learning would be the first consumer use-case for small generalized language models, as you would hope that the one thing they're good at is language.
 
-This project ended up being called Oxalis, named after the Oxalis Triangularis plant that sprouted in my apartment shortly after designing the prototype for the project. You can read the less technical story of why I wanted to build this in [Why I Built Oxalis](https://oxalis.ink/blog/2026-08-09-why-i-built-oxalis).
+I ended up naming this project Oxalis, inspired by the Oxalis Triangularis plant that sprouted in my apartment shortly after designing its prototype. You can read the less technical story of why I wanted to build this in [Why I Built Oxalis](https://oxalis.ink/blog/2026-08-09-why-i-built-oxalis).
 
 ## Asia Travel - Tokyo and Shanghai
 
