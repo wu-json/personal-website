@@ -295,10 +295,15 @@ html[data-theme-flash-reset] .nav-glitch-active {
 /* 404 screen — the flower sheds its petals one at a time. Each petal
    holds its healthy pose (the base styles below) until its staggered
    --shed-delay, then tips off the bloom: the rotation pivots on the
-   flower center (50,50), so adding --shed-spin sweeps the petal off its
-   side while the outer translate carries it below, fading as it goes.
-   `forwards` keeps shed petals gone, so the sequence ends on a bare
-   center. */
+   flower center (the default 50% origin of the stacked petal <svg>s),
+   so adding --shed-spin sweeps the petal off its side while the outer
+   translate carries it below, fading as it goes. `forwards` keeps shed
+   petals gone, so the sequence ends on a bare center.
+
+   Perf: petals are whole <svg> elements, not SVG children, so these
+   transform/opacity animations run on the compositor; will-change keeps
+   them layerized between the long staggered delays. Translate values
+   are CSS px on the 64px flower box. */
 @keyframes petal-shed {
   0% {
     opacity: 0.85;
@@ -306,21 +311,51 @@ html[data-theme-flash-reset] .nav-glitch-active {
   }
   100% {
     opacity: 0;
-    transform: translate(var(--shed-dx), 58px)
+    transform: translate(var(--shed-dx), 37px)
       rotate(calc(var(--shed-from) + var(--shed-spin)));
   }
 }
 
 .petal-shed {
-  transform-origin: 50px 50px;
   transform: rotate(var(--shed-from));
   opacity: 0.85;
+  will-change: transform, opacity;
   animation: petal-shed 3.8s ease-in var(--shed-delay) forwards;
+}
+
+/* Stand-in for menu-flower-glow's animated drop-shadow: a soft radial
+   wash behind the bloom whose opacity breathes on the same 3s cadence.
+   Opacity-only, so it composites instead of re-rasterizing a filter
+   every frame. */
+@keyframes flower-halo-pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+.flower-halo {
+  background: radial-gradient(
+    circle,
+    var(--color-glow) 0%,
+    var(--color-glow-mist) 45%,
+    transparent 70%
+  );
+  will-change: opacity;
+  animation: flower-halo-pulse 3s ease-in-out infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .petal-shed {
     animation: none;
+  }
+
+  .flower-halo {
+    animation: none;
+    opacity: 0.55;
   }
 }
 

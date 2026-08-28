@@ -7,13 +7,13 @@ import { Link } from 'wouter';
 // drop a different petal every few seconds until only the bare center
 // is left. Fall order hops around the bloom rather than going in a
 // circle, and `dx`/`spin` give each fall its own tilt and side so no
-// two petals replay the same path.
+// two petals replay the same path. `dx` is CSS px on the 64px box.
 const SHED_PETALS = [
-  { angle: 0, delay: 14800, dx: -8, spin: -80 },
-  { angle: 72, delay: 4600, dx: 14, spin: 65 },
-  { angle: 144, delay: 11400, dx: 10, spin: 75 },
-  { angle: 216, delay: 1200, dx: -12, spin: -70 },
-  { angle: 288, delay: 8000, dx: -16, spin: -60 },
+  { angle: 0, delay: 14800, dx: -5, spin: -80 },
+  { angle: 72, delay: 4600, dx: 9, spin: 65 },
+  { angle: 144, delay: 11400, dx: 6, spin: 75 },
+  { angle: 216, delay: 1200, dx: -8, spin: -70 },
+  { angle: 288, delay: 8000, dx: -10, spin: -60 },
 ];
 
 const SHED_FALL_MS = 3800; // keep in sync with petal-shed in index.css
@@ -23,24 +23,24 @@ const BARE_PAUSE_MS = 1400;
 const CYCLE_MS =
   Math.max(...SHED_PETALS.map(p => p.delay)) + SHED_FALL_MS + BARE_PAUSE_MS;
 
+// Each petal is its own absolutely-stacked <svg> so the shed animation
+// runs on HTML elements, where transform/opacity stay on the
+// compositor — the same animation on SVG child nodes repaints the
+// whole graphic every frame. The glow is a radial-gradient halo whose
+// opacity pulses, replacing menu-flower-glow's animated drop-shadow
+// filter: that re-rasterizes per frame for the life of the page, the
+// kind of sustained filter work the home lily also avoids.
+// text-white matches this screen's idiom (the light theme remaps
+// bg-black/text-white utilities globally, so it flips with the rest).
 const SheddingFlower = () => (
-  <svg
-    width='64'
-    height='64'
-    viewBox='0 0 100 100'
-    fill='none'
-    aria-hidden
-    className='menu-flower menu-flower-glow text-[var(--color-ink)]'
-  >
+  <div aria-hidden className='relative h-16 w-16 text-white'>
+    <div className='flower-halo absolute -inset-4' />
     {SHED_PETALS.map(p => (
-      <ellipse
+      <svg
         key={p.angle}
-        cx='50'
-        cy='22'
-        rx='10'
-        ry='22'
-        fill='currentColor'
-        className='petal-shed'
+        viewBox='0 0 100 100'
+        fill='none'
+        className='petal-shed absolute inset-0 h-full w-full'
         style={
           {
             '--shed-from': `${p.angle}deg`,
@@ -49,12 +49,16 @@ const SheddingFlower = () => (
             '--shed-spin': `${p.spin}deg`,
           } as CSSProperties
         }
-      />
+      >
+        <ellipse cx='50' cy='22' rx='10' ry='22' fill='currentColor' />
+      </svg>
     ))}
-    {/* Dimmer than the petals so the core reads as its own element —
-        both against the full bloom and once it's all that's left. */}
-    <circle cx='50' cy='50' r='8' fill='currentColor' opacity='0.55' />
-  </svg>
+    <svg viewBox='0 0 100 100' fill='none' className='h-full w-full'>
+      {/* Dimmer than the petals so the core reads as its own element —
+          both against the full bloom and once it's all that's left. */}
+      <circle cx='50' cy='50' r='8' fill='currentColor' opacity='0.55' />
+    </svg>
+  </div>
 );
 
 const NotFoundScreen = () => {
