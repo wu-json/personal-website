@@ -50,7 +50,7 @@ Besides breakdancing, studying Japanese is one of the few hobbies I've actually 
 
 I was in the immersion phase of my Japanese study, which is essentially mining grammar and vocabulary from native content like movies and video games. This is the hardest phase of language learning because it is unstructured and the longest stretch to fluency.
 
-During the little free time I had in my last job, I had actually created a browser-based harness that ran OCR using a frontier model on native Japanese text to convert it into vocabulary words. I thought it would be a fun project to build a more serious version of this with some more requirements.
+During the little free time I had in my last job, I created a browser-based harness that ran OCR using frontier models on native Japanese text to create vocabulary words. I thought it would be a fun project to build a more serious version of this with some more requirements.
 
 <figure>
   <img src="/images/signals/2026-08-26-breaking-my-career/blossom-prototype-full.webp" alt="Screenshot of a browser-based Japanese learning tool showing a YouTube video with a translation and vocabulary breakdown panel" width="4710" height="2294">
@@ -61,9 +61,9 @@ During the little free time I had in my last job, I had actually created a brows
 2. Use a fully local inference stack.
 3. Make it available for others.
 
-The local inference side of this was especially interesting to me, as it makes the economics of this project more indie-project like as opposed to something like Duolingo, where the business needs to pay for cloud inference costs. Since I designed Oxalis with a full local inference stack, it costs me almost nothing to distribute it.
+The local inference side of this was especially interesting to me, as it fundamentally changes the economics of the product by eliminating cloud inference costs. With a fully local inference stack, it would cost me nothing to distribute it.
 
-Also, from first principles it would make sense that language learning would be the first consumer use-case for small generalized language models, as you would hope that the one thing it's good at is language.
+Also, from first principles it would make sense that language learning would be the first consumer use-case for small generalized language models, as you would hope that the one thing they're good at is language.
 
 This project ended up being called Oxalis, named after the Oxalis Triangularis plant that sprouted in my apartment shortly after designing the prototype for the project. You can read the less technical story of why I wanted to build this in [Why I Built Oxalis](https://oxalis.ink/blog/2026-08-09-why-i-built-oxalis).
 
