@@ -7,6 +7,7 @@ import { HeroDetail } from 'src/screens/Heroes/HeroDetail';
 import { HomeScreen } from 'src/screens/Home';
 import { MemoriesScreen } from 'src/screens/Memories';
 import { FragmentDetail } from 'src/screens/Memories/FragmentDetail';
+import { NotFoundScreen } from 'src/screens/NotFound';
 import { SignalsScreen } from 'src/screens/Signals';
 import { SignalDetail } from 'src/screens/Signals/SignalDetail';
 import { Route, Switch } from 'wouter';
@@ -60,6 +61,7 @@ const App = () => (
           <Route path='/heroes/:id'>
             {params => <HeroDetail id={params.id} />}
           </Route>
+          <Route component={NotFoundScreen} />
         </Switch>
       </RootLayout>
     </Route>

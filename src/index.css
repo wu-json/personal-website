@@ -292,6 +292,41 @@ html[data-theme-flash-reset] .nav-glitch-active {
   animation: atlas-char-rise 350ms ease-out both;
 }
 
+/* 404 screen — the wilted flower's loose petal. Starts in the gap left by
+   the missing fifth petal (upper right) and tumbles below the bloom on a
+   slow loop. Rotation pivots on the flower center (50,50), matching the
+   attached petals; the outer translate carries it downward as it turns. */
+@keyframes petal-drift {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) rotate(40deg);
+  }
+  12% {
+    opacity: 0.45;
+  }
+  60% {
+    opacity: 0.3;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(12px, 54px) rotate(140deg);
+  }
+}
+
+.petal-loose {
+  transform-origin: 50px 50px;
+  opacity: 0;
+  animation: petal-drift 6s ease-in 800ms infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .petal-loose {
+    animation: none;
+    opacity: 0.3;
+    transform: translate(6px, 27px) rotate(90deg);
+  }
+}
+
 /* Spider lily — the canvas itself owns geometry/bloom/wind/glow via a
    WebGL2 renderer (see src/screens/Home/SpiderLily). What remains here is
    the outer halo on the wrapping container, which still uses CSS
