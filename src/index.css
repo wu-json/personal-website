@@ -292,6 +292,73 @@ html[data-theme-flash-reset] .nav-glitch-active {
   animation: atlas-char-rise 350ms ease-out both;
 }
 
+/* 404 screen — the flower sheds its petals one at a time. Each petal
+   holds its healthy pose (the base styles below) until its staggered
+   --shed-delay, then tips off the bloom: the rotation pivots on the
+   flower center (the default 50% origin of the stacked petal <svg>s),
+   so adding --shed-spin sweeps the petal off its side while the outer
+   translate carries it below, fading as it goes. `forwards` keeps shed
+   petals gone, so the sequence ends on a bare center.
+
+   Perf: petals are whole <svg> elements, not SVG children, so these
+   transform/opacity animations run on the compositor; will-change keeps
+   them layerized between the long staggered delays. Translate values
+   are CSS px on the 64px flower box. */
+@keyframes petal-shed {
+  0% {
+    opacity: 0.85;
+    transform: translate(0, 0) rotate(var(--shed-from));
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--shed-dx), 37px)
+      rotate(calc(var(--shed-from) + var(--shed-spin)));
+  }
+}
+
+.petal-shed {
+  transform: rotate(var(--shed-from));
+  opacity: 0.85;
+  will-change: transform, opacity;
+  animation: petal-shed 3.8s ease-in var(--shed-delay) forwards;
+}
+
+/* Stand-in for menu-flower-glow's animated drop-shadow: a soft radial
+   wash behind the bloom whose opacity breathes on the same 3s cadence.
+   Opacity-only, so it composites instead of re-rasterizing a filter
+   every frame. */
+@keyframes flower-halo-pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+.flower-halo {
+  background: radial-gradient(
+    circle,
+    var(--color-glow) 0%,
+    var(--color-glow-mist) 45%,
+    transparent 70%
+  );
+  will-change: opacity;
+  animation: flower-halo-pulse 3s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .petal-shed {
+    animation: none;
+  }
+
+  .flower-halo {
+    animation: none;
+    opacity: 0.55;
+  }
+}
+
 /* Spider lily — the canvas itself owns geometry/bloom/wind/glow via a
    WebGL2 renderer (see src/screens/Home/SpiderLily). What remains here is
    the outer halo on the wrapping container, which still uses CSS
