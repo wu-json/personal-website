@@ -17,7 +17,7 @@ const SHED_PETALS = [
 ];
 
 const SHED_FALL_MS = 3800; // keep in sync with petal-shed in index.css
-const BARE_PAUSE_MS = 3000;
+const BARE_PAUSE_MS = 1400;
 // Full loop: last petal lands, the bare center holds a beat, then the
 // flower glitches back in and sheds again.
 const CYCLE_MS =
@@ -51,7 +51,9 @@ const SheddingFlower = () => (
         }
       />
     ))}
-    <circle cx='50' cy='50' r='8' fill='currentColor' opacity='0.9' />
+    {/* Dimmer than the petals so the core reads as its own element —
+        both against the full bloom and once it's all that's left. */}
+    <circle cx='50' cy='50' r='8' fill='currentColor' opacity='0.4' />
   </svg>
 );
 
