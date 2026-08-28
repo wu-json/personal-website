@@ -1,14 +1,19 @@
+import type { CSSProperties } from 'react';
 import { useJitter } from 'src/hooks/useJitter';
-import { Link, useLocation } from 'wouter';
+import { Link } from 'wouter';
 
-// The healthy five-petal flower (see MenuToggle in RootLayout) sits at
-// 0/72/144/216/288deg. Here one petal is gone — it's the loose one
-// drifting below — and the rest sag toward the bottom of the bloom.
-const WILTED_PETALS = [
-  { angle: 118, opacity: 0.4 },
-  { angle: 158, opacity: 0.7 },
-  { angle: 202, opacity: 0.85 },
-  { angle: 244, opacity: 0.55 },
+// Starts as the healthy five-petal flower (same 0/72/144/216/288deg
+// geometry as MenuToggle in RootLayout), then sheds — staggered delays
+// drop a different petal every few seconds until only the bare center
+// is left. Fall order hops around the bloom rather than going in a
+// circle, and `dx`/`spin` give each fall its own tilt and side so no
+// two petals replay the same path.
+const SHED_PETALS = [
+  { angle: 0, delay: 14800, dx: -8, spin: -80 },
+  { angle: 72, delay: 4600, dx: 14, spin: 65 },
+  { angle: 144, delay: 11400, dx: 10, spin: 75 },
+  { angle: 216, delay: 1200, dx: -12, spin: -70 },
+  { angle: 288, delay: 8000, dx: -16, spin: -60 },
 ];
 
 const WiltedFlower = () => (
@@ -20,7 +25,7 @@ const WiltedFlower = () => (
     aria-hidden
     className='menu-flower menu-flower-glow text-[var(--color-ink)]'
   >
-    {WILTED_PETALS.map(p => (
+    {SHED_PETALS.map(p => (
       <ellipse
         key={p.angle}
         cx='50'
@@ -28,29 +33,23 @@ const WiltedFlower = () => (
         rx='10'
         ry='22'
         fill='currentColor'
-        style={{
-          transform: `rotate(${p.angle}deg)`,
-          transformOrigin: '50px 50px',
-          opacity: p.opacity,
-        }}
+        className='petal-shed'
+        style={
+          {
+            '--shed-from': `${p.angle}deg`,
+            '--shed-delay': `${p.delay}ms`,
+            '--shed-dx': `${p.dx}px`,
+            '--shed-spin': `${p.spin}deg`,
+          } as CSSProperties
+        }
       />
     ))}
-    <ellipse
-      cx='50'
-      cy='22'
-      rx='10'
-      ry='22'
-      fill='currentColor'
-      className='petal-loose'
-    />
     <circle cx='50' cy='50' r='8' fill='currentColor' opacity='0.9' />
   </svg>
 );
 
 const NotFoundScreen = () => {
   const jitter = useJitter();
-  const [path] = useLocation();
-  const shownPath = path.length > 40 ? `${path.slice(0, 40)}…` : path;
 
   return (
     <div className='w-full min-h-screen bg-black flex items-center justify-center md:pr-40'>
@@ -69,12 +68,6 @@ const NotFoundScreen = () => {
           style={jitter()}
         >
           ページが見つかりません
-        </p>
-        <p
-          className='bio-glitch text-white/30 text-xs font-mono break-all max-w-xs sm:max-w-md'
-          style={jitter()}
-        >
-          {`// no record of ${shownPath} in the atlas`}
         </p>
         <Link
           to='/'

@@ -292,38 +292,35 @@ html[data-theme-flash-reset] .nav-glitch-active {
   animation: atlas-char-rise 350ms ease-out both;
 }
 
-/* 404 screen — the wilted flower's loose petal. Starts in the gap left by
-   the missing fifth petal (upper right) and tumbles below the bloom on a
-   slow loop. Rotation pivots on the flower center (50,50), matching the
-   attached petals; the outer translate carries it downward as it turns. */
-@keyframes petal-drift {
+/* 404 screen — the flower sheds its petals one at a time. Each petal
+   holds its healthy pose (the base styles below) until its staggered
+   --shed-delay, then tips off the bloom: the rotation pivots on the
+   flower center (50,50), so adding --shed-spin sweeps the petal off its
+   side while the outer translate carries it below, fading as it goes.
+   `forwards` keeps shed petals gone, so the sequence ends on a bare
+   center. */
+@keyframes petal-shed {
   0% {
-    opacity: 0;
-    transform: translate(0, 0) rotate(40deg);
-  }
-  12% {
-    opacity: 0.45;
-  }
-  60% {
-    opacity: 0.3;
+    opacity: 0.85;
+    transform: translate(0, 0) rotate(var(--shed-from));
   }
   100% {
     opacity: 0;
-    transform: translate(12px, 54px) rotate(140deg);
+    transform: translate(var(--shed-dx), 58px)
+      rotate(calc(var(--shed-from) + var(--shed-spin)));
   }
 }
 
-.petal-loose {
+.petal-shed {
   transform-origin: 50px 50px;
-  opacity: 0;
-  animation: petal-drift 6s ease-in 800ms infinite;
+  transform: rotate(var(--shed-from));
+  opacity: 0.85;
+  animation: petal-shed 3.8s ease-in var(--shed-delay) forwards;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .petal-loose {
+  .petal-shed {
     animation: none;
-    opacity: 0.3;
-    transform: translate(6px, 27px) rotate(90deg);
   }
 }
 
