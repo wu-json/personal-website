@@ -23,12 +23,45 @@ const BARE_PAUSE_MS = 3000;
 const CYCLE_MS =
   Math.max(...SHED_PETALS.map(p => p.delay)) + SHED_FALL_MS + BARE_PAUSE_MS;
 
-const SheddingFlower = () => {
-  // Remounting the <svg> via `key` restarts every petal's CSS animation
-  // for the next cycle; from the second cycle on the flower re-enters
-  // with the same glitch the nav uses (nav-glitch-active plays once per
-  // mount). The first cycle skips it — the page-load bio-glitch on the
-  // wrapper already covers the entrance.
+const SheddingFlower = () => (
+  <svg
+    width='64'
+    height='64'
+    viewBox='0 0 100 100'
+    fill='none'
+    aria-hidden
+    className='menu-flower menu-flower-glow text-[var(--color-ink)]'
+  >
+    {SHED_PETALS.map(p => (
+      <ellipse
+        key={p.angle}
+        cx='50'
+        cy='22'
+        rx='10'
+        ry='22'
+        fill='currentColor'
+        className='petal-shed'
+        style={
+          {
+            '--shed-from': `${p.angle}deg`,
+            '--shed-delay': `${p.delay}ms`,
+            '--shed-dx': `${p.dx}px`,
+            '--shed-spin': `${p.spin}deg`,
+          } as CSSProperties
+        }
+      />
+    ))}
+    <circle cx='50' cy='50' r='8' fill='currentColor' opacity='0.9' />
+  </svg>
+);
+
+const NotFoundScreen = () => {
+  const jitter = useJitter();
+  // Remounting the content block via `key` at the end of each shed cycle
+  // restarts every CSS animation inside it: the petals re-attach for the
+  // next shed, and the bio-glitch entrance replays across the flower,
+  // the 404 headline, the subtitle, and the link — the same glitch the
+  // page plays on load.
   const [cycle, setCycle] = useState(0);
 
   useEffect(() => {
@@ -37,45 +70,11 @@ const SheddingFlower = () => {
   }, [cycle]);
 
   return (
-    <svg
-      key={cycle}
-      width='64'
-      height='64'
-      viewBox='0 0 100 100'
-      fill='none'
-      aria-hidden
-      className={`menu-flower menu-flower-glow text-[var(--color-ink)] ${cycle > 0 ? 'nav-glitch-active' : ''}`}
-    >
-      {SHED_PETALS.map(p => (
-        <ellipse
-          key={p.angle}
-          cx='50'
-          cy='22'
-          rx='10'
-          ry='22'
-          fill='currentColor'
-          className='petal-shed'
-          style={
-            {
-              '--shed-from': `${p.angle}deg`,
-              '--shed-delay': `${p.delay}ms`,
-              '--shed-dx': `${p.dx}px`,
-              '--shed-spin': `${p.spin}deg`,
-            } as CSSProperties
-          }
-        />
-      ))}
-      <circle cx='50' cy='50' r='8' fill='currentColor' opacity='0.9' />
-    </svg>
-  );
-};
-
-const NotFoundScreen = () => {
-  const jitter = useJitter();
-
-  return (
     <div className='w-full min-h-screen bg-black flex items-center justify-center md:pr-40'>
-      <div className='flex flex-col items-center gap-3 px-6 text-center'>
+      <div
+        key={cycle}
+        className='flex flex-col items-center gap-3 px-6 text-center'
+      >
         <div className='bio-glitch mb-5' style={jitter()}>
           <SheddingFlower />
         </div>
