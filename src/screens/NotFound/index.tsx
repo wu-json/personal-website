@@ -53,7 +53,7 @@ const SheddingFlower = () => (
     ))}
     {/* Dimmer than the petals so the core reads as its own element —
         both against the full bloom and once it's all that's left. */}
-    <circle cx='50' cy='50' r='8' fill='currentColor' opacity='0.4' />
+    <circle cx='50' cy='50' r='8' fill='currentColor' opacity='0.55' />
   </svg>
 );
 
