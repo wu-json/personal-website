@@ -190,4 +190,4 @@ There are still a few pieces I think are missing before local inference becomes 
 
 Perhaps these are the last bits we need for consumer apps to hit the terminal velocity in AI we see with B2B deployments today.
 
-じゃあまた！
+最後まで読んでいただき、ありがとうございました。
