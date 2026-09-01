@@ -72,7 +72,7 @@ Thus, I decided to take on the challenge of making this whole system work with m
 
 ### Picking a Model
 
-Converting the app to use local inference was actually the easy part. This was as simple as converting the application into an Electron app and packaging llama.cpp into the bundle and running it as a sidecar. The hard part was speed and quality.
+Converting the app to use local inference was actually the easy part. This was as simple as converting the application into an Electron app and packaging [llama.cpp](https://github.com/ggml-org/llama.cpp) into the bundle and running it as a sidecar. The hard part was speed and quality.
 
 Most local models felt pretty slow. Gemma4 12B fits on a Macbook with 16GB of RAM, but is dense and makes the laptop pretty hot with continued use. Gemma4 26BA4B had decent speed with its MoE architecture, but wouldn't fit on devices with 16GB of RAM. I tried all Gemma and Qwen variants (with and without MTP), but in the end the only model that felt snappy to me and had decent translation was Gemma4 E2B, the weakest and dumbest variant in the Gemma4 lineup.
 
@@ -106,7 +106,7 @@ I ran the above pipeline on various input sources and also included some of my o
 
 ### Fine-Tuning
 
-I took the training data produced by the above pipeline and fine-tuned Gemma4 E2B using unsloth on a Mac Studio.
+I took the training data produced by the above pipeline and fine-tuned Gemma4 E2B using [unsloth](https://unsloth.ai/docs/models/gemma-4/train) on a Mac Studio.
 
 > If you're curious, I used LoRA on all matrices with r=32 and alpha=32. I did play with these settings a bit but nothing substantially changed.
 
@@ -122,7 +122,7 @@ MacOS comes with native OCR that is quite snappy. I ended up feeding this into t
 
 #### 2. Sudachi
 
-For Kana reading accuracy, I discovered Sudachi, which is a morphological analyzer for Japanese. In simpler terms, it parses Japanese text and is able to guess readings based on various internal heuristics that depend on the placements of the words.
+For Kana reading accuracy, I discovered [Sudachi](https://github.com/WorksApplications/Sudachi), which is a morphological analyzer for Japanese. In simpler terms, it parses Japanese text and is able to guess readings based on various internal heuristics that depend on the placements of the words.
 
 > This is so freaking cool.
 
@@ -134,9 +134,25 @@ The first hack resulted in OCR accuracy doubling for Gemma4 E2B, but it was stil
 
 > While 76% seems low, the failure mechanisms were not severe and were usually caused by noise before or after the target text from things like street signs in the background of a vlog. E4B at this point was now usable quality-wise, even with no fine-tuning.
 
+```
+ocr success rate
+
+e2b             ████████████▌ 25%
+e2b + ocr hint  █████████████████████████ 50%
+e4b + ocr hint  ██████████████████████████████████████ 76%
+```
+
 ### Let's Try This Fine-Tune Again
 
 I then repeated the fine-tuning process, this time providing the OCR hints as part of the training data. The results of this were much better - OCR success rate for E2B went from 50% to 74%.
+
+```
+ocr success rate
+
+e2b + hint              █████████████████████████ 50%
+e2b + hint + fine-tune  █████████████████████████████████████ 74%
+e4b + hint              ██████████████████████████████████████ 76%
+```
 
 Despite benchmarking slightly worse than Gemma4 E4B, the snappiness of E2B made it such that it still provides a better user-experience overall with 60%-100% less latency on generation, and less RAM + battery usage. I now use this fine-tuned version everyday when I study Japanese, and named it [Shamrock E2B](https://huggingface.co/oxalis-ink/shamrock-0-e2b).
 
