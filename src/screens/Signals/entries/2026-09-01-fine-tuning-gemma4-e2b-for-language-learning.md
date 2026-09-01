@@ -104,6 +104,11 @@ I decided to use Kimi K3 as the labeler. To source frames, I created a pipeline 
 
 I ran the above pipeline on various input sources and also included some of my own usage data in the mix as well, containing frames representing diverse content like vlogs, blogs, video games, etc. With this, I created a dataset of approximately 6,000 diverse cases.
 
+<figure>
+  <img src="/images/signals/2026-09-01-fine-tuning-gemma4-e2b-for-language-learning/oxalis-youtube-full.webp" alt="Oxalis saved card showing a Japanese subtitle from a YouTube gadget video with its translation and word-by-word breakdown" width="2122" height="1762">
+  <figcaption>An Oxalis card mined from a YouTube video.</figcaption>
+</figure>
+
 ### Fine-Tuning
 
 I took the training data produced by the above pipeline and fine-tuned Gemma4 E2B using [unsloth](https://unsloth.ai/docs/models/gemma-4/train) on a Mac Studio.
@@ -151,6 +156,11 @@ I then repeated the fine-tuning process, this time providing the OCR hints as pa
 <span style="color: var(--color-ink-muted)">e4b + hint              ██████████████████████████████████████ 76%</span></code></pre>
 
 Despite benchmarking slightly worse than Gemma4 E4B, the snappiness of E2B made it such that it still provides a better user-experience overall with 60%-100% less latency on generation, and less RAM + battery usage. I now use this fine-tuned version everyday when I study Japanese, and named it [Shamrock E2B](https://huggingface.co/oxalis-ink/shamrock-0-e2b).
+
+<figure>
+  <img src="/images/signals/2026-09-01-fine-tuning-gemma4-e2b-for-language-learning/oxalis-pokemon-full.webp" alt="Oxalis saved card showing a line of Ghetsis dialogue from Pokémon with its translation and word-by-word breakdown" width="2122" height="1762">
+  <figcaption>Studying Ghetsis's trash talk with Shamrock E2B.</figcaption>
+</figure>
 
 ## Learnings
 
