@@ -25,7 +25,7 @@ I've been studying Japanese for a while now, and finally reached a point where t
 
 For immersion learning to be effective, the input needs to be comprehensible. In other words, you cannot just fall asleep every night watching Steins;Gate and expect to become fluent over time. If this were the case, I would have been fluent years ago.
 
-The content you're consuming must be at a level where you can understand with minor assistance. This level is often referred to as "i+1" by the language learning community, which aligns with lingo used by computer and math nerds, probably because the communities themselves overlap quite a bit.
+The content you're consuming must be at a level where you can understand with minor assistance. This level is often referred to as ["i+1"](https://en.wikipedia.org/wiki/Input_hypothesis) by the language learning community, which aligns with lingo used by computer and math nerds, probably because the communities themselves overlap quite a bit.
 
 Turning real Japanese content into comprehensible input is annoying with the existing language learning toolchain options. Tools like [Migaku](https://migaku.com) are painful to configure, and other more dictionary-style options like [Shirabe Jisho](https://apps.apple.com/us/app/shirabe-jisho/id1005203380) are not ergonomic for consuming content. I was bored and had a problem - so into the rabbit hole I went.
 
