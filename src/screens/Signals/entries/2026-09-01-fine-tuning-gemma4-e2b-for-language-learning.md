@@ -170,7 +170,7 @@ Delegating the kana readings to a deterministic morphological analyzer removed o
 
 > You might be wondering why, with Apple OCR, an LLM is required at all. Apple's native OCR picks up any and every piece of text available in the image. A frame from a vlog will pick up all text from the objects visible on screen in addition to the subtitle, when in most cases the target text (the most prominent text) is just the subtitle. An LLM is important here to grab the text we actually want, regardless of whether it's carrying the perceptual burden of transcribing the characters or not.
 
-Only after we reduced scope was the fine-tune able to have a consistent, positive, and perceivable impact on the user experience. 
+Only after we reduced scope was the fine-tune able to have a consistent, positive, and perceivable impact on the user experience.
 
 If I had to sum this up concisely,
 
