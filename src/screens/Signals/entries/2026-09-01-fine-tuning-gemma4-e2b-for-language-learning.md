@@ -6,6 +6,11 @@ expanded: false
 location: 'San Francisco, US'
 ---
 
+<figure>
+  <img src="/images/signals/2026-09-01-fine-tuning-gemma4-e2b-for-language-learning/alice-in-borderland-full.webp" alt="Screenshot of Oxalis showing a translation and vocabulary breakdown next to a scene from Alice in Borderland with Japanese subtitles" width="2940" height="1678">
+  <figcaption>Studying Japanese with Alice in Borderland.</figcaption>
+</figure>
+
 The most peculiar side quest I've been on this 4-month career break has been building a language learning app for MacOS with a fully local inference stack called Oxalis.
 
 In this post, we'll go through the following:
