@@ -613,6 +613,20 @@ html[data-theme-flash-reset] .nav-glitch-active {
   background: none;
   padding: 0;
 }
+/* Solid bars for ASCII-style charts inside <pre>. Rows of U+2588 glyphs
+   fall outside Geist Mono's unicode-range and fall back to a system font,
+   which on iOS Safari leaves hairline seams between adjacent blocks. Draw
+   the bar as one box instead; width in ch keeps it aligned with the
+   surrounding monospace text. */
+.signal-prose pre .signal-bar {
+  display: inline-block;
+  height: 1em;
+  vertical-align: -0.15em;
+  background: currentColor;
+}
+.signal-prose pre .signal-bar--glow {
+  box-shadow: 0 0 6px var(--color-glow);
+}
 .signal-prose ul,
 .signal-prose ol {
   padding-left: 1.5em;
