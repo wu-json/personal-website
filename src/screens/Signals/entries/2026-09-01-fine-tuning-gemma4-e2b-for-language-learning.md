@@ -76,7 +76,7 @@ Converting the app to use local inference was actually the easy part. This was a
 
 Most local models felt pretty slow. Gemma4 12B fits on a Macbook with 16GB of RAM, but is dense and makes the laptop pretty hot with continued use. Gemma4 26BA4B had decent speed with its MoE architecture, but wouldn't fit on devices with 16GB of RAM. I tried all Gemma and Qwen variants (with and without MTP), but in the end the only model that felt snappy to me and had decent translation was Gemma4 E2B, the weakest and dumbest variant in the Gemma4 lineup.
 
-While Gemma4 E2B is a tiny model (~6GB at q4), it's multimodal and ran decently well on almost every laptop I tested. I decided it would be an interesting challenge to try to make this model into the backbone of Oxalis.
+While Gemma4 E2B is a tiny model (~4GB at q4 including the vision projector), it's multimodal and ran decently well on almost every laptop I tested. I decided it would be an interesting challenge to try to make this model into the backbone of Oxalis.
 
 How can we get the highest quality of output from this tiny little model?
 
@@ -155,7 +155,7 @@ I then repeated the fine-tuning process, this time providing the OCR hints as pa
 <span style="color: var(--color-ink)">e2b + hint + fine-tune  <span style="text-shadow: 0 0 6px var(--color-glow)">█████████████████████████████████████</span> 74%</span>
 <span style="color: var(--color-ink-muted)">e4b + hint              ██████████████████████████████████████ 76%</span></code></pre>
 
-Despite benchmarking slightly worse than Gemma4 E4B, the snappiness of E2B made it such that it still provides a better user-experience overall with 60%-100% less latency on generation, and less RAM + battery usage. I now use this fine-tuned version everyday when I study Japanese, and named it [Shamrock E2B](https://huggingface.co/oxalis-ink/shamrock-0-e2b).
+Despite benchmarking slightly worse than Gemma4 E4B, the snappiness of E2B made it such that it still provides a better user-experience overall with roughly 1.6 to 2x faster generation, and less RAM + battery usage. I now use this fine-tuned version everyday when I study Japanese, and named it [Shamrock E2B](https://huggingface.co/oxalis-ink/shamrock-0-e2b).
 
 <figure>
   <img src="/images/signals/2026-09-01-fine-tuning-gemma4-e2b-for-language-learning/oxalis-pokemon-full.webp" alt="Oxalis saved card showing a line of Ghetsis dialogue from Pokémon with its translation and word-by-word breakdown" width="2122" height="1762">
@@ -164,7 +164,7 @@ Despite benchmarking slightly worse than Gemma4 E4B, the snappiness of E2B made 
 
 ## Learnings
 
-The first fine-tuning attempt likely failed for a few reasons. The vision encoder and Gemma4 E2B are very small to begin with. Relying on fine-tuning to improve OCR quality across all fonts in the wild and memorize all kana readings is a large ask, especially with a dataset as small as 10,000 rows.
+The first fine-tuning attempt likely failed for a few reasons. The vision encoder and Gemma4 E2B are very small to begin with. Relying on fine-tuning to improve OCR quality across all fonts in the wild and memorize all kana readings is a large ask, especially with a dataset as small as 6,000 rows.
 
 By delegating the kana readings out to a deterministic morphological analyzer, this already removed one large ask. Finally, providing the OCR hint changed the problem space from one of improving transcription resolution to one of cleaning up an already performed transcription. This makes a huge difference, as it significantly reduces the intellectual weight of the task. Now, the model just needs to learn how to use the hints, as opposed to reprogramming its eyes.
 
