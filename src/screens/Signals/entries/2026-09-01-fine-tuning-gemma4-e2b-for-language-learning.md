@@ -134,25 +134,21 @@ The first hack resulted in OCR accuracy doubling for Gemma4 E2B, but it was stil
 
 > While 76% seems low, the failure mechanisms were not severe and were usually caused by noise before or after the target text from things like street signs in the background of a vlog. E4B at this point was now usable quality-wise, even with no fine-tuning.
 
-```
-ocr success rate
+<pre><code><span style="color: var(--color-ink-faint)">ocr success rate</span>
 
-e2b             ████████████▌ 25%
-e2b + ocr hint  █████████████████████████ 50%
-e4b + ocr hint  ██████████████████████████████████████ 76%
-```
+<span style="color: var(--color-ink-muted)">e2b             ████████████▌ 25%</span>
+<span style="color: var(--color-ink)">e2b + ocr hint  <span style="text-shadow: 0 0 6px var(--color-glow)">█████████████████████████</span> 50%</span>
+<span style="color: var(--color-ink-muted)">e4b + ocr hint  ██████████████████████████████████████ 76%</span></code></pre>
 
 ### Let's Try This Fine-Tune Again
 
 I then repeated the fine-tuning process, this time providing the OCR hints as part of the training data. The results of this were much better - OCR success rate for E2B went from 50% to 74%.
 
-```
-ocr success rate
+<pre><code><span style="color: var(--color-ink-faint)">ocr success rate</span>
 
-e2b + hint              █████████████████████████ 50%
-e2b + hint + fine-tune  █████████████████████████████████████ 74%
-e4b + hint              ██████████████████████████████████████ 76%
-```
+<span style="color: var(--color-ink-muted)">e2b + hint              █████████████████████████ 50%</span>
+<span style="color: var(--color-ink)">e2b + hint + fine-tune  <span style="text-shadow: 0 0 6px var(--color-glow)">█████████████████████████████████████</span> 74%</span>
+<span style="color: var(--color-ink-muted)">e4b + hint              ██████████████████████████████████████ 76%</span></code></pre>
 
 Despite benchmarking slightly worse than Gemma4 E4B, the snappiness of E2B made it such that it still provides a better user-experience overall with 60%-100% less latency on generation, and less RAM + battery usage. I now use this fine-tuned version everyday when I study Japanese, and named it [Shamrock E2B](https://huggingface.co/oxalis-ink/shamrock-0-e2b).
 
@@ -164,13 +160,9 @@ By delegating the kana readings out to a deterministic morphological analyzer, t
 
 > You might be wondering with Apple OCR why an LLM is required now at all. Apple's native OCR picks up any and every piece of text available in the image. A frame from a vlog will pick up all text from the objects visible on screen in addition to the subtitle, when in most cases the target text (the most prominent text) is just the subtitle. An LLM is important here to grab the text we actually want, regardless of whether its carrying the perceptual burden of transcribing the characters or not.
 
-Only after we reduced scope was the fine-tune able to have any consistently positive perceivable impact on the user experience. If I had to sum this up concisely,
+Only after we reduced scope was the fine-tune able to have any consistently positive perceivable impact on the user experience. If I had to sum this up concisely, **fine-tuning is very effective when you narrow the problem down from the product-end.**
 
-```
-Fine-tuning is very effective when you narrow the problem down from the product-end.
-
-It is the responsibility of the product engineer to chisel the problem surface to the smallest stochastic space possible, such that fine-tuning can realize its true value.
-```
+**It is the responsibility of the product engineer to chisel the problem surface to the smallest stochastic space possible, such that fine-tuning can realize its true value.**
 
 Most product surfaces that rely on frontier models to navigate through a wider output space punt this work, which is fine when you can afford the tokens.
 
