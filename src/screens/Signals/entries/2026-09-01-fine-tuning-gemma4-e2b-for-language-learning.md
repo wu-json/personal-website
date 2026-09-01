@@ -182,6 +182,8 @@ This does, however, create a very interesting opportunity for consumer apps, whi
 
 With LoRA this is especially interesting, as it allows you to load models more efficiently by only pulling in the base model once and switching adapters. Who says we can't eventually do this on-device as well?
 
+> [Apple Intelligence](https://machinelearning.apple.com/research/introducing-apple-foundation-models) actually already does this, and runs a single ~3B base model with a LoRA adapter per feature. This is obviously not cross-platform though.
+
 There are still a few pieces I think are missing before local inference becomes a common product practice:
 
 - **A cross-platform way to ship on-device inference.** llama.cpp is great, but we need something that also abstracts over MLX and handles LoRA adapters.
