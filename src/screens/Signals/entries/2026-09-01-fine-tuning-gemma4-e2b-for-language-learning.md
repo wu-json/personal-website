@@ -38,19 +38,19 @@ When it comes to turning real native Japanese content into comprehensible input,
 This turns our challenge of making real content into comprehensible input into one simple transformation.
 
 ```
-┌ input ──────────────────────────────┐
-│  frame from a Japanese video        │
-└─────────────────┬───────────────────┘
+┌ input ────────────────────────────┐
+│  frame from a Japanese video      │
+└─────────────────┬─────────────────┘
                   │
                   ▼
-          [ LLM with vision ]
+         [ LLM with vision ]
                   │
                   ▼
-┌ output ─────────────────────────────┐
-│  translation                        │
-│  + vocab word breakdown             │
-│  + grammar notes to study from      │
-└─────────────────────────────────────┘
+┌ output ───────────────────────────┐
+│  translation                      │
+│  + vocab word breakdown           │
+│  + grammar notes to study from    │
+└───────────────────────────────────┘
 ```
 
 This is pretty much all you need to build a really efficient vocab generator from a piece of real content. In my first iteration of this project, called Blossom, I built a prototype that runs in the browser and executes this by taking a frame from a YouTube video, feeding it into a frontier model in the cloud, and spitting out the study materials.
