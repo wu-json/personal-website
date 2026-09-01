@@ -160,7 +160,9 @@ By delegating the kana readings out to a deterministic morphological analyzer, t
 
 > You might be wondering with Apple OCR why an LLM is required now at all. Apple's native OCR picks up any and every piece of text available in the image. A frame from a vlog will pick up all text from the objects visible on screen in addition to the subtitle, when in most cases the target text (the most prominent text) is just the subtitle. An LLM is important here to grab the text we actually want, regardless of whether its carrying the perceptual burden of transcribing the characters or not.
 
-Only after we reduced scope was the fine-tune able to have any consistently positive perceivable impact on the user experience. If I had to sum this up concisely, **fine-tuning is very effective when you narrow the problem down from the product-end.**
+Only after we reduced scope was the fine-tune able to have any consistently positive perceivable impact on the user experience. If I had to sum this up concisely,
+
+**Fine-tuning is very effective when you narrow the problem down from the product-end.**
 
 **It is the responsibility of the product engineer to chisel the problem surface to the smallest stochastic space possible, such that fine-tuning can realize its true value.**
 
