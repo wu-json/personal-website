@@ -138,7 +138,7 @@ The first hack resulted in OCR accuracy doubling for Gemma4 E2B, but it was stil
 
 I then repeated the fine-tuning process, this time providing the OCR hints as part of the training data. The results of this were much better - OCR success rate for E2B went from 50% to 74%.
 
-Despite benchmarking slightly worse than Gemma4 E4B, the snappiness of E2B made it such that it still provides a better user-experience overall with 60%-100% less latency on generation, and less RAM + battery usage. I now use this fine-tuned version everyday when I study Japanese, and named it Shamrock E2B.
+Despite benchmarking slightly worse than Gemma4 E4B, the snappiness of E2B made it such that it still provides a better user-experience overall with 60%-100% less latency on generation, and less RAM + battery usage. I now use this fine-tuned version everyday when I study Japanese, and named it [Shamrock E2B](https://huggingface.co/oxalis-ink/shamrock-0-e2b).
 
 ## Learnings
 
