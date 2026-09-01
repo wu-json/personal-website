@@ -13,14 +13,28 @@ import {
   signalPlainExcerpt,
 } from './preview';
 
-/** Fixed 4:3 frame + centered cover — avoids max-height clipping that made
- *  previews a thin strip. Width=4/Height=3 drives ProgressiveImage's
- *  --ar so the wrapper is a 4:3 box regardless of the photo's natural
- *  aspect; the single <img> inside `object-cover`s to fit. */
-const CollapsedListHeroImage = ({ src, alt }: { src: string; alt: string }) => {
+/** Hero frame in the collapsed list. Landscape shots keep their own aspect
+ *  ratio so nothing is cropped away (a 16:9 screenshot used to lose its
+ *  edges to a fixed 4:3 cover). Portrait/square shots are clamped to 4:3 so
+ *  a tall photo can't swallow the list; the <img> inside `object-cover`s
+ *  into that frame. Width/height drive ProgressiveImage's --ar. */
+const MIN_LIST_HERO_RATIO = 4 / 3;
+
+const CollapsedListHeroImage = ({
+  src,
+  alt,
+  width,
+  height,
+}: {
+  src: string;
+  alt: string;
+  width: number;
+  height: number;
+}) => {
   const placeholderSrc = src.replace(/-full\.webp$/, '-placeholder.webp');
   const smallSrc = src.replace(/-full\.webp$/, '-small.webp');
   const thumbSrc = src.replace(/-full\.webp$/, '-thumb.webp');
+  const tooTall = width / height < MIN_LIST_HERO_RATIO;
   return (
     <ProgressiveImage
       placeholderSrc={placeholderSrc}
@@ -28,8 +42,8 @@ const CollapsedListHeroImage = ({ src, alt }: { src: string; alt: string }) => {
       srcSet={`${smallSrc} 480w, ${thumbSrc} 800w`}
       sizes='(min-width: 768px) 672px, 100vw'
       alt={alt}
-      width={4}
-      height={3}
+      width={tooTall ? 4 : width}
+      height={tooTall ? 3 : height}
       loading='lazy'
       className='construct-body-img w-full rounded-sm border border-white/5 !my-3'
     />
@@ -125,6 +139,8 @@ const SignalsScreen = () => {
                           <CollapsedListHeroImage
                             src={hero.src}
                             alt={hero.alt}
+                            width={hero.width}
+                            height={hero.height}
                           />
                         )}
                         {excerpt ? (

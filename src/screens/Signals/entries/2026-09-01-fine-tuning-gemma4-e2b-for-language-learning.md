@@ -7,7 +7,7 @@ location: 'San Francisco, US'
 ---
 
 <figure>
-  <img src="/images/signals/2026-09-01-fine-tuning-gemma4-e2b-for-language-learning/alice-in-borderland-full.webp" alt="Screenshot of Oxalis showing a translation and vocabulary breakdown next to a scene from Alice in Borderland with Japanese subtitles" width="2940" height="1678">
+  <img src="/images/signals/2026-09-01-fine-tuning-gemma4-e2b-for-language-learning/alice-in-borderland-full.webp" alt="Screenshot of Oxalis showing a translation and vocabulary breakdown next to a scene from Alice in Borderland with Japanese subtitles" width="2310" height="1296">
   <figcaption>Studying Japanese with Alice in Borderland.</figcaption>
 </figure>
 
