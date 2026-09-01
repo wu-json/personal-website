@@ -50,7 +50,8 @@ export function signalPlainExcerpt(body: string, maxLen = 300): string {
     .replace(/^\[\^[^\]]+\]:.*$\n?/gm, '') // strip footnote definition lines
     .replace(/\[\^[^\]]+\]/g, '') // strip footnote reference markers
     .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // inline links → link text
-    .replace(/[`#>*_-]/g, '') // formatting chars
+    .replace(/^\s*(?:[-*+]|\d+\.)\s+/gm, '') // list markers (keep in-word hyphens: "4-month")
+    .replace(/[`#>*_]/g, '') // formatting chars
     .replace(/\s+/g, ' ') // collapse whitespace
     .trim();
   if (plain.length <= maxLen) return plain;

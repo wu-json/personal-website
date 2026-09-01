@@ -46,6 +46,19 @@ describe('signalPlainExcerpt', () => {
     expect(signalPlainExcerpt(input)).toBe('Body.');
   });
 
+  // Hyphens
+  it('keeps in-word hyphens', () => {
+    expect(signalPlainExcerpt('A 4-month career break.')).toBe(
+      'A 4-month career break.',
+    );
+  });
+
+  it('strips list markers but not hyphens inside items', () => {
+    expect(
+      signalPlainExcerpt('Plan:\n\n- one\n- fine-tuned two\n* three'),
+    ).toBe('Plan: one fine-tuned two three');
+  });
+
   // Combined
   it('strips footnotes refs and defs together', () => {
     const input =
