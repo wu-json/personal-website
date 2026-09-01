@@ -27,9 +27,9 @@ For immersion learning to be effective, the input needs to be comprehensible. In
 
 The content you're consuming must be at a level where you can understand with minor assistance. This level is often referred to as "N+1" by the language learning community, which aligns with lingo used by computer and math nerds, probably because the communities themselves overlap quite a bit.
 
-Turning real Japanese content into comprehensible input is annoying with the existing language learning toolchain options. Tools like Migaku are painful to configure, and other more dictionary-style options like Shirabe Jisho are not ergonomic for consuming content. I was bored and had a problem - so into the rabbit hole I went.
+Turning real Japanese content into comprehensible input is annoying with the existing language learning toolchain options. Tools like [Migaku](https://migaku.com) are painful to configure, and other more dictionary-style options like [Shirabe Jisho](https://apps.apple.com/us/app/shirabe-jisho/id1005203380) are not ergonomic for consuming content. I was bored and had a problem - so into the rabbit hole I went.
 
-> While this article uses Japanese as the main example, I abstracted things for Oxalis in a way where the same principles apply to Chinese, Korean, etc. Once I'm satisfied with my Japanese, I intend to use Oxalis to fix my broken ABC Chinese. Unlike most people in San Francisco, I choose to take things on serially.
+> While this article uses Japanese as the main example, I abstracted things for Oxalis in a way where the same principles apply to Chinese, Korean, etc. Once I'm satisfied with my Japanese, I intend to use Oxalis to fix my broken ABC Chinese. I like working serially.
 
 ## OCR Is All You Need
 
