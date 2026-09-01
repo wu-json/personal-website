@@ -107,6 +107,18 @@
     U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
     U+2215, U+FEFF, U+FFFD;
 }
+/* Box-drawing and block elements (U+2500-259F) for ASCII diagrams in
+   <pre>. Without this subset they fall back to a system font whose glyph
+   advance differs from Geist Mono, which misaligns box edges on iOS. */
+@font-face {
+  font-family: 'Geist Mono Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('/fonts/geist-mono-symbols2-wght-normal.woff2')
+    format('woff2-variations');
+  unicode-range: U+2000-2001, U+2004-2008, U+200A, U+23B8-23BD, U+2500-259F;
+}
 
 /* Geist Pixel */
 @font-face {
@@ -612,6 +624,20 @@ html[data-theme-flash-reset] .nav-glitch-active {
 .signal-prose pre code {
   background: none;
   padding: 0;
+}
+/* Solid bars for ASCII-style charts inside <pre>. Rows of U+2588 glyphs
+   fall outside Geist Mono's unicode-range and fall back to a system font,
+   which on iOS Safari leaves hairline seams between adjacent blocks. Draw
+   the bar as one box instead; width in ch keeps it aligned with the
+   surrounding monospace text. */
+.signal-prose pre .signal-bar {
+  display: inline-block;
+  height: 1em;
+  vertical-align: -0.15em;
+  background: currentColor;
+}
+.signal-prose pre .signal-bar--glow {
+  box-shadow: 0 0 6px var(--color-glow);
 }
 .signal-prose ul,
 .signal-prose ol {

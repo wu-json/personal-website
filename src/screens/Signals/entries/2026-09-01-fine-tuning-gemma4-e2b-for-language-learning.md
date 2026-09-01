@@ -38,19 +38,19 @@ When it comes to turning real native Japanese content into comprehensible input,
 This turns our challenge of making real content into comprehensible input into one simple transformation.
 
 ```
-┌ input ──────────────────────────────┐
-│  frame from a Japanese video        │
-└─────────────────┬───────────────────┘
+┌ input ────────────────────────────┐
+│  frame from a Japanese video      │
+└─────────────────┬─────────────────┘
                   │
                   ▼
-          [ LLM with vision ]
+         [ LLM with vision ]
                   │
                   ▼
-┌ output ─────────────────────────────┐
-│  translation                        │
-│  + vocab word breakdown             │
-│  + grammar notes to study from      │
-└─────────────────────────────────────┘
+┌ output ───────────────────────────┐
+│  translation                      │
+│  + vocab word breakdown           │
+│  + grammar notes to study from    │
+└───────────────────────────────────┘
 ```
 
 This is pretty much all you need to build a really efficient vocab generator from a piece of real content. In my first iteration of this project, called Blossom, I built a prototype that runs in the browser and executes this by taking a frame from a YouTube video, feeding it into a frontier model in the cloud, and spitting out the study materials.
@@ -141,9 +141,9 @@ The first hack resulted in OCR accuracy doubling for Gemma4 E2B, but at 50%, up 
 
 <pre><code><span style="color: var(--color-ink-faint)">ocr success rate</span>
 
-<span style="color: var(--color-ink-muted)">e2b             ████████████▌ 25%</span>
-<span style="color: var(--color-ink)">e2b + ocr hint  <span style="text-shadow: 0 0 6px var(--color-glow)">█████████████████████████</span> 50%</span>
-<span style="color: var(--color-ink-muted)">e4b + ocr hint  ██████████████████████████████████████ 76%</span></code></pre>
+<span style="color: var(--color-ink-muted)">e2b             <span class="signal-bar" style="width: 12.5ch"></span> 25%</span>
+<span style="color: var(--color-ink)">e2b + ocr hint  <span class="signal-bar signal-bar--glow" style="width: 25ch"></span> 50%</span>
+<span style="color: var(--color-ink-muted)">e4b + ocr hint  <span class="signal-bar" style="width: 38ch"></span> 76%</span></code></pre>
 
 ### Let's Try This Fine-Tune Again
 
@@ -151,9 +151,9 @@ I then repeated the fine-tuning process, this time providing the OCR hints as pa
 
 <pre><code><span style="color: var(--color-ink-faint)">ocr success rate</span>
 
-<span style="color: var(--color-ink-muted)">e2b + hint              █████████████████████████ 50%</span>
-<span style="color: var(--color-ink)">e2b + hint + fine-tune  <span style="text-shadow: 0 0 6px var(--color-glow)">█████████████████████████████████████</span> 74%</span>
-<span style="color: var(--color-ink-muted)">e4b + hint              ██████████████████████████████████████ 76%</span></code></pre>
+<span style="color: var(--color-ink-muted)">e2b + hint              <span class="signal-bar" style="width: 25ch"></span> 50%</span>
+<span style="color: var(--color-ink)">e2b + hint + fine-tune  <span class="signal-bar signal-bar--glow" style="width: 37ch"></span> 74%</span>
+<span style="color: var(--color-ink-muted)">e4b + hint              <span class="signal-bar" style="width: 38ch"></span> 76%</span></code></pre>
 
 Despite benchmarking slightly worse than Gemma4 E4B, E2B still provides a better user experience overall: roughly 1.6 to 2x faster generation with less RAM and battery usage. I now use this fine-tuned version every day when I study Japanese, and named it [Shamrock E2B](https://huggingface.co/oxalis-ink/shamrock-0-e2b).
 
