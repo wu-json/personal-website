@@ -16,7 +16,7 @@ The most peculiar side quest I've been on this 4-month career break has been bui
 In this post, we'll go through the following:
 
 - How I fine-tuned Gemma4 E2B to be the only inference engine for Oxalis
-- Why fine-tuning wasn't enough
+- Why fine-tuning wasn't enough on its own
 - My thoughts on the state of local inference for consumer apps
 
 ## Origin Story
