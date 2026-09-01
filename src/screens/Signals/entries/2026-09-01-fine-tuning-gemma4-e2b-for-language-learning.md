@@ -29,7 +29,7 @@ The content you're consuming must be at a level where you can understand with mi
 
 Turning real Japanese content into comprehensible input is annoying with the existing language learning toolchain options. Tools like [Migaku](https://migaku.com) are painful to configure, and other more dictionary-style options like [Shirabe Jisho](https://apps.apple.com/us/app/shirabe-jisho/id1005203380) are not ergonomic for consuming content. I was bored and had a problem - so into the rabbit hole I went.
 
-> While this article uses Japanese as the main example, I abstracted things for Oxalis in a way where the same principles apply to Chinese, Korean, etc. Once I'm satisfied with my Japanese, I intend to use Oxalis to fix my broken ABC Chinese. I like working serially.
+> While this article uses Japanese, I abstracted things for Oxalis in a way where the same principles apply to Chinese, Korean, etc. Once I'm satisfied with my Japanese, I will use Oxalis to fix my broken ABC Chinese. I work serially.
 
 ## OCR Is All You Need
 
@@ -62,11 +62,11 @@ This is pretty much all you need to build a really efficient vocab generator fro
 
 ## Going Loko for Local Models
 
-While the project could have ended here, I opted to instead end the dependency of the app on frontier models. Immersion learning requires thousands of hours of input, and I hated the idea of paying more money to the frontier labs because I was studying more.
+While the project could have ended here, I opted to instead end the dependency of the app on frontier models. Immersion learning requires thousands of hours of input, and I hated paying more money because I was studying more.
 
 Why would I penalize myself for studying?
 
-On top of that, using local models would allow my app to work fully offline, which is great for UX.
+On top of that, using local models would allow my app to work fully offline, which is great for UX. The less network round trips the better.
 
 Thus, I decided to take on the challenge of making this whole system work with models that could fit and run comfortably on an entry-level MacBook Air. I admittedly underestimated the size of this rabbit hole, but that's what makes this post fun.
 
@@ -133,7 +133,7 @@ For kana reading accuracy, I discovered [Sudachi](https://github.com/WorksApplic
 
 I ended up also running this alongside the model to generate readings deterministically, which meant we no longer needed to depend on the model for kana readings.
 
-#### Starting to Cook
+### Starting to Cook
 
 The first hack resulted in OCR accuracy doubling for Gemma4 E2B, but at 50%, up from 25%, it was still unusable. At this point, however, Gemma4 E4B was usable, with an OCR success rate of 76%.
 
@@ -166,27 +166,27 @@ Despite benchmarking slightly worse than Gemma4 E4B, E2B still provides a better
 
 The first fine-tuning attempt likely failed for a few reasons. The vision encoder and Gemma4 E2B are very small to begin with. Relying on fine-tuning to improve OCR quality across all fonts in the wild and memorize all kana readings is a large ask, especially with a dataset as small as 6,000 rows.
 
-Delegating the kana readings to a deterministic morphological analyzer removed one large ask. Finally, providing the OCR hint changed the problem space from one of improving transcription resolution to one of cleaning up an already performed transcription. This makes a huge difference, as it significantly reduces the intellectual weight of the task. Now, the model just needs to learn how to use the hints, as opposed to reprogramming its eyes.
+Delegating the kana readings to a deterministic morphological analyzer removed one large ask. Finally, providing the OCR hint changed the problem space from one of improving transcription resolution to one of cleaning up an already performed transcription. This makes a huge difference, as it significantly reduces the intellectual weight of the task. Now, the model just needs to learn how to use the hints and make corrections, as opposed to reprogramming its eyes.
 
 > You might be wondering why, with Apple OCR, an LLM is required at all. Apple's native OCR picks up any and every piece of text available in the image. A frame from a vlog will pick up all text from the objects visible on screen in addition to the subtitle, when in most cases the target text (the most prominent text) is just the subtitle. An LLM is important here to grab the text we actually want, regardless of whether it's carrying the perceptual burden of transcribing the characters or not.
 
-Only after we reduced scope was the fine-tune able to have any consistently positive perceivable impact on the user experience. If I had to sum this up concisely,
+Only after we reduced scope was the fine-tune able to have a consistent, positive, and perceivable impact on the user experience. If I had to sum this up concisely,
 
 **Fine-tuning is very effective when you narrow the problem down from the product-end.**
 
 **It is the responsibility of the product engineer to chisel the problem surface to the smallest stochastic space possible, such that fine-tuning can realize its true value.**
 
-Most product surfaces that rely on frontier models to navigate through a wider output space punt this work, which is fine when you can afford the tokens.
+Most products that rely on frontier models to navigate through a wider output space punt this work, which is fine when you can afford the tokens.
 
-This does, however, create a very interesting opportunity for consumer apps, which can be resource-constrained on tokens due to scale. If you can narrow the problem down to the point where a fine-tuned local model will suffice for your use case, you can distribute an LLM-powered application with just fixed costs.
+This does, however, create a very interesting opportunity for consumer apps, which can be resource-constrained on tokens due to scale. If you can narrow the problem down to the point where a fine-tuned local model will suffice for your use case, you can distribute an LLM-powered application with fixed costs alone.
 
-With LoRA this is especially interesting, as it allows you to load models more efficiently by only loading the base model once and switching adapters. Who says we can't do this on-device as well?
+With LoRA this is especially interesting, as it allows you to load models more efficiently by only pulling in the base model once and switching adapters. Who says we can't eventually do this on-device as well?
 
-There are still a few more important pieces that I think are missing before local inference becomes a more popular product practice:
+There are still a few pieces I think are missing before local inference becomes a common product practice:
 
-- An easy way to ship cross-platform on-device inference (llama.cpp is great, but I think we need something that abstracts MLX as well, and LoRA adapters)
-- More strong base models like Gemma4 E2B
-- A way to share on-device inference building blocks across multiple apps (we don't want 3 separate apps with 3 copies of the same inference stack)
+- **A cross-platform way to ship on-device inference.** llama.cpp is great, but we need something that also abstracts over MLX and handles LoRA adapters.
+- **More strong, small base models** like Gemma4 E2B.
+- **Shared inference building blocks across apps.** Nobody wants three apps each bundling their own copy of the same inference stack.
 
 Perhaps these are the last bits we need for consumer apps to hit the terminal velocity in AI we see with B2B deployments today.
 
