@@ -11,7 +11,7 @@ location: 'San Francisco, US'
   <figcaption>Studying Japanese with Alice in Borderland.</figcaption>
 </figure>
 
-The most peculiar side quest I've been on this 4-month career break has been building [Oxalis](https://oxalis.ink), a language learning app for macOS with a fully local inference stack.
+The most peculiar side quest I've been on this [4-month career break](/signals/2026-08-26-breaking-my-career) has been building [Oxalis](https://oxalis.ink), a language learning app for macOS with a fully local inference stack.
 
 In this post, we'll go through the following:
 
