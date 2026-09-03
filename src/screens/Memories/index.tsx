@@ -45,14 +45,12 @@ const MemoriesScreen = () => {
                 <h2 className='text-white text-sm font-pixel uppercase tracking-wide group-hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)] transition-all duration-300'>
                   {f.title}
                 </h2>
-                <div className='flex items-baseline gap-2 mt-1'>
-                  <span className='text-white/30 text-xs sm:text-[10px] font-mono'>
+                <p className='mt-1 text-xs sm:text-[10px] font-mono'>
+                  <span className='text-white/30 whitespace-nowrap'>
                     {f.date}
-                  </span>
-                  <span className='text-white/20 text-xs sm:text-[10px] font-mono'>
-                    — {f.location}
-                  </span>
-                </div>
+                  </span>{' '}
+                  <span className='text-white/20'>— {f.location}</span>
+                </p>
               </div>
             </Link>
           ))}

@@ -45,16 +45,10 @@ const HeroesScreen = () => {
                 <h2 className='text-white text-sm font-pixel uppercase tracking-wide group-hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)] transition-all duration-300'>
                   {h.title}
                 </h2>
-                <div className='flex items-baseline gap-2 mt-1'>
-                  <span className='text-white/50 text-xs font-mono'>
-                    {h.subtitle}
-                  </span>
-                  {h.location && (
-                    <span className='text-white/50 text-xs font-mono'>
-                      — {h.location}
-                    </span>
-                  )}
-                </div>
+                <p className='mt-1 text-white/50 text-xs font-mono'>
+                  {h.subtitle}
+                  {h.location && <> — {h.location}</>}
+                </p>
               </div>
             </Link>
           ))}
