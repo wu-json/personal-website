@@ -58,7 +58,7 @@ const SignalsScreen = () => {
   });
 
   return (
-    <div className='w-full min-h-screen bg-black md:pr-40'>
+    <div className='w-full min-h-screen bg-black lg:pr-40'>
       <div className='max-w-2xl mx-auto px-6 py-16'>
         <header className='mb-16'>
           <h1

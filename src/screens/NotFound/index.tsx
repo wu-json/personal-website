@@ -76,7 +76,7 @@ const NotFoundScreen = () => {
   }, [cycle]);
 
   return (
-    <div className='w-full min-h-screen bg-black flex items-center justify-center md:pr-40'>
+    <div className='w-full min-h-screen bg-black flex items-center justify-center lg:pr-40'>
       <div
         key={cycle}
         className='flex flex-col items-center gap-3 px-6 text-center'

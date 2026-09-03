@@ -7,7 +7,7 @@ import { fragments, photoUrl } from './data';
 const MemoriesScreen = () => {
   const jitter = useJitter();
   return (
-    <div className='w-full min-h-screen bg-black md:pr-40'>
+    <div className='w-full min-h-screen bg-black lg:pr-40'>
       <div className='max-w-4xl mx-auto px-6 py-16'>
         <header className='mb-16'>
           <h1

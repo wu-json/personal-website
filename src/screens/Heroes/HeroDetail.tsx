@@ -12,7 +12,7 @@ const HeroDetail = ({ id }: { id: string }) => {
 
   if (!h) {
     return (
-      <div className='w-full min-h-screen bg-black flex items-center justify-center md:pr-40'>
+      <div className='w-full min-h-screen bg-black flex items-center justify-center lg:pr-40'>
         <div className='flex flex-col items-center gap-3'>
           <h1 className='bio-glitch text-white text-2xl font-pixel'>
             HERO LOST
@@ -32,7 +32,7 @@ const HeroDetail = ({ id }: { id: string }) => {
   }
 
   return (
-    <div className='w-full min-h-screen bg-black md:pr-40'>
+    <div className='w-full min-h-screen bg-black lg:pr-40'>
       <div className='max-w-2xl mx-auto px-6 py-16 pb-32'>
         <Link
           to='/heroes'
