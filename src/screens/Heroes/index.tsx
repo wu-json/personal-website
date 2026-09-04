@@ -47,7 +47,7 @@ const HeroesScreen = () => {
                 </h2>
                 <p className='mt-1 text-white/50 text-xs font-mono'>
                   {h.subtitle}
-                  {h.location && <> — {h.location}</>}
+                  {h.location && ` — ${h.location}`}
                 </p>
               </div>
             </Link>

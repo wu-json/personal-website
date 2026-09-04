@@ -46,8 +46,7 @@ const ConstructsScreen = () => {
                   {c.title}
                 </h2>
                 <p className='mt-1 text-white/50 text-xs font-mono'>
-                  <span className='whitespace-nowrap'>{c.date}</span> —{' '}
-                  {c.subtitle}
+                  {c.date} — {c.subtitle}
                 </p>
               </div>
             </Link>
