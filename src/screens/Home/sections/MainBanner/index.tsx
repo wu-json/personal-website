@@ -38,8 +38,8 @@ const MainBanner = () => {
               Paint the world in ink.
             </p>
             <p className={bioClass} style={jitter()}>
-              Yale grad, grew up in Princeton, lived in Atlanta, dragged to
-              San Francisco.
+              Yale grad, grew up in Princeton, lived in Atlanta, dragged to San
+              Francisco.
             </p>
             <p className={bioClass} style={jitter()}>
               I draw software, breakdance, and capture humans and landscapes in
