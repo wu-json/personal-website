@@ -138,7 +138,7 @@ Overall, we end up with a fine-tune that performs better than the Gemma4 E2B fin
 
 This is something I was aware of before this experiment. Qwen3.5 models have great vision and can handle more tricky cases than Gemma4 E2B. However, I opted for E2B for the production application because it feels more performant due to having 2B effective parameters, as opposed to Qwen3.5's dense 4B parameters.
 
-In addition, Gemma4 models appeared to have a better understanding of the Japanese language when queried on unstructured questions like grammar patterns, which is harder to quantify.
+In addition, Gemma4 models appeared to have a better understanding of the Japanese language when queried on unstructured questions like grammar patterns, which is not captured in the evals we used here.
 
 ### Before and After
 
