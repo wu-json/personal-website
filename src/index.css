@@ -526,6 +526,17 @@ html[data-theme-flash-reset] .nav-glitch-active {
 .signal-prose.signal-entry li:last-child {
   margin-bottom: 0;
 }
+/* Loose lists (items with several paragraphs or a figure) keep a tighter
+   rhythm than body paragraphs so each item still reads as one unit. */
+.signal-prose.signal-entry li p {
+  margin-bottom: 0.9em;
+}
+.signal-prose.signal-entry li p:last-child {
+  margin-bottom: 0;
+}
+.signal-prose.signal-entry li figure {
+  margin: 1em 0;
+}
 .signal-prose.signal-entry img,
 .signal-prose.signal-entry .construct-body-img {
   margin-top: 1.65em;
@@ -638,6 +649,101 @@ html[data-theme-flash-reset] .nav-glitch-active {
 }
 .signal-prose pre .signal-bar--glow {
   box-shadow: 0 0 6px var(--color-glow);
+}
+/* Inline SVG charts from ```chart fences (SignalChart.tsx). The drawing is a
+   fixed 672px-wide viewBox scaled to the column; below ~560px it scrolls
+   sideways instead of shrinking its labels past legibility. */
+.signal-prose .signal-chart-scroll {
+  overflow-x: auto;
+}
+.signal-prose .signal-chart svg {
+  display: block;
+  width: 100%;
+  min-width: 560px;
+  height: auto;
+  overflow: visible;
+}
+.signal-prose .signal-chart svg text {
+  font: 11px var(--font-mono);
+  fill: var(--color-ink-faint);
+}
+.signal-prose .signal-chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4em 1.25em;
+  margin: 0 0 0.6em;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--color-ink-faint);
+}
+.signal-prose .signal-chart-legend > span {
+  display: inline-flex;
+  align-items: center;
+}
+.signal-prose .signal-chart-note {
+  color: var(--color-ink-ghost);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+.signal-prose .signal-chart-swatch-dot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  margin-right: 0.5em;
+}
+.signal-prose .signal-chart-swatch-line {
+  position: relative;
+  display: inline-block;
+  width: 22px;
+  height: 0;
+  border-top: 2px solid;
+  margin-right: 0.5em;
+}
+.signal-prose .signal-chart-swatch-line > b {
+  position: absolute;
+  left: 50%;
+  top: -5px;
+  width: 8px;
+  height: 8px;
+  margin-left: -4px;
+  border-radius: 50%;
+  border: 1.5px solid;
+  background: var(--color-surface);
+}
+/* GFM tables: hairline rules only, uppercase mono headers like figcaptions. */
+.signal-prose table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin: 1.35em 0;
+}
+.signal-prose th {
+  font-weight: 400;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--color-ink-ghost);
+  text-align: left;
+  white-space: nowrap;
+  padding: 0 0.5em 0.6em 0;
+  border-bottom: 1px solid var(--color-ink-trace);
+}
+.signal-prose td {
+  padding: 0.5em 0.5em 0.5em 0;
+  border-bottom: 1px solid var(--color-ink-hair);
+  vertical-align: top;
+}
+/* Numeric columns: right-aligned, flush to the table's right edge; the gap
+   between neighbours comes from the left padding since the right is zero. */
+.signal-prose th[align='right'],
+.signal-prose td[align='right'] {
+  text-align: right;
+  padding-left: 1.75em;
+  padding-right: 0;
+}
+.signal-prose tbody tr:last-child td {
+  border-bottom: none;
 }
 .signal-prose ul,
 .signal-prose ol {

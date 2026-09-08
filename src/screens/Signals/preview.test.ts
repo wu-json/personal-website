@@ -154,3 +154,22 @@ describe('shouldCollapseSignalList', () => {
     expect(shouldCollapseSignalList(false, body)).toBe(false);
   });
 });
+
+// ---------------------------------------------------------------------------
+// chart fences
+// ---------------------------------------------------------------------------
+describe('chart fences', () => {
+  const chart =
+    '```chart\n{ "type": "line", "caption": "Loss by step", "series": [] }\n```';
+
+  it('never leak the JSON spec into the excerpt', () => {
+    expect(signalPlainExcerpt(`Intro text.\n\n${chart}\n\nAfter.`)).toBe(
+      'Intro text. After.',
+    );
+  });
+
+  it('do not count toward the collapse threshold', () => {
+    const big = '```chart\n' + '{ "type": "line" }'.repeat(60) + '\n```';
+    expect(shouldCollapseSignalList(false, `Short.\n\n${big}`)).toBe(false);
+  });
+});

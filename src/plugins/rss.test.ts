@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'bun:test';
 
 import {
+  replaceChartBlocks,
   parseFrontmatter,
   parseRssTimestamp,
   escapeXml,
@@ -263,5 +264,29 @@ describe('stripFirstImage', () => {
 
   it('returns empty string for empty input', () => {
     expect(stripFirstImage('')).toBe('');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// replaceChartBlocks
+// ---------------------------------------------------------------------------
+describe('replaceChartBlocks', () => {
+  it('swaps a chart fence for a captioned placeholder', () => {
+    const body =
+      'Before.\n\n```chart\n{ "type": "line", "caption": "Loss by step" }\n```\n\nAfter.';
+    expect(replaceChartBlocks(body)).toBe(
+      'Before.\n\n<p><em>[chart: Loss by step]</em></p>\n\nAfter.',
+    );
+  });
+
+  it('falls back to a bare placeholder for a malformed spec', () => {
+    expect(replaceChartBlocks('```chart\nnot json\n```')).toBe(
+      '<p><em>[chart]</em></p>',
+    );
+  });
+
+  it('leaves other code fences alone', () => {
+    const body = '```json\n{ "a": 1 }\n```';
+    expect(replaceChartBlocks(body)).toBe(body);
   });
 });

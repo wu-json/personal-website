@@ -19,9 +19,11 @@ export function parseFirstImgFromSignalBody(body: string): {
 /**
  * Hero media never counts as list text — that includes the <figure> wrapper and
  * its <figcaption>, whose words would otherwise open the collapsed excerpt.
+ * ```chart fences are JSON specs, not prose, so they go too.
  */
 function stripMedia(body: string): string {
   return body
+    .replace(/```chart\b[\s\S]*?```/g, ' ')
     .replace(/<figcaption[^>]*>[\s\S]*?<\/figcaption>/gi, ' ')
     .replace(/<\/?figure[^>]*>/gi, ' ')
     .replace(/<img\s[^>]*\/?>/gi, ' ')
