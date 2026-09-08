@@ -127,6 +127,19 @@ These are the results of one epoch of LoRA on 2,456 training rows, graded on 425
 
 > **Aggregate** is the eval harness's weighted score: exact and near-exact reading of the Japanese text, plus how well the word-by-word breakdown and readings match the gold. **OCR hint** is the production path described previously, where the prompt also carries Apple Vision's OCR of the frame; "image only" is the model's own reading with no hint.
 
+### Gemma4 E2B vs Qwen3.5-4B
+
+| Model      | Base (with hint) | Fine-tuned (with hint) | Lift |
+| ---------- | ---------------: | ---------------------: | ---: |
+| Gemma4 E2B |              50% |                **74%** |  +24 |
+| Qwen3.5-4B |              67% |                **86%** |  +19 |
+
+Overall, we end up with a fine-tune that performs better than the Gemma4 E2B fine-tune I trained locally. This makes sense since the Qwen3.5-4B base model without tuning outperforms Gemma4 E2B to begin with.
+
+This is something I was aware of before this experiment. Qwen3.5 models have great vision and can handle more tricky cases than Gemma4 E2B. However, I opted for E2B for the production application because it feels more performant due to having 2B effective parameters, as opposed to Qwen3.5's dense 4B parameters.
+
+In addition, Gemma4 models appeared to have a better understanding of the Japanese language when queried on unstructured questions like grammar patterns, which is harder to quantify.
+
 ### Before and After
 
 ```chart
@@ -255,7 +268,7 @@ These are the results of one epoch of LoRA on 2,456 training rows, graded on 425
 
 Tinker's SDK-first approach is excellent. I ran this experiment in a few hours, with almost all of it driven by a coding agent. Keeping infrastructure out of the training loop makes recipe code much easier to read, and much more approachable for a beginner like me.
 
-I'm looking forward to a future where more engineers feel empowered to reach for fine-tuning as one more tool in the box.
+I'm looking forward to a future where more engineers feel empowered to reach for fine-tuning as one more spanner in the box.
 
 In terms of where Tinker could go in the future, I think it would be extremely interesting if Tinker completely owns the improvement loop for a model.
 
