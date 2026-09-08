@@ -10,18 +10,18 @@ location: 'San Francisco, US'
   <img src="/images/signals/2026-09-08-fine-tuning-qwen3-5-4b-for-japanese-ocr-on-tinker/tinker-checkpoints-full.webp" alt="Tinker checkpoints page: eleven checkpoints, 5.7 GB, every row set to never expire" width="1400" height="803">
 </figure>
 
-This is how I fine-tuned Qwen3.5-4B with [Tinker](https://tinker.thinkingmachines.ai/) for a task in my language learning app [Oxalis](https://oxalis.ink/).
+This is how I fine-tuned Qwen3.5-4B with [Tinker](https://tinker.thinkingmachines.ai/) for a product task in my language learning app [Oxalis](https://oxalis.ink/).
 
-If you have not read my blog post [Fine-Tuning Gemma4 E2B for Language Learning](/signals/2026-09-01-fine-tuning-gemma4-e2b-for-language-learning), please do that first, as it provides a lot of context that is not in this writeup.
+If you have not read my blog post [Fine-Tuning Gemma4 E2B for Language Learning](/signals/2026-09-01-fine-tuning-gemma4-e2b-for-language-learning), please do that first. It provides some context that is not in this writeup.
 
-One of the downsides of using Unsloth to fine-tune Gemma4 locally that I didn't talk about as much in my blog is speed. Each fine-tune takes a couple of days. Fine-tuning the model takes time, generating a corpus to train an MTP drafter takes time, and running the evals also takes time, especially when all of this is happening on one machine.
+One of the downsides of using Unsloth to fine-tune Gemma4 locally that I didn't talk about as much in my last post is speed. Each fine-tune takes a couple of days. Fine-tuning the model takes time, generating a corpus to train an MTP drafter takes time, and running the evals also takes time, especially when all of this is happening on one consumer-spec'ed machine.
 
-Since I'm an impatient guy, I wanted to explore platforms that abstracted training and inference infra away in hopes of one day moving this workflow off of my Mac Studio to save time. I've heard great things about Tinker by Thinking Machines, and wanted to give it a try after a new homie I met blessed me with some credits (thanks [Simon](https://simonguo.tech/)).
+I'm an impatient guy. I wanted to explore platforms that abstracted training and inference infra away in hopes of one day moving this workflow off of my Mac Studio. I've heard great things about Tinker, and wanted to give it a try after a new friend blessed me with some credits (thanks [Simon](https://simonguo.tech/)).
 
-This writeup walks through my experience fine-tuning with Tinker. For context, I'm a full stack engineer that has touched both product and infra. That said, I have little to no ML Engineering background. Most of the things I've learned about LoRA and ML are concepts I've picked up just in the last few weeks. This means two things:
+This writeup walks through my experience fine-tuning with Tinker. For context, I'm a full stack engineer that has worked with product and infra. However, I have little to no ML Engineering background. Most of the concepts I've learned about in ML are things I've picked up in the last few weeks. This means two things:
 
-1. Please excuse any noob mistakes in this writeup.
-2. My perspective is interesting: does Tinker make it easy for a noob with a coding agent to fine-tune?
+1. Please excuse any "trivial" mistakes in this writeup.
+2. I have an interesting perspective: does Tinker make it easy for a beginner with a coding agent to fine-tune?
 
 Let's find out.
 
@@ -33,10 +33,10 @@ First let's align on what the task is.
 
 <figure>
   <img src="/images/signals/2026-09-08-fine-tuning-qwen3-5-4b-for-japanese-ocr-on-tinker/eval-fixture-full.webp" alt="A speaker at an art festival with a Japanese subtitle along the bottom of the frame" width="960" height="476">
-  <figcaption>One of the 425 eval fixtures: a YouTube frame with a burned-in subtitle. The signage behind the speaker is text too, but it is not the most prominent Japanese text, so the model must ignore it.</figcaption>
+  <figcaption>One of the 425 eval fixtures: Note how there is noisy text on the wall in the background.</figcaption>
 </figure>
 
-Every fixture in our evaluation suite stores a small gold record. Only two fields are graded: the source text, and its reading in kana.
+Every fixture in our evaluation suite stores a small answer key. Only two fields are graded: the source text, and its reading in kana.
 
 ```json
 {
@@ -100,12 +100,16 @@ Here is an example of a full request the Oxalis app makes to llama.cpp for this 
 }
 ```
 
-We'll be fine-tuning Qwen3.5-4B on Tinker for this OCR task. In an ideal world, I would have just moved my Gemma4 E2B training pipeline to Tinker, but Tinker does not support Gemma4 models at the time of writing. Thus, we'll be using Qwen3.5-4B instead as it's similar in size.
+**We'll be fine-tuning Qwen3.5-4B on Tinker for this OCR task.**
+
+In an ideal world, this blog post would be about moving my Gemma4 E2B training pipeline to Tinker, but Tinker does not support Gemma4 models at this time.
+
+Despite being slower than Gemma4 E2B, Qwen3.5-4B is comparable in size and also runs on consumer hardware.
 
 ## Methods
 
 1. **Grader.** A Python port of the Japanese OCR eval harness I built for Oxalis. It sends each fixture to the model five times, scores each JSON reply against the answer, and takes the median. It reproduces the harness's existing evals exactly.
-2. **Baseline.** The untouched `Qwen/Qwen3.5-4B` sampled through Tinker inference: 425 cases × 5 samples × 2 arms.
+2. **Baseline.** The untouched `Qwen/Qwen3.5-4B` sampled through Tinker inference: 425 cases × 5 samples × 2 arms (with/without OCR hint).
 3. **Training data.** The Japanese OCR subset of the data I used to fine-tune Gemma4 for Oxalis: 2,606 image rows, 150 held out for a loss check. About 4.4k tokens per row, 2,040 of them image tokens, with only the ~240-token JSON answer supervised.
 4. **Training.** The same recipe as the Gemma4 fine-tune Oxalis ships, unchanged: LoRA rank 32, lr 2e-4 linear, 1 epoch, batch 4, a checkpoint at each quarter. 613 steps, 43 minutes.
 5. **Grading.** Twelve checkpoints on all 425 cases would have been twelve full passes, so every checkpoint was first graded on a fixed 100-case subset to rank them cheaply, then only the subset's top scorer (the half-way checkpoint) and the final checkpoint went through all 425; the final one won.
@@ -121,7 +125,7 @@ These are the results of one epoch of LoRA on 2,456 training rows, graded on 425
 | Cases read exactly right, of 425 (with hint) |           286 |      **366** |    +80 |
 | Source text accuracy, 1 − CER (with hint)    |         0.840 |    **0.968** | +0.128 |
 
-> **Aggregate** is the eval harness's weighted score: exact and near-exact reading of the Japanese text, plus how well the word-by-word breakdown and readings match the gold. **OCR hint** is the production path described previously, where the prompt also carries Apple Vision's OCR of the frame; "image only" is the model's own reading with no hint. Whole experiment: ≈ $22 and 2.7 h of wall-clock.
+> **Aggregate** is the eval harness's weighted score: exact and near-exact reading of the Japanese text, plus how well the word-by-word breakdown and readings match the gold. **OCR hint** is the production path described previously, where the prompt also carries Apple Vision's OCR of the frame; "image only" is the model's own reading with no hint.
 
 ### Before and After
 
@@ -239,7 +243,7 @@ These are the results of one epoch of LoRA on 2,456 training rows, graded on 425
 
 - **Show cost per session in the UI:** I would like to see billing per session in the Tinker UI at the top level of the sessions list and in the session details page. This along with guidance for coding agents to tag sessions/checkpoints would make confidence in budget and billing a lot higher. For example, while training Qwen3.5-4B, I had some sessions that just ran my eval suite with Tinker inference. Seeing an "eval" tag along with a cost that I've grown used to from running the suite would make identifying the session very easy for me. Furthermore, it would give me an idea of how much running my eval suite actually costs when I budget for my next run.
 
-- **Add Gemma:** In my experience, the Gemma4 family has much better generalized knowledge compared to the Qwen3.5 family, which is the only comparable class that also runs tolerably on consumer devices. Gemma4 E2B and E4B support would make fine-tuning models for local inference much easier for people without beefy hardware.
+- **Add Gemma:** In my experience, the Gemma4 family has much better generalized knowledge compared to Qwen3.5, which is the only comparable class that also runs tolerably on consumer devices. Gemma4 E2B and E4B support would make fine-tuning models for local inference much easier for people without beefy hardware.
 
 - **Timestamps are localized, nothing else is:** Small UI nit, but it appears that timestamps are device language localized while other text isn't.
 
@@ -255,4 +259,4 @@ I'm looking forward to a future where more engineers feel empowered to reach for
 
 In terms of where Tinker could go in the future, I think it would be extremely interesting if Tinker completely owns the improvement loop for a model.
 
-Imagine Tinker accepting customer events through a webhook, training an increment on top of the current adapter, gating the new version behind evals and safety checks, and promoting the checkpoint once it passes. This would effectively automate what I do with Oxalis's Shamrock model today. The primitives that comprise Tinker are designed in a way where this should be possible.
+Imagine Tinker accepting customer datums through a webhook, training an increment on top of the current adapter, gating the new version behind evals and safety checks, and promoting the checkpoint once it passes. This would effectively automate what I do with Oxalis's Shamrock model today. The primitives that comprise Tinker are designed in a way where this should be possible in the future.
