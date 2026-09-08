@@ -14,7 +14,7 @@ This is how I fine-tuned Qwen3.5-4B with [Tinker](https://tinker.thinkingmachine
 
 If you have not read my blog post [Fine-Tuning Gemma4 E2B for Language Learning](/signals/2026-09-01-fine-tuning-gemma4-e2b-for-language-learning), please do that first. It provides some context that is not in this writeup.
 
-One of the downsides of using Unsloth to fine-tune Gemma4 locally that I didn't talk about as much in my last post is speed. Each fine-tune takes a couple of days. Fine-tuning the model takes time, generating a corpus to train an MTP drafter takes time, and running the evals also takes time, especially when all of this is happening on one consumer-spec'ed machine.
+One of the downsides of using Unsloth to fine-tune Gemma4 locally is speed. Each fine-tune takes a couple of days. Fine-tuning the model takes time, generating a corpus to train an MTP drafter takes time, and running the evals also takes time, especially when all of this is happening on one consumer-spec'ed machine.
 
 I'm an impatient guy. I wanted to explore platforms that abstracted training and inference infra away in hopes of one day moving this workflow off of my Mac Studio. I've heard great things about Tinker, and wanted to give it a try after a new friend blessed me with some credits (thanks [Simon](https://simonguo.tech/)).
 
