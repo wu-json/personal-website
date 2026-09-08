@@ -268,7 +268,7 @@ In addition, Gemma4 models appeared to have a better understanding of the Japane
 
 Tinker's SDK-first approach is excellent. I ran this experiment in a few hours, with almost all of it driven by a coding agent. Keeping infrastructure out of the training loop makes recipe code much easier to read, and much more approachable for a beginner like me.
 
-I'm looking forward to a future where more engineers feel empowered to reach for fine-tuning as one more spanner in the box.
+I'm looking forward to a future where more engineers feel empowered to reach for fine-tuning as one more spanner in the toolbox.
 
 In terms of where Tinker could go in the future, I think it would be extremely interesting if Tinker completely owns the improvement loop for a model.
 
