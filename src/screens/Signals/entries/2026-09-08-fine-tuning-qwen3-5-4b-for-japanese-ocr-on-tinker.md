@@ -66,7 +66,7 @@ In the product, the model has to return the full payload the app renders: the so
   <figcaption>An example of the Oxalis UI built from a payload like this one.</figcaption>
 </figure>
 
-Grading compares `originalText` to the answer by character error rate, then concatenates the breakdown's `word` fields and checks them against the source text, and its `reading` fields against the kana. Translation, meanings and grammar notes are not scored.
+Grading compares `originalText` to the answer by character error rate, then concatenates the breakdown's `word` fields and checks them against the source text. In addition, the concatenated `reading` fields are checked against the kana. Translation, meanings and grammar notes are not scored.
 
 In the actual Oxalis app, we also provide Apple's Vision OCR transcription as a hint. The backstory behind this is also explained in the [Fine-Tuning Gemma4 E2B](/signals/2026-09-01-fine-tuning-gemma4-e2b-for-language-learning) blog post. It essentially helps smaller models with poor vision by turning the transcription task into a cleaning task.
 
