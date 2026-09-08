@@ -619,11 +619,15 @@ html[data-theme-flash-reset] .nav-glitch-active {
   text-decoration-color: var(--color-ink);
   text-shadow: 0 0 6px var(--color-glow);
 }
+/* Inline code. The body is already Geist Mono, so a font swap can't mark it —
+   full ink on a soft tint does the work instead. No border or extra weight:
+   that reads as a keycap, not a token. */
 .signal-prose code {
-  background: var(--color-ink-hair);
-  padding: 0.1em 0.4em;
-  border-radius: 2px;
-  font-size: 0.9em;
+  color: var(--color-ink);
+  font-size: 0.92em;
+  background: var(--color-ink-trace);
+  padding: 0.12em 0.4em;
+  border-radius: 3px;
 }
 .signal-prose pre {
   background: var(--color-ink-hair);
@@ -633,8 +637,11 @@ html[data-theme-flash-reset] .nav-glitch-active {
   overflow-x: auto;
 }
 .signal-prose pre code {
+  color: inherit;
+  font-size: inherit;
   background: none;
   padding: 0;
+  border-radius: 0;
 }
 /* Solid bars for ASCII-style charts inside <pre>. Rows of U+2588 glyphs
    fall outside Geist Mono's unicode-range and fall back to a system font,
