@@ -5,22 +5,47 @@
  * - remark-gfm: tables, footnotes [^id], etc.
  * - rehype-raw: <img> with dimensions for ProgressiveImage; <iframe> for
  *   responsive 16:9 video embeds (use youtube-nocookie.com embed URLs)
+ * - ```chart fences: JSON spec rendered as inline SVG by SignalChart
  * - Footnote block styling: `.signal-prose section[data-footnotes]` in index.css
  *
  * @see AGENTS.md → "Signals markdown reference"
  */
+import type { Element, ElementContent } from 'hast';
 import type { AnchorHTMLAttributes, ReactNode } from 'react';
 import Markdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
 
 import { ProgressiveImage } from '../../components/ProgressiveImage';
+import { SignalChart } from './SignalChart';
+
+/**
+ * A ```chart fence arrives as <pre><code class="language-chart">…</code></pre>.
+ * Return its JSON text, or null for any other <pre>.
+ */
+function chartSource(node?: Element): string | null {
+  const code = node?.children.find(
+    (c): c is Element => c.type === 'element' && c.tagName === 'code',
+  );
+  if (!code) return null;
+  const className = code.properties.className;
+  const classes = Array.isArray(className) ? className : [className];
+  if (!classes.map(String).includes('language-chart')) return null;
+  return code.children
+    .map((c: ElementContent) => (c.type === 'text' ? c.value : ''))
+    .join('');
+}
 
 const MarkdownBody = ({ children }: { children: string }) => (
   <Markdown
     remarkPlugins={[remarkGfm]}
     rehypePlugins={[rehypeRaw]}
     components={{
+      pre: ({ children, node }: { children?: ReactNode; node?: Element }) => {
+        const source = chartSource(node);
+        if (source !== null) return <SignalChart source={source} />;
+        return <pre>{children}</pre>;
+      },
       img: ({
         src,
         alt,

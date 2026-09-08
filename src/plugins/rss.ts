@@ -52,6 +52,7 @@ export function plainExcerpt(body: string, maxLen = 300): string {
   // Same media stripping as preview.ts stripMedia — captions and media tags
   // must not leak tag fragments into the feed <description>.
   const noMedia = body
+    .replace(/```chart\b[\s\S]*?```/g, ' ')
     .replace(/<figcaption[^>]*>[\s\S]*?<\/figcaption>/gi, ' ')
     .replace(/<\/?figure[^>]*>/gi, ' ')
     .replace(/<img\s[^>]*\/?>/gi, ' ')
@@ -66,6 +67,26 @@ export function plainExcerpt(body: string, maxLen = 300): string {
   const cut = plain.slice(0, maxLen);
   const lastSpace = cut.lastIndexOf(' ');
   return `${(lastSpace > maxLen * 0.55 ? cut.slice(0, lastSpace) : cut).trimEnd()}…`;
+}
+
+/**
+ * Feed readers can't run SignalChart, so a ```chart fence (a JSON spec) would
+ * land in <content:encoded> as a code block of numbers. Swap each one for a
+ * one-line placeholder carrying the chart's caption.
+ */
+export function replaceChartBlocks(body: string): string {
+  return body.replace(/```chart\b[^\n]*\n([\s\S]*?)```/g, (_, json: string) => {
+    let caption = '';
+    try {
+      caption = String(
+        (JSON.parse(json) as { caption?: string }).caption ?? '',
+      );
+    } catch {
+      // Malformed spec — the site renders an error for it; the feed just
+      // gets the bare placeholder.
+    }
+    return `<p><em>[chart${caption ? `: ${caption}` : ''}]</em></p>`;
+  });
 }
 
 /**
@@ -120,7 +141,7 @@ async function generateFeed(): Promise<string> {
         .use(remarkRehype, { allowDangerousHtml: true })
         .use(rehypeRaw)
         .use(rehypeStringify)
-        .process(s.body);
+        .process(replaceChartBlocks(s.body));
 
       const html = String(result)
         .replace(/ src="\//g, ` src="${BASE_URL}/`)

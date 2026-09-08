@@ -53,6 +53,10 @@ Bodies are rendered by **`MarkdownBody`** (`src/screens/Signals/MarkdownBody.tsx
 
 - **External links** — `https://…` opens in a new tab; internal `/…` links stay in-app.
 
+- **Charts** — a ` ```chart ` fence with a JSON spec renders as inline SVG (`SignalChart.tsx`). `type` is `dumbbell` or `line`; see `AGENTS.md` → Signals markdown reference → Charts for the fields. Keep raster screenshots for the hero: the first `<img>` in the body is the list/banner image, and charts are not images.
+
+- **Tables** — GFM tables are styled; right-align numeric columns with `---:`.
+
 Frontmatter:
 
 ```yaml
