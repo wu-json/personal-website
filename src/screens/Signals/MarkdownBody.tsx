@@ -2,7 +2,9 @@
  * Single markdown pipeline for every signal body (detail + full list rows).
  *
  * Extend here only — do not fork another Markdown + remark stack for Signals.
- * - remark-gfm: tables, footnotes [^id], etc.
+ * - remark-gfm: tables, footnotes [^id], etc. Tables are wrapped in a
+ *   horizontal scroll container so a wide table never widens the page on
+ *   narrow viewports (`.signal-table-scroll` in index.css).
  * - rehype-raw: <img> with dimensions for ProgressiveImage; <iframe> for
  *   responsive 16:9 video embeds (use youtube-nocookie.com embed URLs)
  * - ```chart fences: JSON spec rendered as inline SVG by SignalChart
@@ -46,6 +48,11 @@ const MarkdownBody = ({ children }: { children: string }) => (
         if (source !== null) return <SignalChart source={source} />;
         return <pre>{children}</pre>;
       },
+      table: ({ children }: { children?: ReactNode }) => (
+        <div className='signal-table-scroll'>
+          <table>{children}</table>
+        </div>
+      ),
       img: ({
         src,
         alt,

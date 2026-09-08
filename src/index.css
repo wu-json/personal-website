@@ -711,12 +711,20 @@ html[data-theme-flash-reset] .nav-glitch-active {
   border: 1.5px solid;
   background: var(--color-surface);
 }
-/* GFM tables: hairline rules only, uppercase mono headers like figcaptions. */
+/* GFM tables: hairline rules only, uppercase mono headers like figcaptions.
+   MarkdownBody wraps each table in `.signal-table-scroll`, which owns the
+   vertical rhythm and scrolls sideways on narrow viewports — a table whose
+   columns can't shrink below the column width would otherwise push the page
+   wider than the screen on mobile. */
+.signal-prose .signal-table-scroll {
+  overflow-x: auto;
+  margin: 1.35em 0;
+}
 .signal-prose table {
   width: 100%;
   border-collapse: collapse;
   font-size: 13px;
-  margin: 1.35em 0;
+  margin: 0;
 }
 .signal-prose th {
   font-weight: 400;
