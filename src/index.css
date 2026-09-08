@@ -619,11 +619,17 @@ html[data-theme-flash-reset] .nav-glitch-active {
   text-decoration-color: var(--color-ink);
   text-shadow: 0 0 6px var(--color-glow);
 }
+/* Inline code. The body is already Geist Mono, so a font swap can't mark it —
+   it needs full ink, a touch more weight, and a chip with a real edge. Size
+   stays near the body's so it reads as a token, not as shrunken prose. */
 .signal-prose code {
-  background: var(--color-ink-hair);
-  padding: 0.1em 0.4em;
-  border-radius: 2px;
-  font-size: 0.9em;
+  color: var(--color-ink);
+  font-weight: 500;
+  font-size: 0.94em;
+  background: var(--color-ink-trace);
+  border: 1px solid var(--color-ink-trace);
+  padding: 0.05em 0.35em;
+  border-radius: 3px;
 }
 .signal-prose pre {
   background: var(--color-ink-hair);
@@ -633,8 +639,13 @@ html[data-theme-flash-reset] .nav-glitch-active {
   overflow-x: auto;
 }
 .signal-prose pre code {
+  color: inherit;
+  font-weight: inherit;
+  font-size: inherit;
   background: none;
+  border: none;
   padding: 0;
+  border-radius: 0;
 }
 /* Solid bars for ASCII-style charts inside <pre>. Rows of U+2588 glyphs
    fall outside Geist Mono's unicode-range and fall back to a system font,
