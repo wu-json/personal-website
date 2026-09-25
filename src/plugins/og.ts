@@ -170,10 +170,6 @@ export function applySignalMeta(indexHtml: string, s: OgSignal): string {
   html = setMetaTag(html, 'property', 'og:url', url);
   html = setMetaTag(html, 'property', 'og:image', image);
   html = setMetaTag(html, 'property', 'og:image:alt', imageAlt);
-  html = setMetaTag(html, 'name', 'twitter:title', title);
-  html = setMetaTag(html, 'name', 'twitter:description', description);
-  html = setMetaTag(html, 'name', 'twitter:image', image);
-  html = setMetaTag(html, 'name', 'twitter:image:alt', imageAlt);
 
   const published = parseRssTimestamp(s.timestamp);
   if (published) {

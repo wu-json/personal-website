@@ -86,15 +86,6 @@ const MainBanner = () => {
           >
             IG
           </a>
-          <span className='text-white/20 text-xs'>/</span>
-          <a
-            href='https://x.com/jasoncuiwu'
-            target='_blank'
-            rel='noopener noreferrer'
-            className={linkClass}
-          >
-            X
-          </a>
         </div>
       </div>
     </div>

@@ -112,15 +112,6 @@ const SignalDetail = ({ id }: { id: string }) => {
             >
               Instagram
             </a>
-            <span className='text-white/20 text-xs sm:text-[10px]'>/</span>
-            <a
-              href='https://x.com/jasoncuiwu'
-              target='_blank'
-              rel='noopener noreferrer'
-              className={socialLinkClass}
-            >
-              X
-            </a>
           </div>
         </footer>
       </div>

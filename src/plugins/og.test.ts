@@ -151,10 +151,6 @@ describe('applySignalMeta', () => {
     <meta property="og:image" content="https://jasonwu.ink/images/og-image.png?v=2" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:alt" content="A white spider lily on a black background." />
-    <meta name="twitter:title" content="Jason Cui Wu" />
-    <meta name="twitter:description" content="Paint the world in ink." />
-    <meta name="twitter:image" content="https://jasonwu.ink/images/og-image.png?v=2" />
-    <meta name="twitter:image:alt" content="A white spider lily on a black background." />
   </head><body></body></html>`;
 
   const signal = {
@@ -174,9 +170,6 @@ describe('applySignalMeta', () => {
     );
     expect(html).toContain(
       '<meta property="og:image" content="https://jasonwu.ink/images/og/signals/2026-08-26-breaking-my-career.png" />',
-    );
-    expect(html).toContain(
-      '<meta name="twitter:image" content="https://jasonwu.ink/images/og/signals/2026-08-26-breaking-my-career.png" />',
     );
     expect(html).toContain('article:published_time');
     // Dimensions are unchanged: cards are still 1200x630.
