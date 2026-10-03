@@ -12,7 +12,7 @@ import { visit } from 'unist-util-visit';
 import type { Plugin } from 'vite';
 import { parse as parseYaml } from 'yaml';
 
-import { parseFrontmatter as parseLineFrontmatter } from './rss';
+import { parseFrontmatter as parseLineFrontmatter } from './rss.ts';
 
 export type MarkdownOptions = { gfm?: boolean; raw?: boolean };
 
