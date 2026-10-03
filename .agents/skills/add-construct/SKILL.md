@@ -1,60 +1,52 @@
 ---
 name: add-construct
 description: >-
-  Adds a new Constructs project entry: optimizes images with category
-  constructs, creates frontmatter markdown in
-  src/screens/Constructs/entries/. Use when the user wants a new construct or
-  /add-construct workflow; when they provide a source image directory and slug
-  for Constructs.
+  Adds a Constructs project entry: optimizes images into
+  public/images/constructs/<slug>/ and creates
+  src/screens/Constructs/entries/NNN-<slug>.md. Use when the user wants a new
+  construct or project, or provides images and a slug for Constructs.
 ---
 
 # Add construct
 
-## 1. Optimize photos
+## 1. Optimize images
 
 ```sh
 bun scripts/optimize-photos.ts <source-dir> <slug> constructs
 ```
 
-Output: `public/images/constructs/<slug>/` with WebP variants (defined in `scripts/optimize-photos.ts`: `placeholder`, `small`, `thumb`, `full`). Capture printed dimensions for `coverWidth` / `coverHeight`.
+Writes `<file>-{placeholder,small,thumb,full}.webp` to `public/images/constructs/<slug>/` and prints each file's original width/height.
 
-## 2. Create the construct entry file
+## 2. Create the entry
 
-Scan `src/screens/Constructs/entries/*.md` for the next `NNN` prefix (same pattern as other sections: `NNN-<slug>.md`).
+File: `src/screens/Constructs/entries/NNN-<slug>.md`, where `NNN` is the highest existing prefix + 1 (zero-padded). The list sorts newest first by filename.
 
-Ask the user for:
-
-- `title`
-- `subtitle`
-- `date` (`YYYY.MM`, quoted in YAML)
-- `cover` (filename without extension; must match a processed photo basename)
-- Optional: `linkLabel`, `link`
-- Markdown body (project description)
-
-Use width/height from the optimize script output for the cover image as `coverWidth` and `coverHeight`.
-
-Frontmatter:
+Ask the user for `title`, `subtitle`, `date`, `cover`, optional `link`/`linkLabel`, and the markdown body.
 
 ```yaml
 ---
 id: <slug>
 title: <title>
 subtitle: <subtitle>
-date: '<date>'
-cover: <cover-file>
+date: 'YYYY.MM'
+cover: <file>
 coverWidth: <width>
 coverHeight: <height>
+coverPosition: <optional CSS object-position>
 linkLabel: <optional>
 link: <optional URL>
 ---
+<img src="/images/constructs/<slug>/<file>-full.webp" alt="<alt>" width="<width>" height="<height>">
+
+<markdown body>
 ```
 
-`id` must match the slug passed to the optimize script.
+- `id` must equal the slug passed to the optimize script.
+- `cover` is a processed file basename; `coverWidth`/`coverHeight` come from the script output.
+- Body images: use `<img>` with `width` and `height` to get progressive loading. Markdown `![]()` renders a plain image.
 
-Save under `src/screens/Constructs/entries/` with the established `NNN-<slug>.md` naming.
+Routes: `/constructs`, `/constructs/<slug>`.
 
-Routes: `/constructs` and `/constructs/<slug>`.
+## 3. Verify
 
-## 3. Before commit
-
-Run `bun run lint` and `bun run fmt`.
+Run `bun run fmt` and `bun run lint`.
