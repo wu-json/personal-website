@@ -1,9 +1,7 @@
-import type { Element, ElementContent } from 'hast';
+import type { Element, ElementContent, Root } from 'hast';
 import type { AnchorHTMLAttributes, ReactNode } from 'react';
-import Markdown from 'react-markdown';
-import rehypeRaw from 'rehype-raw';
-import remarkGfm from 'remark-gfm';
 
+import { Markdown } from '../../components/Markdown';
 import { ProgressiveImage } from '../../components/ProgressiveImage';
 import { SignalChart } from './SignalChart';
 
@@ -20,10 +18,9 @@ function chartSource(node?: Element): string | null {
     .join('');
 }
 
-const MarkdownBody = ({ children }: { children: string }) => (
+const MarkdownBody = ({ tree }: { tree: Root }) => (
   <Markdown
-    remarkPlugins={[remarkGfm]}
-    rehypePlugins={[rehypeRaw]}
+    tree={tree}
     components={{
       pre: ({ children, node }: { children?: ReactNode; node?: Element }) => {
         const source = chartSource(node);
@@ -115,9 +112,7 @@ const MarkdownBody = ({ children }: { children: string }) => (
         );
       },
     }}
-  >
-    {children}
-  </Markdown>
+  />
 );
 
 export { MarkdownBody };

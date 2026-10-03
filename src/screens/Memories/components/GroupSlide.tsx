@@ -1,7 +1,7 @@
 import { useLayoutEffect, useMemo, useRef, useState } from 'react';
-import Markdown from 'react-markdown';
+import { Markdown } from 'src/components/Markdown';
 
-import { photoUrl } from '../data';
+import { captionTree, photoUrl } from '../data';
 import type { PhotoMeta } from '../types';
 import { loadedFullUrls } from './loadedFullUrls';
 
@@ -22,6 +22,7 @@ const GroupSlide = ({
   interactive: boolean;
   onPhotoClick: (photo: PhotoMeta) => void;
 }) => {
+  const captionNode = caption && captionTree(caption);
   const photoKey = useMemo(() => photos.map(p => p.file).join(','), [photos]);
   const [loadedSet, setLoadedSet] = useState<Set<string>>(() => {
     const initial = new Set<string>();
@@ -124,9 +125,9 @@ const GroupSlide = ({
         className={`flex items-center gap-4 text-xs sm:text-[10px] font-mono transition-opacity duration-500 ${allLoaded ? 'opacity-100' : 'opacity-0'}`}
       >
         <span className='text-white/30'>{counter}</span>
-        {caption && (
+        {captionNode && (
           <span className='text-white/50 signal-prose'>
-            <Markdown>{caption}</Markdown>
+            <Markdown tree={captionNode} />
           </span>
         )}
       </div>

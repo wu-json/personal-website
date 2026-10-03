@@ -1,8 +1,7 @@
-import Markdown from 'react-markdown';
-import rehypeRaw from 'rehype-raw';
 import { useJitter } from 'src/hooks/useJitter';
 import { Link } from 'wouter';
 
+import { Markdown } from '../../components/Markdown';
 import { ProgressiveImage } from '../../components/ProgressiveImage';
 import { heroes } from './data';
 
@@ -83,7 +82,7 @@ const HeroDetail = ({ id }: { id: string }) => {
           style={jitter()}
         >
           <Markdown
-            rehypePlugins={[rehypeRaw]}
+            tree={h.body}
             components={{
               img: ({
                 src,
@@ -113,9 +112,7 @@ const HeroDetail = ({ id }: { id: string }) => {
                 );
               },
             }}
-          >
-            {h.body}
-          </Markdown>
+          />
         </div>
 
         <footer className='mt-12 pt-6 border-t border-white/5'>

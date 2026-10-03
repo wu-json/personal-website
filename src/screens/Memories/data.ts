@@ -1,38 +1,36 @@
-import { parse as parseYaml } from 'yaml';
+import type { Root } from 'hast';
+import type { MarkdownModule } from 'src/components/Markdown';
 
 import type { Fragment, Grouping, PhotoMeta } from './types';
 
-function parseFrontmatter(raw: string) {
-  const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/);
-  if (!match) return { data: {} as Record<string, unknown>, content: raw };
-  return {
-    data: (parseYaml(match[1]) ?? {}) as Record<string, unknown>,
-    content: match[2],
-  };
-}
-
 const modules = import.meta.glob('./fragments/*.md', {
-  query: '?raw',
+  query: '?markdown&captions',
   import: 'default',
   eager: true,
-}) as Record<string, string>;
+}) as Record<string, MarkdownModule>;
 
 export const fragments: Fragment[] = Object.entries(modules)
   .sort(([pathA], [pathB]) => pathB.localeCompare(pathA))
-  .map(([, raw]) => {
-    const { data, content } = parseFrontmatter(raw);
-    return {
-      id: String(data.id ?? ''),
-      title: String(data.title ?? ''),
-      date: String(data.date ?? ''),
-      location: String(data.location ?? ''),
-      cover: String(data.cover ?? ''),
-      coverClassName: data.coverClassName as string | undefined,
-      description: content.trim(),
-      photos: (data.photos ?? []) as PhotoMeta[],
-      groupings: data.groupings as Record<string, Grouping> | undefined,
-    };
-  });
+  .map(([, { data, body, tree }]) => ({
+    id: String(data.id ?? ''),
+    title: String(data.title ?? ''),
+    date: String(data.date ?? ''),
+    location: String(data.location ?? ''),
+    cover: String(data.cover ?? ''),
+    coverClassName: data.coverClassName as string | undefined,
+    description: body,
+    descriptionTree: tree,
+    photos: (data.photos ?? []) as PhotoMeta[],
+    groupings: data.groupings as Record<string, Grouping> | undefined,
+  }));
+
+const captionTrees = new Map<string, Root>(
+  Object.values(modules).flatMap(m => Object.entries(m.captions ?? {})),
+);
+
+export function captionTree(caption: string): Root | undefined {
+  return captionTrees.get(caption);
+}
 
 export function photoUrl(
   fragmentId: string,

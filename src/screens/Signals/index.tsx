@@ -148,7 +148,7 @@ const SignalsScreen = () => {
                         )}
                       </>
                     ) : (
-                      <MarkdownBody>{s.body}</MarkdownBody>
+                      <MarkdownBody tree={s.tree} />
                     )}
                   </div>
                 </div>

@@ -1,3 +1,5 @@
+import type { Root } from 'hast';
+
 export type Hero = {
   id: string;
   title: string;
@@ -5,7 +7,7 @@ export type Hero = {
   cover: string;
   coverWidth: number;
   coverHeight: number;
-  body: string;
+  body: Root;
   location?: string;
   coverPosition?: string;
   linkLabel?: string;
