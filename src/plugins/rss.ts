@@ -10,7 +10,8 @@ import remarkRehype from 'remark-rehype';
 import { unified } from 'unified';
 import type { Plugin } from 'vite';
 
-export const BASE_URL = 'https://jasonwu.ink';
+export const BASE_URL = 'https://www.jasonwu.ink';
+const GUID_BASE_URL = 'https://jasonwu.ink';
 export const ENTRIES_DIR = 'src/screens/Signals/entries';
 
 export function parseFrontmatter(raw: string): {
@@ -135,7 +136,7 @@ async function generateFeed(): Promise<string> {
       return `    <item>
       <title>${title}</title>
       <link>${BASE_URL}/signals/${s.id}</link>
-      <guid isPermaLink="true">${BASE_URL}/signals/${s.id}</guid>${pubDateTag}
+      <guid isPermaLink="true">${GUID_BASE_URL}/signals/${s.id}</guid>${pubDateTag}
       <description>${desc}</description>
       <content:encoded><![CDATA[${htmlDeduped}]]></content:encoded>
     </item>`;
