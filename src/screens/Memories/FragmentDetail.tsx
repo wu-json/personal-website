@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import Markdown from 'react-markdown';
+import { Markdown } from 'src/components/Markdown';
 import { ProgressiveImage } from 'src/components/ProgressiveImage';
 import { useJitter } from 'src/hooks/useJitter';
 import { Link, useLocation } from 'wouter';
@@ -378,7 +378,7 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
             className='bio-glitch signal-prose text-white/70 text-sm font-mono leading-loose mb-12'
             style={jitter()}
           >
-            <Markdown>{fragment.description}</Markdown>
+            <Markdown tree={fragment.descriptionTree} />
           </div>
         )}
 
