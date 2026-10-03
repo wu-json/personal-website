@@ -13,7 +13,10 @@
   },
   "rules": {
     "jsx-a11y/prefer-tag-over-role": "off",
-    "local/no-comments": "error"
+    "local/no-comments": "error",
+    "react/immutability": "off",
+    "react/refs": "off",
+    "react/set-state-in-effect": "off"
   },
   "ignorePatterns": ["build/**/*", "node_modules/**/*"]
 }
