@@ -3,21 +3,6 @@ import { useEffect, useRef } from 'react';
 
 type CSSVars = CSSProperties & Record<string, string>;
 
-/**
- * Single-node progressive image.
- *
- * The wrapper <div> carries the 20px placeholder as a CSS background-image
- * (via --ph), so there's only one real <img> per tile instead of the two
- * stacked <img>s we used to render. The blur→crisp transition is driven
- * purely by CSS: an imperative `load` listener flips
- * data-loaded="true" on the wrapper, which fades the <img> in and drops
- * the background. No React state, no reconciler re-render on load.
- *
- * Layout: --ar (width / height) drives `aspect-ratio` on the wrapper so
- * we reserve space before the image lands (no CLS).
- *
- * See src/index.css → `.progressive-image` for the rules.
- */
 const ProgressiveImage = ({
   placeholderSrc,
   src,
@@ -53,14 +38,10 @@ const ProgressiveImage = ({
     const wrapper = img.parentElement;
     if (!wrapper) return;
 
-    // Already cached — `load`/`error` may never fire again.
     if (img.complete) {
       if (img.naturalWidth > 0) {
         wrapper.dataset.loaded = 'true';
       } else {
-        // Cached error: the request already failed and no event will
-        // fire on this reused <img>. Stamp loaded+error directly so the
-        // tile doesn't sit at opacity:0 behind a broken glyph forever.
         wrapper.dataset.loaded = 'true';
         wrapper.dataset.error = 'true';
       }
@@ -70,10 +51,6 @@ const ProgressiveImage = ({
     const onLoad = () => {
       wrapper.dataset.loaded = 'true';
     };
-    // If the thumbnail 404s or otherwise fails, surface it instead of
-    // leaving the <img> stuck at opacity:0 over the placeholder forever.
-    // We flip data-loaded='true' (so the broken-image glyph fades in) and
-    // also stamp data-error so callers/styles can react if they want.
     const onError = () => {
       wrapper.dataset.loaded = 'true';
       wrapper.dataset.error = 'true';
@@ -86,8 +63,6 @@ const ProgressiveImage = ({
     };
   }, []);
 
-  // Escape so paths with `"`, `\`, `)`, whitespace, etc. don't break the
-  // CSS `url(...)` token. Backslash first, then double-quote.
   const escapedPlaceholder = placeholderSrc
     .replace(/\\/g, '\\\\')
     .replace(/"/g, '\\"');

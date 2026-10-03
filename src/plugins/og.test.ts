@@ -10,9 +10,6 @@ import {
   wrapText,
 } from './og';
 
-// ---------------------------------------------------------------------------
-// wrapText
-// ---------------------------------------------------------------------------
 describe('wrapText', () => {
   it('keeps a short title on one line', () => {
     expect(wrapText('TROJAN COWS', 24)).toEqual(['TROJAN COWS']);
@@ -35,9 +32,6 @@ describe('wrapText', () => {
   });
 });
 
-// ---------------------------------------------------------------------------
-// layoutTitle
-// ---------------------------------------------------------------------------
 describe('layoutTitle', () => {
   it('uppercases and uses the largest size for short titles', () => {
     expect(layoutTitle('Trojan Cows')).toEqual({
@@ -61,9 +55,6 @@ describe('layoutTitle', () => {
   });
 });
 
-// ---------------------------------------------------------------------------
-// cardTitle
-// ---------------------------------------------------------------------------
 describe('cardTitle', () => {
   it('uses the title when present', () => {
     expect(cardTitle({ id: '2026-04-12-david', title: 'David' })).toBe('David');
@@ -76,9 +67,6 @@ describe('cardTitle', () => {
   });
 });
 
-// ---------------------------------------------------------------------------
-// buildCardSvg
-// ---------------------------------------------------------------------------
 describe('buildCardSvg', () => {
   const signal = {
     id: '2026-08-26-breaking-my-career',
@@ -110,9 +98,6 @@ describe('buildCardSvg', () => {
   });
 });
 
-// ---------------------------------------------------------------------------
-// setMetaTag
-// ---------------------------------------------------------------------------
 describe('setMetaTag', () => {
   it('replaces the content of a matching tag regardless of attribute order', () => {
     const html = '<meta content="old" property="og:title" />';
@@ -137,9 +122,6 @@ describe('setMetaTag', () => {
   });
 });
 
-// ---------------------------------------------------------------------------
-// applySignalMeta
-// ---------------------------------------------------------------------------
 describe('applySignalMeta', () => {
   const indexHtml = `<!doctype html><html><head>
     <title>Jason Cui Wu</title>
@@ -172,7 +154,6 @@ describe('applySignalMeta', () => {
       '<meta property="og:image" content="https://jasonwu.ink/images/og/signals/2026-08-26-breaking-my-career.png" />',
     );
     expect(html).toContain('article:published_time');
-    // Dimensions are unchanged: cards are still 1200x630.
     expect(html).toContain('<meta property="og:image:width" content="1200" />');
   });
 
@@ -192,9 +173,6 @@ describe('applySignalMeta', () => {
   });
 });
 
-// ---------------------------------------------------------------------------
-// ogImagePath
-// ---------------------------------------------------------------------------
 describe('ogImagePath', () => {
   it('builds the public path for a signal card', () => {
     expect(ogImagePath('2026-04-12-david')).toBe(

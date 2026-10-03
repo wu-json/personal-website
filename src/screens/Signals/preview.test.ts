@@ -2,11 +2,7 @@ import { describe, it, expect } from 'bun:test';
 
 import { signalPlainExcerpt, shouldCollapseSignalList } from './preview';
 
-// ---------------------------------------------------------------------------
-// signalPlainExcerpt
-// ---------------------------------------------------------------------------
 describe('signalPlainExcerpt', () => {
-  // Footnote references
   it('strips inline footnote reference markers', () => {
     expect(signalPlainExcerpt('The aquarium[^ga] is big.')).toBe(
       'The aquarium is big.',
@@ -28,7 +24,6 @@ describe('signalPlainExcerpt', () => {
     expect(signalPlainExcerpt('Hello[^a]!')).toBe('Hello!');
   });
 
-  // Footnote definitions
   it('strips footnote definition lines', () => {
     const input = 'Some body text.\n\n[^ga]: https://georgiaaquarium.org';
     expect(signalPlainExcerpt(input)).toBe('Some body text.');
@@ -46,7 +41,6 @@ describe('signalPlainExcerpt', () => {
     expect(signalPlainExcerpt(input)).toBe('Body.');
   });
 
-  // Hyphens
   it('keeps in-word hyphens', () => {
     expect(signalPlainExcerpt('A 4-month career break.')).toBe(
       'A 4-month career break.',
@@ -59,14 +53,12 @@ describe('signalPlainExcerpt', () => {
     ).toBe('Plan: one fine-tuned two three');
   });
 
-  // Combined
   it('strips footnotes refs and defs together', () => {
     const input =
       'Foo[^a] and bar[^b].\n\n[^a]: https://a.com\n[^b]: https://b.com';
     expect(signalPlainExcerpt(input)).toBe('Foo and bar.');
   });
 
-  // Regression guards
   it('does not strip normal bracketed text', () => {
     const input = 'See [the docs] online or [ask for help].';
     expect(signalPlainExcerpt(input)).toBe(
@@ -88,7 +80,6 @@ describe('signalPlainExcerpt', () => {
     expect(result).toContain('code');
   });
 
-  // Existing behavior
   it('strips <img> tags', () => {
     const body = 'Some text <img src="x.jpg" /> and more.';
     const result = signalPlainExcerpt(body);
@@ -118,7 +109,7 @@ describe('signalPlainExcerpt', () => {
   it('truncates long text at word boundary', () => {
     const body = 'word '.repeat(100);
     const result = signalPlainExcerpt(body, 50);
-    expect(result.length).toBeLessThanOrEqual(55); // 50 + ellipsis wiggle
+    expect(result.length).toBeLessThanOrEqual(55);
     expect(result.endsWith('…')).toBe(true);
   });
 
@@ -131,9 +122,6 @@ describe('signalPlainExcerpt', () => {
   });
 });
 
-// ---------------------------------------------------------------------------
-// shouldCollapseSignalList
-// ---------------------------------------------------------------------------
 describe('shouldCollapseSignalList', () => {
   it('does not collapse expanded signals', () => {
     expect(shouldCollapseSignalList(true, 'long body '.repeat(200))).toBe(
@@ -155,9 +143,6 @@ describe('shouldCollapseSignalList', () => {
   });
 });
 
-// ---------------------------------------------------------------------------
-// chart fences
-// ---------------------------------------------------------------------------
 describe('chart fences', () => {
   const chart =
     '```chart\n{ "type": "line", "caption": "Loss by step", "series": [] }\n```';

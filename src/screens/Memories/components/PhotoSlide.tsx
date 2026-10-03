@@ -20,10 +20,6 @@ const PhotoSlide = ({
   const [loaded, setLoaded] = useState(() => loadedFullUrls.has(fullUrl));
   const imgRef = useRef<HTMLImageElement>(null);
 
-  // Catch the case where the <img> finds the resource in the browser cache
-  // before React mounts the load handler — `complete` is true synchronously
-  // and `onLoad` may never fire. Layout effect runs pre-paint, so flipping
-  // `loaded` here avoids a one-frame placeholder flash.
   useLayoutEffect(() => {
     const img = imgRef.current;
     if (!img) return;

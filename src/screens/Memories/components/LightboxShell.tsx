@@ -127,12 +127,6 @@ const LightboxShell = ({
           >
             {slots.map((view, slotIdx) => (
               <div
-                // Keying by slot position (not slide identity) keeps the slot
-                // wrappers stable across navigates and avoids the duplicate-
-                // key warning when prev and next reference the same slide
-                // (gridItems.length === 2). Cross-mount continuity is handled
-                // by the shared `loadedFullUrls` cache inside the slide
-                // bodies, so a remounted neighbor still renders crisply.
                 key={slotIdx}
                 className='shrink-0 h-full'
                 style={{ width: '33.3333%' }}

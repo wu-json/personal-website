@@ -2,21 +2,6 @@ import { useEffect, useRef } from 'react';
 
 import { InkCursorRenderer, SEGMENT_STRIDE } from './renderer';
 
-// Ink-brush cursor trail rendered with WebGL2.
-//
-// Point tracking: each mousemove becomes a point with a width that
-// tracks inverse cursor velocity (slow → wet body, fast → hair-thin)
-// and an ink-load that drops on fast strokes for sumi wet/dry contrast.
-//
-// Rendering: each cursor segment (consecutive point pair) is uploaded as
-// one instance and the GPU draws a bounding quad per segment. The
-// fragment shader does SDF distance-to-centerline + smooth gradient +
-// bristle noise. `gl.MAX` blending across overlapping quads makes
-// joints continuous through arbitrarily sharp corners — no bowtie ever
-// possible because no quad spans more than one segment.
-//
-// Disabled on coarse pointers and when prefers-reduced-motion is set.
-
 const POINT_LIFETIME = 1600;
 const MAX_POINTS = 500;
 
@@ -69,7 +54,7 @@ const InkCursor = () => {
       stencil: false,
       powerPreference: 'high-performance',
     });
-    if (!gl) return; // WebGL2 unavailable — trail is decorative, render nothing.
+    if (!gl) return;
 
     let renderer: InkCursorRenderer | null = null;
     try {
@@ -99,7 +84,7 @@ const InkCursor = () => {
       x: number;
       y: number;
       w: number;
-      load: number; // 0..1 — drier on fast strokes (sumi ink-depletion feel)
+      load: number;
       bornAt: number;
     };
     const points: Point[] = [];
@@ -133,19 +118,13 @@ const InkCursor = () => {
       const dt = Math.max(now - prevT, 1);
       const dist = Math.hypot(dx, dy);
       if (dist < 1.5) return;
-      const speed = dist / dt; // px/ms
-      // Slow drag pools to ~15px of wet ink; a fast flick narrows to a
-      // ~1.6px hair. Wide range gives the stroke a brushy body.
+      const speed = dist / dt;
       const targetWidth = clamp(15 - speed * 5.2, 1.6, 15);
       const w = prevWidth * 0.55 + targetWidth * 0.45;
       prevWidth = w;
-      // Ink load: slow strokes ride at full saturation; fast strokes
-      // deplete the brush. Same smoothing as width so the wet/dry feel
-      // tracks velocity without flicker.
       const targetLoad = clamp(1 - speed * 0.22, 0.32, 1);
       const load = prevLoad * 0.55 + targetLoad * 0.45;
       prevLoad = load;
-      // Tiny per-point width jitter — fakes irregular bristle edge.
       const jitter = 1 + (Math.random() - 0.5) * 0.18;
       points.push({ x, y, w: w * jitter, load, bornAt: now });
       if (points.length > MAX_POINTS) points.shift();
@@ -202,11 +181,6 @@ const InkCursor = () => {
         arcs = new Float32Array(n);
       }
 
-      // Per-point age-derived alpha + half-width. Alpha decays
-      // quadratically (ink holds vivid then fades). Half-width tapers
-      // as sqrt of remaining life — slower start, faster at the end —
-      // so the oldest end of the stroke narrows to a point like a
-      // brush lifting off paper.
       for (let i = 0; i < n; i++) {
         const age = now - points[i].bornAt;
         if (age >= POINT_LIFETIME) {
@@ -219,9 +193,6 @@ const InkCursor = () => {
         }
       }
 
-      // Cumulative arc length per point — feeds the bristle noise's
-      // along-stroke axis. Recomputed each frame from the oldest live
-      // point so values don't grow unbounded across long sessions.
       arcs[0] = 0;
       for (let i = 1; i < n; i++) {
         const dx = points[i].x - points[i - 1].x;
@@ -229,10 +200,6 @@ const InkCursor = () => {
         arcs[i] = arcs[i - 1] + Math.hypot(dx, dy);
       }
 
-      // Pack per-segment instance data: one segment per consecutive
-      // point pair. The renderer extrudes a bounding quad per segment
-      // and SDF-renders it; MAX-blended overlap across adjacent quads
-      // makes joints continuous through any corner.
       const segmentCount = n - 1;
       for (let s = 0; s < segmentCount; s++) {
         const off = s * SEGMENT_STRIDE;
@@ -258,8 +225,6 @@ const InkCursor = () => {
     };
     rafId = requestAnimationFrame(tick);
 
-    // Context loss — rebuild the renderer and resume. The trail is reset
-    // (no point in trying to redraw stale history through a new context).
     const onLost = (e: Event) => {
       e.preventDefault();
       cancelAnimationFrame(rafId);
@@ -268,9 +233,7 @@ const InkCursor = () => {
     const onRestored = () => {
       try {
         renderer?.dispose();
-      } catch {
-        /* ignore */
-      }
+      } catch {}
       try {
         renderer = new InkCursorRenderer(gl);
       } catch {

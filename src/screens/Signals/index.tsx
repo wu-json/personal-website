@@ -13,11 +13,6 @@ import {
   signalPlainExcerpt,
 } from './preview';
 
-/** Hero frame in the collapsed list. Landscape shots keep their own aspect
- *  ratio so nothing is cropped away (a 16:9 screenshot used to lose its
- *  edges to a fixed 4:3 cover). Portrait/square shots are clamped to 4:3 so
- *  a tall photo can't swallow the list; the <img> inside `object-cover`s
- *  into that frame. Width/height drive ProgressiveImage's --ar. */
 const MIN_LIST_HERO_RATIO = 4 / 3;
 
 const CollapsedListHeroImage = ({

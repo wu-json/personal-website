@@ -1,17 +1,3 @@
-/**
- * Single markdown pipeline for every signal body (detail + full list rows).
- *
- * Extend here only — do not fork another Markdown + remark stack for Signals.
- * - remark-gfm: tables, footnotes [^id], etc. Tables are wrapped in a
- *   horizontal scroll container so a wide table never widens the page on
- *   narrow viewports (`.signal-table-scroll` in index.css).
- * - rehype-raw: <img> with dimensions for ProgressiveImage; <iframe> for
- *   responsive 16:9 video embeds (use youtube-nocookie.com embed URLs)
- * - ```chart fences: JSON spec rendered as inline SVG by SignalChart
- * - Footnote block styling: `.signal-prose section[data-footnotes]` in index.css
- *
- * @see AGENTS.md → "Signals markdown reference"
- */
 import type { Element, ElementContent } from 'hast';
 import type { AnchorHTMLAttributes, ReactNode } from 'react';
 import Markdown from 'react-markdown';
@@ -21,10 +7,6 @@ import remarkGfm from 'remark-gfm';
 import { ProgressiveImage } from '../../components/ProgressiveImage';
 import { SignalChart } from './SignalChart';
 
-/**
- * A ```chart fence arrives as <pre><code class="language-chart">…</code></pre>.
- * Return its JSON text, or null for any other <pre>.
- */
 function chartSource(node?: Element): string | null {
   const code = node?.children.find(
     (c): c is Element => c.type === 'element' && c.tagName === 'code',

@@ -10,9 +10,6 @@ import {
   stripFirstImage,
 } from './rss';
 
-// ---------------------------------------------------------------------------
-// parseFrontmatter
-// ---------------------------------------------------------------------------
 describe('parseFrontmatter', () => {
   it('parses YAML frontmatter with multiple fields', () => {
     const raw = `---
@@ -74,9 +71,6 @@ Body.`;
   });
 });
 
-// ---------------------------------------------------------------------------
-// parseRssTimestamp
-// ---------------------------------------------------------------------------
 describe('parseRssTimestamp', () => {
   it('converts dot-separated date with "//" separator', () => {
     const result = parseRssTimestamp('2026.04.28 // 12:00');
@@ -92,9 +86,6 @@ describe('parseRssTimestamp', () => {
   });
 });
 
-// ---------------------------------------------------------------------------
-// escapeXml
-// ---------------------------------------------------------------------------
 describe('escapeXml', () => {
   it('escapes &, <, >, and "', () => {
     expect(escapeXml('AT&T "value" <tag>')).toBe(
@@ -111,9 +102,6 @@ describe('escapeXml', () => {
   });
 });
 
-// ---------------------------------------------------------------------------
-// plainExcerpt
-// ---------------------------------------------------------------------------
 describe('plainExcerpt', () => {
   it('strips <img> tags', () => {
     const body = 'Some text <img src="x.jpg" /> and more.';
@@ -156,7 +144,7 @@ Body text starts here.
   it('truncates long text at word boundary', () => {
     const body = 'word '.repeat(100);
     const result = plainExcerpt(body, 50);
-    expect(result.length).toBeLessThanOrEqual(55); // 50 + ellipsis wiggle
+    expect(result.length).toBeLessThanOrEqual(55);
     expect(result.endsWith('…')).toBe(true);
   });
 
@@ -170,9 +158,6 @@ Body text starts here.
   });
 });
 
-// ---------------------------------------------------------------------------
-// styleImages
-// ---------------------------------------------------------------------------
 describe('styleImages', () => {
   it('adds style to an <img> tag without an existing style', () => {
     const input = '<img src="/photo.jpg">';
@@ -199,11 +184,9 @@ describe('styleImages', () => {
     const input =
       '<img src="a.jpg"><p>text</p><img src="b.jpg" style="width:100%">';
     const result = styleImages(input);
-    // First img gets style
     expect(result).toContain(
       '<img src="a.jpg" style="max-width:100%;height:auto">',
     );
-    // Second img with existing style is unchanged
     expect(result).toContain('<img src="b.jpg" style="width:100%">');
   });
 
@@ -225,9 +208,6 @@ describe('styleImages', () => {
   });
 });
 
-// ---------------------------------------------------------------------------
-// stripFirstImage
-// ---------------------------------------------------------------------------
 describe('stripFirstImage', () => {
   it('strips the only <img> tag', () => {
     const input = '<img src="hero.jpg">';
@@ -267,9 +247,6 @@ describe('stripFirstImage', () => {
   });
 });
 
-// ---------------------------------------------------------------------------
-// replaceChartBlocks
-// ---------------------------------------------------------------------------
 describe('replaceChartBlocks', () => {
   it('swaps a chart fence for a captioned placeholder', () => {
     const body =

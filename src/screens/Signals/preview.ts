@@ -1,4 +1,3 @@
-/** First <img> in signal markdown (hero), if any. */
 export function parseFirstImgFromSignalBody(body: string): {
   src: string;
   alt: string;
@@ -16,11 +15,6 @@ export function parseFirstImgFromSignalBody(body: string): {
   return { src, alt, width: Number(w), height: Number(h) };
 }
 
-/**
- * Hero media never counts as list text — that includes the <figure> wrapper and
- * its <figcaption>, whose words would otherwise open the collapsed excerpt.
- * ```chart fences are JSON specs, not prose, so they go too.
- */
 function stripMedia(body: string): string {
   return body
     .replace(/```chart\b[\s\S]*?```/g, ' ')
@@ -35,9 +29,6 @@ function bodyPlainTextLength(body: string): number {
   return stripMedia(body).replace(/\s+/g, ' ').length;
 }
 
-/**
- * Index list: show a teaser instead of full body when not expanded and body is long.
- */
 export function shouldCollapseSignalList(
   expanded: boolean,
   body: string,
@@ -46,15 +37,14 @@ export function shouldCollapseSignalList(
   return bodyPlainTextLength(body) > 520;
 }
 
-/** Plain excerpt for collapsed list rows (after stripping hero images). */
 export function signalPlainExcerpt(body: string, maxLen = 300): string {
   const plain = stripMedia(body)
-    .replace(/^\[\^[^\]]+\]:.*$\n?/gm, '') // strip footnote definition lines
-    .replace(/\[\^[^\]]+\]/g, '') // strip footnote reference markers
-    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // inline links → link text
-    .replace(/^\s*(?:[-*+]|\d+\.)\s+/gm, '') // list markers (keep in-word hyphens: "4-month")
-    .replace(/[`#>*_]/g, '') // formatting chars
-    .replace(/\s+/g, ' ') // collapse whitespace
+    .replace(/^\[\^[^\]]+\]:.*$\n?/gm, '')
+    .replace(/\[\^[^\]]+\]/g, '')
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    .replace(/^\s*(?:[-*+]|\d+\.)\s+/gm, '')
+    .replace(/[`#>*_]/g, '')
+    .replace(/\s+/g, ' ')
     .trim();
   if (plain.length <= maxLen) return plain;
   const cut = plain.slice(0, maxLen);

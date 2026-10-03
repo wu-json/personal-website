@@ -1,13 +1,3 @@
-/**
- * Inline SVG charts for signal bodies, authored as a ```chart fenced block
- * whose body is a JSON spec (see `ChartSpec`). Rendered by `MarkdownBody`.
- *
- * Monochrome on purpose: every mark takes its color from the ink tokens in
- * index.css, so a chart tracks the theme the same way the prose does.
- * Container styles live under `.signal-chart` in index.css.
- *
- * @see AGENTS.md → "Signals markdown reference" → Charts
- */
 import type { ReactNode } from 'react';
 
 type Tone = 'ink' | 'soft' | 'faint' | 'ghost';
@@ -15,18 +5,14 @@ type Tone = 'ink' | 'soft' | 'faint' | 'ghost';
 type DumbbellSpec = {
   type: 'dumbbell';
   caption?: string;
-  /** Legend labels for the start and end dots. */
   from: string;
   to: string;
-  /** Small muted note at the end of the legend row (e.g. sample size). */
   note?: string;
   domain: [number, number];
   ticks: number[];
-  /** Decimal places for tick and value labels (default 3 for values). */
   precision?: number;
   rows: {
     label: string;
-    /** Sub-label at the right edge of the label column (e.g. an arm). */
     group?: string;
     from: number;
     to: number;
@@ -37,9 +23,7 @@ type LineSeries = {
   label: string;
   tone?: Tone;
   dash?: boolean;
-  /** Dots at each point: none (default), solid, or hollow. */
   markers?: 'none' | 'solid' | 'hollow';
-  /** Print each point's y value beside its marker. */
   annotate?: boolean;
   points: [number, number][];
 };

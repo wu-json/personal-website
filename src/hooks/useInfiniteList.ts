@@ -1,11 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 type UseInfiniteListOptions = {
-  /** Number of items to reveal when the sentinel intersects. */
   pageSize?: number;
-  /** Number of items rendered on first mount. Defaults to `pageSize`. */
   initialSize?: number;
-  /** IntersectionObserver `rootMargin`. Fetch ahead so the reveal feels seamless. */
   rootMargin?: string;
 };
 
@@ -15,16 +12,6 @@ type UseInfiniteListResult = {
   done: boolean;
 };
 
-/**
- * Scroll-triggered windowed rendering for static lists.
- *
- * Tracks a `visibleCount` that grows by `pageSize` every time the sentinel
- * element enters (or nears) the viewport. Callers slice their data by
- * `visibleCount` and attach `sentinelRef` to a trailing element.
- *
- * Falls back to rendering everything when `IntersectionObserver` is not
- * available (very old browsers, SSR).
- */
 export function useInfiniteList(
   total: number,
   options: UseInfiniteListOptions = {},

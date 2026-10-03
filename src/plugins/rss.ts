@@ -49,8 +49,6 @@ export function escapeXml(s: string): string {
 }
 
 export function plainExcerpt(body: string, maxLen = 300): string {
-  // Same media stripping as preview.ts stripMedia — captions and media tags
-  // must not leak tag fragments into the feed <description>.
   const noMedia = body
     .replace(/```chart\b[\s\S]*?```/g, ' ')
     .replace(/<figcaption[^>]*>[\s\S]*?<\/figcaption>/gi, ' ')
@@ -69,11 +67,6 @@ export function plainExcerpt(body: string, maxLen = 300): string {
   return `${(lastSpace > maxLen * 0.55 ? cut.slice(0, lastSpace) : cut).trimEnd()}…`;
 }
 
-/**
- * Feed readers can't run SignalChart, so a ```chart fence (a JSON spec) would
- * land in <content:encoded> as a code block of numbers. Swap each one for a
- * one-line placeholder carrying the chart's caption.
- */
 export function replaceChartBlocks(body: string): string {
   return body.replace(/```chart\b[^\n]*\n([\s\S]*?)```/g, (_, json: string) => {
     let caption = '';
@@ -81,33 +74,18 @@ export function replaceChartBlocks(body: string): string {
       caption = String(
         (JSON.parse(json) as { caption?: string }).caption ?? '',
       );
-    } catch {
-      // Malformed spec — the site renders an error for it; the feed just
-      // gets the bare placeholder.
-    }
+    } catch {}
     return `<p><em>[chart${caption ? `: ${caption}` : ''}]</em></p>`;
   });
 }
 
-/**
- * Add inline styles to <img> tags that lack a `style` attribute.
- * Each tag is matched individually so a later tag with `style` doesn't
- * suppress an earlier tag without one.
- */
 export function styleImages(html: string): string {
   return html.replace(/<img\s[^>]*\/?>/gi, match => {
     if (/\bstyle\s*=/.test(match)) return match;
-    // Insert style before optional space + /> or >, avoiding double spaces
     return match.replace(/ ?\/?>$/, ' style="max-width:100%;height:auto"$&');
   });
 }
 
-/**
- * Strip only the first <img> tag from HTML content.
- * This is the image RSS viewers promote to a featured/hero image;
- * removing it from the body prevents the duplicate while it still
- * appears as the featured display.
- */
 export function stripFirstImage(html: string): string {
   return html.replace(/<img\s[^>]*\/?>/i, '');
 }
@@ -151,7 +129,6 @@ async function generateFeed(): Promise<string> {
       const pubDate = parseRssTimestamp(s.timestamp);
       const pubDateTag = pubDate ? `\n      <pubDate>${pubDate}</pubDate>` : '';
       const title = escapeXml(s.title ?? `[${s.id}]`);
-      // Never leave description empty — some viewers scrape the linked page
       const descRaw = plainExcerpt(s.body) || s.title || `[${s.id}]`;
       const desc = escapeXml(descRaw);
 

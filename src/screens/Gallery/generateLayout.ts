@@ -1,12 +1,12 @@
 export type ImageSpec = {
   id: string;
   orientation: 'portrait' | 'landscape';
-  aspectRatio?: number; // real w/h ratio — used instead of random when present
-  imageUrl?: string; // URL to load as texture
-  label?: string; // display label (defaults to id)
-  groupId?: string; // references a groupings entry
-  groupLayout?: 'row' | 'column'; // layout direction for the group
-  groupCaption?: string; // shared caption for the group
+  aspectRatio?: number;
+  imageUrl?: string;
+  label?: string;
+  groupId?: string;
+  groupLayout?: 'row' | 'column';
+  groupCaption?: string;
 };
 
 export type AABB = {
@@ -51,15 +51,11 @@ export interface GalleryLayout {
   fillLights: Array<[number, number, number]>;
 }
 
-// ---------------------------------------------------------------------------
-// Deterministic hash (no Math.random)
-// ---------------------------------------------------------------------------
 const deterministicHash = (str: string): number => {
   let h = 5381;
   for (let i = 0; i < str.length; i++) {
     h = ((h << 5) + h + str.charCodeAt(i)) & 0x7fffffff;
   }
-  // Avalanche finalizer so similar strings produce very different hashes
   h ^= h >>> 16;
   h = Math.imul(h, 0x45d9f3b) & 0x7fffffff;
   h ^= h >>> 16;
@@ -69,16 +65,13 @@ const deterministicHash = (str: string): number => {
 const hashFloat = (h: number, min: number, max: number): number =>
   min + ((h & 0xffff) / 0xffff) * (max - min);
 
-// ---------------------------------------------------------------------------
-// Wall segment: a surface that can receive art
-// ---------------------------------------------------------------------------
 type WallSegment = {
-  origin: [number, number, number]; // left-edge world position (at segment start)
-  normal: [number, number, number]; // outward-facing normal
-  rotation: [number, number, number]; // Euler rotation for art placed on this wall
-  width: number; // usable width
-  reserved: number; // span reserved (e.g. for welcome text)
-  used: number; // span consumed so far
+  origin: [number, number, number];
+  normal: [number, number, number];
+  rotation: [number, number, number];
+  width: number;
+  reserved: number;
+  used: number;
 };
 
 const WALL_THICKNESS = 0.8;
@@ -87,29 +80,19 @@ const ART_PADDING = 2.5;
 const GROUP_GAP = 0.3;
 const WELCOME_CENTER_X = 3;
 
-// Linear interpolation of room height: 10→16 as roomSize goes 20→60, clamped to [10, 16]
 const computeRoomHeight = (roomSize: number): number => {
   const h = Math.max(10, Math.min(16, 10 + ((roomSize - 20) * 6) / 40));
-  return Math.round(h * 2) / 2; // round to nearest 0.5
+  return Math.round(h * 2) / 2;
 };
 
-// ---------------------------------------------------------------------------
-// 1. Compute art sizes from orientation + deterministic hash
-//
-// Uses size tiers (small / medium / large) so pieces feel varied like a
-// real gallery rather than clustering around one "medium" size.
-// ---------------------------------------------------------------------------
 const computeArtSize = (spec: ImageSpec): { width: number; height: number } => {
   const h = deterministicHash(spec.id);
-  // Pick size tier: ~30% small, ~40% medium, ~30% large
   const tierVal = (h >>> 16) % 100;
   const tier = tierVal < 30 ? 0 : tierVal < 70 ? 1 : 2;
 
-  // When a real aspect ratio is provided, use it instead of the hash-derived one
   if (spec.aspectRatio != null) {
     const ar = spec.aspectRatio;
     if (ar > 1) {
-      // Landscape: pick width from tier range, derive height
       const width =
         tier === 0
           ? hashFloat(h, 3, 4.5)
@@ -118,7 +101,6 @@ const computeArtSize = (spec: ImageSpec): { width: number; height: number } => {
             : hashFloat(h, 8, 11);
       return { width, height: width / ar };
     }
-    // Portrait / square: pick height from tier range, derive width
     const height =
       tier === 0
         ? hashFloat(h, 3, 4)
@@ -129,7 +111,7 @@ const computeArtSize = (spec: ImageSpec): { width: number; height: number } => {
   }
 
   if (spec.orientation === 'landscape') {
-    const aspect = 1.4 + hashFloat(h >>> 4, 0, 0.4); // 1.4–1.8
+    const aspect = 1.4 + hashFloat(h >>> 4, 0, 0.4);
     if (tier === 0) {
       const width = hashFloat(h, 3, 4.5);
       return { width, height: width / aspect };
@@ -142,8 +124,7 @@ const computeArtSize = (spec: ImageSpec): { width: number; height: number } => {
     return { width, height: width / aspect };
   }
 
-  // Portrait
-  const aspect = 0.6 + hashFloat(h >>> 4, 0, 0.14); // 0.6–0.74
+  const aspect = 0.6 + hashFloat(h >>> 4, 0, 0.14);
   if (tier === 0) {
     const height = hashFloat(h, 3, 4);
     return { width: height * aspect, height };
@@ -156,9 +137,6 @@ const computeArtSize = (spec: ImageSpec): { width: number; height: number } => {
   return { width: height * aspect, height };
 };
 
-// ---------------------------------------------------------------------------
-// 2. Room dimensions + partition count
-// ---------------------------------------------------------------------------
 const computeRoomSize = (
   images: ImageSpec[],
 ): { roomSize: number; roomHeight: number; partitionCount: number } => {
@@ -175,10 +153,8 @@ const computeRoomSize = (
 
   const roomHeight = computeRoomHeight(roomSize);
 
-  // Front wall is entirely reserved for welcome text — only 3 walls contribute
   const perimeterSupply = 2 * roomSize + roomSize - 3 * CORNER_MARGIN * 2;
   const deficit = targetSupply - perimeterSupply;
-  // Each partition provides roughly roomSize * 0.4 usable wall surface (both faces)
   const surfacePerPartition = roomSize * 0.4;
   const partitionCount =
     deficit > 0 ? Math.ceil(deficit / surfacePerPartition) : 0;
@@ -186,12 +162,6 @@ const computeRoomSize = (
   return { roomSize, roomHeight, partitionCount };
 };
 
-// ---------------------------------------------------------------------------
-// 3. Generate partition walls from pattern catalog
-//
-// Patterns create structured gallery layouts (T-shapes, archways, alcoves)
-// rather than scattered walls. Each pattern builds on the previous tier.
-// ---------------------------------------------------------------------------
 const generatePartitions = (
   count: number,
   roomW: number,
@@ -203,17 +173,12 @@ const generatePartitions = (
   const halfW = roomW / 2;
   const halfD = roomD / 2;
 
-  // Junction overlap so perpendicular walls have no gap at connections
   const J = WALL_THICKNESS;
 
-  // Each count range is a standalone pattern — no incremental mutation.
-  // All parallel walls are kept >= 12 units apart.
-
   if (count <= 2) {
-    // L-shape: horizontal back divider + perpendicular wing
     const backZ = -halfD * 0.35;
     const hWidth = roomW * 0.45;
-    const hEdge = hWidth / 2; // right edge X of horizontal wall
+    const hEdge = hWidth / 2;
     const p: Partition[] = [
       {
         position: [0, 0, backZ],
@@ -231,31 +196,26 @@ const generatePartitions = (
   }
 
   if (count <= 4) {
-    // T-shape + front divider
     const backZ = -halfD * 0.35;
     const hWidth = roomW * 0.45;
-    const hEdge = hWidth / 2; // right edge X of horizontal wall
+    const hEdge = hWidth / 2;
     const wingD = roomD * 0.3;
     const wing2D = roomD * 0.25;
     const p: Partition[] = [
-      // Horizontal back wall
       {
         position: [0, 0, backZ],
         size: [hWidth, partitionHeight, WALL_THICKNESS],
       },
-      // Right wing extending forward (positioned at horizontal wall's right edge)
       {
         position: [hEdge, 0, backZ + (wingD + J) / 2 - J / 2],
         size: [WALL_THICKNESS, partitionHeight, wingD + J],
       },
-      // Left wing extending backward (positioned at horizontal wall's left edge)
       {
         position: [-hEdge, 0, backZ - (wing2D + J) / 2 + J / 2],
         size: [WALL_THICKNESS, partitionHeight, wing2D + J],
       },
     ];
     if (count >= 4) {
-      // Front horizontal divider (well separated — at least halfD*0.7 from back wall)
       p.push({
         position: [-halfW * 0.15, 0, halfD * 0.35],
         size: [roomW * 0.35, partitionHeight, WALL_THICKNESS],
@@ -265,24 +225,18 @@ const generatePartitions = (
   }
 
   if (count <= 7) {
-    // Archway pair in back half + well-spaced walls.
-    // Wings are perpendicular to archway; extra walls are horizontal
-    // (perpendicular to wings) so no two parallel walls are close.
     const backZ = -halfD * 0.35;
     const archGap = roomW * 0.12;
     const archW = roomW * 0.22;
     const p: Partition[] = [
-      // Left archway half
       {
         position: [-(archGap / 2 + archW / 2), 0, backZ],
         size: [archW, partitionHeight, WALL_THICKNESS],
       },
-      // Right archway half
       {
         position: [archGap / 2 + archW / 2, 0, backZ],
         size: [archW, partitionHeight, WALL_THICKNESS],
       },
-      // Left wing extending backward (vertical)
       {
         position: [
           -(archGap / 2 + archW),
@@ -291,7 +245,6 @@ const generatePartitions = (
         ],
         size: [WALL_THICKNESS, partitionHeight, roomD * 0.2 + J],
       },
-      // Right wing extending forward (vertical)
       {
         position: [
           archGap / 2 + archW,
@@ -300,21 +253,18 @@ const generatePartitions = (
         ],
         size: [WALL_THICKNESS, partitionHeight, roomD * 0.25 + J],
       },
-      // Front horizontal divider (well separated from archway)
       {
         position: [halfW * 0.1, 0, halfD * 0.35],
         size: [roomW * 0.35, partitionHeight, WALL_THICKNESS],
       },
     ];
     if (count >= 6) {
-      // Horizontal wall in front-left (perpendicular to nearby verticals, not parallel)
       p.push({
         position: [-halfW * 0.3, 0, halfD * 0.05],
         size: [roomW * 0.2, partitionHeight, WALL_THICKNESS],
       });
     }
     if (count >= 7) {
-      // Horizontal wall in center-right (far from all other horizontals)
       p.push({
         position: [halfW * 0.35, 0, -halfD * 0.02],
         size: [roomW * 0.2, partitionHeight, WALL_THICKNESS],
@@ -323,36 +273,27 @@ const generatePartitions = (
     return mergeClosePartitions(snapToPerimeter(p, roomW, roomD));
   }
 
-  // 8+: Cross layout with alcoves.
-  // Central cross + 4 well-spaced alcove walls. Alcove walls are sized
-  // generously to provide enough hanging surface for large piece counts.
   const p: Partition[] = [
-    // Central horizontal (slightly back of center)
     {
       position: [0, 0, -halfD * 0.15],
       size: [roomW * 0.5, partitionHeight, WALL_THICKNESS],
     },
-    // Central vertical (slightly left of center)
     {
       position: [-halfW * 0.1, 0, 0],
       size: [WALL_THICKNESS, partitionHeight, roomD * 0.5],
     },
-    // NW alcove — horizontal
     {
       position: [-halfW * 0.4, 0, -halfD * 0.55],
       size: [roomW * 0.3, partitionHeight, WALL_THICKNESS],
     },
-    // NE alcove — vertical
     {
       position: [halfW * 0.45, 0, -halfD * 0.45],
       size: [WALL_THICKNESS, partitionHeight, roomD * 0.25],
     },
-    // SE alcove — horizontal
     {
       position: [halfW * 0.35, 0, halfD * 0.45],
       size: [roomW * 0.3, partitionHeight, WALL_THICKNESS],
     },
-    // SW alcove — vertical
     {
       position: [-halfW * 0.45, 0, halfD * 0.35],
       size: [WALL_THICKNESS, partitionHeight, roomD * 0.25],
@@ -362,13 +303,6 @@ const generatePartitions = (
   return mergeClosePartitions(snapToPerimeter(p.slice(0, count), roomW, roomD));
 };
 
-// ---------------------------------------------------------------------------
-// 3b-i. Snap partition ends to room perimeter walls
-//
-// If a partition end is close to a room wall, extend it to meet flush.
-// Partition-to-partition alignment is handled by the patterns themselves
-// (wings computed from parent wall edges) rather than post-processing.
-// ---------------------------------------------------------------------------
 const snapToPerimeter = (
   partitions: Partition[],
   roomW: number,
@@ -417,18 +351,10 @@ const snapToPerimeter = (
   return out;
 };
 
-// ---------------------------------------------------------------------------
-// 3b-ii. Clean up partition placement
-//
-// Two passes for same-orientation wall pairs:
-//  1. Collinear (nearly same line, small gap) → merge into one wider wall.
-//  2. Close parallels (different line but < MIN_PARALLEL_DIST) → drop the
-//     shorter wall so we never get awkward narrow corridors.
-// ---------------------------------------------------------------------------
 const mergeClosePartitions = (partitions: Partition[]): Partition[] => {
-  const COLLINEAR_TOL = WALL_THICKNESS * 2; // "same line" tolerance
-  const MERGE_GAP = 3; // max gap for collinear merge
-  const MIN_PARALLEL_DIST = 8; // minimum distance between parallel walls
+  const COLLINEAR_TOL = WALL_THICKNESS * 2;
+  const MERGE_GAP = 3;
+  const MIN_PARALLEL_DIST = 8;
 
   const out = [...partitions];
   let changed = true;
@@ -441,14 +367,12 @@ const mergeClosePartitions = (partitions: Partition[]): Partition[] => {
         const b = out[j]!;
         const aH = a.size[0] > a.size[2];
         const bH = b.size[0] > b.size[2];
-        if (aH !== bH) continue; // different orientations
+        if (aH !== bH) continue;
 
         if (aH) {
-          // Both horizontal — check Z distance
           const dist = Math.abs(a.position[2] - b.position[2]);
 
           if (dist <= COLLINEAR_TOL) {
-            // Nearly same line — merge if gap is small
             const aMin = a.position[0] - a.size[0] / 2;
             const aMax = a.position[0] + a.size[0] / 2;
             const bMin = b.position[0] - b.size[0] / 2;
@@ -470,13 +394,11 @@ const mergeClosePartitions = (partitions: Partition[]): Partition[] => {
             changed = true;
             break outer;
           } else if (dist < MIN_PARALLEL_DIST) {
-            // Too-close parallels — drop the shorter wall
             out.splice(a.size[0] <= b.size[0] ? i : j, 1);
             changed = true;
             break outer;
           }
         } else {
-          // Both vertical — check X distance
           const dist = Math.abs(a.position[0] - b.position[0]);
 
           if (dist <= COLLINEAR_TOL) {
@@ -513,11 +435,6 @@ const mergeClosePartitions = (partitions: Partition[]): Partition[] => {
   return out;
 };
 
-// ---------------------------------------------------------------------------
-// 4. Build wall segments (perimeter + partitions)
-// ---------------------------------------------------------------------------
-
-// Split a linear range into sub-ranges that avoid junction exclusion zones
 const splitAtJunctions = (
   rangeMin: number,
   rangeMax: number,
@@ -550,12 +467,10 @@ const buildPerimeterSegments = (
   const halfW = roomW / 2;
   const halfD = roomD / 2;
   const JUNCTION_MARGIN = WALL_THICKNESS + 0.5;
-  const TOUCH_TOL = 1.0; // tolerance for "partition touches perimeter"
+  const TOUCH_TOL = 1.0;
 
   const segments: WallSegment[] = [];
 
-  // --- Back wall (z = -halfD, faces +Z, sweeps +X) ---
-  // Vertical partitions connecting to back wall create junctions
   const backJunctions: number[] = [];
   for (const p of partitions) {
     const isV = p.size[2] > p.size[0];
@@ -583,8 +498,6 @@ const buildPerimeterSegments = (
     });
   }
 
-  // --- Left wall (x = -halfW, faces +X, sweeps -Z) ---
-  // Horizontal partitions connecting to left wall create junctions
   const leftJunctions: number[] = [];
   for (const p of partitions) {
     const isH = p.size[0] > p.size[2];
@@ -602,7 +515,6 @@ const buildPerimeterSegments = (
   )) {
     const usable = rMax - rMin;
     if (usable < 2) continue;
-    // Origin at +Z end of range (sweep goes -Z)
     segments.push({
       origin: [-halfW + 0.1, 0, rMax],
       normal: [1, 0, 0],
@@ -613,8 +525,6 @@ const buildPerimeterSegments = (
     });
   }
 
-  // --- Right wall (x = +halfW, faces -X, sweeps +Z) ---
-  // Horizontal partitions connecting to right wall create junctions
   const rightJunctions: number[] = [];
   for (const p of partitions) {
     const isH = p.size[0] > p.size[2];
@@ -632,7 +542,6 @@ const buildPerimeterSegments = (
   )) {
     const usable = rMax - rMin;
     if (usable < 2) continue;
-    // Origin at -Z end of range (sweep goes +Z)
     segments.push({
       origin: [halfW - 0.1, 0, rMin],
       normal: [-1, 0, 0],
@@ -643,16 +552,13 @@ const buildPerimeterSegments = (
     });
   }
 
-  // Front wall: no art segments — reserved entirely for welcome text
   return segments;
 };
 
 const buildPartitionSegments = (partitions: Partition[]): WallSegment[] => {
   const segments: WallSegment[] = [];
-  // Margin around junction points where art must not be placed.
-  // Accounts for connecting wall half-thickness plus visual clearance.
   const JUNCTION_MARGIN = WALL_THICKNESS + 0.5;
-  const EDGE_MARGIN = 1; // trim from each end of a partition face
+  const EDGE_MARGIN = 1;
 
   for (let i = 0; i < partitions.length; i++) {
     const p = partitions[i];
@@ -660,7 +566,6 @@ const buildPartitionSegments = (partitions: Partition[]): WallSegment[] => {
     const [sx, , sz] = p.size;
     const isHorizontal = sx > sz;
 
-    // Find where perpendicular partitions intersect this one
     const junctions: number[] = [];
     for (let j = 0; j < partitions.length; j++) {
       if (i === j) continue;
@@ -670,24 +575,22 @@ const buildPartitionSegments = (partitions: Partition[]): WallSegment[] => {
       const oIsHorizontal = osx > osz;
 
       if (isHorizontal && !oIsHorizontal) {
-        // This horizontal, other vertical — check X overlap and Z proximity
         if (
           opx >= px - sx / 2 &&
           opx <= px + sx / 2 &&
           opz - osz / 2 <= pz + sz / 2 &&
           opz + osz / 2 >= pz - sz / 2
         ) {
-          junctions.push(opx); // junction along X axis
+          junctions.push(opx);
         }
       } else if (!isHorizontal && oIsHorizontal) {
-        // This vertical, other horizontal — check Z overlap and X proximity
         if (
           opz >= pz - sz / 2 &&
           opz <= pz + sz / 2 &&
           opx - osx / 2 <= px + sx / 2 &&
           opx + osx / 2 >= px - sx / 2
         ) {
-          junctions.push(opz); // junction along Z axis
+          junctions.push(opz);
         }
       }
     }
@@ -704,7 +607,6 @@ const buildPartitionSegments = (partitions: Partition[]): WallSegment[] => {
       )) {
         const usable = rMax - rMin;
         if (usable < 2) continue;
-        // Front face (faces +Z)
         segments.push({
           origin: [rMin, py, pz + WALL_THICKNESS / 2 + 0.1],
           normal: [0, 0, 1],
@@ -713,7 +615,6 @@ const buildPartitionSegments = (partitions: Partition[]): WallSegment[] => {
           reserved: 0,
           used: 0,
         });
-        // Back face (faces -Z)
         segments.push({
           origin: [rMax, py, pz - WALL_THICKNESS / 2 - 0.1],
           normal: [0, 0, -1],
@@ -735,7 +636,6 @@ const buildPartitionSegments = (partitions: Partition[]): WallSegment[] => {
       )) {
         const usable = rMax - rMin;
         if (usable < 2) continue;
-        // Right face (faces +X) — sweep from +Z to -Z
         segments.push({
           origin: [px + WALL_THICKNESS / 2 + 0.1, py, rMax],
           normal: [1, 0, 0],
@@ -744,7 +644,6 @@ const buildPartitionSegments = (partitions: Partition[]): WallSegment[] => {
           reserved: 0,
           used: 0,
         });
-        // Left face (faces -X) — sweep from -Z to +Z
         segments.push({
           origin: [px - WALL_THICKNESS / 2 - 0.1, py, rMin],
           normal: [-1, 0, 0],
@@ -759,9 +658,6 @@ const buildPartitionSegments = (partitions: Partition[]): WallSegment[] => {
   return segments;
 };
 
-// ---------------------------------------------------------------------------
-// 5. Place art on segments (greedy first-fit-decreasing)
-// ---------------------------------------------------------------------------
 const localToWorld = (
   segment: WallSegment,
   offset: number,
@@ -770,13 +666,8 @@ const localToWorld = (
   const [ox, oy, oz] = segment.origin;
   const [nx, , nz] = segment.normal;
 
-  // "right" vector: perpendicular to normal in XZ plane
-  // For normal (0,0,1) → right is (1,0,0)
-  // For normal (1,0,0) → right is (0,0,1)
-  // For normal (0,0,-1) → right is (-1,0,0)
-  // For normal (-1,0,0) → right is (0,0,-1)
-  const rx = nz; // cross(up, normal).x = nz
-  const rz = -nx; // cross(up, normal).z = -nx
+  const rx = nz;
+  const rz = -nx;
 
   const centerOffset = offset + artWidth / 2;
   return [ox + rx * centerOffset, oy, oz + rz * centerOffset];
@@ -801,14 +692,6 @@ type PlacementItem = {
     }
 );
 
-// ---------------------------------------------------------------------------
-// Compute group member sizes using the same proportional logic as the
-// fragments page: row groups share height (widths ∝ aspect-ratio),
-// column groups share width (heights ∝ 1/aspect-ratio).
-//
-// The shared dimension is picked directly from a generous range (5–8)
-// so grouped pieces have strong visual presence on the wall.
-// ---------------------------------------------------------------------------
 const computeGroupSizes = (
   groupId: string,
   layout: 'row' | 'column',
@@ -823,7 +706,6 @@ const computeGroupSizes = (
   const memberSizes: GroupMemberSize[] = [];
 
   if (layout === 'row') {
-    // Shared height — generous range so the group reads well on the wall
     const sharedH = hashFloat(h, 5, 8);
     let totalW = 0;
     for (const ar of ars) {
@@ -838,7 +720,6 @@ const computeGroupSizes = (
     };
   }
 
-  // column — shared width, each height derived from AR
   const sharedW = hashFloat(h, 5, 8);
   let totalH = 0;
   for (const ar of ars) {
@@ -862,7 +743,6 @@ const distributeArt = (
     ...computeArtSize(img),
   }));
 
-  // Collect groups and solos
   const groupMap = new Map<string, SizedImage[]>();
   const solos: SizedImage[] = [];
   for (const item of sized) {
@@ -878,7 +758,6 @@ const distributeArt = (
     }
   }
 
-  // Build placement items
   const items: PlacementItem[] = [];
 
   for (const s of solos) {
@@ -912,7 +791,6 @@ const distributeArt = (
     });
   }
 
-  // Sort by width descending so large pieces get placed first
   const sorted = [...items].sort((a, b) => b.compositeWidth - a.compositeWidth);
 
   const pieces: ArtPiece[] = [];
@@ -920,8 +798,6 @@ const distributeArt = (
   for (const item of sorted) {
     const needed = item.compositeWidth + ART_PADDING;
 
-    // Find the segment with the MOST remaining space that can still fit this piece.
-    // This spreads art evenly across all walls instead of filling them sequentially.
     let bestSeg: WallSegment | null = null;
     let bestAvail = -1;
     for (const seg of segments) {
@@ -932,7 +808,6 @@ const distributeArt = (
       }
     }
 
-    // Fallback: tighter fit if no segment has room with full padding
     if (!bestSeg) {
       for (const seg of segments) {
         const available = seg.width - seg.reserved - seg.used;
@@ -962,7 +837,6 @@ const distributeArt = (
           imageUrl: item.spec.imageUrl,
         });
       } else {
-        // Compute child offsets using proportionally-sized members
         const childPieces: ArtPieceChild[] = [];
 
         if (item.layout === 'row') {
@@ -1004,15 +878,11 @@ const distributeArt = (
 
       bestSeg.used += bestAvail >= needed ? needed : item.compositeWidth + 1;
     }
-    // If no segment can fit, skip this piece
   }
 
   return pieces;
 };
 
-// ---------------------------------------------------------------------------
-// 6. Colliders from partitions
-// ---------------------------------------------------------------------------
 const partitionColliders = (partitions: Partition[]): AABB[] =>
   partitions.map(p => {
     const [px, , pz] = p.position;
@@ -1025,9 +895,6 @@ const partitionColliders = (partitions: Partition[]): AABB[] =>
     };
   });
 
-// ---------------------------------------------------------------------------
-// Main entry point
-// ---------------------------------------------------------------------------
 export const generateGalleryLayout = (images: ImageSpec[]): GalleryLayout => {
   const { roomSize, roomHeight, partitionCount } = computeRoomSize(images);
   const roomWidth = roomSize;
@@ -1037,7 +904,6 @@ export const generateGalleryLayout = (images: ImageSpec[]): GalleryLayout => {
   const halfH = roomHeight / 2;
   const partitionHeight = roomHeight - 0.4;
 
-  // Generate partitions
   const partitions = generatePartitions(
     partitionCount,
     roomWidth,
@@ -1045,7 +911,6 @@ export const generateGalleryLayout = (images: ImageSpec[]): GalleryLayout => {
     partitionHeight,
   );
 
-  // Build wall segments
   const perimeterSegments = buildPerimeterSegments(
     roomWidth,
     roomDepth,
@@ -1054,25 +919,20 @@ export const generateGalleryLayout = (images: ImageSpec[]): GalleryLayout => {
   const partSegments = buildPartitionSegments(partitions);
   const allSegments = [...perimeterSegments, ...partSegments];
 
-  // Distribute art
   const artPieces = distributeArt(images, allSegments);
 
-  // Colliders
   const colliders = partitionColliders(partitions);
 
-  // Bench colliders
   const benchPositions: Array<[number, number, number]> = [];
   if (roomSize >= 50) {
     benchPositions.push([0, 0, 0]);
     colliders.push({ minX: -3, maxX: 3, minZ: -0.9, maxZ: 0.9 });
   }
 
-  // Spawn: directly in front of welcome text, facing it
   const spawnZ = halfD - Math.min(10, halfD * 0.65);
   const spawnPosition: [number, number, number] = [WELCOME_CENTER_X, 0, spawnZ];
   const spawnLookAt: [number, number, number] = [WELCOME_CENTER_X, 0, halfD];
 
-  // Welcome text: front wall, anchored to WELCOME_CENTER_X
   const welcomePosition: [number, number, number] = [
     WELCOME_CENTER_X,
     0,
@@ -1080,7 +940,6 @@ export const generateGalleryLayout = (images: ImageSpec[]): GalleryLayout => {
   ];
   const welcomeRotation: [number, number, number] = [0, Math.PI, 0];
 
-  // Fill lights: center + 4 quarter points
   const qW = halfW * 0.5;
   const qD = halfD * 0.5;
   const lightY = halfH - 1;

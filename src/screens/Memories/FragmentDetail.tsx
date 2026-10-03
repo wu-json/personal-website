@@ -243,8 +243,6 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
     } = lightboxView;
 
     if (fromGroup && gPhotos && indexInGroup !== undefined) {
-      // In-group navigation: hard boundaries, no wrap. Neighbors are always
-      // solo photos within the same group.
       const prevPhoto = indexInGroup > 0 ? gPhotos[indexInGroup - 1] : null;
       const nextPhoto =
         indexInGroup < gPhotos.length - 1 ? gPhotos[indexInGroup + 1] : null;
@@ -298,7 +296,6 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
         />
       );
     } else {
-      // Top-level solo: wraps via modulo on gridItems.
       const N = gridItems.length;
       const wraps = N > 1;
       const prev = wraps

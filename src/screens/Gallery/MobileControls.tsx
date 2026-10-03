@@ -25,7 +25,6 @@ const MobileControls = ({
   const lookTouchId = useRef<number | null>(null);
   const lookLastPos = useRef({ x: 0, y: 0 });
 
-  // --- Joystick handlers ---
   const onJoystickTouchStart = useCallback(
     (e: React.TouchEvent) => {
       e.preventDefault();
@@ -58,15 +57,13 @@ const MobileControls = ({
           dy = (dy / dist) * MAX_RADIUS;
         }
 
-        // Update knob position directly (no React state)
         if (knobRef.current) {
           knobRef.current.style.transform = `translate(${dx}px, ${dy}px)`;
         }
 
-        // Normalize to -1..1
         if (inputRef.current) {
           inputRef.current.moveX = dx / MAX_RADIUS;
-          inputRef.current.moveY = -(dy / MAX_RADIUS); // invert: up = forward
+          inputRef.current.moveY = -(dy / MAX_RADIUS);
         }
       }
     },
@@ -91,7 +88,6 @@ const MobileControls = ({
     [inputRef],
   );
 
-  // --- Look handlers ---
   const onLookTouchStart = useCallback(
     (e: React.TouchEvent) => {
       e.preventDefault();
@@ -134,7 +130,6 @@ const MobileControls = ({
 
   return (
     <>
-      {/* Look area — right ~65% of screen */}
       <div
         className='fixed top-0 right-0 bottom-0 touch-none'
         style={{ left: '35%' }}
@@ -143,7 +138,6 @@ const MobileControls = ({
         onTouchEnd={onLookTouchEnd}
         onTouchCancel={onLookTouchEnd}
       />
-      {/* Joystick — bottom-left */}
       <div
         ref={joystickRef}
         className='fixed bottom-6 left-6 touch-none rounded-full border border-[color:var(--color-ink-ghost)]'

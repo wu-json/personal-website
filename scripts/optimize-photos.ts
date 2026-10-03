@@ -17,7 +17,6 @@ function rotatedDimensions(
   h: number,
   orientation?: number,
 ): [number, number] {
-  // Orientations 5-8 swap width/height
   return orientation && orientation >= 5 ? [h, w] : [w, h];
 }
 

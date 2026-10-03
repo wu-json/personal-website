@@ -19,21 +19,15 @@ import {
   QUAD_VS,
 } from './shaders';
 
-// 13-tap separable Gaussian weights (offsets 0..6, symmetric).
-// stdDev = 2.5 → tight blur (full-res).
 const WEIGHTS_TIGHT = new Float32Array([
   0.16099, 0.14859, 0.11691, 0.07838, 0.04476, 0.02178, 0.00903,
 ]);
-// stdDev = 3.0 in half-res ≈ stdDev = 6.0 in source pixels → wide blur.
 const WEIGHTS_WIDE = new Float32Array([
   0.13701, 0.12961, 0.1097, 0.08311, 0.05634, 0.03418, 0.01853,
 ]);
 
 type BilinearKernel = { offsets: Float32Array; weights: Float32Array };
 
-// Collapse each symmetric pair of integer taps (1,2), (3,4), (5,6) into one
-// bilinear fetch: sampling at offset i + w[i+1]/(w[i]+w[i+1]) with LINEAR
-// filtering reproduces the exact weighted pair sum. 13 fetches → 7.
 function toBilinearKernel(w13: Float32Array): BilinearKernel {
   const weights = new Float32Array(4);
   const offsets = new Float32Array(3);
@@ -50,8 +44,8 @@ function toBilinearKernel(w13: Float32Array): BilinearKernel {
 const KERNEL_TIGHT = toBilinearKernel(WEIGHTS_TIGHT);
 const KERNEL_WIDE = toBilinearKernel(WEIGHTS_WIDE);
 
-const DISPLACE_SCALE = 1.2; // matches feDisplacementMap scale='1.2'
-const HEAD_ROTATION_RAD = (-4 * Math.PI) / 180; // matches <g transform='rotate(-4 CX CY)'>
+const DISPLACE_SCALE = 1.2;
+const HEAD_ROTATION_RAD = (-4 * Math.PI) / 180;
 
 export type ColorVec = [number, number, number, number];
 
@@ -62,19 +56,19 @@ export type Colors = {
 };
 
 export type RenderState = {
-  flowerRotation: number; // radians
-  petalOffsets: Float32Array; // length PETAL_MESHES.length * 2
-  stamenOffsets: Float32Array; // length STAMENS.length * 2
-  petalBloomScale: Float32Array; // [0,1]
-  petalBloomRotation: Float32Array; // radians
-  petalOpacity: Float32Array; // [0, 0.92]
-  stamenReveal: Float32Array; // [0,1]
-  stamenOpacity: Float32Array; // [0, 0.7]
-  antherOpacity: Float32Array; // [0, 0.75]
-  stemOpacity: number; // [0, 1]
-  stemRevealY: number; // world-y threshold; fragments below are discarded
-  centerScale: number; // [0,1]
-  centerOpacity: number; // [0, 0.85]
+  flowerRotation: number;
+  petalOffsets: Float32Array;
+  stamenOffsets: Float32Array;
+  petalBloomScale: Float32Array;
+  petalBloomRotation: Float32Array;
+  petalOpacity: Float32Array;
+  stamenReveal: Float32Array;
+  stamenOpacity: Float32Array;
+  antherOpacity: Float32Array;
+  stemOpacity: number;
+  stemRevealY: number;
+  centerScale: number;
+  centerOpacity: number;
 };
 
 type GeoProgram = {
@@ -333,7 +327,6 @@ export class SpiderLilyRenderer {
   }
 
   private buildQuad() {
-    // VAO with no attributes; vertex shader generates positions from gl_VertexID.
     this.quadVao = this.gl.createVertexArray()!;
   }
 
@@ -415,13 +408,6 @@ export class SpiderLilyRenderer {
     this.width = width;
     this.height = height;
 
-    // Inflate the stamen stroke half-width on small canvases so the line
-    // survives the wide-blur composite (stdDev ≈ 6 device px) that this
-    // renderer applies to every shape — the old SVG only blurred stamens
-    // with stdDev ≈ 1.2 *viewBox* units, so a 0.8-unit stroke stayed
-    // visible. Target ~1 device px total width: enough that MSAA-4x gives
-    // consistent coverage and the scene layer keeps usable alpha at the
-    // line center, without crossing into "chunky" territory on desktop.
     const requiredHalfWidth = Math.max(
       STAMEN_HALF_WIDTH,
       (0.5 * VIEWBOX.w) / width,
@@ -450,11 +436,6 @@ export class SpiderLilyRenderer {
     this.noiseTex = this.makeFBO(width, height);
     this.bakeNoise();
 
-    // Orthographic projection: viewBox (-180, 10, 800, 470) → clip space (-1..1)
-    // y axis is preserved (SVG y-down, but we render with the same convention
-    // — fragment shader doesn't care). For WebGL clip-space y is up, so we
-    // flip y in the projection to match SVG's y-down so geometry coordinates
-    // are unchanged.
     const left = VIEWBOX.x;
     const right = VIEWBOX.x + VIEWBOX.w;
     const top = VIEWBOX.y;
@@ -463,7 +444,6 @@ export class SpiderLilyRenderer {
     const sy = -2 / (bottom - top);
     const tx = -(right + left) / (right - left);
     const ty = (bottom + top) / (bottom - top);
-    // column-major 3x3
     this.projection[0] = sx;
     this.projection[1] = 0;
     this.projection[2] = 0;
@@ -490,15 +470,13 @@ export class SpiderLilyRenderer {
     const geo = this.geo;
     gl.useProgram(geo.program);
     gl.enable(gl.BLEND);
-    gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA); // premultiplied
+    gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
     gl.disable(gl.DEPTH_TEST);
     gl.uniformMatrix3fv(geo.uniforms.projection, false, this.projection);
     gl.uniform2f(geo.uniforms.flowerPivot, CX, FLOWER_PIVOT_Y);
     gl.uniform1f(geo.uniforms.flowerRotation, state.flowerRotation);
     gl.uniform2f(geo.uniforms.headPivot, CX, CY);
 
-    // Stem — no head tilt (stem is in the outer SVG <g>, outside the
-    // rotate(-4 CX CY) wrapper that holds the flower head)
     gl.uniform1f(geo.uniforms.headRotation, 0);
     gl.uniform2f(geo.uniforms.offset, 0, 0);
     gl.uniform2f(geo.uniforms.bloomPivot, 0, 0);
@@ -522,14 +500,9 @@ export class SpiderLilyRenderer {
       0,
     );
 
-    // Reset revealY for everything else (no discard); enable head tilt
-    // for petals/stamens/anthers/center.
     gl.uniform1f(geo.uniforms.revealY, -1e9);
     gl.uniform1f(geo.uniforms.headRotation, HEAD_ROTATION_RAD);
 
-    // Petals
-    // Bloom pivot is the flower center for all petals (matches CSS
-    // transform-origin: 220px 230px on .spider-lily-petal).
     gl.uniform2f(geo.uniforms.bloomPivot, CX, CY);
     for (let i = 0; i < this.petalMeshes.length; i++) {
       const m = this.petalMeshes[i];
@@ -552,7 +525,6 @@ export class SpiderLilyRenderer {
       gl.drawElements(gl.TRIANGLES, m.indexCount, gl.UNSIGNED_SHORT, 0);
     }
 
-    // Stamens — no per-element bloom; reveal via arcLength
     gl.uniform1f(geo.uniforms.bloomScale, 1);
     gl.uniform1f(geo.uniforms.bloomRotation, 0);
     gl.uniform2f(geo.uniforms.bloomPivot, 0, 0);
@@ -576,7 +548,6 @@ export class SpiderLilyRenderer {
       gl.drawElements(gl.TRIANGLES, m.indexCount, gl.UNSIGNED_SHORT, 0);
     }
 
-    // Anthers — share stamen offset, ink-soft color
     gl.uniform1f(geo.uniforms.reveal, 1);
     for (let i = 0; i < this.antherMeshes.length; i++) {
       const m = this.antherMeshes[i];
@@ -597,7 +568,6 @@ export class SpiderLilyRenderer {
       gl.drawElements(gl.TRIANGLES, m.indexCount, gl.UNSIGNED_SHORT, 0);
     }
 
-    // Center — scale-from-pivot at (CX, CY)
     gl.uniform2f(geo.uniforms.offset, 0, 0);
     gl.uniform2f(geo.uniforms.bloomPivot, CX, CY);
     gl.uniform1f(geo.uniforms.bloomScale, state.centerScale);
@@ -644,8 +614,6 @@ export class SpiderLilyRenderer {
     gl.drawArrays(gl.TRIANGLES, 0, 3);
   }
 
-  // Render the static displacement noise into noiseTex. Called once per
-  // resize — every composited frame then reads it with a single fetch.
   private bakeNoise() {
     const gl = this.gl;
     this.bindFramebuffer(this.noiseTex.fb, this.width, this.height);
@@ -661,13 +629,11 @@ export class SpiderLilyRenderer {
     const gl = this.gl;
     if (this.width === 0 || this.height === 0) return;
 
-    // 1) Draw scene into multisample renderbuffer
     this.bindFramebuffer(this.sceneMS.fb, this.width, this.height);
     gl.clearColor(0, 0, 0, 0);
     gl.clear(gl.COLOR_BUFFER_BIT);
     this.drawScene(state);
 
-    // 2) Resolve MSAA → scene texture
     gl.bindFramebuffer(gl.READ_FRAMEBUFFER, this.sceneMS.fb);
     gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, this.scene.fb);
     gl.blitFramebuffer(
@@ -685,11 +651,9 @@ export class SpiderLilyRenderer {
     gl.bindFramebuffer(gl.READ_FRAMEBUFFER, null);
     gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, null);
 
-    // 3) Tight blur (full-res): scene → tightTmp (H) → tight (V)
     this.blurPass(this.scene, this.tightTmp, 'h', KERNEL_TIGHT);
     this.blurPass(this.tightTmp, this.tight, 'v', KERNEL_TIGHT);
 
-    // 4) Wide blur (half-res): scene → wideTmp (downsample blit) → wide (H) → wideTmp (V) → wideTmp
     gl.bindFramebuffer(gl.READ_FRAMEBUFFER, this.scene.fb);
     gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, this.wideTmp.fb);
     gl.blitFramebuffer(
@@ -706,10 +670,8 @@ export class SpiderLilyRenderer {
     );
     this.blurPass(this.wideTmp, this.wide, 'h', KERNEL_WIDE);
     this.blurPass(this.wide, this.wideTmp, 'v', KERNEL_WIDE);
-    // Final wide result is in wideTmp; alias it
     const wideResult = this.wideTmp;
 
-    // 5) Composite to default framebuffer
     this.bindFramebuffer(null, this.width, this.height);
     gl.clearColor(0, 0, 0, 0);
     gl.clear(gl.COLOR_BUFFER_BIT);
@@ -749,13 +711,9 @@ export class SpiderLilyRenderer {
     gl.deleteProgram(this.blur.program);
     gl.deleteProgram(this.noise.program);
     gl.deleteProgram(this.composite.program);
-    // VAOs/VBOs leak intentionally on dispose — context teardown reclaims them.
   }
 }
 
-// Map stem rise progress (0..1) to a worldY threshold. progress=0 → entire
-// stem clipped (threshold above the top); progress=1 → no clipping. Matches
-// CSS `clip-path: inset(100% 0 0 0) → inset(0)`.
 export function stemRevealYFromProgress(progress: number): number {
   return STEM_TOP_Y + (STEM_BOTTOM_Y - STEM_TOP_Y) * (1 - progress);
 }

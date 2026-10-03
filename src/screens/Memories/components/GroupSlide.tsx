@@ -23,10 +23,6 @@ const GroupSlide = ({
   onPhotoClick: (photo: PhotoMeta) => void;
 }) => {
   const photoKey = useMemo(() => photos.map(p => p.file).join(','), [photos]);
-  // `LightboxShell` keys each `GroupSlide` by slide identity, so a change in
-  // `photos` / `fragmentId` arrives as a fresh mount. The `useState`
-  // initializer alone is enough to seed `loadedSet` from the cache; a
-  // separate effect would just produce a redundant Set + extra render.
   const [loadedSet, setLoadedSet] = useState<Set<string>>(() => {
     const initial = new Set<string>();
     for (const p of photos) {

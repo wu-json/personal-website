@@ -19,8 +19,6 @@ const CARD_WIDTH = 1200;
 const CARD_HEIGHT = 630;
 const MARGIN_X = 96;
 
-// Font sizes are tiered down until the title fits the line budget; the last
-// tier truncates so a pathological title can never overflow the card.
 const TITLE_TIERS = [
   { fontSize: 72, maxChars: 24, maxLines: 2 },
   { fontSize: 56, maxChars: 31, maxLines: 3 },
@@ -39,11 +37,6 @@ export function ogImagePath(id: string): string {
   return `/images/og/signals/${id}.png`;
 }
 
-/**
- * Wrap text into lines of at most maxChars characters, breaking on spaces.
- * Tokens longer than maxChars (e.g. untitled ids) are hard-split so a single
- * word can never overflow a line.
- */
 export function wrapText(text: string, maxChars: number): string[] {
   const words = text
     .split(/\s+/)
@@ -92,11 +85,6 @@ export function cardTitle(s: Pick<OgSignal, 'id' | 'title'>): string {
   return s.title ?? `[${s.id}]`;
 }
 
-/**
- * Build the SVG for a signal's OG card: black background, the spider lily
- * render in the top right, and the signal header (timestamp/location/title)
- * mirroring SignalDetail in the lower left.
- */
 export function buildCardSvg(
   s: Pick<OgSignal, 'id' | 'timestamp' | 'title' | 'location'>,
   flowerPngUri: string,
@@ -127,11 +115,6 @@ export function buildCardSvg(
 </svg>`;
 }
 
-/**
- * Replace the content of an existing `<meta property|name="key" …>` tag.
- * The whole tag is rebuilt so attribute order in the built HTML doesn't
- * matter. No-op if the tag isn't present.
- */
 export function setMetaTag(
   html: string,
   keyAttr: 'property' | 'name',
@@ -147,10 +130,6 @@ export function setMetaTag(
   );
 }
 
-/**
- * Specialize the built index.html's head for one signal so crawlers (which
- * never run the SPA's JS) see per-signal titles, descriptions, and OG cards.
- */
 export function applySignalMeta(indexHtml: string, s: OgSignal): string {
   const title = cardTitle(s);
   const description =
@@ -203,11 +182,6 @@ type CardRenderer = (
   s: Pick<OgSignal, 'id' | 'timestamp' | 'title' | 'location'>,
 ) => Buffer;
 
-/**
- * Load the fonts and flower artwork once, returning a renderer. GeistPixel
- * only ships as woff2 (which resvg can't read), so it's decompressed to a
- * ttf under node_modules/.cache first.
- */
 async function createCardRenderer(cwd: string): Promise<CardRenderer> {
   const cacheDir = join(cwd, 'node_modules', '.cache', 'og-cards');
   mkdirSync(cacheDir, { recursive: true });
@@ -261,8 +235,6 @@ export function ogPlugin(): Plugin {
       for (const s of signals) {
         writeFileSync(join(imagesDir, `${s.id}.png`), render(s));
 
-        // Static files beat the SPA rewrite on Vercel, so this specialized
-        // copy of index.html is what crawlers get for /signals/<id>.
         const pageDir = join(cwd, 'build', 'signals', s.id);
         mkdirSync(pageDir, { recursive: true });
         writeFileSync(
@@ -273,7 +245,6 @@ export function ogPlugin(): Plugin {
       console.log(`[og-cards] wrote ${signals.length} cards + pages`);
     },
     configureServer(server) {
-      // Preview cards in dev at /images/og/signals/<id>.png
       server.middlewares.use(
         '/images/og/signals',
         async (req: IncomingMessage, res: ServerResponse) => {

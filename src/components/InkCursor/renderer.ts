@@ -1,37 +1,16 @@
-// WebGL2 pipeline for the ink-brush cursor trail.
-//
-// Each segment of the cursor polyline renders as its own bounding quad
-// (no shared vertices between segments), with the fragment shader
-// computing signed distance to the segment centerline and outputting an
-// alpha gradient from dense body to soft halo. The quad extends past
-// each segment endpoint by halfW + margin so adjacent segments overlap
-// in the joint region — combined with `gl.MAX` blending, this gives a
-// continuous stroke through arbitrarily sharp corners (the overlap
-// fills outer joints with a round cap, inner joints are covered by
-// both quads' body regions, and the MAX combine prevents the double-
-// blend darkening that alpha-blend overlap would produce).
-//
-// Sumi texture (kasure bristle noise + ink-load wet/dry contrast) lives
-// in the fragment shader. Rendering targets the default framebuffer
-// directly with `antialias: true` on the context for MSAA on the soft
-// edges (the smoothstep falloff already AAs most pixels; MSAA cleans
-// up the cap silhouettes).
-
 const VERTEX_SHADER = /* glsl */ `#version 300 es
 
-// Per-vertex (static unit quad: (along ∈ {0,1}) × (side ∈ {-1,+1}))
 in vec2 a_quadCoord;
 
-// Per-instance (one segment of the cursor polyline)
 in vec2 a_pStart;
 in vec2 a_pEnd;
-in vec2 a_halfW;   // (start, end) — already includes lifeFactor decay
-in vec2 a_alpha;   // (start, end) — age-derived, 0..1
-in vec2 a_arc;     // (start, end) — cumulative arc length in CSS px
-in vec2 a_load;    // (start, end) — 0..1 ink-load (1=wet, 0=dry)
+in vec2 a_halfW;
+in vec2 a_alpha;
+in vec2 a_arc;
+in vec2 a_load;
 
-uniform vec2 u_resolution;  // CSS pixel size of the canvas
-uniform float u_margin;     // extra padding around the stroke for AA + round joins
+uniform vec2 u_resolution;
+uniform float u_margin;
 
 out vec2 v_fragPos;
 flat out vec2 v_segStart;
@@ -42,20 +21,16 @@ flat out vec2 v_arcPair;
 flat out vec2 v_loadPair;
 
 void main() {
-  float along = a_quadCoord.x;  // 0 = start, 1 = end
-  float side = a_quadCoord.y;   // -1 or +1 — which perpendicular rail
+  float along = a_quadCoord.x;
+  float side = a_quadCoord.y;
 
   vec2 segDir = a_pEnd - a_pStart;
   float segLen = max(length(segDir), 0.001);
   vec2 tangent = segDir / segLen;
   vec2 perp = vec2(-tangent.y, tangent.x);
 
-  // Lateral extension at this end's halfW + margin.
   float halfWThis = mix(a_halfW.x, a_halfW.y, along);
   float lateralExt = halfWThis + u_margin;
-  // Longitudinal extension past each segment endpoint by the larger
-  // halfW + margin, so adjacent segments overlap in the joint region —
-  // MAX blending fills the joint without seams.
   float longExt = max(a_halfW.x, a_halfW.y) + u_margin;
 
   vec2 center = mix(a_pStart, a_pEnd, along);
@@ -63,7 +38,6 @@ void main() {
   vec2 pos = center + perp * lateralExt * side + longOffset;
 
   vec2 ndc = pos / u_resolution * 2.0 - 1.0;
-  // Mouse coords are y-down; clip space is y-up — flip.
   gl_Position = vec4(ndc.x, -ndc.y, 0.0, 1.0);
 
   v_fragPos = pos;
@@ -79,7 +53,7 @@ void main() {
 const FRAGMENT_SHADER = /* glsl */ `#version 300 es
 precision mediump float;
 
-uniform vec3 u_color;  // straight RGB; alpha is multiplied in for premul out
+uniform vec3 u_color;
 
 in vec2 v_fragPos;
 flat in vec2 v_segStart;
@@ -91,7 +65,6 @@ flat in vec2 v_loadPair;
 
 out vec4 fragColor;
 
-// Hash-based 2D value noise. Stable across drivers — sin(x)*large isn't.
 float hash(vec2 p) {
   p = fract(p * vec2(123.34, 456.21));
   p += dot(p, p + 45.32);
@@ -114,9 +87,6 @@ void main() {
   float segLen2 = max(dot(segDir, segDir), 0.0001);
   float segLen = sqrt(segLen2);
 
-  // Closest point on the segment + clamped parameter t along it. Past
-  // the endpoints, t clamps and the distance becomes radial from the
-  // endpoint — that's the round cap that fills outer joints.
   float t = clamp(dot(v_fragPos - v_segStart, segDir) / segLen2, 0.0, 1.0);
   vec2 closest = mix(v_segStart, v_segEnd, t);
   float dist = length(v_fragPos - closest);
@@ -129,21 +99,16 @@ void main() {
   float arcAt = mix(v_arcPair.x, v_arcPair.y, t);
   float loadAt = clamp(mix(v_loadPair.x, v_loadPair.y, t), 0.0, 1.0);
 
-  // Ink load (drier on fast strokes) scales the base alpha.
   alphaAt *= loadAt;
 
-  // Signed perpendicular offset for the bristle noise's lateral axis.
   vec2 perp = vec2(-segDir.y, segDir.x) / segLen;
   float side = dot(v_fragPos - closest, perp) / max(halfWAt, 0.001);
 
-  // Distance-based alpha: dense body that softens to a feathered edge,
-  // plus a faint outer halo for the wet-ink glow.
   float r = dist / max(halfWAt, 0.001);
   float body = (1.0 - smoothstep(0.82, 1.0, r)) * 0.82;
   float halo = (1.0 - smoothstep(1.0, 1.6, r)) * 0.10;
   float a = max(body, halo) * alphaAt;
 
-  // Kasure (掠れ): bristle striations strengthen as the brush dries.
   float dryness = 1.0 - loadAt;
   float bristleStrength = mix(0.18, 0.85, dryness);
   float n = valueNoise(vec2(side * 6.0, arcAt * 0.015));
@@ -153,12 +118,11 @@ void main() {
 }
 `;
 
-export const SEGMENT_STRIDE = 12; // floats per per-segment instance
+export const SEGMENT_STRIDE = 12;
 
-// Unit quad coords: (along, side) for the 4 corners of every segment.
 const UNIT_QUAD = new Float32Array([0, -1, 0, 1, 1, -1, 1, 1]);
 
-const SOFT_MARGIN = 2; // CSS px of padding past halfW for AA + round joins
+const SOFT_MARGIN = 2;
 
 export class InkCursorRenderer {
   private gl: WebGL2RenderingContext;
@@ -196,7 +160,6 @@ export class InkCursorRenderer {
     this.vao = gl.createVertexArray()!;
     gl.bindVertexArray(this.vao);
 
-    // Static per-vertex unit quad.
     this.quadVbo = gl.createBuffer()!;
     gl.bindBuffer(gl.ARRAY_BUFFER, this.quadVbo);
     gl.bufferData(gl.ARRAY_BUFFER, UNIT_QUAD, gl.STATIC_DRAW);
@@ -204,7 +167,6 @@ export class InkCursorRenderer {
     gl.vertexAttribPointer(aQuadCoord, 2, gl.FLOAT, false, 8, 0);
     gl.vertexAttribDivisor(aQuadCoord, 0);
 
-    // Dynamic per-instance segment data.
     this.segVbo = gl.createBuffer()!;
     gl.bindBuffer(gl.ARRAY_BUFFER, this.segVbo);
     const stride = SEGMENT_STRIDE * 4;
@@ -289,10 +251,6 @@ export class InkCursorRenderer {
     const gl = this.gl;
     gl.useProgram(this.program);
 
-    // MAX blending: overlapping fragments take the brighter value
-    // rather than additively darkening. This is what makes joint
-    // overlap regions render as a single continuous stroke instead of
-    // a darker double-pass at the seam.
     gl.enable(gl.BLEND);
     gl.blendEquation(gl.MAX);
     gl.disable(gl.DEPTH_TEST);
@@ -313,8 +271,6 @@ export class InkCursorRenderer {
     gl.drawArraysInstanced(gl.TRIANGLE_STRIP, 0, 4, segmentCount);
 
     gl.bindVertexArray(null);
-    // Restore default add-equation so other callers in the same context
-    // aren't surprised. (We own the context here, but be polite.)
     gl.blendEquation(gl.FUNC_ADD);
   }
 
