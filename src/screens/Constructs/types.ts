@@ -1,3 +1,5 @@
+import type { Root } from 'hast';
+
 export type Construct = {
   id: string;
   title: string;
@@ -6,7 +8,7 @@ export type Construct = {
   cover: string;
   coverWidth: number;
   coverHeight: number;
-  body: string;
+  body: Root;
   coverPosition?: string;
   linkLabel?: string;
   link?: string;

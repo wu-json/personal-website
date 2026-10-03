@@ -1,7 +1,7 @@
 import { useLayoutEffect, useRef, useState } from 'react';
-import Markdown from 'react-markdown';
+import { Markdown } from 'src/components/Markdown';
 
-import { photoUrl } from '../data';
+import { captionTree, photoUrl } from '../data';
 import type { PhotoMeta } from '../types';
 import { loadedFullUrls } from './loadedFullUrls';
 
@@ -17,6 +17,7 @@ const PhotoSlide = ({
   interactive: boolean;
 }) => {
   const fullUrl = photoUrl(fragmentId, photo.file, 'full');
+  const captionNode = photo.caption && captionTree(photo.caption);
   const [loaded, setLoaded] = useState(() => loadedFullUrls.has(fullUrl));
   const imgRef = useRef<HTMLImageElement>(null);
 
@@ -67,9 +68,10 @@ const PhotoSlide = ({
         className={`flex items-baseline gap-4 text-xs sm:text-[10px] font-mono max-w-full transition-opacity duration-500 ${loaded ? 'opacity-100' : 'opacity-0'}`}
       >
         <span className='text-white/30 shrink-0'>{counter}</span>
-        {photo.caption && (
+        {captionNode && (
           <span className='text-white/50 signal-prose min-w-0'>
             <Markdown
+              tree={captionNode}
               components={{
                 a: ({ children, href }) => (
                   <a href={href} target='_blank' rel='noopener noreferrer'>
@@ -77,9 +79,7 @@ const PhotoSlide = ({
                   </a>
                 ),
               }}
-            >
-              {photo.caption}
-            </Markdown>
+            />
           </span>
         )}
       </div>

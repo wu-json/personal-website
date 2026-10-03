@@ -1,3 +1,5 @@
+import type { Root } from 'hast';
+
 export type Grouping = { layout: string; caption?: string };
 
 export type PhotoMeta = {
@@ -17,6 +19,7 @@ export type Fragment = {
   cover: string;
   coverClassName?: string;
   description: string;
+  descriptionTree: Root;
   photos: PhotoMeta[];
   groupings?: Record<string, Grouping>;
 };

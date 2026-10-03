@@ -78,7 +78,7 @@ const SignalDetail = ({ id }: { id: string }) => {
           className='bio-glitch signal-prose signal-entry text-white/90 text-[15px] font-mono'
           style={jitter()}
         >
-          <MarkdownBody>{s.body}</MarkdownBody>
+          <MarkdownBody tree={s.tree} />
         </div>
 
         <footer className='mt-12 pt-6 border-t border-white/5 flex items-center justify-between flex-wrap gap-4'>

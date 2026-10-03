@@ -4,6 +4,7 @@ import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 
+import { markdownPlugin } from './src/plugins/markdown';
 import { ogPlugin } from './src/plugins/og';
 import { pixelFontPlugin } from './src/plugins/pixelFont';
 import { rssPlugin } from './src/plugins/rss';
@@ -14,7 +15,14 @@ export default defineConfig({
     outDir: 'build',
     chunkSizeWarningLimit: 1000,
   },
-  plugins: [react(), tailwindcss(), pixelFontPlugin(), rssPlugin(), ogPlugin()],
+  plugins: [
+    markdownPlugin(),
+    react(),
+    tailwindcss(),
+    pixelFontPlugin(),
+    rssPlugin(),
+    ogPlugin(),
+  ],
   server: {
     open: true,
     port: 3000,
