@@ -13,7 +13,7 @@ import {
   parseFrontmatter,
   parseRssTimestamp,
   plainExcerpt,
-} from './rss';
+} from './rss.ts';
 
 const CARD_WIDTH = 1200;
 const CARD_HEIGHT = 630;
