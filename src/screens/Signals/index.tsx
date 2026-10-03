@@ -102,6 +102,7 @@ const SignalsScreen = () => {
                 style={{ animationDelay: `${i * 40}ms` }}
               >
                 <div
+                  role='link'
                   tabIndex={0}
                   aria-label={`View full signal${s.title ? `: ${s.title}` : ` ${s.id}`}`}
                   className='signal-list-item cursor-pointer rounded-sm -mx-2 px-2 py-1 -my-1 transition-colors outline-none focus-visible:ring-1 focus-visible:ring-white/25 focus-visible:ring-offset-2 focus-visible:ring-offset-black'
