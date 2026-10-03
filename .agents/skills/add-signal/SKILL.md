@@ -1,82 +1,79 @@
 ---
 name: add-signal
 description: >-
-  Adds a new Signals entry: stages and optimizes images with category
-  signals, creates frontmatter markdown in
-  src/screens/Signals/entries/. Use when the user wants a new
-  signal or /add-signal workflow; when they provide image(s) and
-  a slug for Signals.
+  Adds a Signals entry (writing): optimizes any images into
+  public/images/signals/<id>/ and creates
+  src/screens/Signals/entries/<id>.md, where id is YYYY-MM-DD-<slug>. Use when
+  the user wants a new signal, post, or note, or provides text/images and a
+  slug for Signals.
 ---
 
 # Add signal
 
-## 1. Determine date slug
-
-Entries use date-prefixed slugs: `YYYY-MM-DD-<slug>.md`. The `id` is the full date-slug string (e.g. `'2026-04-28-farewells'`).
-
-Ask the user for `timestamp` first if you don't have it yet. Extract the date portion (`YYYY.MM.DD` → `YYYY-MM-DD`) and combine with the kebab-case `slug` to form the `id`. No sequence scanning needed — date prefixes are natively collision-resistant.
-
-## 2. Optimize photos
-
-Stage sources, run optimize with category `signals` and the date-slug as the slug segment, then clean up:
-
-```sh
-mkdir -p /tmp/signal-stage
-cp <source-image-or-dir>/* /tmp/signal-stage/
-bun scripts/optimize-photos.ts /tmp/signal-stage <date-slug> signals
-rm -rf /tmp/signal-stage
-```
-
-Output: `public/images/signals/<date-slug>/` (WebP variants defined in `scripts/optimize-photos.ts`: `placeholder`, `small`, `thumb`, `full`). Capture printed `photos:` YAML if useful for dimensions.
-
-## 3. Create the entry file
+## 1. Gather inputs
 
 Ask the user for:
 
-- `title` (optional; short, uppercase — e.g. `SIDEWALK FREQ`. Omit the frontmatter key entirely when there's no title.)
-- `timestamp` (`YYYY.MM.DD // HH:MM:SS`; default to current local time if omitted)
+- `slug` (kebab-case)
+- `timestamp` as `YYYY.MM.DD // HH:MM:SS` (default: current local time)
 - `location` (e.g. `San Francisco, US`)
-- `slug` (kebab-case; combined with date prefix for filename and id)
-- Markdown body; images as `![alt](/images/signals/<date-slug>/<filename>-full.webp)` (or `<img src="…">` as in existing entries)
+- `title` (optional; omit the key entirely for untitled entries)
+- Markdown body and any images
 
-### Markdown features (all entries)
+The id is `YYYY-MM-DD-<slug>`, with the date taken from `timestamp`.
 
-Bodies are rendered by **`MarkdownBody`** (`src/screens/Signals/MarkdownBody.tsx`) with **GFM** (`remark-gfm`) and **raw HTML** (`rehype-raw`). For future entries you can reuse without code changes:
+## 2. Optimize images (if any)
 
-- **Footnotes** — `Text[^a]` then at end of file:
+The script takes a directory, so stage single files first:
 
-  ```markdown
-  [^a]: [Label](https://example.org/)
-  ```
+```sh
+stage=$(mktemp -d)
+cp <images> "$stage"/
+bun scripts/optimize-photos.ts "$stage" <id> signals
+rm -rf "$stage"
+```
 
-  Same `[^a]` can appear multiple times. Styling: `// refs` block + mono superscripts (see `AGENTS.md` → Signals markdown reference).
+Writes `<file>-{placeholder,small,thumb,full}.webp` to `public/images/signals/<id>/` and prints each file's original width/height.
 
-- **External links** — `https://…` opens in a new tab; internal `/…` links stay in-app.
+## 3. Create the entry
 
-- **Charts** — a ` ```chart ` fence with a JSON spec renders as inline SVG (`SignalChart.tsx`). `type` is `dumbbell` or `line`; see `AGENTS.md` → Signals markdown reference → Charts for the fields. Keep raster screenshots for the hero: the first `<img>` in the body is the list/banner image, and charts are not images.
-
-- **Tables** — GFM tables are styled; right-align numeric columns with `---:`.
-
-Frontmatter:
+File: `src/screens/Signals/entries/<id>.md`
 
 ```yaml
 ---
-id: '<date-slug>'
-timestamp: '<timestamp>'
-title: '<title>' # optional — omit the whole line for untitled entries
+id: '<id>'
+timestamp: 'YYYY.MM.DD // HH:MM:SS'
+title: '<title>'
 expanded: false
 location: '<location>'
 ---
+<figure>
+<img src="/images/signals/<id>/<file>-full.webp" alt="<alt>" width="<width>" height="<height>">
+<figcaption>Optional caption.</figcaption>
+</figure>
+
+<markdown body>
 ```
 
-- `id` is the full date-slug string (e.g. `'2026-04-28-farewells'`)
-- `expanded: false` is the default
-- `title` is optional; when omitted, the entry renders with only the `[id] timestamp — location` meta row above the body
+Frontmatter is parsed line by line, not as full YAML: one `key: value` per line, no inline comments, no nesting.
 
-Save as `src/screens/Signals/entries/<date-slug>.md`.
+- `expanded: true` stops long entries (over ~520 chars of text) from collapsing in the `/signals` list.
+- The list sorts by `timestamp`, newest first.
+- OG cards and the RSS feed are generated at build time; nothing to add.
 
-Routes: `/signals` and `/signals/<date-slug>`.
+### Body
 
-## 4. Before commit
+Rendered by `src/screens/Signals/MarkdownBody.tsx` with GFM and raw HTML:
 
-Run `bun run lint` and `bun run fmt`.
+- **Images**: use `<img>` with `src`, `alt`, `width`, `height` (`-full.webp` URL). The first such `<img>` is the list/OG hero image. Markdown `![]()` renders a plain image and is not used as the hero.
+- **Video / iframe**: `<video src="…">` autoplays muted on loop; `<iframe src="…" title="…">` renders 16:9.
+- **Footnotes**: `text[^a]`, with `[^a]: [Label](https://…)` at the end of the file.
+- **Links**: `http…` links open in a new tab; `/…` links stay in-app.
+- **Tables**: GFM tables; right-align numeric columns with `---:`.
+- **Charts**: a ` ```chart ` fence containing a JSON spec renders as SVG. `type` is `dumbbell` or `line`; the fields are the `DumbbellSpec` and `LineSpec` types in `src/screens/Signals/SignalChart.tsx`.
+
+Routes: `/signals`, `/signals/<id>`.
+
+## 4. Verify
+
+Run `bun run fmt` and `bun run lint`.

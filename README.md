@@ -9,30 +9,19 @@ A working directory of myself.
 └── Heroes         — people and influences
 ```
 
-## Stack
+## Development
 
-React and TypeScript, Vite, Tailwind CSS v4, [wouter](https://github.com/molefrog/wouter) for routing. Package management and scripts use [Bun](https://bun.sh) (see `engines` in `package.json` for supported Bun / Node versions).
-
-## Local development
+Requires [Bun](https://bun.sh).
 
 ```sh
-bun install
-bun dev
-```
-
-If you use [curse](https://github.com/wu-json/curse), `curse` runs the same dev command (`bun dev`) via `curse.toml`.
-
-Other useful scripts:
-
-```sh
+bun install      # also installs git hooks via prek
+bun dev          # dev server
 bun run build    # production build
-bun run preview  # serve production build locally
 bun run lint     # oxlint
 bun run fmt      # oxfmt
+bun test
 ```
-
-Git hooks are installed with [prek](https://github.com/j178/prek) on `bun install` (skipped in CI).
 
 ## Adding content
 
-Agent-oriented workflows live under `.agents/skills/` (e.g. **add-fragment**, **add-signal**, **add-construct**): image optimization and frontmatter paths for each section. They follow the [Agent Skills](https://agentskills.io/specification) standard, so any compatible harness (pi, Claude Code, etc.) auto-discovers them.
+Agent skills in [`.agents/skills/`](.agents/skills) cover adding entries to each section (`add-fragment`, `add-signal`, `add-construct`, `add-hero`).

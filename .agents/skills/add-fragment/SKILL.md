@@ -1,14 +1,13 @@
 ---
 name: add-fragment
 description: >-
-  Adds a new Memories photo album (fragment): optimizes images with
-  scripts/optimize-photos.ts, creates YAML frontmatter in
-  src/screens/Memories/fragments/. Use when the user wants a new fragment,
-  photo album, or /add-fragment workflow; when they provide a source image
-  directory and slug for Memories.
+  Adds a Memories photo album (fragment): optimizes photos into
+  public/images/fragments/<slug>/ and creates
+  src/screens/Memories/fragments/NNN-<slug>.md. Use when the user wants a new
+  fragment or photo album, or provides a photo directory and slug for Memories.
 ---
 
-# Add fragment (photo album)
+# Add fragment
 
 ## 1. Optimize photos
 
@@ -16,43 +15,43 @@ description: >-
 bun scripts/optimize-photos.ts <source-dir> <slug>
 ```
 
-Default category is `fragments`. Output goes to `public/images/fragments/<slug>/` (WebP variants: `placeholder` 20 px, `small` 480 px, `thumb` 800 px, `full` 2400 px). Capture the printed `photos:` YAML for frontmatter. Variants are authoritatively defined in `scripts/optimize-photos.ts` — that file is the source of truth if this list drifts.
+Category defaults to `fragments`. Writes `<file>-{placeholder,small,thumb,full}.webp` to `public/images/fragments/<slug>/` and prints a `photos:` YAML block (file basename + original width/height) to paste into frontmatter.
 
-## 2. Create the fragment markdown file
+## 2. Create the entry
 
-Pick the next sort prefix by scanning `src/screens/Memories/fragments/*.md`: filenames use `NNN-kebab-slug.md` (three-digit zero-padded number, then slug). Use the next number (e.g. after `009-…` use `010-<slug>.md`). Listing is **newest first** by filename sort.
+File: `src/screens/Memories/fragments/NNN-<slug>.md`, where `NNN` is the highest existing prefix + 1 (zero-padded). The list sorts newest first by filename.
 
-Ask the user for:
-
-- `title`
-- `date` (`YYYY.MM.DD`, quoted in YAML)
-- `location`
-- `cover` (must match a photo `file` value, no extension)
-- Optional: per-photo `caption`; optional markdown body below frontmatter
-- Optional: `groupings` for row/column layouts (see project `AGENTS.md` fragment reference)
-
-Frontmatter:
+Ask the user for `title`, `date`, `location`, `cover`, and optionally per-photo captions, groupings, and a markdown body.
 
 ```yaml
 ---
 id: <slug>
 title: <title>
-date: '<date>'
+date: 'YYYY.MM.DD'
 location: <location>
-cover: <cover-file>
+cover: <file>
+groupings: # optional
+  <group-id>:
+    layout: row # or column
+    caption: <optional>
 photos:
-  - file: <filename>
+  - file: <file>
     width: <width>
     height: <height>
     caption: <optional>
-    group: <optional group id>
+    alt: <optional>
+    group: <optional group-id>
 ---
+<optional markdown body>
 ```
 
-`id` must match the slug passed to the optimize script. `cover` must be one of the `file` values.
+- `id` must equal the slug passed to the optimize script.
+- `cover` must be one of the `photos[].file` values.
+- Photos sharing a `group` render together using that grouping's `layout`.
+- Optional `coverClassName` adds classes to the list cover image.
 
-Routes: listed on `/memories`, detail at `/memories/<slug>` (slug is `id`).
+Routes: `/memories`, `/memories/<slug>`.
 
-## 3. Before commit
+## 3. Verify
 
-Run `bun run lint` and `bun run fmt` per project convention.
+Run `bun run fmt` and `bun run lint`.
