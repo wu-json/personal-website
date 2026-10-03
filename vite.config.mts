@@ -5,6 +5,7 @@ import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 
 import { ogPlugin } from './src/plugins/og';
+import { pixelFontPlugin } from './src/plugins/pixelFont';
 import { rssPlugin } from './src/plugins/rss';
 
 export default defineConfig({
@@ -13,7 +14,7 @@ export default defineConfig({
     outDir: 'build',
     chunkSizeWarningLimit: 1000,
   },
-  plugins: [react(), tailwindcss(), rssPlugin(), ogPlugin()],
+  plugins: [react(), tailwindcss(), pixelFontPlugin(), rssPlugin(), ogPlugin()],
   server: {
     open: true,
     port: 3000,
