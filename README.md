@@ -14,7 +14,7 @@ A working directory of myself.
 Requires [Bun](https://bun.sh).
 
 ```sh
-bun install      # also installs git hooks via prek
+bun install
 bun dev          # dev server
 bun run build    # production build
 bun run lint     # oxlint
