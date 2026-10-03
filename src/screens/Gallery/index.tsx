@@ -23,7 +23,6 @@ import {
 import { MobileControls } from './MobileControls';
 
 type GalleryPalette = {
-  // Surfaces
   wall: string;
   wallNoiseAmp: number;
   ceiling: string;
@@ -39,17 +38,14 @@ type GalleryPalette = {
   plankSeamHighlight: string;
   rowSeam: string;
   rowSeamHighlight: string;
-  // Ink / text on canvas-rendered textures
   ink: string;
   inkMuted: string;
   inkFaint: string;
   inkDivider: string;
-  // 3D object colors
   frame: string;
   canvasPlaceholder: string;
   benchSeat: string;
   benchLeg: string;
-  // Lighting
   ambientIntensity: number;
   hemiSky: string;
   hemiGround: string;
@@ -178,7 +174,6 @@ const createWoodTexture = (palette: GalleryPalette) => {
 
   const plankH = 80;
 
-  // Deterministic RNG
   let _s = 0;
   const seed = (v: number) => {
     _s = v;
@@ -193,7 +188,6 @@ const createWoodTexture = (palette: GalleryPalette) => {
   const lRange = lMax - lMin;
   const sRange = sMax - sMin;
 
-  // Per-plank color — subtle variation
   const plankColor = (row: number, col: number) => {
     seed(row * 7 + col * 13 + 3);
     const l = lMin + next() * lRange;
@@ -201,20 +195,17 @@ const createWoodTexture = (palette: GalleryPalette) => {
     return `hsl(${palette.plankHue}, ${s}%, ${l}%)`;
   };
 
-  // Variable plank lengths per row (3–5 planks across 1024px)
   const rowPlanks = (row: number) => {
     seed(row * 53 + 11);
     const planks: number[] = [];
     let x = 0;
-    // Offset the start so rows don't line up
     const rowOffset = next() * 200 - 100;
     x = rowOffset;
     if (x > 0) {
-      // Need a partial plank at the left edge
-      planks.push(-rowOffset); // negative means "start before 0"
+      planks.push(-rowOffset);
     }
     while (x < 1024) {
-      const len = 200 + next() * 300; // 200–500px per plank
+      const len = 200 + next() * 300;
       planks.push(len);
       x += len;
     }
@@ -231,11 +222,10 @@ const createWoodTexture = (palette: GalleryPalette) => {
     ctx.fillStyle = color;
     ctx.fillRect(x, y, w, plankH);
 
-    // Grain: clusters of parallel lines with varying density
     seed(plankSeed);
-    const grainDensity = 12 + Math.floor(next() * 16); // 12–28 lines per plank
-    const grainBaseY = y + next() * 10; // slight vertical offset per plank
-    const grainSpread = 0.4 + next() * 0.3; // how spread out the lines are
+    const grainDensity = 12 + Math.floor(next() * 16);
+    const grainBaseY = y + next() * 10;
+    const grainSpread = 0.4 + next() * 0.3;
 
     for (let i = 0; i < grainDensity; i++) {
       const t = i / grainDensity;
@@ -250,7 +240,6 @@ const createWoodTexture = (palette: GalleryPalette) => {
       ctx.lineWidth = grainSpread + next() * 0.5;
       ctx.beginPath();
       ctx.moveTo(x, gy);
-      // Grain with gentle waviness
       const drift1 = (next() - 0.5) * 3;
       const drift2 = drift1 + (next() - 0.5) * 2;
       ctx.bezierCurveTo(
@@ -264,7 +253,6 @@ const createWoodTexture = (palette: GalleryPalette) => {
       ctx.stroke();
     }
 
-    // Occasional darker band (heartwood variation)
     seed(plankSeed + 999);
     if (next() > 0.6) {
       const bandY = y + plankH * (0.2 + next() * 0.6);
@@ -273,14 +261,12 @@ const createWoodTexture = (palette: GalleryPalette) => {
       ctx.fillRect(x, bandY, w, bandH);
     }
 
-    // Vertical end-seam — visible gap between planks
     ctx.strokeStyle = palette.plankSeam;
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(x + w, y);
     ctx.lineTo(x + w, y + plankH);
     ctx.stroke();
-    // Highlight edge (light catches the bevel)
     ctx.strokeStyle = palette.plankSeamHighlight;
     ctx.lineWidth = 0.5;
     ctx.beginPath();
@@ -301,7 +287,6 @@ const createWoodTexture = (palette: GalleryPalette) => {
       const color = plankColor(row, col);
       const ps = row * 127 + col * 43;
       drawPlank(actualX, y, actualLen, color, ps);
-      // Wrap around for seamless tiling
       if (actualX + actualLen > 1024) {
         drawPlank(actualX - 1024, y, actualLen, color, ps);
       }
@@ -312,7 +297,6 @@ const createWoodTexture = (palette: GalleryPalette) => {
       col++;
     }
 
-    // Horizontal seam between rows
     ctx.strokeStyle = palette.rowSeam;
     ctx.lineWidth = 0.8;
     ctx.beginPath();
@@ -344,7 +328,6 @@ const createWallTexture = (palette: GalleryPalette) => {
   ctx.fillStyle = palette.wall;
   ctx.fillRect(0, 0, 512, 512);
 
-  // Subtle noise
   const imageData = ctx.getImageData(0, 0, 512, 512);
   const data = imageData.data;
   let s = 42;
@@ -375,7 +358,6 @@ const createCeilingTexture = (palette: GalleryPalette) => {
   ctx.fillStyle = palette.ceiling;
   ctx.fillRect(0, 0, 512, 512);
 
-  // Subtle noise
   const imageData = ctx.getImageData(0, 0, 512, 512);
   const data = imageData.data;
   let s = 77;
@@ -420,7 +402,6 @@ const drawBlossom = (
     ctx.fill();
     ctx.restore();
   }
-  // Center circle
   ctx.beginPath();
   ctx.arc(cx, cy, 8 * scale, 0, Math.PI * 2);
   ctx.fill();
@@ -437,23 +418,18 @@ const createWelcomeTexture = (
   canvas.height = 1280;
   const ctx = canvas.getContext('2d')!;
 
-  const s = 2; // scale factor for hi-res
+  const s = 2;
 
   ctx.fillStyle = palette.wall;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // Center the content block horizontally
-  // Content spans from blossom left (~50*s) to text right (~canvas.width old edge)
-  // Original layout was designed for 2048px; offset to center in wider canvas
   const contentWidth = 2048;
   const offsetX = (canvas.width - contentWidth) / 2;
 
-  // Blossom emblem on the left
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = 'high';
   drawBlossom(ctx, offsetX + 150 * s, 180 * s, 2.2 * s, palette.ink);
 
-  // Switch to pixel font rendering
   ctx.imageSmoothingEnabled = false;
 
   const font = "'Geist Pixel Circle'";
@@ -461,19 +437,16 @@ const createWelcomeTexture = (
 
   ctx.textAlign = 'left';
 
-  // Title
   ctx.fillStyle = palette.ink;
   ctx.font = `${64 * s}px ${font}`;
   ctx.fillText(fragmentTitle ?? 'GALLERY', textLeft, 150 * s);
 
-  // Subtitle — strip markdown links and word-wrap
   ctx.fillStyle = palette.inkMuted;
   const subtitleSize = 28 * s;
   ctx.font = `${subtitleSize}px ${font}`;
   const rawSubtitle =
     fragmentDescription ||
     (fragmentTitle ? 'AN INTERACTIVE GALLERY' : 'A COLLECTION BY JASON WU');
-  // Convert markdown links [text](url) → text
   const subtitle = rawSubtitle.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
   const contentRight = offsetX + contentWidth;
   const maxTextWidth = contentRight - textLeft - 80 * s;
@@ -500,7 +473,6 @@ const createWelcomeTexture = (
     y += subtitleLineHeight;
   }
 
-  // Divider
   ctx.strokeStyle = palette.inkDivider;
   ctx.lineWidth = 1 * s;
   const divY = y + 10 * s;
@@ -509,7 +481,6 @@ const createWelcomeTexture = (
   ctx.lineTo(contentRight - 80 * s, divY);
   ctx.stroke();
 
-  // Controls
   ctx.fillStyle = palette.inkFaint;
   ctx.font = `${20 * s}px ${font}`;
   const controls = mobile
@@ -612,12 +583,10 @@ const GalleryBench = ({
 
   return (
     <group position={position}>
-      {/* Seat */}
       <mesh position={[0, seatY, 0]}>
         <boxGeometry args={[seatW, seatThickness, seatD]} />
         <meshStandardMaterial color={palette.benchSeat} roughness={0.8} />
       </mesh>
-      {/* Legs */}
       {[
         [-seatHalfW + legInset, legY, -seatHalfD + legInset],
         [seatHalfW - legInset, legY, -seatHalfD + legInset],
@@ -716,11 +685,9 @@ const createLabelTexture = (palette: GalleryPalette, title: string) => {
   const ctx = canvas.getContext('2d')!;
   ctx.imageSmoothingEnabled = false;
 
-  // Match wall color so it blends seamlessly
   ctx.fillStyle = palette.wall;
   ctx.fillRect(0, 0, 256, 64);
 
-  // Slightly brighter than inkMuted so labels read at reading distance.
   ctx.fillStyle = palette.ink;
   ctx.globalAlpha = 0.7;
   ctx.font = "16px 'Geist Pixel Circle'";
@@ -751,8 +718,6 @@ const ArtFrame = memo(
     const [w, h] = size;
     const matRef = useRef<THREE.MeshBasicMaterial>(null);
 
-    // Per-instance, palette-keyed frame material. Replaces the previous
-    // module-scope singleton so theme flips actually re-color the frames.
     const frameMaterial = useMemo(
       () =>
         new THREE.MeshStandardMaterial({
@@ -780,9 +745,7 @@ const ArtFrame = memo(
           mat.needsUpdate = true;
         },
         undefined,
-        () => {
-          // On error, keep the placeholder
-        },
+        () => {},
       );
       return () => {
         if (mat.map) {
@@ -794,11 +757,9 @@ const ArtFrame = memo(
 
     return (
       <group position={position}>
-        {/* Frame */}
         <mesh position={[0, 0, -0.02]} material={frameMaterial}>
           <boxGeometry args={[w + 0.16, h + 0.16, 0.04]} />
         </mesh>
-        {/* Canvas */}
         <mesh position={[0, 0, 0.01]}>
           <planeGeometry args={[w, h]} />
           <meshBasicMaterial ref={matRef} color={palette.canvasPlaceholder} />
@@ -912,9 +873,6 @@ const Artworks = ({
   </group>
 );
 
-// Maximum number of spotlights to keep rendering performant.
-// When there are more art pieces than this limit, we select an evenly-spaced
-// subset so the gallery still feels well-lit without tanking framerate.
 const MAX_SPOTLIGHTS = 16;
 
 const ArtSpotlight = ({
@@ -935,7 +893,6 @@ const ArtSpotlight = ({
   const ceilingY = roomHeight / 2 - 0.1;
   const offset = 2.5;
 
-  // Compute light position: offset from art toward viewing direction
   const yRot = artRotation[1];
   const lightPos: [number, number, number] = [
     artPosition[0] + Math.sin(yRot) * offset,
@@ -979,7 +936,6 @@ const ArtLighting = ({
   roomHeight: number;
   palette: GalleryPalette;
 }) => {
-  // Select an evenly-distributed subset when over the spotlight limit
   const selected = useMemo(() => {
     if (pieces.length <= MAX_SPOTLIGHTS) return pieces;
     const step = pieces.length / MAX_SPOTLIGHTS;
@@ -1044,38 +1000,30 @@ const Room = ({
         roomHeight={roomHeight}
         palette={palette}
       />
-      {/* Ceiling */}
       <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, halfH, 0]}>
         <planeGeometry args={[roomWidth, roomDepth]} />
         <meshStandardMaterial map={ceilingTex} roughness={0.95} />
       </mesh>
-      {/* Back wall */}
       <mesh position={[0, 0, -halfD]}>
         <planeGeometry args={[roomWidth, roomHeight]} />
         <meshStandardMaterial map={wallTex} roughness={0.92} />
       </mesh>
-      {/* Front wall */}
       <mesh rotation={[0, Math.PI, 0]} position={[0, 0, halfD]}>
         <planeGeometry args={[roomWidth, roomHeight]} />
         <meshStandardMaterial map={wallTex} roughness={0.92} />
       </mesh>
-      {/* Left wall */}
       <mesh rotation={[0, Math.PI / 2, 0]} position={[-halfW, 0, 0]}>
         <planeGeometry args={[roomDepth, roomHeight]} />
         <meshStandardMaterial map={wallTex} roughness={0.92} />
       </mesh>
-      {/* Right wall */}
       <mesh rotation={[0, -Math.PI / 2, 0]} position={[halfW, 0, 0]}>
         <planeGeometry args={[roomDepth, roomHeight]} />
         <meshStandardMaterial map={wallTex} roughness={0.92} />
       </mesh>
-      {/* Ambient + hemisphere set the room's overall exposure. Palette-driven
-          because light mode needs much less of both. */}
       <ambientLight intensity={palette.ambientIntensity} />
       <hemisphereLight
         args={[palette.hemiSky, palette.hemiGround, palette.hemiIntensity]}
       />
-      {/* Overhead fill lights */}
       {fillLights.map((pos, i) => (
         <pointLight
           key={i}
@@ -1090,20 +1038,16 @@ const Room = ({
           color={palette.fillColor}
         />
       ))}
-      {/* Interior partition walls */}
       <Partitions partitions={partitions} palette={palette} />
-      {/* Art placeholders and per-piece spotlights */}
       <Artworks pieces={artPieces} palette={palette} />
       <ArtLighting
         pieces={artPieces}
         roomHeight={roomHeight}
         palette={palette}
       />
-      {/* Benches */}
       {benchPositions.map((pos, i) => (
         <GalleryBench key={i} position={pos} palette={palette} />
       ))}
-      {/* Welcome wall text */}
       <WelcomeWallText
         position={welcomePosition}
         rotation={welcomeRotation}
@@ -1148,7 +1092,6 @@ const Movement = ({
   }, [camera]);
 
   useFrame((_, delta) => {
-    // Apply mobile look deltas
     const mi = mobileInput?.current;
     if (mi) {
       const { lookDeltaX, lookDeltaY } = mi;
@@ -1180,7 +1123,6 @@ const Movement = ({
     if (pressed.has('KeyD') || pressed.has('ArrowRight')) direction.add(right);
     if (pressed.has('KeyA') || pressed.has('ArrowLeft')) direction.sub(right);
 
-    // Add mobile joystick input
     if (mi && (mi.moveX !== 0 || mi.moveY !== 0)) {
       direction.addScaledVector(right, mi.moveX);
       direction.addScaledVector(forward, mi.moveY);
@@ -1198,7 +1140,6 @@ const Movement = ({
       camera.position.addScaledVector(direction, speed * delta);
     }
 
-    // Crouch height
     const targetY =
       crouching && camera.position.y <= 0.01 ? CROUCH_HEIGHT : STAND_HEIGHT;
     const baseY = THREE.MathUtils.lerp(
@@ -1207,7 +1148,6 @@ const Movement = ({
       1 - Math.exp(-CROUCH_LERP * delta),
     );
 
-    // Jump physics
     velocityY.current -= GRAVITY * delta;
     camera.position.y += velocityY.current * delta;
     if (camera.position.y <= baseY) {
@@ -1215,7 +1155,6 @@ const Movement = ({
       velocityY.current = 0;
     }
 
-    // Interior collision (AABB push-out along axis of least penetration)
     const r = BOUNDARY_PADDING;
     for (const box of colliders) {
       const overlapX = Math.min(
@@ -1297,11 +1236,9 @@ const GalleryScreen = ({ fragmentId }: { fragmentId?: string }) => {
   }, []);
   const onUnlock = useCallback(() => setLocked(false), []);
   const onCreated = useCallback(() => {
-    // Small delay to let the first frame render fully
     requestAnimationFrame(() => setReady(true));
   }, []);
 
-  // Desktop: advance from "step-back" to "click" on S key or after 5s
   useEffect(() => {
     if (isMobile || hintPhase !== 'step-back') return;
     const onKey = (e: KeyboardEvent) => {
@@ -1315,34 +1252,26 @@ const GalleryScreen = ({ fragmentId }: { fragmentId?: string }) => {
     };
   }, [isMobile, hintPhase]);
 
-  // Desktop: auto-dismiss "mouse" hint after 3s
   useEffect(() => {
     if (isMobile || hintPhase !== 'mouse') return;
     const timer = setTimeout(() => setHintPhase('done'), 3000);
     return () => clearTimeout(timer);
   }, [isMobile, hintPhase]);
 
-  // Mobile: advance from "step-back" to "mouse" on joystick use
   const onMobileMove = useCallback(() => {
     if (hintPhase === 'step-back') setHintPhase('mouse');
   }, [hintPhase]);
 
-  // Mobile: dismiss on look swipe
   const onMobileLook = useCallback(() => {
     if (hintPhase === 'mouse') setHintPhase('done');
   }, [hintPhase]);
 
-  // Auto-dismiss mobile "mouse" hint after 3s
   useEffect(() => {
     if (!isMobile || hintPhase !== 'mouse') return;
     const timer = setTimeout(() => setHintPhase('done'), 3000);
     return () => clearTimeout(timer);
   }, [isMobile, hintPhase]);
 
-  // Pixel-hint text uses ink tokens so the gallery UI chrome matches the
-  // site theme in both dark and light. Base / hover opacities are tuned to
-  // read against the gallery's own floor + wall tones, not the page
-  // background, since the canvas fills the viewport once `ready`.
   const hintBase =
     'font-pixel text-[color:var(--color-ink-faint)] text-sm tracking-[0.2em] select-none';
   const hintSub =

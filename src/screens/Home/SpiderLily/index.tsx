@@ -28,13 +28,10 @@ import {
   stemRevealYFromProgress,
 } from './renderer';
 
-// Easing helpers ------------------------------------------------------
-
 function cubicBezierEase(x1: number, y1: number, x2: number, y2: number) {
   return (t: number) => {
     if (t <= 0) return 0;
     if (t >= 1) return 1;
-    // Newton-iterate to find s where x(s) = t, then return y(s).
     let s = t;
     for (let i = 0; i < 8; i++) {
       const u = 1 - s;
@@ -58,20 +55,12 @@ const PETAL_FINAL_OPACITY = 0.92;
 const STAMEN_FINAL_OPACITY = 0.7;
 const ANTHER_FINAL_OPACITY = 0.75;
 const CENTER_FINAL_OPACITY = 0.85;
-const PETAL_BLOOM_START_ROTATION = (8 * Math.PI) / 180; // 8deg → 0
-
-// Color parsing -------------------------------------------------------
+const PETAL_BLOOM_START_ROTATION = (8 * Math.PI) / 180;
 
 function parseCssColor(input: string): ColorVec {
   const s = input.trim();
   if (s.startsWith('#')) {
     let hex = s.slice(1);
-    // Expand shorthand: #RGB and #RGBA both double each nibble.
-    // The 4-digit form matters in prod because Lightning CSS minifies
-    // light-mode `rgba(0, 0, 0, 0.6)` to `#0009` — without this branch
-    // the value falls through to the rgba parser, only finds one number,
-    // and bails to the default white, which is why the stamens (the only
-    // ink-muted shape) rendered white-on-white on deployed light mode.
     if (hex.length === 3 || hex.length === 4)
       hex = hex
         .split('')
@@ -114,8 +103,6 @@ function readColors(canvas: HTMLCanvasElement): Colors {
     inkSoft: parseCssColor(cs.getPropertyValue('--color-ink-soft')),
   };
 }
-
-// Component -----------------------------------------------------------
 
 const SpiderLily = ({ className }: { className?: string }) => {
   const { theme, toggle } = useTheme();
@@ -171,17 +158,12 @@ const SpiderLily = ({ className }: { className?: string }) => {
     [toggle],
   );
 
-  // Mount: build renderer, register entrance timers, run rAF
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const gl =
       canvas.getContext('webgl2', {
         alpha: true,
-        // The default framebuffer only ever receives a post-processed
-        // full-screen triangle — geometry AA comes from the renderer's own
-        // MSAA FBO. antialias:true would add a second multisample resolve
-        // (and the memory for it) per frame for nothing.
         antialias: false,
         premultipliedAlpha: true,
         preserveDrawingBuffer: false,
@@ -189,13 +171,12 @@ const SpiderLily = ({ className }: { className?: string }) => {
         stencil: false,
         powerPreference: 'high-performance',
       }) ?? null;
-    if (!gl) return; // WebGL2 unavailable — render nothing (lily is decorative)
+    if (!gl) return;
 
     let renderer: SpiderLilyRenderer;
     try {
       renderer = new SpiderLilyRenderer(gl);
     } catch (err) {
-      // Shader compile/link failure — bail silently.
       // eslint-disable-next-line no-console
       console.warn('SpiderLily renderer failed to initialize:', err);
       return;
@@ -203,7 +184,6 @@ const SpiderLily = ({ className }: { className?: string }) => {
     rendererRef.current = renderer;
     renderer.setColors(readColors(canvas));
 
-    // Size + ResizeObserver
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const applySize = () => {
       const rect = canvas.getBoundingClientRect();
@@ -217,20 +197,13 @@ const SpiderLily = ({ className }: { className?: string }) => {
     const ro = new ResizeObserver(applySize);
     ro.observe(canvas);
 
-    // Entrance timeline — advanced per rAF frame with a clamped delta
-    // instead of wall-clock setTimeout anchors. On a cold first load the
-    // main thread stalls on hydration/decoding; with wall-clock timing
-    // those stalls made the bloom skip ahead (dropped frames read as lag).
-    // With a clamped delta the bloom slows down under load and plays every
-    // eased step once frames flow — same total choreography, no skipping.
-    const MAX_FRAME_STEP = 50; // ms — below this a frame just plays slower
+    const MAX_FRAME_STEP = 50;
     const stamenDelays = STAMENS.map(
       (_, i) => STAMEN_BASE_DELAY + STAMEN_RANK[i] * STAMEN_STAGGER,
     );
     let timeline = 0;
     let lastNow = 0;
 
-    // Wind phase tables (same shape as old SpiderLily.tsx)
     const petalPhases = PETALS.map((_, i) => i * 0.7 + Math.sin(i * 2.3) * 0.5);
     const stamenPhases = STAMENS.map(
       (_, i) => i * 0.9 + Math.cos(i * 1.7) * 0.6,
@@ -240,7 +213,6 @@ const SpiderLily = ({ className }: { className?: string }) => {
       '(prefers-reduced-motion: reduce)',
     ).matches;
 
-    // Per-frame state buffers (mutated in place)
     const petalOffsets = new Float32Array(PETALS.length * 2);
     const stamenOffsets = new Float32Array(STAMENS.length * 2);
     const petalBloomScale = new Float32Array(PETALS.length);
@@ -255,9 +227,6 @@ const SpiderLily = ({ className }: { className?: string }) => {
       document.documentElement.getAttribute('data-theme');
 
     const tick = () => {
-      // StrictMode dev double-mount: a stale tick from a prior mount can
-      // fire after this renderer was disposed. Bail on either condition
-      // (disposed by us, or replaced in the ref by a remount).
       if (renderer.disposed || rendererRef.current !== renderer) return;
       const now = performance.now();
       if (lastNow === 0) lastNow = now;
@@ -266,8 +235,6 @@ const SpiderLily = ({ className }: { className?: string }) => {
       const t = timeline * WIND_SPEED;
       const mouse = mouseRef.current;
 
-      // Nothing is drawn before the stem starts — skip the whole GPU
-      // pipeline (8 render passes) while the page is at its busiest.
       if (timeline < STEM_DELAY) {
         if (document.visibilityState === 'hidden') {
           rafId = 0;
@@ -277,15 +244,12 @@ const SpiderLily = ({ className }: { className?: string }) => {
         return;
       }
 
-      // Theme attribute can flip mid-frame (ThemeContext writes data-theme
-      // before React re-renders); refresh colors when it changes.
       const cur = document.documentElement.getAttribute('data-theme');
       if (cur !== lastColorThemeAttr) {
         lastColorThemeAttr = cur;
         renderer.setColors(readColors(canvas));
       }
 
-      // === Per-petal wind + hover + entrance
       for (let i = 0; i < PETALS.length; i++) {
         const phase = petalPhases[i];
         const windX = reduceMotion
@@ -316,9 +280,6 @@ const SpiderLily = ({ className }: { className?: string }) => {
         petalOffsets[i * 2] = ox + (targetX - ox) * speed;
         petalOffsets[i * 2 + 1] = oy + (targetY - oy) * speed;
 
-        // Entrance: bloom scale / rotation / opacity per petal with stagger.
-        // Before its start (elapsed < 0) eased is 0, which reproduces the
-        // hidden state exactly — no separate inactive branch needed.
         const elapsed = timeline - PETAL_DELAY - PETALS[i].delay;
         const p = Math.max(0, Math.min(1, elapsed / PETAL_DURATION));
         const eased = easeBloom(p);
@@ -327,7 +288,6 @@ const SpiderLily = ({ className }: { className?: string }) => {
         petalOpacity[i] = PETAL_FINAL_OPACITY * eased;
       }
 
-      // === Per-stamen wind + hover + entrance
       for (let i = 0; i < STAMENS.length; i++) {
         const phase = stamenPhases[i];
         const windX = reduceMotion
@@ -362,20 +322,17 @@ const SpiderLily = ({ className }: { className?: string }) => {
         const eased = easeBloom(p);
         stamenReveal[i] = eased;
         stamenOpacity[i] = STAMEN_FINAL_OPACITY * eased;
-        // Anther appears after stamen finishes drawing.
         const aElapsed = elapsed - STAMEN_DURATION;
         const ap = Math.max(0, Math.min(1, aElapsed / ANTHER_DURATION));
         antherOpacity[i] = ANTHER_FINAL_OPACITY * easeBloom(ap);
       }
 
-      // === Stem
       let stemOpacity = 0;
       const stemP = Math.max(
         0,
         Math.min(1, (timeline - STEM_DELAY) / STEM_DURATION),
       );
       const stemRevealProgress = easeStem(stemP);
-      // CSS keyframe: opacity 0 → 0.8 in first 10% then → 1.0 at 100%.
       if (stemRevealProgress < 0.1) {
         stemOpacity = (stemRevealProgress / 0.1) * 0.8;
       } else {
@@ -384,7 +341,6 @@ const SpiderLily = ({ className }: { className?: string }) => {
       stemOpacity *= STEM_FINAL_OPACITY;
       const stemRevealY = stemRevealYFromProgress(stemRevealProgress);
 
-      // === Center (pulses with the petal start)
       const centerP = Math.max(
         0,
         Math.min(1, (timeline - PETAL_DELAY) / CENTER_DURATION),
@@ -393,7 +349,6 @@ const SpiderLily = ({ className }: { className?: string }) => {
       const centerScale = centerEased;
       const centerOpacity = CENTER_FINAL_OPACITY * centerEased;
 
-      // === Whole-flower sway
       const flowerRotation = reduceMotion
         ? 0
         : ((Math.sin(t * 0.8) * 0.8 + Math.sin(t * 1.3) * 0.35) * Math.PI) /
@@ -431,8 +386,6 @@ const SpiderLily = ({ className }: { className?: string }) => {
     };
     document.addEventListener('visibilitychange', onVisibility);
 
-    // Context loss handlers — rebuild GL resources, geometry typed arrays
-    // are still valid in module scope.
     const onLost = (e: Event) => {
       e.preventDefault();
       cancelAnimationFrame(rafId);
@@ -441,9 +394,7 @@ const SpiderLily = ({ className }: { className?: string }) => {
     const onRestored = () => {
       try {
         renderer.dispose();
-      } catch {
-        /* ignore */
-      }
+      } catch {}
       const newRenderer = new SpiderLilyRenderer(gl);
       rendererRef.current = newRenderer;
       newRenderer.setColors(readColors(canvas));
@@ -464,7 +415,6 @@ const SpiderLily = ({ className }: { className?: string }) => {
     };
   }, []);
 
-  // Re-read CSS colors immediately on theme flip (rAF tick will also catch it).
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas || !rendererRef.current) return;

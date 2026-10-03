@@ -48,11 +48,6 @@ const useSwipe = ({
     trackNodeRef.current = node;
   }, []);
 
-  // Reset to center whenever the parent swaps the current view via paths
-  // other than this hook (keyboard nav, on-screen chevrons). This is also a
-  // no-op idempotent reset after the post-commit batched update lands. We
-  // also abort any in-flight commit (timeout + transitionend listener) so
-  // its deferred `resolve()` cannot fire navigation against the new center.
   useEffect(() => {
     if (commitCleanupRef.current) {
       commitCleanupRef.current();
@@ -121,11 +116,6 @@ const useSwipe = ({
       const ox = currentOffsetRef.current;
       const elapsed = Date.now() - state.startTime;
       const velocity = Math.abs(ox) / Math.max(elapsed, 1);
-      // A `touchcancel` means the gesture was interrupted by the system
-      // (incoming call, OS alert, scroll-chain takeover) without the user
-      // releasing. Force the cancel path so an in-progress gesture past the
-      // trigger threshold rubber-bands back instead of silently committing
-      // a navigation the user never confirmed.
       const cancelled = e.type === 'touchcancel';
       const triggered =
         !cancelled &&
@@ -141,24 +131,12 @@ const useSwipe = ({
           (!goingLeft && hasPrev && onSwipeRight));
 
       if (!canCommit) {
-        // Cancel: animate back to centered.
         setAnimating(true);
         setOffsetX(0);
         currentOffsetRef.current = 0;
         return;
       }
 
-      // Commit: animate the track a full slide width in the swipe direction,
-      // then on transitionend (filtered to track + transform) fire the
-      // navigation callback and snap back to center in a single batched
-      // update so the parent's re-render and our local snap apply together.
-      // Read the viewport width live at commit time. The resting transform
-      // (`-33.3333%` of the 3-slot track) is recomputed by the browser
-      // against the current track width, so a viewport resize mid-gesture
-      // (e.g. iPad orientation change while a finger is down) would leave
-      // a target derived from `state.viewportWidth` (captured at
-      // touchstart) at a different scale than the live resting position
-      // and land the slide off-center.
       const sign = goingLeft ? -1 : 1;
       const liveWidth =
         viewportNodeRef.current?.clientWidth ?? state.viewportWidth;
@@ -181,8 +159,6 @@ const useSwipe = ({
         if (resolved) return;
         resolved = true;
         cleanup();
-        // Snap to center without animation, batched with the navigation call
-        // so React 18 applies both in the same render.
         setAnimating(false);
         setOffsetX(0);
         currentOffsetRef.current = 0;
@@ -196,10 +172,6 @@ const useSwipe = ({
       };
       if (trackEl) trackEl.addEventListener('transitionend', onTrans);
       const fallback = setTimeout(resolve, COMMIT_FALLBACK_MS);
-      // Expose an abort path so the currentKey effect (or unmount cleanup)
-      // can detach the listener and clear the timeout without firing
-      // navigation. `resolved` stays false so a stray transitionend after
-      // teardown is a no-op.
       commitCleanupRef.current = () => {
         if (resolved) return;
         resolved = true;
@@ -216,22 +188,14 @@ const useSwipe = ({
       node.removeEventListener('touchmove', onMove);
       node.removeEventListener('touchend', onEnd);
       node.removeEventListener('touchcancel', onEnd);
-      // Abort any in-flight commit so its timer / listener cannot fire
-      // navigation against a stale closure after the lightbox unmounts.
       if (commitCleanupRef.current) {
         commitCleanupRef.current();
         commitCleanupRef.current = null;
       }
     };
-    // Handlers read live state via refs, so this effect should attach
-    // listeners exactly once per mount instead of on every render.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Track is 3 slots wide (300% of the viewport). Slot 1 (current) is
-  // centered when the track is shifted left by 1/3 of its own width
-  // (== 1 viewport width). Drag/commit offsets are in px relative to that
-  // resting position.
   const trackStyle: React.CSSProperties = {
     transform: `translate3d(calc(-33.3333% + ${offsetX}px), 0, 0)`,
     transition: animating

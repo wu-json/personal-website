@@ -1,15 +1,3 @@
-/**
- * One-off backfill script: generate `-small.webp` (480px) siblings from the
- * existing `-thumb.webp` (800px) derivatives across every category under
- * public/images/.
- *
- * We do this because optimize-photos.ts expects the original source images,
- * which are not checked in. Downsizing from the 800px thumb to 480px yields
- * near-identical results to a fresh encode from source for our purposes.
- *
- * Usage: bun scripts/generate-small-variants.ts
- */
-
 import { existsSync, readdirSync, statSync } from 'fs';
 import { join } from 'path';
 

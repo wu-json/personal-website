@@ -17,11 +17,6 @@ const MainBanner = () => {
           className='bio-glitch w-80 sm:w-88 md:w-[26rem] lg:w-[30rem]'
           style={jitter()}
         >
-          {/* spider-lily-container lives on a wrapping HTML element rather
-              than the <svg> itself because iOS Safari doesn't apply CSS
-              `filter: drop-shadow(...)` to inline SVG roots (WebKit bug
-              261806). Wrapping in a div lets the glow animation render on
-              mobile Safari while keeping desktop behavior identical. */}
           <div className='spider-lily-container w-full h-auto'>
             <SpiderLily className='w-full h-auto' />
           </div>

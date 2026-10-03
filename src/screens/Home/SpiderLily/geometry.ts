@@ -309,9 +309,6 @@ export const STEM_D = `M${CX - 4} ${CY}
 export const STEM_TOP_Y = CY;
 export const STEM_BOTTOM_Y = 465;
 
-// === Stamen activation order (closest to center first), ported from
-// SpiderLily.tsx so the entrance cascade timing is bit-for-bit identical.
-
 const stamenDistances = STAMENS.map(s =>
   Math.sqrt((s.cx - CX) ** 2 + (s.cy - CY) ** 2),
 );
@@ -322,8 +319,6 @@ export const STAMEN_RANK = new Array<number>(STAMENS.length);
 for (let rank = 0; rank < stamenActivationOrder.length; rank++) {
   STAMEN_RANK[stamenActivationOrder[rank]] = rank;
 }
-
-// === SVG d-string parser (supports M, L, C, Z only — all our paths use this subset)
 
 type Pt = [number, number];
 
@@ -412,17 +407,14 @@ function samplePath(parsed: ParsedPath): Pt[] {
   return out;
 }
 
-// === Mesh outputs
-
 export type Mesh = {
-  vertices: Float32Array; // (x, y, arcLength) per vertex
+  vertices: Float32Array;
   indices: Uint16Array;
 };
 
 export type PetalMesh = Mesh & { pivot: [number, number] };
 
 function buildFilled(pts: Pt[]): Mesh {
-  // Drop the duplicate closing vertex if the closing segment brought us back to start.
   let n = pts.length;
   if (n > 1 && pts[0][0] === pts[n - 1][0] && pts[0][1] === pts[n - 1][1]) {
     n--;
@@ -475,11 +467,9 @@ function buildStroke(pts: Pt[], halfWidth: number): Mesh {
     const nlen = Math.sqrt(nx * nx + ny * ny) || 1;
     nx /= nlen;
     ny /= nlen;
-    // Left
     vertices[i * 6 + 0] = pts[i][0] + nx * halfWidth;
     vertices[i * 6 + 1] = pts[i][1] + ny * halfWidth;
     vertices[i * 6 + 2] = arcLen[i];
-    // Right
     vertices[i * 6 + 3] = pts[i][0] - nx * halfWidth;
     vertices[i * 6 + 4] = pts[i][1] - ny * halfWidth;
     vertices[i * 6 + 5] = arcLen[i];
@@ -544,12 +534,6 @@ export const PETAL_MESHES: PetalMesh[] = PETALS.map(p => {
   return { ...mesh, pivot: [p.cx, p.cy] };
 });
 
-// Sampled centerline points per stamen — kept around so the renderer can
-// rebuild stamen stroke meshes at a wider half-width on small/low-DPR
-// canvases, where the default 0.4 viewBox-unit half-width is sub-device-pixel
-// and MSAA-4x produces such low coverage that the line goes nearly
-// transparent (invisible against light-mode white; barely off against
-// dark-mode black, which is why the bug is mobile + light only).
 const STAMEN_POINTS: Pt[][] = STAMENS.map(s => samplePath(parsePath(s.d)));
 
 export function buildStamenMeshes(halfWidth: number): Mesh[] {

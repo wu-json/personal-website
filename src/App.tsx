@@ -12,11 +12,6 @@ import { SignalsScreen } from 'src/screens/Signals';
 import { SignalDetail } from 'src/screens/Signals/SignalDetail';
 import { Route, Switch } from 'wouter';
 
-// Gallery is the only intentionally-split route. Its 247 kB gz
-// Three.js + R3F payload would be a clear LCP regression on `/`
-// for the many visitors who never enter the gallery, so we keep it
-// behind `lazy()` with a null fallback (the screen owns the whole
-// viewport, so painting nothing during the fetch is fine).
 const GalleryScreen = lazy(() =>
   import('src/screens/Gallery').then(m => ({ default: m.GalleryScreen })),
 );
@@ -30,7 +25,6 @@ const App = () => (
         </Suspense>
       )}
     </Route>
-    {/* Dev-only: standalone gallery for testing layout without a fragment */}
     {import.meta.env.DEV && (
       <Route path='/gallery'>
         <Suspense fallback={null}>

@@ -104,13 +104,6 @@ const MenuToggle = ({
   </button>
 );
 
-// Collapsed-state expand handle. Renders as a tall left-edge column with a
-// chevron above a vertical "ATLAS" pixel label, turning the empty rail
-// into a deliberate design element. Always rendered so its opacity can
-// animate; pointer-events are disabled when the sidebar is expanded. The
-// nav-glitch only fires on first paint when the sidebar boots already
-// collapsed — subsequent toggles fall back to the plain opacity fade so
-// flipping the sidebar doesn't feel jittery.
 const ATLAS_CHARS = ['ア', 'ト', 'ラ', 'ス'];
 
 const SidebarToggle = ({
@@ -121,10 +114,6 @@ const SidebarToggle = ({
   onClick: () => void;
 }) => {
   const isFirstRenderRef = useRef(true);
-  // riseKey re-mounts each Atlas character span on subsequent transitions
-  // into the collapsed state, replaying the per-character rise. The glitch
-  // and char-rise are mutually exclusive: glitch fires only on first paint
-  // (if booting collapsed), char-rise fires only on subsequent collapses.
   const [riseKey, setRiseKey] = useState(0);
 
   useEffect(() => {
@@ -223,12 +212,6 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
       />
       <SidebarToggle visible={isSidebarCollapsed} onClick={toggleSidebar} />
       <MenuToggle open={isMobileMenuOpen} onClick={toggleMobileMenu} />
-      {/* The sidebar renders as a fixed overlay, so <main> spans the full
-          viewport width and pads left by the rail's w-40 instead of sitting
-          beside it in flow. This keeps the empty rail area part of the scroll
-          container (touch gestures there scroll natively); the padding
-          transition mirrors the rail's width animation so collapse/expand
-          stays in sync. */}
       <main
         ref={mainRef}
         className={`flex-1 min-w-0 overflow-y-auto transition-[padding] duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] ${isSidebarCollapsed ? '' : 'md:pl-40'}`}
@@ -237,8 +220,6 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
       </main>
       <ScrollReset scrollRef={mainRef} />
       <ScrollToTop scrollRef={mainRef} />
-      {/* Ink cursor — not sure if gonna keep because it's a bit annoying sometimes lol */}
-      {/* {pathname === '/' && <InkCursor />} */}
     </div>
   );
 };
