@@ -11,7 +11,6 @@
     "dev": "vite dev",
     "build": "vite build",
     "preview": "vite preview",
-    "postinstall": "test \"$CI\" = true || prek install",
     "fmt": "oxfmt",
     "fmt:check": "oxfmt --check",
     "lint": "oxlint --deny-warnings .",
@@ -37,7 +36,6 @@
     "wouter": "^3.11.1"
   },
   "devDependencies": {
-    "@j178/prek": "^0.5.3",
     "@resvg/resvg-js": "^2.6.2",
     "@types/bun": "^1.4.2",
     "@types/earcut": "^3.0.0",
