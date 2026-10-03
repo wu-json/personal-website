@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'react';
+import type { CSSProperties, HTMLAttributes } from 'react';
 import { useEffect, useRef } from 'react';
 
 type CSSVars = CSSProperties & Record<string, string>;
@@ -72,23 +72,25 @@ const ProgressiveImage = ({
     '--obj-pos': objectPosition ?? 'center',
   };
 
+  const interactiveProps: HTMLAttributes<HTMLDivElement> = onClick
+    ? {
+        role: 'button',
+        tabIndex: 0,
+        onClick,
+        onKeyDown: e => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            onClick();
+          }
+        },
+      }
+    : {};
+
   return (
     <div
       className={`progressive-image ${className}`}
       style={style}
-      onClick={onClick}
-      onKeyDown={
-        onClick
-          ? e => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                onClick();
-              }
-            }
-          : undefined
-      }
-      role={onClick ? 'button' : undefined}
-      tabIndex={onClick ? 0 : undefined}
+      {...interactiveProps}
     >
       <img
         ref={imgRef}

@@ -10,6 +10,8 @@
       "version": "18.0"
     }
   },
-  "rules": {},
+  "rules": {
+    "jsx-a11y/prefer-tag-over-role": "off"
+  },
   "ignorePatterns": ["build/**/*", "node_modules/**/*"]
 }
