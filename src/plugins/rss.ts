@@ -36,7 +36,7 @@ export function parseFrontmatter(raw: string): {
 }
 
 export function parseRssTimestamp(ts: string): string {
-  const d = new Date(ts.replace(/\./g, '-').replace(' // ', 'T'));
+  const d = new Date(`${ts.replace(/\./g, '-').replace(' // ', 'T')}Z`);
   return isNaN(d.getTime()) ? '' : d.toUTCString();
 }
 
