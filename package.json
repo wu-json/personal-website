@@ -14,7 +14,7 @@
     "postinstall": "test \"$CI\" = true || prek install",
     "fmt": "oxfmt",
     "fmt:check": "oxfmt --check",
-    "lint": "oxlint .",
+    "lint": "oxlint --deny-warnings .",
     "optimize-photos": "bun scripts/optimize-photos.ts",
     "test": "bun test",
     "typecheck": "tsgo --noEmit -p tsconfig.json"
