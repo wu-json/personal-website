@@ -35,7 +35,7 @@ const MainBanner = () => {
                 href='https://linear.app'
                 target='_blank'
                 rel='noopener noreferrer'
-                className='underline underline-offset-4 decoration-white/40 hover:decoration-white transition-colors duration-300'
+                className='hover:[text-shadow:0_0_6px_rgba(255,255,255,0.5)] transition-all duration-300'
               >
                 Linear
               </a>
