@@ -1,6 +1,8 @@
+import { type FocusEvent, type PointerEvent, useState } from 'react';
 import { useJitter } from 'src/hooks/useJitter';
 
 import { SpiderLily } from '../../SpiderLily';
+import { LinearMark } from './LinearMark';
 
 const linkClass =
   'font-mono text-xs uppercase tracking-widest text-white/50 hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)] transition-all duration-300';
@@ -8,8 +10,31 @@ const linkClass =
 const bioClass =
   'bio-glitch text-white text-sm font-pixel text-left leading-relaxed';
 
+const isKeyboardFocus = (el: Element) => {
+  try {
+    return el.matches(':focus-visible');
+  } catch {
+    return true;
+  }
+};
+
 const MainBanner = () => {
   const jitter = useJitter();
+  const [hovered, setHovered] = useState(false);
+  const [focused, setFocused] = useState(false);
+  const [morphed, setMorphed] = useState(false);
+  const showingLinear = hovered || focused;
+  const morph = showingLinear ? 'linear' : morphed ? 'lily' : undefined;
+  const onPointerEnter = (e: PointerEvent<HTMLAnchorElement>) => {
+    if (e.pointerType === 'touch') return;
+    setHovered(true);
+    setMorphed(true);
+  };
+  const onFocus = (e: FocusEvent<HTMLAnchorElement>) => {
+    if (!isKeyboardFocus(e.currentTarget)) return;
+    setFocused(true);
+    setMorphed(true);
+  };
   return (
     <div className='w-full h-dvh bg-black flex items-center justify-center md:pr-40'>
       <div className='flex flex-col items-start gap-6 md:gap-8 max-w-md lg:max-w-lg px-6'>
@@ -17,8 +42,15 @@ const MainBanner = () => {
           className='bio-glitch w-80 sm:w-88 md:w-[26rem] lg:w-[30rem]'
           style={jitter()}
         >
-          <div className='spider-lily-container w-full h-auto'>
-            <SpiderLily className='w-full h-auto' />
+          <div
+            className='spider-lily-container lily-morph w-full h-auto'
+            data-morph={morph}
+          >
+            <SpiderLily
+              className='lily-morph-flower w-full h-auto'
+              paused={showingLinear}
+            />
+            <LinearMark />
           </div>
         </div>
         <div className='flex flex-col gap-4'>
@@ -35,6 +67,10 @@ const MainBanner = () => {
                 href='https://linear.app'
                 target='_blank'
                 rel='noopener noreferrer'
+                onPointerEnter={onPointerEnter}
+                onPointerLeave={() => setHovered(false)}
+                onFocus={onFocus}
+                onBlur={() => setFocused(false)}
                 className='hover:[text-shadow:0_0_6px_rgba(255,255,255,0.5)] transition-all duration-300'
               >
                 Linear

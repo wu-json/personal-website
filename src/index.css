@@ -1106,3 +1106,288 @@ html {
   ) {
   text-shadow: none;
 }
+
+.lily-morph {
+  position: relative;
+}
+
+.linear-mark {
+  position: absolute;
+  left: 33%;
+  top: 12.55%;
+  width: 34%;
+  height: 57.87%;
+  color: var(--color-ink);
+  pointer-events: none;
+  opacity: 0;
+}
+
+.linear-mark svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.linear-mark-scan {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+}
+
+.linear-mark-scan::after {
+  content: '';
+  position: absolute;
+  inset: -6px 0 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0 2px,
+    var(--color-surface) 2px 3px
+  );
+  opacity: 0.35;
+}
+
+.lily-morph[data-morph='linear'] .linear-mark-scan::after {
+  animation: scanline-roll 3s linear infinite;
+}
+
+.lily-morph[data-morph='linear'] .linear-mark-segment {
+  animation: linear-pulse 5.6s ease-in-out infinite;
+  animation-delay: calc(800ms + var(--segment) * 240ms);
+}
+
+.linear-mark-ghost {
+  opacity: 0;
+}
+
+@keyframes glitch-out {
+  0% {
+    opacity: 1;
+    transform: none;
+    clip-path: none;
+  }
+  12% {
+    opacity: 1;
+    transform: translateX(8px);
+    clip-path: inset(12% 0 50% 0);
+  }
+  24% {
+    opacity: 0.9;
+    transform: translateX(-6px);
+    clip-path: inset(45% 0 18% 0);
+  }
+  36% {
+    opacity: 0.6;
+    transform: translateX(4px);
+    clip-path: inset(0 0 72% 0);
+  }
+  50% {
+    opacity: 0.4;
+    transform: translateX(-10px);
+    clip-path: inset(66% 0 8% 0);
+  }
+  62%,
+  100% {
+    opacity: 0;
+    transform: none;
+    clip-path: none;
+  }
+}
+
+@keyframes glitch-in {
+  0% {
+    opacity: 0;
+    transform: none;
+    clip-path: none;
+  }
+  10% {
+    opacity: 1;
+    transform: translateX(-8px);
+    clip-path: inset(30% 0 50% 0);
+  }
+  22% {
+    opacity: 1;
+    transform: translateX(6px);
+    clip-path: inset(58% 0 12% 0);
+  }
+  34% {
+    opacity: 1;
+    transform: translateX(-4px);
+    clip-path: inset(0 0 55% 0);
+  }
+  46% {
+    opacity: 1;
+    transform: translateX(3px);
+    clip-path: inset(18% 0 20% 0);
+  }
+  58% {
+    opacity: 1;
+    transform: translateX(-2px);
+    clip-path: none;
+  }
+  80% {
+    opacity: 1;
+    transform: translateX(2px);
+    clip-path: inset(0 0 8% 0);
+  }
+  90%,
+  100% {
+    opacity: 1;
+    transform: none;
+    clip-path: none;
+  }
+}
+
+@keyframes glitch-ghost-a {
+  0%,
+  100% {
+    opacity: 0;
+    transform: none;
+    clip-path: none;
+  }
+  10% {
+    opacity: 0.5;
+    transform: translate(10px, -2px);
+    clip-path: inset(20% 0 45% 0);
+  }
+  22% {
+    opacity: 0;
+  }
+  34% {
+    opacity: 0.4;
+    transform: translate(-7px, 1px);
+    clip-path: inset(55% 0 15% 0);
+  }
+  46% {
+    opacity: 0;
+  }
+  70% {
+    opacity: 0.3;
+    transform: translateX(4px);
+    clip-path: none;
+  }
+  80% {
+    opacity: 0;
+  }
+}
+
+@keyframes glitch-ghost-b {
+  0%,
+  100% {
+    opacity: 0;
+    transform: none;
+    clip-path: none;
+  }
+  16% {
+    opacity: 0.35;
+    transform: translate(-12px, 2px);
+    clip-path: inset(0 0 70% 0);
+  }
+  28% {
+    opacity: 0;
+  }
+  46% {
+    opacity: 0.3;
+    transform: translate(6px, -1px);
+    clip-path: inset(35% 0 35% 0);
+  }
+  58% {
+    opacity: 0;
+  }
+  80% {
+    opacity: 0.2;
+    transform: translateX(-3px);
+    clip-path: none;
+  }
+  90% {
+    opacity: 0;
+  }
+}
+
+@keyframes linear-pulse {
+  0%,
+  40%,
+  100% {
+    opacity: 1;
+  }
+  20% {
+    opacity: 0.72;
+  }
+}
+
+@keyframes scanline-roll {
+  from {
+    transform: none;
+  }
+  to {
+    transform: translateY(6px);
+  }
+}
+
+@keyframes glitch-twitch {
+  0%,
+  96%,
+  97.5%,
+  100% {
+    transform: none;
+    clip-path: none;
+  }
+  96.5% {
+    transform: translateX(3px);
+    clip-path: inset(40% 0 46% 0);
+  }
+}
+
+.lily-morph[data-morph='linear'] .lily-morph-flower {
+  pointer-events: none;
+  animation: glitch-out 240ms steps(1, end) forwards;
+}
+
+.lily-morph[data-morph='linear'] .linear-mark {
+  animation:
+    glitch-in 280ms steps(1, end) both,
+    glitch-twitch 7s steps(1, end) 1s infinite;
+}
+
+.lily-morph[data-morph='linear'] .linear-mark-ghost-a {
+  animation: glitch-ghost-a 280ms steps(1, end) both;
+}
+
+.lily-morph[data-morph='linear'] .linear-mark-ghost-b {
+  animation: glitch-ghost-b 280ms steps(1, end) both;
+}
+
+.lily-morph[data-morph='lily'] .linear-mark {
+  animation: glitch-out 240ms steps(1, end) forwards;
+}
+
+.lily-morph[data-morph='lily'] .lily-morph-flower {
+  animation: glitch-in 280ms steps(1, end) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lily-morph .lily-morph-flower,
+  .lily-morph .linear-mark {
+    transition: opacity 300ms ease;
+  }
+
+  .lily-morph[data-morph] .lily-morph-flower,
+  .lily-morph[data-morph] .linear-mark,
+  .lily-morph[data-morph] .linear-mark-scan::after,
+  .lily-morph[data-morph] .linear-mark-segment,
+  .lily-morph[data-morph] .linear-mark-ghost {
+    animation: none;
+  }
+
+  .lily-morph[data-morph='linear'] .lily-morph-flower {
+    opacity: 0;
+  }
+
+  .lily-morph[data-morph='linear'] .linear-mark {
+    opacity: 1;
+  }
+}
