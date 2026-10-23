@@ -126,12 +126,10 @@ const MainBanner = () => {
               </a>
             </p>
             <p className={bioClass} style={jitter()}>
-              Yale grad, grew up in Princeton, lived in Atlanta, dragged to San
-              Francisco.
+              Yale 2022. Based in SF & SEA.
             </p>
             <p className={bioClass} style={jitter()}>
-              I draw software, breakdance, and capture humans and landscapes in
-              time.
+              I also dance and capture humans + landscapes in time.
             </p>
           </div>
         </div>
