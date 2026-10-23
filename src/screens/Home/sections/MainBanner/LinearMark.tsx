@@ -7,24 +7,41 @@ const LINEAR_SEGMENTS = [
   'M12.6587 18.074c-.3701-.3701-.393-.9637-.0443-1.3541C21.7795 6.45931 35.1114 0 49.9519 0 77.5927 0 100 22.4073 100 50.0481c0 14.8405-6.4593 28.1724-16.7199 37.3375-.3903.3487-.984.3258-1.3542-.0443L12.6587 18.074Z',
 ];
 
-const Glyph = ({ className }: { className: string }) => (
-  <svg className={className} viewBox='0 0 100 100' fill='currentColor'>
-    {LINEAR_SEGMENTS.map((d, i) => (
-      <path
-        key={d}
-        className='linear-mark-segment'
-        style={{ '--segment': i } as CSSProperties}
-        d={d}
-      />
-    ))}
+const LINEAR_MASK = `url("data:image/svg+xml,${encodeURIComponent(
+  `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='${LINEAR_SEGMENTS.join('')}'/></svg>`,
+)}")`;
+
+const scanStyle: CSSProperties = {
+  maskImage: LINEAR_MASK,
+  WebkitMaskImage: LINEAR_MASK,
+};
+
+const Ghost = ({ className }: { className: string }) => (
+  <svg
+    className={`linear-mark-ghost ${className}`}
+    viewBox='0 0 100 100'
+    fill='currentColor'
+  >
+    <path d={LINEAR_SEGMENTS.join('')} />
   </svg>
 );
 
 const LinearMark = () => (
   <div className='linear-mark' aria-hidden='true'>
-    <Glyph className='linear-mark-ghost linear-mark-ghost-a' />
-    <Glyph className='linear-mark-ghost linear-mark-ghost-b' />
-    <Glyph className='linear-mark-glyph' />
+    <Ghost className='linear-mark-ghost-a' />
+    <Ghost className='linear-mark-ghost-b' />
+    {LINEAR_SEGMENTS.map((d, i) => (
+      <svg
+        key={d}
+        className='linear-mark-segment'
+        style={{ '--segment': i } as CSSProperties}
+        viewBox='0 0 100 100'
+        fill='currentColor'
+      >
+        <path d={d} />
+      </svg>
+    ))}
+    <div className='linear-mark-scan' style={scanStyle} />
   </div>
 );
 

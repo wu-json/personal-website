@@ -104,11 +104,19 @@ function readColors(canvas: HTMLCanvasElement): Colors {
   };
 }
 
-const SpiderLily = ({ className }: { className?: string }) => {
+const SpiderLily = ({
+  className,
+  paused = false,
+}: {
+  className?: string;
+  paused?: boolean;
+}) => {
   const { theme, toggle } = useTheme();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rendererRef = useRef<SpiderLilyRenderer | null>(null);
   const mouseRef = useRef({ x: 0, y: 0, active: false });
+  const pausedRef = useRef(paused);
+  const wakeRef = useRef<(() => void) | null>(null);
 
   const toCanvasCoords = useCallback((clientX: number, clientY: number) => {
     const canvas = canvasRef.current;
@@ -223,6 +231,8 @@ const SpiderLily = ({ className }: { className?: string }) => {
     const antherOpacity = new Float32Array(STAMENS.length);
 
     let rafId = 0;
+    const shouldSleep = () =>
+      document.visibilityState === 'hidden' || pausedRef.current;
     let lastColorThemeAttr =
       document.documentElement.getAttribute('data-theme');
 
@@ -236,7 +246,7 @@ const SpiderLily = ({ className }: { className?: string }) => {
       const mouse = mouseRef.current;
 
       if (timeline < STEM_DELAY) {
-        if (document.visibilityState === 'hidden') {
+        if (shouldSleep()) {
           rafId = 0;
           return;
         }
@@ -370,7 +380,7 @@ const SpiderLily = ({ className }: { className?: string }) => {
         centerOpacity,
       });
 
-      if (document.visibilityState === 'hidden') {
+      if (shouldSleep()) {
         rafId = 0;
         return;
       }
@@ -379,12 +389,13 @@ const SpiderLily = ({ className }: { className?: string }) => {
 
     rafId = requestAnimationFrame(tick);
 
-    const onVisibility = () => {
-      if (document.visibilityState === 'visible' && !rafId) {
+    const wake = () => {
+      if (!rafId && !shouldSleep()) {
         rafId = requestAnimationFrame(tick);
       }
     };
-    document.addEventListener('visibilitychange', onVisibility);
+    wakeRef.current = wake;
+    document.addEventListener('visibilitychange', wake);
 
     const onLost = (e: Event) => {
       e.preventDefault();
@@ -406,7 +417,8 @@ const SpiderLily = ({ className }: { className?: string }) => {
 
     return () => {
       cancelAnimationFrame(rafId);
-      document.removeEventListener('visibilitychange', onVisibility);
+      document.removeEventListener('visibilitychange', wake);
+      wakeRef.current = null;
       canvas.removeEventListener('webglcontextlost', onLost);
       canvas.removeEventListener('webglcontextrestored', onRestored);
       ro.disconnect();
@@ -414,6 +426,11 @@ const SpiderLily = ({ className }: { className?: string }) => {
       rendererRef.current = null;
     };
   }, []);
+
+  useEffect(() => {
+    pausedRef.current = paused;
+    if (!paused) wakeRef.current?.();
+  }, [paused]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
