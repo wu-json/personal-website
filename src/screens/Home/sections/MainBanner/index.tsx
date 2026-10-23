@@ -30,7 +30,16 @@ const MainBanner = () => {
           </p>
           <div className='flex flex-col gap-2.5'>
             <p className={bioClass} style={jitter()}>
-              Paint the world in ink.
+              Painting software @
+              <a
+                href='https://linear.app'
+                target='_blank'
+                rel='noopener noreferrer'
+                className='underline underline-offset-4 decoration-white/40 hover:decoration-white transition-colors duration-300'
+              >
+                Linear
+              </a>
+              .
             </p>
             <p className={bioClass} style={jitter()}>
               Yale grad, grew up in Princeton, lived in Atlanta, dragged to San
@@ -53,15 +62,6 @@ const MainBanner = () => {
             className={linkClass}
           >
             GitHub
-          </a>
-          <span className='text-white/20 text-xs'>/</span>
-          <a
-            href='/jasonwu_resume.pdf'
-            target='_blank'
-            rel='noopener noreferrer'
-            className={linkClass}
-          >
-            Resume
           </a>
           <span className='text-white/20 text-xs'>/</span>
           <a
