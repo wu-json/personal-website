@@ -39,7 +39,6 @@ const MainBanner = () => {
               >
                 Linear
               </a>
-              .
             </p>
             <p className={bioClass} style={jitter()}>
               Yale grad, grew up in Princeton, lived in Atlanta, dragged to San
