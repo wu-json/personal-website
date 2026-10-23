@@ -64,6 +64,15 @@ const MainBanner = () => {
           </a>
           <span className='text-white/20 text-xs'>/</span>
           <a
+            href='https://www.instagram.com/jasoncuiwu/'
+            target='_blank'
+            rel='noopener noreferrer'
+            className={linkClass}
+          >
+            IG
+          </a>
+          <span className='text-white/20 text-xs'>/</span>
+          <a
             href='https://github.com/wu-json'
             target='_blank'
             rel='noopener noreferrer'
@@ -79,15 +88,6 @@ const MainBanner = () => {
             className={linkClass}
           >
             LinkedIn
-          </a>
-          <span className='text-white/20 text-xs'>/</span>
-          <a
-            href='https://www.instagram.com/jasoncuiwu/'
-            target='_blank'
-            rel='noopener noreferrer'
-            className={linkClass}
-          >
-            IG
           </a>
         </div>
       </div>
