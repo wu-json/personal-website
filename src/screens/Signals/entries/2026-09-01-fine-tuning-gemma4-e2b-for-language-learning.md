@@ -21,7 +21,7 @@ In this post, we'll go through the following:
 
 ## Origin Story
 
-I've been studying Japanese for a while now, and finally reached a point where the most effective method for learning is immersion: consuming real Japanese content.
+I've been studying Japanese for a while now, and finally reached the point where the most effective method for learning is immersion: consuming real Japanese content.
 
 For immersion learning to be effective, the input needs to be comprehensible. In other words, you cannot just fall asleep every night watching Steins;Gate and expect to become fluent over time. If this were the case, I would have been fluent years ago.
 
