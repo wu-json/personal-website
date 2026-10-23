@@ -1,4 +1,11 @@
-import { type FocusEvent, type PointerEvent, useState } from 'react';
+import {
+  type FocusEvent,
+  type MouseEvent,
+  type PointerEvent,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { useJitter } from 'src/hooks/useJitter';
 
 import { SpiderLily } from '../../SpiderLily';
@@ -9,6 +16,8 @@ const linkClass =
 
 const bioClass =
   'bio-glitch text-white text-sm font-pixel text-left leading-relaxed';
+
+const HOLD_DELAY = 250;
 
 const isKeyboardFocus = (el: Element) => {
   try {
@@ -22,14 +31,49 @@ const MainBanner = () => {
   const jitter = useJitter();
   const [hovered, setHovered] = useState(false);
   const [focused, setFocused] = useState(false);
+  const [held, setHeld] = useState(false);
   const [morphed, setMorphed] = useState(false);
-  const showingLinear = hovered || focused;
+  const holdTimer = useRef<number | undefined>(undefined);
+  const touchPressing = useRef(false);
+  const holdTriggered = useRef(false);
+  const showingLinear = hovered || focused || held;
   const morph = showingLinear ? 'linear' : morphed ? 'lily' : undefined;
   const onPointerEnter = (e: PointerEvent<HTMLAnchorElement>) => {
     if (e.pointerType === 'touch') return;
     setHovered(true);
     setMorphed(true);
   };
+  const onPointerDown = (e: PointerEvent<HTMLAnchorElement>) => {
+    holdTriggered.current = false;
+    if (e.pointerType !== 'touch') return;
+    touchPressing.current = true;
+    window.clearTimeout(holdTimer.current);
+    holdTimer.current = window.setTimeout(() => {
+      holdTriggered.current = true;
+      setHeld(true);
+      setMorphed(true);
+    }, HOLD_DELAY);
+  };
+  const endHold = () => {
+    touchPressing.current = false;
+    window.clearTimeout(holdTimer.current);
+    setHeld(false);
+  };
+  const cancelHold = () => {
+    endHold();
+    holdTriggered.current = false;
+  };
+  const onClick = (e: MouseEvent<HTMLAnchorElement>) => {
+    const suppress = holdTriggered.current && e.detail !== 0;
+    holdTriggered.current = false;
+    if (!suppress) return;
+    e.preventDefault();
+  };
+  const onContextMenu = (e: MouseEvent<HTMLAnchorElement>) => {
+    if (!touchPressing.current) return;
+    e.preventDefault();
+  };
+  useEffect(() => () => window.clearTimeout(holdTimer.current), []);
   const onFocus = (e: FocusEvent<HTMLAnchorElement>) => {
     if (!isKeyboardFocus(e.currentTarget)) return;
     setFocused(true);
@@ -69,9 +113,14 @@ const MainBanner = () => {
                 rel='noopener noreferrer'
                 onPointerEnter={onPointerEnter}
                 onPointerLeave={() => setHovered(false)}
+                onPointerDown={onPointerDown}
+                onPointerUp={endHold}
+                onPointerCancel={cancelHold}
+                onClick={onClick}
+                onContextMenu={onContextMenu}
                 onFocus={onFocus}
                 onBlur={() => setFocused(false)}
-                className='hover:[text-shadow:0_0_6px_rgba(255,255,255,0.5)] transition-all duration-300'
+                className='select-none [-webkit-touch-callout:none] hover:[text-shadow:0_0_6px_rgba(255,255,255,0.5)] transition-all duration-300'
               >
                 Linear
               </a>
