@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { useJitter } from 'src/hooks/useJitter';
 
 import { SpiderLily } from '../../SpiderLily';
+import { LinearMark } from './LinearMark';
 
 const linkClass =
   'font-mono text-xs uppercase tracking-widest text-white/50 hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)] transition-all duration-300';
@@ -10,6 +12,9 @@ const bioClass =
 
 const MainBanner = () => {
   const jitter = useJitter();
+  const [morph, setMorph] = useState<'linear' | 'lily'>();
+  const showLinear = () => setMorph('linear');
+  const showLily = () => setMorph(m => (m ? 'lily' : m));
   return (
     <div className='w-full h-dvh bg-black flex items-center justify-center md:pr-40'>
       <div className='flex flex-col items-start gap-6 md:gap-8 max-w-md lg:max-w-lg px-6'>
@@ -17,8 +22,12 @@ const MainBanner = () => {
           className='bio-glitch w-80 sm:w-88 md:w-[26rem] lg:w-[30rem]'
           style={jitter()}
         >
-          <div className='spider-lily-container w-full h-auto'>
-            <SpiderLily className='w-full h-auto' />
+          <div
+            className='spider-lily-container lily-morph w-full h-auto'
+            data-morph={morph}
+          >
+            <SpiderLily className='lily-morph-flower w-full h-auto' />
+            <LinearMark />
           </div>
         </div>
         <div className='flex flex-col gap-4'>
@@ -35,6 +44,10 @@ const MainBanner = () => {
                 href='https://linear.app'
                 target='_blank'
                 rel='noopener noreferrer'
+                onMouseEnter={showLinear}
+                onMouseLeave={showLily}
+                onFocus={showLinear}
+                onBlur={showLily}
                 className='hover:[text-shadow:0_0_6px_rgba(255,255,255,0.5)] transition-all duration-300'
               >
                 Linear
