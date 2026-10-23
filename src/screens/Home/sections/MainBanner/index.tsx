@@ -44,9 +44,9 @@ const MainBanner = () => {
     setMorphed(true);
   };
   const onPointerDown = (e: PointerEvent<HTMLAnchorElement>) => {
+    holdTriggered.current = false;
     if (e.pointerType !== 'touch') return;
     touchPressing.current = true;
-    holdTriggered.current = false;
     window.clearTimeout(holdTimer.current);
     holdTimer.current = window.setTimeout(() => {
       holdTriggered.current = true;
@@ -59,13 +59,18 @@ const MainBanner = () => {
     window.clearTimeout(holdTimer.current);
     setHeld(false);
   };
-  const onClick = (e: MouseEvent<HTMLAnchorElement>) => {
-    if (!holdTriggered.current) return;
+  const cancelHold = () => {
+    endHold();
     holdTriggered.current = false;
+  };
+  const onClick = (e: MouseEvent<HTMLAnchorElement>) => {
+    const suppress = holdTriggered.current && e.detail !== 0;
+    holdTriggered.current = false;
+    if (!suppress) return;
     e.preventDefault();
   };
   const onContextMenu = (e: MouseEvent<HTMLAnchorElement>) => {
-    if (!touchPressing.current && !holdTriggered.current) return;
+    if (!touchPressing.current) return;
     e.preventDefault();
   };
   useEffect(() => () => window.clearTimeout(holdTimer.current), []);
@@ -110,7 +115,7 @@ const MainBanner = () => {
                 onPointerLeave={() => setHovered(false)}
                 onPointerDown={onPointerDown}
                 onPointerUp={endHold}
-                onPointerCancel={endHold}
+                onPointerCancel={cancelHold}
                 onClick={onClick}
                 onContextMenu={onContextMenu}
                 onFocus={onFocus}
