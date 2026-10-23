@@ -30,7 +30,15 @@ const MainBanner = () => {
           </p>
           <div className='flex flex-col gap-2.5'>
             <p className={bioClass} style={jitter()}>
-              Paint the world in ink.
+              Painting software @
+              <a
+                href='https://linear.app'
+                target='_blank'
+                rel='noopener noreferrer'
+                className='hover:[text-shadow:0_0_6px_rgba(255,255,255,0.5)] transition-all duration-300'
+              >
+                Linear
+              </a>
             </p>
             <p className={bioClass} style={jitter()}>
               Yale grad, grew up in Princeton, lived in Atlanta, dragged to San
@@ -47,30 +55,12 @@ const MainBanner = () => {
           style={jitter()}
         >
           <a
-            href='https://github.com/wu-json'
+            href='https://x.com/jasonwuink'
             target='_blank'
             rel='noopener noreferrer'
             className={linkClass}
           >
-            GitHub
-          </a>
-          <span className='text-white/20 text-xs'>/</span>
-          <a
-            href='/jasonwu_resume.pdf'
-            target='_blank'
-            rel='noopener noreferrer'
-            className={linkClass}
-          >
-            Resume
-          </a>
-          <span className='text-white/20 text-xs'>/</span>
-          <a
-            href='https://www.linkedin.com/in/wu-json/'
-            target='_blank'
-            rel='noopener noreferrer'
-            className={linkClass}
-          >
-            LinkedIn
+            X
           </a>
           <span className='text-white/20 text-xs'>/</span>
           <a
@@ -83,12 +73,21 @@ const MainBanner = () => {
           </a>
           <span className='text-white/20 text-xs'>/</span>
           <a
-            href='https://x.com/jasonwuink'
+            href='https://github.com/wu-json'
             target='_blank'
             rel='noopener noreferrer'
             className={linkClass}
           >
-            X
+            GitHub
+          </a>
+          <span className='text-white/20 text-xs'>/</span>
+          <a
+            href='https://www.linkedin.com/in/wu-json/'
+            target='_blank'
+            rel='noopener noreferrer'
+            className={linkClass}
+          >
+            LinkedIn
           </a>
         </div>
       </div>
