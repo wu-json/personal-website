@@ -124,10 +124,10 @@ describe('setMetaTag', () => {
 
 describe('applySignalMeta', () => {
   const indexHtml = `<!doctype html><html><head>
-    <title>Jason Cui Wu</title>
+    <title>Jason Wu</title>
     <meta name="description" content="Paint the world in ink." />
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="Jason Cui Wu" />
+    <meta property="og:title" content="Jason Wu" />
     <meta property="og:description" content="Paint the world in ink." />
     <meta property="og:url" content="https://www.jasonwu.ink/" />
     <meta property="og:image" content="https://www.jasonwu.ink/images/og-image.png?v=2" />
@@ -145,7 +145,7 @@ describe('applySignalMeta', () => {
 
   it('specializes title, url, image, and type for the signal', () => {
     const html = applySignalMeta(indexHtml, signal);
-    expect(html).toContain('<title>Breaking My Career — Jason Cui Wu</title>');
+    expect(html).toContain('<title>Breaking My Career — Jason Wu</title>');
     expect(html).toContain('<meta property="og:type" content="article" />');
     expect(html).toContain(
       '<meta property="og:url" content="https://www.jasonwu.ink/signals/2026-08-26-breaking-my-career" />',
@@ -168,7 +168,7 @@ describe('applySignalMeta', () => {
   it('falls back to [id] in the title for untitled signals', () => {
     const html = applySignalMeta(indexHtml, { ...signal, title: null });
     expect(html).toContain(
-      '<title>[2026-08-26-breaking-my-career] — Jason Cui Wu</title>',
+      '<title>[2026-08-26-breaking-my-career] — Jason Wu</title>',
     );
   });
 });

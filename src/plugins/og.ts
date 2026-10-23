@@ -140,7 +140,7 @@ export function applySignalMeta(indexHtml: string, s: OgSignal): string {
 
   let html = indexHtml.replace(
     /<title>[^<]*<\/title>/,
-    `<title>${escapeXml(title)} — Jason Cui Wu</title>`,
+    `<title>${escapeXml(title)} — Jason Wu</title>`,
   );
   html = setMetaTag(html, 'name', 'description', description);
   html = setMetaTag(html, 'property', 'og:type', 'article');

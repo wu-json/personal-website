@@ -96,15 +96,6 @@ const SignalDetail = ({ id }: { id: string }) => {
             </a>
             <span className='text-white/20 text-xs sm:text-[10px]'>/</span>
             <a
-              href='https://www.linkedin.com/in/wu-json/'
-              target='_blank'
-              rel='noopener noreferrer'
-              className={socialLinkClass}
-            >
-              LinkedIn
-            </a>
-            <span className='text-white/20 text-xs sm:text-[10px]'>/</span>
-            <a
               href='https://www.instagram.com/jasoncuiwu/'
               target='_blank'
               rel='noopener noreferrer'
