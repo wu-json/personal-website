@@ -1111,6 +1111,16 @@ html {
   position: relative;
 }
 
+.lily-morph-flower,
+.linear-mark,
+.linear-mark-ghost {
+  will-change: transform, opacity;
+}
+
+.lily-morph[data-morph='linear'] {
+  animation-play-state: paused;
+}
+
 .linear-mark {
   position: absolute;
   left: 33%;
