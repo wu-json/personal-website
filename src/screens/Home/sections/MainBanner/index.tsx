@@ -106,7 +106,7 @@ const MainBanner = () => {
           </p>
           <div className='flex flex-col gap-2.5'>
             <p className={bioClass} style={jitter()}>
-              Painting software @
+              Drawing software @
               <a
                 href='https://linear.app'
                 target='_blank'
