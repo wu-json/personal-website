@@ -10,9 +10,9 @@ coverHeight: 485
 
 <img src="/images/heroes/chiharu-shiota/chiharu-portrait-full.webp" alt="Chiharu Shiota" width="729" height="485">
 
-I first discovered Chiharu through her solo exhibit in the San Francisco Asian Art Museum in 2026. Walking through her pieces make made me feel as if I was strolling through my own mind.
+I first discovered Chiharu through her solo exhibit in the SF Asian Art Museum in 2026. Walking through her pieces made me feel as if I was strolling through someone's memories.
 
-Her work exemplifies actualizing the potential of a single material.
+Her work is an incredible example of drawing out the maximum expressive potential of a single material.
 
 <img src="/images/heroes/chiharu-shiota/chiharu-piano-full.webp" alt="In Silence — a piano wrapped in black thread" width="818" height="545">
 

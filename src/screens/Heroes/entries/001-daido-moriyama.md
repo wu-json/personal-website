@@ -10,7 +10,9 @@ coverHeight: 1067
 
 <img src="/images/heroes/daido-moriyama/DaidoMoriyamaBySebastianMayer-full.webp" alt="Daido Moriyama" width="1600" height="1067">
 
-The photographer who inspired me to embrace monochrome.
+The photographer who taught me to embrace monochrome, and more importantly...
+
+to never give a shit.
 
 <img src="/images/heroes/daido-moriyama/shinjuku-full.webp" alt="Shinjuku" width="2208" height="1648">
 

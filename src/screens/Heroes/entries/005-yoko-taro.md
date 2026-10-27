@@ -10,7 +10,7 @@ coverHeight: 1030
 
 <img src="/images/heroes/yoko-taro/yoko-taro-cover-full.webp" alt="Yoko Taro" width="1552" height="1030">
 
-Nier's visual and musical aesthetic is something that inspires most of my designs today.
+Nier's visual and musical aesthetics inspire most of my designs today.
 
 I will probably never know what he looks like.
 
