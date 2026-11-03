@@ -161,7 +161,16 @@ const MainBanner = () => {
             rel='noopener noreferrer'
             className={linkClass}
           >
-            GitHub
+            GH
+          </a>
+          <span className='text-white/20 text-xs'>/</span>
+          <a
+            href='https://www.linkedin.com/in/wu-json/'
+            target='_blank'
+            rel='noopener noreferrer'
+            className={linkClass}
+          >
+            LI
           </a>
         </div>
       </div>
