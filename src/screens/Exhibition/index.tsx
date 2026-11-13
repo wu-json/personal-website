@@ -103,7 +103,7 @@ const ExhibitionScreen = () => {
 
   useEffect(() => {
     const previous = document.title;
-    document.title = 'Memories — Jason Wu @ Linear';
+    document.title = 'Memories — Jason Wu';
     return () => {
       document.title = previous;
     };
@@ -162,26 +162,26 @@ const ExhibitionScreen = () => {
   return (
     <div className='exhibition fixed inset-0 z-50 overflow-y-auto lg:overflow-hidden lg:grid lg:grid-cols-[minmax(20rem,26rem)_1fr] lg:grid-rows-[auto_minmax(0,1fr)_auto]'>
       <header className='px-6 pt-8 pb-6 sm:px-8 lg:col-start-1 lg:row-start-1 lg:pt-10'>
+        <a
+          href='https://linear.app'
+          target='_blank'
+          rel='noopener noreferrer'
+          aria-label='Linear'
+          className='bio-glitch mb-8 flex w-fit items-center gap-2 text-[var(--color-ink)] transition-opacity duration-300 hover:opacity-70 lg:mb-10'
+        >
+          <LinearLogo className='h-5 w-5' />
+          <span className='font-sans text-lg font-medium tracking-tight'>
+            Linear
+          </span>
+        </a>
         <p className='bio-glitch font-mono text-[10px] uppercase tracking-[0.25em] text-[var(--color-ink-faint)]'>
           Gumloop × Linear — Design Gallery Vol. 2
         </p>
         <h1 className='bio-glitch mt-5 font-pixel text-4xl uppercase tracking-wide text-[var(--color-ink)] sm:text-5xl'>
           Memories
         </h1>
-        <p className='bio-glitch mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-xs text-[var(--color-ink-muted)]'>
-          <span>Photographs by Jason Wu</span>
-          <span className='text-[var(--color-ink-ghost)]'>@</span>
-          <a
-            href='https://linear.app'
-            target='_blank'
-            rel='noopener noreferrer'
-            className='inline-flex items-center gap-1.5 text-[var(--color-ink)] transition-opacity duration-300 hover:opacity-70'
-          >
-            <LinearLogo className='h-3.5 w-3.5' />
-            <span className='font-sans text-sm font-medium tracking-tight'>
-              Linear
-            </span>
-          </a>
+        <p className='bio-glitch mt-4 font-mono text-xs text-[var(--color-ink-muted)]'>
+          Jason Wu
         </p>
       </header>
 
@@ -198,13 +198,6 @@ const ExhibitionScreen = () => {
           />
         ))}
         <div className='exhibition-scrim' />
-
-        <div className='absolute right-5 top-5 hidden items-center gap-2 font-mono text-[10px] uppercase tracking-[0.25em] opacity-60 lg:flex'>
-          <LinearLogo className='h-3 w-3' />
-          <span>
-            Room {pad(total - activeIndex)} / {pad(total)}
-          </span>
-        </div>
 
         <div
           key={active.id}
