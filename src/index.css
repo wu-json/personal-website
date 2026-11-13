@@ -1544,18 +1544,18 @@ html {
 }
 
 .exhibition-row {
-  border-left: 2px solid transparent;
+  box-shadow: inset 2px 0 0 transparent;
   color: var(--color-ink-muted);
   outline: none;
   transition:
     color 300ms ease,
-    border-color 300ms ease,
+    box-shadow 300ms ease,
     background-color 300ms ease;
 }
 
 .exhibition-row[data-active='true'] {
   color: var(--color-ink);
-  border-left-color: var(--color-ink);
+  box-shadow: inset 2px 0 0 var(--color-ink);
   background-color: var(--color-ink-hair);
 }
 

@@ -173,43 +173,41 @@ const ExhibitionScreen = ({ id, sub }: { id?: string; sub?: string }) => {
   return (
     <div className='exhibition fixed inset-0 z-50 overflow-y-auto lg:overflow-hidden lg:grid lg:grid-cols-[minmax(20rem,26rem)_1fr] lg:grid-rows-[auto_minmax(0,1fr)]'>
       <header className='px-6 pt-8 pb-6 sm:px-8 lg:col-start-1 lg:row-start-1 lg:pt-10'>
-        <h1 className='bio-glitch font-pixel text-4xl uppercase tracking-wide text-[var(--color-ink)] sm:text-5xl'>
+        <h1 className='bio-glitch font-pixel text-4xl uppercase leading-none tracking-wide text-[var(--color-ink)] sm:text-5xl'>
           Memories
         </h1>
-        <p className='bio-glitch mt-3 font-pixel text-xl tracking-wide text-[var(--color-ink-soft)] sm:text-2xl'>
-          Jason Wu
-        </p>
-        <p className='bio-glitch mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 font-pixel text-sm tracking-wide text-[var(--color-ink-muted)]'>
-          <span>Member of Technical Staff</span>
+        <div className='bio-glitch mt-7 grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-y-2 border-t border-[var(--color-ink-trace)] pt-5 font-pixel text-sm tracking-wide text-[var(--color-ink-muted)]'>
+          <p className='pr-4 text-lg leading-none text-[var(--color-ink)]'>
+            Jason Wu
+          </p>
           <a
             href='https://linear.app'
             target='_blank'
             rel='noopener noreferrer'
-            className='inline-flex items-center gap-1.5 transition-colors duration-300 hover:text-[var(--color-ink)]'
+            className='contents transition-colors duration-300 hover:text-[var(--color-ink)]'
           >
-            <LinearLogo className='h-[0.8em] w-[0.8em]' />
+            <LinearLogo className='mr-2 h-[0.8em] w-[0.8em]' />
             <span>Linear</span>
           </a>
-        </p>
-        <p className='bio-glitch mt-1.5 font-pixel text-sm tracking-wide text-[var(--color-ink-muted)]'>
+          <p className='pr-4'>Member of Technical Staff</p>
           <a
             href='https://x.com/jasonwuink'
             target='_blank'
             rel='noopener noreferrer'
-            className='inline-flex items-center gap-1.5 transition-colors duration-300 hover:text-[var(--color-ink)]'
+            className='contents transition-colors duration-300 hover:text-[var(--color-ink)]'
           >
             <svg
               viewBox='0 0 24 24'
               fill='currentColor'
               role='img'
               aria-label='X'
-              className='h-[0.75em] w-[0.75em]'
+              className='mr-2 h-[0.8em] w-[0.8em]'
             >
               <path d='M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z' />
             </svg>
             <span>@jasonwuink</span>
           </a>
-        </p>
+        </div>
       </header>
 
       <section
