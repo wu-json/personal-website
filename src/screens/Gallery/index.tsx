@@ -164,6 +164,7 @@ const CROUCH_LERP = 8;
 const BOUNDARY_PADDING = 0.5;
 const MAX_FRAME_DELTA = 0.1;
 const MAX_STEP = BOUNDARY_PADDING / 2;
+const MOVE_DEADZONE = 0.1;
 
 const overlapsBox = (x: number, z: number, box: AABB, r: number) =>
   x + r > box.minX && x - r < box.maxX && z + r > box.minZ && z - r < box.maxZ;
@@ -523,7 +524,7 @@ const createWelcomeTexture = (
     ? ['LEFT JOYSTICK — MOVE', 'DRAG RIGHT — LOOK']
     : [
         'WASD — MOVE / SHIFT — RUN',
-        'MOUSE — LOOK / CTRL — CROUCH',
+        'MOUSE — LOOK / C — CROUCH',
         'SPACE — JUMP',
         'ESC — RELEASE CAMERA',
       ];
@@ -1112,18 +1113,30 @@ const Movement = ({
   const velocityY = useRef(0);
 
   useEffect(() => {
+    const pressed = keys.current;
     const onKeyDown = (e: KeyboardEvent) => {
-      keys.current.add(e.code);
+      const isBrowserShortcut = e.metaKey || e.ctrlKey || e.altKey;
+      if (isBrowserShortcut) return;
+      pressed.add(e.code);
       if (e.code === 'Space' && camera.position.y <= 0.01) {
         velocityY.current = JUMP_IMPULSE;
       }
     };
-    const onKeyUp = (e: KeyboardEvent) => keys.current.delete(e.code);
+    const onKeyUp = (e: KeyboardEvent) => pressed.delete(e.code);
+    const releaseAll = () => pressed.clear();
+    const onVisibilityChange = () => {
+      if (document.hidden) releaseAll();
+    };
     window.addEventListener('keydown', onKeyDown);
     window.addEventListener('keyup', onKeyUp);
+    window.addEventListener('blur', releaseAll);
+    document.addEventListener('visibilitychange', onVisibilityChange);
     return () => {
       window.removeEventListener('keydown', onKeyDown);
       window.removeEventListener('keyup', onKeyUp);
+      window.removeEventListener('blur', releaseAll);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+      releaseAll();
     };
   }, [camera]);
 
@@ -1164,17 +1177,20 @@ const Movement = ({
       direction.addScaledVector(forward, mi.moveY);
     }
 
-    const crouching = pressed.has('ControlLeft') || pressed.has('ControlRight');
+    const crouching = pressed.has('KeyC');
 
     const dt = Math.min(delta, MAX_FRAME_DELTA);
 
-    if (direction.lengthSq() > 0) {
+    const joystickTilt = Math.min(1, direction.length());
+    if (joystickTilt > MOVE_DEADZONE) {
       direction.normalize();
-      const speed = crouching
-        ? CROUCH_SPEED
-        : pressed.has('ShiftLeft') || pressed.has('ShiftRight')
-          ? RUN_SPEED
-          : MOVE_SPEED;
+      const speed =
+        joystickTilt *
+        (crouching
+          ? CROUCH_SPEED
+          : pressed.has('ShiftLeft') || pressed.has('ShiftRight')
+            ? RUN_SPEED
+            : MOVE_SPEED);
       moveWithCollisions(
         camera.position,
         direction.x * speed * dt,
