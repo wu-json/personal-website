@@ -180,7 +180,7 @@ const ExhibitionScreen = ({ id, sub }: { id?: string; sub?: string }) => {
           Jason Wu
         </p>
         <p className='bio-glitch mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 font-pixel text-sm tracking-wide text-[var(--color-ink-muted)]'>
-          <span>Member of Technical Staff,</span>
+          <span>Member of Technical Staff</span>
           <a
             href='https://linear.app'
             target='_blank'
