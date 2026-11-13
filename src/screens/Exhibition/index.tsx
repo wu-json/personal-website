@@ -1,17 +1,8 @@
-import {
-  lazy,
-  type MouseEvent,
-  Suspense,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 import { LINEAR_SEGMENTS } from 'src/screens/Home/sections/MainBanner/LinearMark';
-import { fragments, photoUrl } from 'src/screens/Memories/data';
+import { fragments } from 'src/screens/Memories/data';
 import { FragmentDetail } from 'src/screens/Memories/FragmentDetail';
-import type { Fragment } from 'src/screens/Memories/types';
-import { Link, useLocation } from 'wouter';
+import { Link } from 'wouter';
 
 import { X_HANDLE, XLogo, XQrDialog } from './XQrDialog';
 
@@ -19,7 +10,7 @@ const GalleryScreen = lazy(() =>
   import('src/screens/Gallery').then(m => ({ default: m.GalleryScreen })),
 );
 
-type Mode = 'cover' | '2d' | '3d';
+type Mode = '2d' | '3d';
 
 type KeyboardLock = {
   lock: (keys: string[]) => Promise<void>;
@@ -33,9 +24,6 @@ const escapeLock =
           ?.lock
       ? (navigator as Navigator & { keyboard: KeyboardLock }).keyboard
       : undefined;
-
-const IDLE_BEFORE_ATTRACT_MS = 20000;
-const ATTRACT_INTERVAL_MS = 7000;
 
 const galleryPath = (id: string) => `/exhibition/${id}/3d`;
 const albumPath = (id: string) => `/exhibition/${id}`;
@@ -51,62 +39,36 @@ const LinearLogo = ({ className }: { className?: string }) => (
   </svg>
 );
 
-const Cover = ({
-  fragment,
-  active,
-  eager,
-}: {
-  fragment: Fragment;
-  active: boolean;
-  eager: boolean;
-}) => {
-  const [seen, setSeen] = useState(active);
-  const [sharp, setSharp] = useState(false);
-
-  useEffect(() => {
-    if (active) setSeen(true);
-  }, [active]);
-
-  const tone = fragment.coverClassName ?? '';
-
-  return (
-    <div className='exhibition-cover' data-active={active}>
-      <img
-        src={photoUrl(fragment.id, fragment.cover, 'thumb')}
-        alt=''
-        loading={eager ? 'eager' : 'lazy'}
-        className={tone}
-      />
-      {seen && (
-        <img
-          src={photoUrl(fragment.id, fragment.cover, 'full')}
-          alt=''
-          onLoad={() => setSharp(true)}
-          className={`transition-opacity duration-700 ${sharp ? 'opacity-100' : 'opacity-0'} ${tone}`}
-        />
-      )}
-    </div>
-  );
-};
-
 const ExhibitionScreen = ({ id, sub }: { id?: string; sub?: string }) => {
-  const [, navigate] = useLocation();
   const routed = fragments.find(f => f.id === id);
-  const mode: Mode = !routed ? 'cover' : sub === '3d' ? '3d' : '2d';
-  const photo = mode === '2d' ? sub : undefined;
-  const [previewId, setPreviewId] = useState(fragments[0].id);
-  const activeId = routed?.id ?? previewId;
-  const setActiveId = setPreviewId;
+  const active = routed ?? fragments[0];
+  const mode: Mode = routed && sub === '3d' ? '3d' : '2d';
+  const photo = routed && mode === '2d' ? sub : undefined;
+  const pathFor = mode === '3d' ? galleryPath : albumPath;
   const [qrOpen, setQrOpen] = useState(false);
+  const [galleryId, setGalleryId] = useState<string | null>(null);
+  const showGallery = mode === '3d' || (routed && galleryId === routed.id);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const canFullscreen =
     typeof document !== 'undefined' && document.fullscreenEnabled;
 
   useEffect(() => {
+    if (mode === '3d') setGalleryId(active.id);
+  }, [mode, active.id]);
+
+  useEffect(() => {
+    const previous = document.title;
+    document.title = 'Memories — Jason Wu';
+    return () => {
+      document.title = previous;
+    };
+  }, []);
+
+  useEffect(() => {
     const sync = () => {
-      const active = document.fullscreenElement !== null;
-      setIsFullscreen(active);
-      if (active) escapeLock?.lock(['Escape']).catch(() => {});
+      const fullscreen = document.fullscreenElement !== null;
+      setIsFullscreen(fullscreen);
+      if (fullscreen) escapeLock?.lock(['Escape']).catch(() => {});
       else escapeLock?.unlock();
     };
     sync();
@@ -127,20 +89,6 @@ const ExhibitionScreen = ({ id, sub }: { id?: string; sub?: string }) => {
     window.addEventListener('keydown', onEscape);
     return () => window.removeEventListener('keydown', onEscape);
   }, [isFullscreen]);
-  const browsingRef = useRef(false);
-  browsingRef.current = mode === 'cover' && !qrOpen;
-
-  useEffect(() => {
-    if (routed) setPreviewId(routed.id);
-  }, [routed]);
-  const lastInputAt = useRef(0);
-  const lastPointerType = useRef('mouse');
-  const rowRefs = useRef(new Map<string, HTMLAnchorElement>());
-  const activeIdRef = useRef(activeId);
-  activeIdRef.current = activeId;
-
-  const activeIndex = fragments.findIndex(f => f.id === activeId);
-  const active = fragments[activeIndex];
 
   const toggleFullscreen = useCallback(() => {
     if (!document.fullscreenEnabled) return;
@@ -150,88 +98,15 @@ const ExhibitionScreen = ({ id, sub }: { id?: string; sub?: string }) => {
     change.catch(() => {});
   }, []);
 
-  const step = useCallback((delta: number, reveal: boolean) => {
-    if (!browsingRef.current) return;
-    setPreviewId(current => {
-      const i = fragments.findIndex(f => f.id === current);
-      const next =
-        fragments[(i + delta + fragments.length) % fragments.length].id;
-      if (reveal) {
-        rowRefs.current.get(next)?.scrollIntoView({ block: 'nearest' });
-      }
-      return next;
-    });
-  }, []);
-
   useEffect(() => {
-    const previous = document.title;
-    document.title = 'Memories — Jason Wu';
-    return () => {
-      document.title = previous;
-    };
-  }, []);
-
-  useEffect(() => {
-    const touch = () => {
-      lastInputAt.current = Date.now();
-    };
-    touch();
-    const onPointerDown = (e: PointerEvent) => {
-      lastPointerType.current = e.pointerType;
-      touch();
-    };
     const onKey = (e: KeyboardEvent) => {
-      touch();
-      if (
-        e.code === 'KeyF' &&
-        !e.metaKey &&
-        !e.ctrlKey &&
-        !e.altKey &&
-        !e.repeat
-      ) {
-        toggleFullscreen();
-        return;
-      }
-      if (!browsingRef.current) return;
+      if (e.code !== 'KeyF' || e.repeat) return;
       if (e.metaKey || e.ctrlKey || e.altKey) return;
-      if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
-        e.preventDefault();
-        step(1, true);
-      } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
-        e.preventDefault();
-        step(-1, true);
-      } else if (e.key === 'Enter' && e.target === document.body) {
-        navigate(galleryPath(activeIdRef.current));
-      }
+      toggleFullscreen();
     };
-    window.addEventListener('pointermove', touch);
-    window.addEventListener('pointerdown', onPointerDown);
-    window.addEventListener('wheel', touch, { passive: true });
     window.addEventListener('keydown', onKey);
-    return () => {
-      window.removeEventListener('pointermove', touch);
-      window.removeEventListener('pointerdown', onPointerDown);
-      window.removeEventListener('wheel', touch);
-      window.removeEventListener('keydown', onKey);
-    };
-  }, [step, navigate, toggleFullscreen]);
-
-  useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const timer = window.setInterval(() => {
-      if (document.hidden) return;
-      if (Date.now() - lastInputAt.current < IDLE_BEFORE_ATTRACT_MS) return;
-      step(1, true);
-    }, ATTRACT_INTERVAL_MS);
-    return () => window.clearInterval(timer);
-  }, [step]);
-
-  const onRowClick = (e: MouseEvent<HTMLAnchorElement>, rowId: string) => {
-    if (mode !== 'cover') return;
-    if (lastPointerType.current !== 'touch' || rowId === activeId) return;
-    e.preventDefault();
-    setActiveId(rowId);
-  };
+    return () => window.removeEventListener('keydown', onKey);
+  }, [toggleFullscreen]);
 
   return (
     <div className='exhibition fixed inset-0 z-50 overflow-y-auto lg:overflow-hidden lg:grid lg:grid-cols-[minmax(20rem,26rem)_1fr] lg:grid-rows-[auto_minmax(0,1fr)]'>
@@ -269,42 +144,22 @@ const ExhibitionScreen = ({ id, sub }: { id?: string; sub?: string }) => {
 
       <section
         aria-label={active.title}
-        data-mode={mode}
-        className={`exhibition-stage lg:relative lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:h-full ${mode === 'cover' ? 'sticky top-0 z-10 aspect-[4/3] w-full sm:aspect-[16/9] lg:aspect-auto' : 'fixed inset-0 z-20 lg:z-10'}`}
+        className={`exhibition-stage fixed inset-0 z-20 lg:relative lg:z-10 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:block lg:h-full ${routed ? '' : 'hidden'}`}
       >
-        {mode === 'cover' && (
-          <Link
-            to={galleryPath(active.id)}
-            aria-label={`Walk the ${active.title} 3D gallery`}
-            className='absolute inset-0 block'
+        {showGallery && (
+          <div
+            aria-hidden={mode !== '3d'}
+            className={`absolute inset-0 ${mode === '3d' ? '' : 'pointer-events-none invisible'}`}
           >
-            {fragments.map((f, i) => (
-              <Cover
-                key={f.id}
-                fragment={f}
-                active={f.id === activeId}
-                eager={i === activeIndex}
+            <Suspense fallback={null}>
+              <GalleryScreen
+                key={active.id}
+                fragmentId={active.id}
+                embedded
+                active={mode === '3d'}
               />
-            ))}
-            <div className='exhibition-scrim' />
-            <div
-              key={active.id}
-              className='exhibition-caption absolute inset-x-0 bottom-0 p-5 sm:p-8 lg:p-12'
-            >
-              <p className='font-mono text-[10px] uppercase tracking-[0.25em] opacity-60'>
-                {active.date} — {active.location}
-              </p>
-              <h2 className='mt-2 font-pixel text-3xl uppercase leading-tight tracking-wide sm:text-5xl lg:text-6xl'>
-                {active.title}
-              </h2>
-            </div>
-          </Link>
-        )}
-
-        {mode === '3d' && (
-          <Suspense fallback={null}>
-            <GalleryScreen key={active.id} fragmentId={active.id} embedded />
-          </Suspense>
+            </Suspense>
+          </div>
         )}
 
         {mode === '2d' && (
@@ -315,16 +170,9 @@ const ExhibitionScreen = ({ id, sub }: { id?: string; sub?: string }) => {
           </div>
         )}
 
-        {mode !== 'cover' && !photo && (
+        {!photo && (
           <div className='pointer-events-none absolute inset-x-0 top-0 z-20 flex items-center justify-between gap-3 p-4 sm:p-5'>
             <div className='exhibition-toggle pointer-events-auto flex font-pixel text-xs uppercase tracking-[0.2em]'>
-              <Link
-                to={galleryPath(active.id)}
-                data-active={mode === '3d'}
-                aria-current={mode === '3d' ? 'page' : undefined}
-              >
-                3D
-              </Link>
               <Link
                 to={albumPath(active.id)}
                 data-active={mode === '2d'}
@@ -332,12 +180,19 @@ const ExhibitionScreen = ({ id, sub }: { id?: string; sub?: string }) => {
               >
                 2D
               </Link>
+              <Link
+                to={galleryPath(active.id)}
+                data-active={mode === '3d'}
+                aria-current={mode === '3d' ? 'page' : undefined}
+              >
+                3D
+              </Link>
             </div>
             <Link
               to='/exhibition'
-              className='exhibition-toggle pointer-events-auto font-pixel text-xs uppercase tracking-[0.2em]'
+              className='exhibition-toggle pointer-events-auto font-pixel text-xs uppercase tracking-[0.2em] lg:hidden'
             >
-              <span>Close ×</span>
+              <span>← Index</span>
             </Link>
           </div>
         )}
@@ -376,26 +231,13 @@ const ExhibitionScreen = ({ id, sub }: { id?: string; sub?: string }) => {
       >
         <ol>
           {fragments.map(f => {
-            const isActive = f.id === activeId;
+            const isActive = f.id === active.id;
             return (
               <li key={f.id}>
                 <Link
-                  to={mode === '2d' ? albumPath(f.id) : galleryPath(f.id)}
-                  ref={(el: HTMLAnchorElement | null) => {
-                    if (el) rowRefs.current.set(f.id, el);
-                    else rowRefs.current.delete(f.id);
-                  }}
+                  to={pathFor(f.id)}
                   data-active={isActive}
                   aria-current={isActive ? 'true' : undefined}
-                  onPointerEnter={e => {
-                    if (mode === 'cover' && e.pointerType !== 'touch') {
-                      setActiveId(f.id);
-                    }
-                  }}
-                  onFocus={() => {
-                    if (mode === 'cover') setActiveId(f.id);
-                  }}
-                  onClick={e => onRowClick(e, f.id)}
                   className='exhibition-row grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-x-3 px-6 py-3 sm:px-8'
                 >
                   <span className='min-w-0'>
@@ -406,13 +248,8 @@ const ExhibitionScreen = ({ id, sub }: { id?: string; sub?: string }) => {
                       {f.location}
                     </span>
                   </span>
-                  <span className='exhibition-row-meta font-mono text-[10px] uppercase tabular-nums tracking-[0.15em]'>
-                    <span className='exhibition-row-date'>
-                      {f.date.slice(0, 7)}
-                    </span>
-                    <span className='exhibition-row-enter' aria-hidden>
-                      {mode === 'cover' ? 'Enter →' : 'Viewing'}
-                    </span>
+                  <span className='font-mono text-[10px] uppercase tabular-nums tracking-[0.15em] text-[var(--color-ink-ghost)]'>
+                    {f.date.slice(0, 7)}
                   </span>
                 </Link>
               </li>

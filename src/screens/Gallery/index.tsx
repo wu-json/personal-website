@@ -1370,9 +1370,11 @@ type HintPhase = 'step-back' | 'click' | 'mouse' | 'done';
 const GalleryScreen = ({
   fragmentId,
   embedded = false,
+  active = true,
 }: {
   fragmentId?: string;
   embedded?: boolean;
+  active?: boolean;
 }) => {
   const { theme } = useTheme();
   const palette = useMemo(() => getPalette(theme), [theme]);
@@ -1424,7 +1426,7 @@ const GalleryScreen = ({
   }, []);
 
   useEffect(() => {
-    if (isMobile || hintPhase !== 'step-back') return;
+    if (!active || isMobile || hintPhase !== 'step-back') return;
     const onKey = (e: KeyboardEvent) => {
       if (e.code === 'KeyS' || e.code === 'ArrowDown') {
         setHintPhase('click');
@@ -1434,7 +1436,7 @@ const GalleryScreen = ({
     return () => {
       window.removeEventListener('keydown', onKey);
     };
-  }, [isMobile, hintPhase]);
+  }, [active, isMobile, hintPhase]);
 
   useEffect(() => {
     if (hintPhase !== 'mouse') return;
@@ -1468,6 +1470,7 @@ const GalleryScreen = ({
           camera={{ position: layout.spawnPosition, fov: 75 }}
           dpr={isMobile ? MOBILE_DPR : DESKTOP_DPR}
           onCreated={onCreated}
+          frameloop={active ? 'always' : 'never'}
         >
           <Room
             layout={layout}
