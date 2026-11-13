@@ -1,4 +1,4 @@
-import { PointerLockControls } from '@react-three/drei';
+import { PointerLockControls } from '@react-three/drei/core/PointerLockControls';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import {
   type RefObject,
@@ -168,6 +168,7 @@ const MOVE_DEADZONE = 0.1;
 const MAX_ANISOTROPY = 8;
 const DESKTOP_DPR: [number, number] = [1, 2];
 const MOBILE_DPR: [number, number] = [1, 1.5];
+const EMBEDDED_DPR: [number, number] = [1, 1.5];
 
 const WOOD_PLANK_HEIGHT = 80;
 const WOOD_PLANK_ROWS = 13;
@@ -1367,7 +1368,15 @@ const Movement = ({
 
 type HintPhase = 'step-back' | 'click' | 'mouse' | 'done';
 
-const GalleryScreen = ({ fragmentId }: { fragmentId?: string }) => {
+const GalleryScreen = ({
+  fragmentId,
+  embedded = false,
+  active = true,
+}: {
+  fragmentId?: string;
+  embedded?: boolean;
+  active?: boolean;
+}) => {
   const { theme } = useTheme();
   const palette = useMemo(() => getPalette(theme), [theme]);
   const [locked, setLocked] = useState(false);
@@ -1418,7 +1427,7 @@ const GalleryScreen = ({ fragmentId }: { fragmentId?: string }) => {
   }, []);
 
   useEffect(() => {
-    if (isMobile || hintPhase !== 'step-back') return;
+    if (!active || isMobile || hintPhase !== 'step-back') return;
     const onKey = (e: KeyboardEvent) => {
       if (e.code === 'KeyS' || e.code === 'ArrowDown') {
         setHintPhase('click');
@@ -1428,7 +1437,7 @@ const GalleryScreen = ({ fragmentId }: { fragmentId?: string }) => {
     return () => {
       window.removeEventListener('keydown', onKey);
     };
-  }, [isMobile, hintPhase]);
+  }, [active, isMobile, hintPhase]);
 
   useEffect(() => {
     if (hintPhase !== 'mouse') return;
@@ -1445,23 +1454,24 @@ const GalleryScreen = ({ fragmentId }: { fragmentId?: string }) => {
   }, [hintPhase]);
 
   const hintBase =
-    'font-pixel text-[color:var(--color-ink-faint)] text-sm tracking-[0.2em] select-none';
+    'flex items-center justify-center font-pixel text-[color:var(--color-ink)] text-sm sm:text-xl tracking-[0.2em] text-center select-none';
   const hintSub =
-    'font-pixel text-[color:var(--color-ink-ghost)] text-xs sm:text-[10px] tracking-[0.15em] select-none mt-2';
+    'font-pixel text-[color:var(--color-ink-muted)] text-xs tracking-[0.15em] select-none mt-3';
 
   return (
     <div
-      className={`fixed inset-0 z-50${!isMobile && !locked ? ' cursor-pointer' : ''}`}
+      className={`${embedded ? 'absolute inset-0' : 'fixed inset-0 z-50'}${!isMobile && !locked ? ' cursor-pointer' : ''}`}
       style={{ backgroundColor: 'var(--color-surface)' }}
     >
       <div
-        className='absolute inset-0 transition-opacity duration-500'
+        className='gallery-viewport absolute inset-0 transition-opacity duration-500'
         style={{ opacity: ready ? 1 : 0 }}
       >
         <Canvas
           camera={{ position: layout.spawnPosition, fov: 75 }}
-          dpr={isMobile ? MOBILE_DPR : DESKTOP_DPR}
+          dpr={isMobile ? MOBILE_DPR : embedded ? EMBEDDED_DPR : DESKTOP_DPR}
           onCreated={onCreated}
+          frameloop={active ? 'always' : 'never'}
         >
           <Room
             layout={layout}
@@ -1481,11 +1491,15 @@ const GalleryScreen = ({ fragmentId }: { fragmentId?: string }) => {
             mobileInput={mobileInputRef}
           />
           {!isMobile && (
-            <PointerLockControls onLock={onLock} onUnlock={onUnlock} />
+            <PointerLockControls
+              selector='.gallery-viewport'
+              onLock={onLock}
+              onUnlock={onUnlock}
+            />
           )}
         </Canvas>
       </div>
-      {!locked && (
+      {!locked && !embedded && (
         <a
           href={fragment ? `/memories/${fragment.id}` : '/'}
           className='absolute top-6 left-6 z-10 font-pixel text-[color:var(--color-ink-ghost)] text-xs tracking-[0.2em] pointer-events-auto hover:text-[color:var(--color-ink-muted)] transition-colors'
@@ -1496,41 +1510,54 @@ const GalleryScreen = ({ fragmentId }: { fragmentId?: string }) => {
       {!isMobile && ready && hintPhase !== 'done' && (
         <div
           key={hintPhase}
-          className='absolute inset-x-0 bottom-10 z-[5] flex flex-col items-center pointer-events-none animate-[gallery-hint-in_0.5s_ease-out_both]'
+          className='absolute inset-x-0 bottom-12 z-[5] flex justify-center px-4 pointer-events-none animate-[gallery-hint-in_0.5s_ease-out_both]'
         >
-          {hintPhase === 'step-back' && (
-            <>
-              <p className={hintBase}>PRESS "S" — TAKE A STEP BACK</p>
-              <p className={hintSub}>WASD — MOVE</p>
-            </>
-          )}
-          {hintPhase === 'click' && (
-            <>
-              <p className={hintBase}>CLICK — EXPLORE</p>
-              <p className={hintSub}>MOUSE LOOK · ESC EXIT</p>
-            </>
-          )}
-          {hintPhase === 'mouse' && (
-            <p className={hintBase}>MOVE MOUSE — TURN AROUND</p>
-          )}
+          <div className='gallery-hint'>
+            {hintPhase === 'step-back' && (
+              <>
+                <p className={hintBase}>
+                  <kbd className='gallery-key'>S</kbd>
+                  TAKE A STEP BACK
+                </p>
+                <p className={hintSub}>WASD — MOVE</p>
+              </>
+            )}
+            {hintPhase === 'click' && (
+              <>
+                <p className={hintBase}>
+                  <kbd className='gallery-key'>CLICK</kbd>
+                  EXPLORE
+                </p>
+                <p className={hintSub}>MOUSE LOOK · ESC EXIT</p>
+              </>
+            )}
+            {hintPhase === 'mouse' && (
+              <p className={hintBase}>
+                <kbd className='gallery-key'>MOVE MOUSE</kbd>
+                TURN AROUND
+              </p>
+            )}
+          </div>
         </div>
       )}
       {isMobile && ready && hintPhase !== 'done' && hintPhase !== 'click' && (
         <div
           key={hintPhase}
-          className='absolute inset-x-0 bottom-36 z-[5] flex flex-col items-center pointer-events-none animate-[gallery-hint-in_0.5s_ease-out_both]'
+          className='absolute inset-x-0 bottom-36 z-[5] flex justify-center px-4 pointer-events-none animate-[gallery-hint-in_0.5s_ease-out_both]'
         >
-          {hintPhase === 'step-back' && (
-            <p className={hintBase}>PULL JOYSTICK DOWN — STEP BACK</p>
-          )}
-          {hintPhase === 'mouse' && (
-            <div className='flex flex-col items-center gap-3'>
-              <p className={hintBase}>SWIPE RIGHT SIDE — TURN AROUND</p>
-              <span className='text-[color:var(--color-ink-faint)] text-2xl animate-[gallery-swipe_1.2s_ease-in-out_infinite] select-none'>
-                →
-              </span>
-            </div>
-          )}
+          <div className='gallery-hint'>
+            {hintPhase === 'step-back' && (
+              <p className={hintBase}>PULL JOYSTICK DOWN — STEP BACK</p>
+            )}
+            {hintPhase === 'mouse' && (
+              <div className='flex flex-col items-center gap-3'>
+                <p className={hintBase}>SWIPE RIGHT SIDE — TURN AROUND</p>
+                <span className='text-[color:var(--color-ink)] text-2xl animate-[gallery-swipe_1.2s_ease-in-out_infinite] select-none'>
+                  →
+                </span>
+              </div>
+            )}
+          </div>
         </div>
       )}
       {isMobile && (

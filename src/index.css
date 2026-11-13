@@ -1401,3 +1401,194 @@ html {
     opacity: 1;
   }
 }
+
+.exhibition {
+  background-color: var(--color-surface);
+  color: var(--color-ink);
+}
+
+.exhibition-stage {
+  overflow: hidden;
+  background-color: var(--color-surface);
+  color: var(--color-ink);
+}
+
+.exhibition-dialog {
+  margin: auto;
+  padding: 0;
+  border: 1px solid var(--color-ink-trace);
+  background-color: var(--color-surface);
+  color: var(--color-ink);
+}
+
+.exhibition-dialog[open] {
+  animation: exhibition-rise-in 300ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.exhibition-dialog::backdrop {
+  background-color: rgba(0, 0, 0, 0.88);
+}
+
+.exhibition-switch {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 3px;
+  border: 1px solid var(--color-ink-ghost);
+  background-color: color-mix(in srgb, var(--color-surface) 88%, transparent);
+  transition: border-color 300ms ease;
+}
+
+.exhibition-switch:hover {
+  border-color: var(--color-ink-muted);
+}
+
+.exhibition-switch::before {
+  content: '';
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 3px;
+  width: calc(50% - 3px);
+  background-color: var(--color-ink);
+  box-shadow: 0 0 14px var(--color-glow-soft);
+  transition: transform 380ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.exhibition-switch[data-mode='3d']::before {
+  transform: translateX(100%);
+}
+
+.exhibition-switch > a {
+  position: relative;
+  padding: 0.5rem 1.1rem;
+  text-align: center;
+  color: var(--color-ink-soft);
+  outline: none;
+  transition: color 300ms ease;
+}
+
+.exhibition-switch > a:hover,
+.exhibition-switch > a:focus-visible {
+  color: var(--color-ink);
+}
+
+.exhibition-switch > a[data-active='true'] {
+  color: var(--color-surface);
+}
+
+.gallery-hint {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 100%;
+  padding: 1.1rem 1.75rem;
+  border: 1px solid var(--color-ink-ghost);
+  background-color: color-mix(in srgb, var(--color-surface) 88%, transparent);
+  animation: gallery-hint-pulse 2.2s ease-in-out infinite;
+}
+
+.gallery-key {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2em;
+  height: 2em;
+  margin-right: 0.9em;
+  padding: 0 0.55em;
+  background-color: var(--color-ink);
+  color: var(--color-surface);
+  font: inherit;
+  letter-spacing: 0.1em;
+}
+
+@keyframes gallery-hint-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+    border-color: var(--color-ink-ghost);
+  }
+  50% {
+    box-shadow: 0 0 28px var(--color-glow-soft);
+    border-color: var(--color-ink-muted);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gallery-hint {
+    animation: none;
+  }
+
+  .exhibition-switch::before {
+    transition: none;
+  }
+}
+
+.exhibition-toggle {
+  overflow: hidden;
+  border: 1px solid var(--color-ink-trace);
+  border-radius: 2px;
+  background-color: color-mix(in srgb, var(--color-surface) 88%, transparent);
+  color: var(--color-ink-muted);
+}
+
+.exhibition-toggle > a,
+.exhibition-toggle > span {
+  display: block;
+  padding: 0.6rem 0.9rem;
+  transition:
+    color 300ms ease,
+    background-color 300ms ease;
+}
+
+.exhibition-toggle > a:hover,
+.exhibition-toggle:hover > span {
+  color: var(--color-ink);
+}
+
+.exhibition-toggle > a[data-active='true'] {
+  background-color: var(--color-ink);
+  color: var(--color-surface);
+}
+
+.exhibition-row {
+  box-shadow: inset 2px 0 0 transparent;
+  color: var(--color-ink-muted);
+  outline: none;
+  transition:
+    color 300ms ease,
+    box-shadow 300ms ease,
+    background-color 300ms ease;
+}
+
+.exhibition-row:hover,
+.exhibition-row:focus-visible {
+  color: var(--color-ink);
+}
+
+.exhibition-row[data-active='true'] {
+  color: var(--color-ink);
+  box-shadow: inset 2px 0 0 var(--color-ink);
+  background-color: var(--color-ink-hair);
+}
+
+.exhibition-row[data-active='true'] .exhibition-row-title {
+  text-shadow: 0 0 8px var(--color-glow);
+}
+
+@keyframes exhibition-rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .exhibition-dialog[open] {
+    animation: none;
+  }
+}
