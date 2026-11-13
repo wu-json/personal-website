@@ -165,6 +165,12 @@ const BOUNDARY_PADDING = 0.5;
 const MAX_FRAME_DELTA = 0.1;
 const MAX_STEP = BOUNDARY_PADDING / 2;
 const MOVE_DEADZONE = 0.1;
+const MAX_ANISOTROPY = 8;
+
+const useAnisotropy = () => {
+  const gl = useThree(state => state.gl);
+  return Math.min(MAX_ANISOTROPY, gl.capabilities.getMaxAnisotropy());
+};
 
 const overlapsBox = (x: number, z: number, box: AABB, r: number) =>
   x + r > box.minX && x - r < box.maxX && z + r > box.minZ && z - r < box.maxZ;
@@ -552,7 +558,12 @@ const Floor = ({
   roomHeight: number;
   palette: GalleryPalette;
 }) => {
-  const texture = useMemo(() => createWoodTexture(palette), [palette]);
+  const anisotropy = useAnisotropy();
+  const texture = useMemo(() => {
+    const wood = createWoodTexture(palette);
+    wood.anisotropy = anisotropy;
+    return wood;
+  }, [palette, anisotropy]);
   useEffect(() => () => texture.dispose(), [texture]);
   return (
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -roomHeight / 2, 0]}>
@@ -754,6 +765,7 @@ const ArtFrame = memo(
   }) => {
     const [w, h] = size;
     const matRef = useRef<THREE.MeshBasicMaterial>(null);
+    const anisotropy = useAnisotropy();
 
     const frameMaterial = useMemo(
       () =>
@@ -769,14 +781,17 @@ const ArtFrame = memo(
     useEffect(() => {
       if (!imageUrl || !matRef.current) return;
       const mat = matRef.current;
+      let cancelled = false;
       const loader = new THREE.TextureLoader();
       loader.load(
         imageUrl,
         tex => {
+          if (cancelled) {
+            tex.dispose();
+            return;
+          }
           tex.colorSpace = THREE.SRGBColorSpace;
-          tex.generateMipmaps = false;
-          tex.minFilter = THREE.LinearFilter;
-          tex.magFilter = THREE.LinearFilter;
+          tex.anisotropy = anisotropy;
           mat.map = tex;
           mat.color.set('#ffffff');
           mat.needsUpdate = true;
@@ -785,12 +800,14 @@ const ArtFrame = memo(
         () => {},
       );
       return () => {
+        cancelled = true;
         if (mat.map) {
           mat.map.dispose();
           mat.map = null;
+          mat.needsUpdate = true;
         }
       };
-    }, [imageUrl]);
+    }, [imageUrl, anisotropy]);
 
     return (
       <group position={position}>
@@ -799,7 +816,11 @@ const ArtFrame = memo(
         </mesh>
         <mesh position={[0, 0, 0.01]}>
           <planeGeometry args={[w, h]} />
-          <meshBasicMaterial ref={matRef} color={palette.canvasPlaceholder} />
+          <meshBasicMaterial
+            ref={matRef}
+            color={palette.canvasPlaceholder}
+            toneMapped={false}
+          />
         </mesh>
       </group>
     );
