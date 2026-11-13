@@ -1369,12 +1369,10 @@ type HintPhase = 'step-back' | 'click' | 'mouse' | 'done';
 
 const GalleryScreen = ({
   fragmentId,
-  exitHref,
-  exitLabel = 'EXIT GALLERY',
+  embedded = false,
 }: {
   fragmentId?: string;
-  exitHref?: string;
-  exitLabel?: string;
+  embedded?: boolean;
 }) => {
   const { theme } = useTheme();
   const palette = useMemo(() => getPalette(theme), [theme]);
@@ -1459,11 +1457,11 @@ const GalleryScreen = ({
 
   return (
     <div
-      className={`fixed inset-0 z-50${!isMobile && !locked ? ' cursor-pointer' : ''}`}
+      className={`${embedded ? 'absolute inset-0' : 'fixed inset-0 z-50'}${!isMobile && !locked ? ' cursor-pointer' : ''}`}
       style={{ backgroundColor: 'var(--color-surface)' }}
     >
       <div
-        className='absolute inset-0 transition-opacity duration-500'
+        className='gallery-viewport absolute inset-0 transition-opacity duration-500'
         style={{ opacity: ready ? 1 : 0 }}
       >
         <Canvas
@@ -1489,16 +1487,20 @@ const GalleryScreen = ({
             mobileInput={mobileInputRef}
           />
           {!isMobile && (
-            <PointerLockControls onLock={onLock} onUnlock={onUnlock} />
+            <PointerLockControls
+              selector='.gallery-viewport'
+              onLock={onLock}
+              onUnlock={onUnlock}
+            />
           )}
         </Canvas>
       </div>
-      {!locked && (
+      {!locked && !embedded && (
         <a
-          href={exitHref ?? (fragment ? `/memories/${fragment.id}` : '/')}
+          href={fragment ? `/memories/${fragment.id}` : '/'}
           className='absolute top-6 left-6 z-10 font-pixel text-[color:var(--color-ink-ghost)] text-xs tracking-[0.2em] pointer-events-auto hover:text-[color:var(--color-ink-muted)] transition-colors'
         >
-          ← {exitLabel}
+          ← EXIT GALLERY
         </a>
       )}
       {!isMobile && ready && hintPhase !== 'done' && (

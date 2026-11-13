@@ -1,15 +1,23 @@
 import {
+  lazy,
   type MouseEvent,
+  Suspense,
   useCallback,
   useEffect,
-  useMemo,
   useRef,
   useState,
 } from 'react';
 import { LINEAR_SEGMENTS } from 'src/screens/Home/sections/MainBanner/LinearMark';
 import { fragments, photoUrl } from 'src/screens/Memories/data';
+import { FragmentDetail } from 'src/screens/Memories/FragmentDetail';
 import type { Fragment } from 'src/screens/Memories/types';
-import { Link, useLocation, useSearch } from 'wouter';
+import { Link, useLocation } from 'wouter';
+
+const GalleryScreen = lazy(() =>
+  import('src/screens/Gallery').then(m => ({ default: m.GalleryScreen })),
+);
+
+type Mode = 'cover' | '2d' | '3d';
 
 const IDLE_BEFORE_ATTRACT_MS = 20000;
 const ATTRACT_INTERVAL_MS = 7000;
@@ -66,13 +74,20 @@ const Cover = ({
   );
 };
 
-const ExhibitionScreen = () => {
+const ExhibitionScreen = ({ id, sub }: { id?: string; sub?: string }) => {
   const [, navigate] = useLocation();
-  const search = useSearch();
-  const [activeId, setActiveId] = useState(() => {
-    const room = new URLSearchParams(search).get('room');
-    return fragments.some(f => f.id === room) ? room! : fragments[0].id;
-  });
+  const routed = fragments.find(f => f.id === id);
+  const mode: Mode = !routed ? 'cover' : sub === '3d' ? '3d' : '2d';
+  const photo = mode === '2d' ? sub : undefined;
+  const [previewId, setPreviewId] = useState(fragments[0].id);
+  const activeId = routed?.id ?? previewId;
+  const setActiveId = setPreviewId;
+  const modeRef = useRef(mode);
+  modeRef.current = mode;
+
+  useEffect(() => {
+    if (routed) setPreviewId(routed.id);
+  }, [routed]);
   const lastInputAt = useRef(0);
   const lastPointerType = useRef('mouse');
   const rowRefs = useRef(new Map<string, HTMLAnchorElement>());
@@ -81,14 +96,10 @@ const ExhibitionScreen = () => {
 
   const activeIndex = fragments.findIndex(f => f.id === activeId);
   const active = fragments[activeIndex];
-  const total = fragments.length;
-  const photoCount = useMemo(
-    () => fragments.reduce((n, f) => n + f.photos.length, 0),
-    [],
-  );
 
   const step = useCallback((delta: number, reveal: boolean) => {
-    setActiveId(current => {
+    if (modeRef.current !== 'cover') return;
+    setPreviewId(current => {
       const i = fragments.findIndex(f => f.id === current);
       const next =
         fragments[(i + delta + fragments.length) % fragments.length].id;
@@ -118,6 +129,7 @@ const ExhibitionScreen = () => {
     };
     const onKey = (e: KeyboardEvent) => {
       touch();
+      if (modeRef.current !== 'cover') return;
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
         e.preventDefault();
@@ -151,14 +163,15 @@ const ExhibitionScreen = () => {
     return () => window.clearInterval(timer);
   }, [step]);
 
-  const onRowClick = (e: MouseEvent<HTMLAnchorElement>, id: string) => {
-    if (lastPointerType.current !== 'touch' || id === activeId) return;
+  const onRowClick = (e: MouseEvent<HTMLAnchorElement>, rowId: string) => {
+    if (mode !== 'cover') return;
+    if (lastPointerType.current !== 'touch' || rowId === activeId) return;
     e.preventDefault();
-    setActiveId(id);
+    setActiveId(rowId);
   };
 
   return (
-    <div className='exhibition fixed inset-0 z-50 overflow-y-auto lg:overflow-hidden lg:grid lg:grid-cols-[minmax(20rem,26rem)_1fr] lg:grid-rows-[auto_minmax(0,1fr)_auto]'>
+    <div className='exhibition fixed inset-0 z-50 overflow-y-auto lg:overflow-hidden lg:grid lg:grid-cols-[minmax(20rem,26rem)_1fr] lg:grid-rows-[auto_minmax(0,1fr)]'>
       <header className='px-6 pt-8 pb-6 sm:px-8 lg:col-start-1 lg:row-start-1 lg:pt-10'>
         <a
           href='https://linear.app'
@@ -182,67 +195,110 @@ const ExhibitionScreen = () => {
 
       <section
         aria-label={active.title}
-        className='exhibition-stage sticky top-0 z-10 aspect-[4/3] w-full sm:aspect-[16/9] lg:relative lg:col-start-2 lg:row-span-3 lg:row-start-1 lg:aspect-auto lg:h-full'
+        data-mode={mode}
+        className={`exhibition-stage lg:relative lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:h-full ${mode === 'cover' ? 'sticky top-0 z-10 aspect-[4/3] w-full sm:aspect-[16/9] lg:aspect-auto' : 'fixed inset-0 z-20 lg:z-10'}`}
       >
-        {fragments.map((f, i) => (
-          <Cover
-            key={f.id}
-            fragment={f}
-            active={f.id === activeId}
-            eager={i === activeIndex}
-          />
-        ))}
-        <div className='exhibition-scrim' />
+        {mode === 'cover' && (
+          <>
+            {fragments.map((f, i) => (
+              <Cover
+                key={f.id}
+                fragment={f}
+                active={f.id === activeId}
+                eager={i === activeIndex}
+              />
+            ))}
+            <div className='exhibition-scrim' />
 
-        <div
-          key={active.id}
-          className='exhibition-caption absolute inset-x-0 bottom-0 flex flex-col gap-4 p-5 sm:p-8 lg:gap-6 lg:p-12'
-        >
-          <div>
-            <p className='font-mono text-[10px] uppercase tracking-[0.25em] opacity-60'>
-              {active.date} — {active.location}
-            </p>
-            <h2 className='mt-2 font-pixel text-3xl uppercase leading-tight tracking-wide sm:text-5xl lg:text-6xl'>
-              {active.title}
-            </h2>
-          </div>
-          <div className='flex flex-wrap items-center gap-x-5 gap-y-3'>
-            <Link
-              to={galleryPath(active.id)}
-              className='exhibition-enter group inline-flex items-center gap-3 px-5 py-3 font-pixel text-xs uppercase tracking-[0.2em] sm:px-7 sm:py-4 sm:text-sm'
+            <div
+              key={active.id}
+              className='exhibition-caption absolute inset-x-0 bottom-0 flex flex-col gap-4 p-5 sm:p-8 lg:gap-6 lg:p-12'
             >
-              <span>Walk the 3D gallery</span>
-              <span
-                aria-hidden
-                className='transition-transform duration-300 group-hover:translate-x-1'
+              <div>
+                <p className='font-mono text-[10px] uppercase tracking-[0.25em] opacity-60'>
+                  {active.date} — {active.location}
+                </p>
+                <h2 className='mt-2 font-pixel text-3xl uppercase leading-tight tracking-wide sm:text-5xl lg:text-6xl'>
+                  {active.title}
+                </h2>
+              </div>
+              <div className='flex flex-wrap items-center gap-x-5 gap-y-3'>
+                <Link
+                  to={galleryPath(active.id)}
+                  className='exhibition-enter group inline-flex items-center gap-3 px-5 py-3 font-pixel text-xs uppercase tracking-[0.2em] sm:px-7 sm:py-4 sm:text-sm'
+                >
+                  <span>Walk the 3D gallery</span>
+                  <span
+                    aria-hidden
+                    className='transition-transform duration-300 group-hover:translate-x-1'
+                  >
+                    →
+                  </span>
+                </Link>
+                <Link
+                  to={albumPath(active.id)}
+                  className='font-mono text-[11px] uppercase tracking-[0.2em] underline decoration-white/30 underline-offset-4 opacity-70 transition-opacity duration-300 hover:opacity-100'
+                >
+                  View {active.photos.length} photos in 2D
+                </Link>
+              </div>
+            </div>
+          </>
+        )}
+
+        {mode === '3d' && (
+          <Suspense fallback={null}>
+            <GalleryScreen key={active.id} fragmentId={active.id} embedded />
+          </Suspense>
+        )}
+
+        {mode === '2d' && (
+          <div className='absolute inset-0 [transform:translateZ(0)]'>
+            <div key={active.id} className='h-full overflow-y-auto pt-10'>
+              <FragmentDetail id={active.id} photo={photo} exhibition />
+            </div>
+          </div>
+        )}
+
+        {mode !== 'cover' && !photo && (
+          <div className='pointer-events-none absolute inset-x-0 top-0 z-20 flex items-center justify-between gap-3 p-4 sm:p-5'>
+            <div className='exhibition-toggle pointer-events-auto flex font-pixel text-xs uppercase tracking-[0.2em]'>
+              <Link
+                to={galleryPath(active.id)}
+                data-active={mode === '3d'}
+                aria-current={mode === '3d' ? 'page' : undefined}
               >
-                →
-              </span>
-            </Link>
+                3D
+              </Link>
+              <Link
+                to={albumPath(active.id)}
+                data-active={mode === '2d'}
+                aria-current={mode === '2d' ? 'page' : undefined}
+              >
+                2D
+              </Link>
+            </div>
             <Link
-              to={albumPath(active.id)}
-              className='font-mono text-[11px] uppercase tracking-[0.2em] underline decoration-white/30 underline-offset-4 opacity-70 transition-opacity duration-300 hover:opacity-100'
+              to='/exhibition'
+              className='exhibition-toggle pointer-events-auto font-pixel text-xs uppercase tracking-[0.2em]'
             >
-              View {active.photos.length} photos in 2D
+              <span>Close ×</span>
             </Link>
           </div>
-        </div>
+        )}
       </section>
 
       <nav
         aria-label='Albums'
-        className='min-h-0 pb-4 lg:col-start-1 lg:row-start-2 lg:overflow-y-auto'
+        className='min-h-0 pb-6 pt-4 lg:col-start-1 lg:pt-0 lg:row-start-2 lg:overflow-y-auto'
       >
-        <p className='px-6 pb-3 pt-6 font-mono text-[10px] uppercase tracking-[0.25em] text-[var(--color-ink-ghost)] sm:px-8 lg:pt-2'>
-          {'// index'}
-        </p>
         <ol>
           {fragments.map(f => {
             const isActive = f.id === activeId;
             return (
               <li key={f.id}>
                 <Link
-                  to={galleryPath(f.id)}
+                  to={mode === '2d' ? albumPath(f.id) : galleryPath(f.id)}
                   ref={(el: HTMLAnchorElement | null) => {
                     if (el) rowRefs.current.set(f.id, el);
                     else rowRefs.current.delete(f.id);
@@ -250,9 +306,13 @@ const ExhibitionScreen = () => {
                   data-active={isActive}
                   aria-current={isActive ? 'true' : undefined}
                   onPointerEnter={e => {
-                    if (e.pointerType !== 'touch') setActiveId(f.id);
+                    if (mode === 'cover' && e.pointerType !== 'touch') {
+                      setActiveId(f.id);
+                    }
                   }}
-                  onFocus={() => setActiveId(f.id)}
+                  onFocus={() => {
+                    if (mode === 'cover') setActiveId(f.id);
+                  }}
                   onClick={e => onRowClick(e, f.id)}
                   className='exhibition-row grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-x-3 px-6 py-3 sm:px-8'
                 >
@@ -269,7 +329,7 @@ const ExhibitionScreen = () => {
                       {f.date.slice(0, 7)}
                     </span>
                     <span className='exhibition-row-enter' aria-hidden>
-                      Enter →
+                      {mode === 'cover' ? 'Enter →' : 'Viewing'}
                     </span>
                   </span>
                 </Link>
@@ -278,18 +338,6 @@ const ExhibitionScreen = () => {
           })}
         </ol>
       </nav>
-
-      <footer className='flex items-center justify-between gap-4 border-t border-[var(--color-ink-hair)] px-6 py-4 font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--color-ink-ghost)] sm:px-8 lg:col-start-1 lg:row-start-3'>
-        <span>
-          {total} rooms · {photoCount} photographs
-        </span>
-        <Link
-          to='/'
-          className='transition-colors duration-300 hover:text-[var(--color-ink)]'
-        >
-          jasonwu.ink
-        </Link>
-      </footer>
     </div>
   );
 };

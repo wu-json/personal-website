@@ -26,24 +26,8 @@ const App = () => (
         </Suspense>
       )}
     </Route>
-    <Route path='/exhibition' component={ExhibitionScreen} />
-    <Route path='/exhibition/:id/3d'>
-      {params => (
-        <Suspense fallback={null}>
-          <GalleryScreen
-            fragmentId={params.id}
-            exitHref={`/exhibition?room=${params.id}`}
-            exitLabel='EXHIBITION'
-          />
-        </Suspense>
-      )}
-    </Route>
-    <Route path='/exhibition/:id/:photo?'>
-      {params => (
-        <div className='h-full w-full overflow-y-auto'>
-          <FragmentDetail id={params.id} photo={params.photo} exhibition />
-        </div>
-      )}
+    <Route path='/exhibition/:id?/:sub?'>
+      {params => <ExhibitionScreen id={params.id} sub={params.sub} />}
     </Route>
     {import.meta.env.DEV && (
       <Route path='/gallery'>

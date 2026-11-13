@@ -90,11 +90,10 @@ const FragmentDetail = ({
 }) => {
   const [, navigate] = useLocation();
   const root = exhibition ? '/exhibition' : '/memories';
-  const backTo = exhibition ? `/exhibition?room=${id}` : '/memories';
+  const backTo = exhibition ? '/exhibition' : '/memories';
   const backLabel = exhibition
     ? '< return to exhibition'
     : '< return to memories';
-  const galleryTo = exhibition ? `/exhibition/${id}/3d` : `/gallery/${id}`;
   const inset = exhibition ? '' : 'md:pr-40';
   const jitter = useJitter();
   const fragment = fragments.find(f => f.id === id);
@@ -351,13 +350,15 @@ const FragmentDetail = ({
   return (
     <div className={`w-full min-h-screen bg-black ${inset}`}>
       <div className='max-w-4xl mx-auto px-6 py-16 pb-32'>
-        <Link
-          to={backTo}
-          className='bio-glitch inline-block mb-8 text-white/30 text-xs sm:text-[10px] font-mono uppercase tracking-widest hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)] transition-all duration-300'
-          style={jitter()}
-        >
-          {backLabel}
-        </Link>
+        {!exhibition && (
+          <Link
+            to={backTo}
+            className='bio-glitch inline-block mb-8 text-white/30 text-xs sm:text-[10px] font-mono uppercase tracking-widest hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)] transition-all duration-300'
+            style={jitter()}
+          >
+            {backLabel}
+          </Link>
+        )}
 
         <header className='mb-8 border-b border-white/5 pb-6'>
           <h1
@@ -380,15 +381,15 @@ const FragmentDetail = ({
               — {fragment.location}
             </span>
           </div>
-          <Link
-            to={galleryTo}
-            className='bio-glitch text-white/30 text-xs sm:text-[10px] font-mono uppercase tracking-widest hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)] transition-all duration-300 mt-3 inline-block'
-            style={jitter()}
-          >
-            {exhibition
-              ? '> enter the 3d gallery'
-              : '> view in interactive gallery'}
-          </Link>
+          {!exhibition && (
+            <Link
+              to={`/gallery/${fragment.id}`}
+              className='bio-glitch text-white/30 text-xs sm:text-[10px] font-mono uppercase tracking-widest hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)] transition-all duration-300 mt-3 inline-block'
+              style={jitter()}
+            >
+              {'> view in interactive gallery'}
+            </Link>
+          )}
         </header>
 
         {fragment.description && (
