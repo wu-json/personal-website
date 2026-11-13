@@ -17,8 +17,6 @@ const ATTRACT_INTERVAL_MS = 7000;
 const galleryPath = (id: string) => `/exhibition/${id}/3d`;
 const albumPath = (id: string) => `/exhibition/${id}`;
 
-const pad = (n: number) => String(n).padStart(2, '0');
-
 const LinearLogo = ({ className }: { className?: string }) => (
   <svg
     viewBox='0 0 100 100'
@@ -174,13 +172,10 @@ const ExhibitionScreen = () => {
             Linear
           </span>
         </a>
-        <p className='bio-glitch font-mono text-[10px] uppercase tracking-[0.25em] text-[var(--color-ink-faint)]'>
-          Gumloop × Linear — Design Gallery Vol. 2
-        </p>
-        <h1 className='bio-glitch mt-5 font-pixel text-4xl uppercase tracking-wide text-[var(--color-ink)] sm:text-5xl'>
+        <h1 className='bio-glitch font-pixel text-4xl uppercase tracking-wide text-[var(--color-ink)] sm:text-5xl'>
           Memories
         </h1>
-        <p className='bio-glitch mt-4 font-mono text-xs text-[var(--color-ink-muted)]'>
+        <p className='bio-glitch mt-3 font-pixel text-xl tracking-wide text-[var(--color-ink-soft)] sm:text-2xl'>
           Jason Wu
         </p>
       </header>
@@ -242,7 +237,7 @@ const ExhibitionScreen = () => {
           {'// index'}
         </p>
         <ol>
-          {fragments.map((f, i) => {
+          {fragments.map(f => {
             const isActive = f.id === activeId;
             return (
               <li key={f.id}>
@@ -259,11 +254,8 @@ const ExhibitionScreen = () => {
                   }}
                   onFocus={() => setActiveId(f.id)}
                   onClick={e => onRowClick(e, f.id)}
-                  className='exhibition-row grid grid-cols-[1.75rem_minmax(0,1fr)_auto] items-baseline gap-x-3 px-6 py-3 sm:px-8'
+                  className='exhibition-row grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-x-3 px-6 py-3 sm:px-8'
                 >
-                  <span className='font-mono text-[10px] tabular-nums text-[var(--color-ink-ghost)]'>
-                    {pad(total - i)}
-                  </span>
                   <span className='min-w-0'>
                     <span className='exhibition-row-title block truncate font-pixel text-sm uppercase tracking-wide'>
                       {f.title}
