@@ -78,7 +78,7 @@ const GroupSlide = ({
     >
       <div
         className={`${containerCls} gap-2 items-center justify-center`}
-        style={{ maxHeight: 'calc(100vh - 8rem)', maxWidth: '90vw' }}
+        style={{ maxHeight: 'calc(100cqh - 8rem)', maxWidth: '90cqw' }}
       >
         {photos.map(p => {
           const loaded = loadedSet.has(p.file);
