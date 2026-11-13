@@ -1,5 +1,4 @@
 import { Analytics } from '@vercel/analytics/react';
-import React from 'react';
 import ReactDOM from 'react-dom/client';
 
 import { App } from './App';
@@ -12,10 +11,8 @@ const root = ReactDOM.createRoot(
 );
 
 root.render(
-  <React.StrictMode>
-    <ThemeProvider>
-      <App />
-      <Analytics scriptSrc='/vitals/script.js' endpoint='/vitals' />
-    </ThemeProvider>
-  </React.StrictMode>,
+  <ThemeProvider>
+    <App />
+    <Analytics scriptSrc='/vitals/script.js' endpoint='/vitals' />
+  </ThemeProvider>,
 );

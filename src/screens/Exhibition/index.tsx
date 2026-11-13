@@ -50,12 +50,15 @@ const ExhibitionScreen = ({ id, sub }: { id?: string; sub?: string }) => {
   const [qrOpen, setQrOpen] = useState(false);
   const [galleryId, setGalleryId] = useState<string | null>(null);
   const showGallery = mode === '3d' || (routed && galleryId === routed.id);
+  const [albumId, setAlbumId] = useState<string | null>(null);
+  const keep2d = albumId === active.id;
   const [isFullscreen, setIsFullscreen] = useState(false);
   const canFullscreen =
     typeof document !== 'undefined' && document.fullscreenEnabled;
 
   useEffect(() => {
     if (mode === '3d') setGalleryId(active.id);
+    else setAlbumId(active.id);
   }, [mode, active.id]);
 
   useEffect(() => {
@@ -176,8 +179,11 @@ const ExhibitionScreen = ({ id, sub }: { id?: string; sub?: string }) => {
           </div>
         )}
 
-        {mode === '2d' && (
-          <div className='absolute inset-0 flex flex-col [transform:translateZ(0)]'>
+        {(mode === '2d' || keep2d) && (
+          <div
+            aria-hidden={mode !== '2d'}
+            className={`absolute inset-0 flex flex-col [transform:translateZ(0)] ${mode === '2d' ? '' : 'pointer-events-none invisible'}`}
+          >
             <header className='shrink-0 px-6 pt-8 pb-6 sm:px-8 lg:pt-10'>
               <div className='h-9 sm:h-12' />
               <div

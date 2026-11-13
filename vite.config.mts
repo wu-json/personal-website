@@ -2,12 +2,33 @@ import * as path from 'path';
 
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
-import { defineConfig } from 'vite';
+import { defineConfig, type Plugin } from 'vite';
 
 import { markdownPlugin } from './src/plugins/markdown.ts';
 import { ogPlugin } from './src/plugins/og.ts';
 import { pixelFontPlugin } from './src/plugins/pixelFont.ts';
 import { rssPlugin } from './src/plugins/rss.ts';
+
+const DEV_STATIC_ASSET = /^\/(images|fonts)\//;
+const DEV_STATIC_CACHE = 'public, max-age=3600';
+
+const devStaticCache = (): Plugin => ({
+  name: 'dev-static-cache',
+  apply: 'serve',
+  configureServer(server) {
+    server.middlewares.use((req, res, next) => {
+      if (req.url && DEV_STATIC_ASSET.test(req.url)) {
+        const setHeader = res.setHeader.bind(res);
+        res.setHeader = (name, value) =>
+          setHeader(
+            name,
+            name.toLowerCase() === 'cache-control' ? DEV_STATIC_CACHE : value,
+          );
+      }
+      next();
+    });
+  },
+});
 
 export default defineConfig({
   base: '/',
@@ -22,6 +43,7 @@ export default defineConfig({
     pixelFontPlugin(),
     rssPlugin(),
     ogPlugin(),
+    devStaticCache(),
   ],
   optimizeDeps: {
     include: [
@@ -37,6 +59,7 @@ export default defineConfig({
     warmup: {
       clientFiles: [
         './src/index.tsx',
+        './src/SiteRoutes.tsx',
         './src/screens/Exhibition/index.tsx',
         './src/screens/Gallery/index.tsx',
       ],
