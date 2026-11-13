@@ -179,15 +179,15 @@ const ExhibitionScreen = ({ id, sub }: { id?: string; sub?: string }) => {
         <p className='bio-glitch mt-3 font-pixel text-xl tracking-wide text-[var(--color-ink-soft)] sm:text-2xl'>
           Jason Wu
         </p>
-        <p className='bio-glitch mt-5 flex flex-wrap items-center gap-x-3 gap-y-2 font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--color-ink-faint)]'>
-          <span>Member of Technical Staff</span>
+        <p className='bio-glitch mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 font-pixel text-sm tracking-wide text-[var(--color-ink-muted)]'>
+          <span>Member of Technical Staff,</span>
           <a
             href='https://linear.app'
             target='_blank'
             rel='noopener noreferrer'
-            className='inline-flex items-center gap-1.5 font-pixel text-sm tracking-wide text-[var(--color-ink)] transition-all duration-300 hover:[text-shadow:0_0_8px_var(--color-glow)]'
+            className='inline-flex items-center gap-1.5 transition-colors duration-300 hover:text-[var(--color-ink)]'
           >
-            <LinearLogo className='h-3.5 w-3.5' />
+            <LinearLogo className='h-[0.8em] w-[0.8em]' />
             <span>Linear</span>
           </a>
         </p>
