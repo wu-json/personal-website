@@ -27,7 +27,6 @@ const MobileControls = ({
 
   const onJoystickTouchStart = useCallback(
     (e: React.TouchEvent) => {
-      e.preventDefault();
       if (joystickTouchId.current !== null) return;
       const touch = e.changedTouches[0]!;
       joystickTouchId.current = touch.identifier;
@@ -43,7 +42,6 @@ const MobileControls = ({
 
   const onJoystickTouchMove = useCallback(
     (e: React.TouchEvent) => {
-      e.preventDefault();
       for (let i = 0; i < e.changedTouches.length; i++) {
         const touch = e.changedTouches[i]!;
         if (touch.identifier !== joystickTouchId.current) continue;
@@ -90,7 +88,6 @@ const MobileControls = ({
 
   const onLookTouchStart = useCallback(
     (e: React.TouchEvent) => {
-      e.preventDefault();
       if (lookTouchId.current !== null) return;
       const touch = e.changedTouches[0]!;
       lookTouchId.current = touch.identifier;
@@ -102,7 +99,6 @@ const MobileControls = ({
 
   const onLookTouchMove = useCallback(
     (e: React.TouchEvent) => {
-      e.preventDefault();
       for (let i = 0; i < e.changedTouches.length; i++) {
         const touch = e.changedTouches[i]!;
         if (touch.identifier !== lookTouchId.current) continue;

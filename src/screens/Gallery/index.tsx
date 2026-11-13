@@ -169,6 +169,97 @@ const MAX_ANISOTROPY = 8;
 const DESKTOP_DPR: [number, number] = [1, 2];
 const MOBILE_DPR: [number, number] = [1, 1.5];
 
+const WOOD_PLANK_HEIGHT = 80;
+const WOOD_PLANK_ROWS = 13;
+const WOOD_TEXTURE_WIDTH = 1024;
+const WOOD_TEXTURE_HEIGHT = WOOD_PLANK_HEIGHT * WOOD_PLANK_ROWS;
+const FLOOR_TILE_WIDTH = 5;
+const FLOOR_TILE_DEPTH =
+  (FLOOR_TILE_WIDTH * WOOD_TEXTURE_HEIGHT) / WOOD_TEXTURE_WIDTH;
+
+const PIXEL_FONT = "'Geist Pixel Circle'";
+
+let pixelFontLoad: Promise<unknown> | null = null;
+const whenPixelFontLoaded = () => {
+  pixelFontLoad ??= document.fonts
+    .load(`16px ${PIXEL_FONT}`)
+    .catch(() => undefined);
+  return pixelFontLoad;
+};
+
+const ellipsize = (
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  maxWidth: number,
+) => {
+  if (ctx.measureText(text).width <= maxWidth) return text;
+  let cut = text.length;
+  let clipped = '...';
+  while (cut > 0) {
+    clipped = `${text.slice(0, cut).trimEnd()}...`;
+    if (ctx.measureText(clipped).width <= maxWidth) break;
+    cut--;
+  }
+  return clipped;
+};
+
+const wrapText = (
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  maxWidth: number,
+) => {
+  const lines: string[] = [];
+  for (const para of text.split('\n')) {
+    const trimmed = para.trim();
+    if (trimmed === '') {
+      lines.push('');
+      continue;
+    }
+    for (const word of trimmed.split(' ')) {
+      const last = lines[lines.length - 1];
+      if (last && ctx.measureText(`${last} ${word}`).width <= maxWidth) {
+        lines[lines.length - 1] = `${last} ${word}`;
+      } else {
+        lines.push(word);
+      }
+    }
+  }
+  return lines;
+};
+
+const SUBTITLE_FONT_SIZES = [28, 24, 20, 17, 14];
+const SUBTITLE_LINE_RATIO = 36 / 28;
+
+const fitSubtitle = (
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  scale: number,
+  maxWidth: number,
+  maxHeight: number,
+) => {
+  const smallest = SUBTITLE_FONT_SIZES[SUBTITLE_FONT_SIZES.length - 1]!;
+  for (const size of SUBTITLE_FONT_SIZES) {
+    const fontSize = size * scale;
+    ctx.font = `${fontSize}px ${PIXEL_FONT}`;
+    const lineHeight = Math.round(fontSize * SUBTITLE_LINE_RATIO);
+    const maxLines = Math.max(1, Math.floor(maxHeight / lineHeight));
+    const lines = wrapText(ctx, text, maxWidth);
+    if (lines.length <= maxLines) return { lines, lineHeight, fontSize };
+    if (size === smallest) {
+      const overflow = lines.slice(maxLines - 1).join(' ');
+      return {
+        lines: [
+          ...lines.slice(0, maxLines - 1),
+          ellipsize(ctx, overflow, maxWidth),
+        ],
+        lineHeight,
+        fontSize,
+      };
+    }
+  }
+  return { lines: [], lineHeight: 0, fontSize: 0 };
+};
+
 const useAnisotropy = () => {
   const gl = useThree(state => state.gl);
   return Math.min(MAX_ANISOTROPY, gl.capabilities.getMaxAnisotropy());
@@ -210,14 +301,14 @@ const moveWithCollisions = (
 
 const createWoodTexture = (palette: GalleryPalette) => {
   const canvas = document.createElement('canvas');
-  canvas.width = 1024;
-  canvas.height = 1024;
+  canvas.width = WOOD_TEXTURE_WIDTH;
+  canvas.height = WOOD_TEXTURE_HEIGHT;
   const ctx = canvas.getContext('2d')!;
 
   ctx.fillStyle = palette.floorBase;
-  ctx.fillRect(0, 0, 1024, 1024);
+  ctx.fillRect(0, 0, WOOD_TEXTURE_WIDTH, WOOD_TEXTURE_HEIGHT);
 
-  const plankH = 80;
+  const plankH = WOOD_PLANK_HEIGHT;
 
   let _s = 0;
   const seed = (v: number) => {
@@ -249,7 +340,7 @@ const createWoodTexture = (palette: GalleryPalette) => {
     if (x > 0) {
       planks.push(-rowOffset);
     }
-    while (x < 1024) {
+    while (x < WOOD_TEXTURE_WIDTH) {
       const len = 200 + next() * 300;
       planks.push(len);
       x += len;
@@ -320,7 +411,7 @@ const createWoodTexture = (palette: GalleryPalette) => {
     ctx.stroke();
   };
 
-  for (let y = 0; y < 1024; y += plankH) {
+  for (let y = 0; y < WOOD_TEXTURE_HEIGHT; y += plankH) {
     const row = Math.floor(y / plankH);
     const { planks, rowOffset } = rowPlanks(row);
 
@@ -332,11 +423,11 @@ const createWoodTexture = (palette: GalleryPalette) => {
       const color = plankColor(row, col);
       const ps = row * 127 + col * 43;
       drawPlank(actualX, y, actualLen, color, ps);
-      if (actualX + actualLen > 1024) {
-        drawPlank(actualX - 1024, y, actualLen, color, ps);
+      if (actualX + actualLen > WOOD_TEXTURE_WIDTH) {
+        drawPlank(actualX - WOOD_TEXTURE_WIDTH, y, actualLen, color, ps);
       }
       if (actualX < 0) {
-        drawPlank(actualX + 1024, y, actualLen, color, ps);
+        drawPlank(actualX + WOOD_TEXTURE_WIDTH, y, actualLen, color, ps);
       }
       x += len;
       col++;
@@ -346,20 +437,19 @@ const createWoodTexture = (palette: GalleryPalette) => {
     ctx.lineWidth = 0.8;
     ctx.beginPath();
     ctx.moveTo(0, y);
-    ctx.lineTo(1024, y);
+    ctx.lineTo(WOOD_TEXTURE_WIDTH, y);
     ctx.stroke();
     ctx.strokeStyle = palette.rowSeamHighlight;
     ctx.lineWidth = 0.5;
     ctx.beginPath();
     ctx.moveTo(0, y + 1);
-    ctx.lineTo(1024, y + 1);
+    ctx.lineTo(WOOD_TEXTURE_WIDTH, y + 1);
     ctx.stroke();
   }
 
   const texture = new THREE.CanvasTexture(canvas);
   texture.wrapS = THREE.RepeatWrapping;
   texture.wrapT = THREE.RepeatWrapping;
-  texture.repeat.set(9, 9);
   texture.colorSpace = THREE.SRGBColorSpace;
   return texture;
 };
@@ -452,82 +542,32 @@ const drawBlossom = (
   ctx.fill();
 };
 
+const WELCOME_TEXTURE_WIDTH = 3072;
+const WELCOME_TEXTURE_MIN_HEIGHT = 1280;
+const WELCOME_SIGN_WIDTH = 10.5;
+const WELCOME_SIGN_TOP =
+  (WELCOME_SIGN_WIDTH * WELCOME_TEXTURE_MIN_HEIGHT) / WELCOME_TEXTURE_WIDTH / 2;
+const WELCOME_SIGN_FLOOR_MARGIN = 1;
+
 const createWelcomeTexture = (
   palette: GalleryPalette,
+  maxHeight: number,
   mobile = false,
   fragmentTitle?: string,
   fragmentDescription?: string,
 ) => {
   const canvas = document.createElement('canvas');
-  canvas.width = 3072;
-  canvas.height = 1280;
+  canvas.width = WELCOME_TEXTURE_WIDTH;
   const ctx = canvas.getContext('2d')!;
 
   const s = 2;
-
-  ctx.fillStyle = palette.wall;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
+  const font = PIXEL_FONT;
   const contentWidth = 2048;
   const offsetX = (canvas.width - contentWidth) / 2;
-
-  ctx.imageSmoothingEnabled = true;
-  ctx.imageSmoothingQuality = 'high';
-  drawBlossom(ctx, offsetX + 150 * s, 180 * s, 2.2 * s, palette.ink);
-
-  ctx.imageSmoothingEnabled = false;
-
-  const font = "'Geist Pixel Circle'";
   const textLeft = offsetX + 310 * s;
-
-  ctx.textAlign = 'left';
-
-  ctx.fillStyle = palette.ink;
-  ctx.font = `${64 * s}px ${font}`;
-  ctx.fillText(fragmentTitle ?? 'GALLERY', textLeft, 150 * s);
-
-  ctx.fillStyle = palette.inkMuted;
-  const subtitleSize = 28 * s;
-  ctx.font = `${subtitleSize}px ${font}`;
-  const rawSubtitle =
-    fragmentDescription ||
-    (fragmentTitle ? 'AN INTERACTIVE GALLERY' : 'A COLLECTION BY JASON WU');
-  const subtitle = rawSubtitle.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
   const contentRight = offsetX + contentWidth;
   const maxTextWidth = contentRight - textLeft - 80 * s;
-  const subtitleLines: string[] = [];
-  for (const para of subtitle.split('\n')) {
-    const trimmed = para.trim();
-    if (trimmed === '') {
-      subtitleLines.push('');
-      continue;
-    }
-    for (const word of trimmed.split(' ')) {
-      const last = subtitleLines[subtitleLines.length - 1];
-      if (last && ctx.measureText(`${last} ${word}`).width <= maxTextWidth) {
-        subtitleLines[subtitleLines.length - 1] = `${last} ${word}`;
-      } else {
-        subtitleLines.push(word);
-      }
-    }
-  }
-  let y = 210 * s;
-  const subtitleLineHeight = 36 * s;
-  for (const line of subtitleLines) {
-    ctx.fillText(line, textLeft, y);
-    y += subtitleLineHeight;
-  }
 
-  ctx.strokeStyle = palette.inkDivider;
-  ctx.lineWidth = 1 * s;
-  const divY = y + 10 * s;
-  ctx.beginPath();
-  ctx.moveTo(textLeft, divY);
-  ctx.lineTo(contentRight - 80 * s, divY);
-  ctx.stroke();
-
-  ctx.fillStyle = palette.inkFaint;
-  ctx.font = `${20 * s}px ${font}`;
   const controls = mobile
     ? ['LEFT JOYSTICK — MOVE', 'DRAG RIGHT — LOOK']
     : [
@@ -536,10 +576,76 @@ const createWelcomeTexture = (
         'SPACE — JUMP',
         'ESC — RELEASE CAMERA',
       ];
-  y = divY + 50 * s;
+  const subtitleTop = 210 * s;
+  const dividerGap = 10 * s;
+  const controlsGap = 50 * s;
+  const controlsLineHeight = 40 * s;
+  const bottomMargin = 30 * s;
+  const controlsHeight =
+    dividerGap +
+    controlsGap +
+    controlsLineHeight * (controls.length - 1) +
+    bottomMargin;
+
+  const rawSubtitle =
+    fragmentDescription ||
+    (fragmentTitle ? 'AN INTERACTIVE GALLERY' : 'A COLLECTION BY JASON WU');
+  const subtitle = rawSubtitle.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
+  const {
+    lines: subtitleLines,
+    lineHeight: subtitleLineHeight,
+    fontSize: subtitleFontSize,
+  } = fitSubtitle(
+    ctx,
+    subtitle,
+    s,
+    maxTextWidth,
+    Math.max(WELCOME_TEXTURE_MIN_HEIGHT, maxHeight) -
+      subtitleTop -
+      controlsHeight,
+  );
+
+  canvas.height = Math.max(
+    WELCOME_TEXTURE_MIN_HEIGHT,
+    subtitleTop + subtitleLines.length * subtitleLineHeight + controlsHeight,
+  );
+
+  ctx.fillStyle = palette.wall;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+  drawBlossom(ctx, offsetX + 150 * s, 180 * s, 2.2 * s, palette.ink);
+
+  ctx.imageSmoothingEnabled = false;
+  ctx.textAlign = 'left';
+
+  ctx.fillStyle = palette.ink;
+  ctx.font = `${64 * s}px ${font}`;
+  ctx.fillText(fragmentTitle ?? 'GALLERY', textLeft, 150 * s);
+
+  ctx.fillStyle = palette.inkMuted;
+  ctx.font = `${subtitleFontSize}px ${font}`;
+  let y = subtitleTop;
+  for (const line of subtitleLines) {
+    ctx.fillText(line, textLeft, y);
+    y += subtitleLineHeight;
+  }
+
+  ctx.strokeStyle = palette.inkDivider;
+  ctx.lineWidth = 1 * s;
+  const divY = y + dividerGap;
+  ctx.beginPath();
+  ctx.moveTo(textLeft, divY);
+  ctx.lineTo(contentRight - 80 * s, divY);
+  ctx.stroke();
+
+  ctx.fillStyle = palette.inkFaint;
+  ctx.font = `${20 * s}px ${font}`;
+  y = divY + controlsGap;
   for (const line of controls) {
     ctx.fillText(line, textLeft, y);
-    y += 40 * s;
+    y += controlsLineHeight;
   }
 
   const texture = new THREE.CanvasTexture(canvas);
@@ -564,8 +670,9 @@ const Floor = ({
   const texture = useMemo(() => {
     const wood = createWoodTexture(palette);
     wood.anisotropy = anisotropy;
+    wood.repeat.set(roomWidth / FLOOR_TILE_WIDTH, roomDepth / FLOOR_TILE_DEPTH);
     return wood;
-  }, [palette, anisotropy]);
+  }, [palette, anisotropy, roomWidth, roomDepth]);
   useEffect(() => () => texture.dispose(), [texture]);
   return (
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -roomHeight / 2, 0]}>
@@ -658,6 +765,7 @@ const WelcomeWallText = ({
   mobile,
   fragmentTitle,
   fragmentDescription,
+  roomHeight,
   palette,
 }: {
   position: [number, number, number];
@@ -665,17 +773,24 @@ const WelcomeWallText = ({
   mobile?: boolean;
   fragmentTitle?: string;
   fragmentDescription?: string;
+  roomHeight: number;
   palette: GalleryPalette;
 }) => {
-  const [texture, setTexture] = useState<THREE.Texture | null>(null);
+  const [texture, setTexture] = useState<THREE.CanvasTexture | null>(null);
+  const maxSignHeight =
+    WELCOME_SIGN_TOP + roomHeight / 2 - WELCOME_SIGN_FLOOR_MARGIN;
+  const maxTextureHeight = Math.floor(
+    (maxSignHeight * WELCOME_TEXTURE_WIDTH) / WELCOME_SIGN_WIDTH,
+  );
 
   useEffect(() => {
     let cancelled = false;
-    let created: THREE.Texture | null = null;
-    document.fonts.ready.then(() => {
+    let created: THREE.CanvasTexture | null = null;
+    void whenPixelFontLoaded().then(() => {
       if (cancelled) return;
       created = createWelcomeTexture(
         palette,
+        maxTextureHeight,
         mobile,
         fragmentTitle,
         fragmentDescription,
@@ -686,13 +801,20 @@ const WelcomeWallText = ({
       cancelled = true;
       if (created) created.dispose();
     };
-  }, [palette, mobile, fragmentTitle, fragmentDescription]);
+  }, [palette, maxTextureHeight, mobile, fragmentTitle, fragmentDescription]);
 
   if (!texture) return null;
 
+  const signHeight =
+    (WELCOME_SIGN_WIDTH * texture.image.height) / texture.image.width;
+  const [x, y, z] = position;
+
   return (
-    <mesh position={position} rotation={rotation}>
-      <planeGeometry args={[10.5, 4.375]} />
+    <mesh
+      position={[x, y + WELCOME_SIGN_TOP - signHeight / 2, z]}
+      rotation={rotation}
+    >
+      <planeGeometry args={[WELCOME_SIGN_WIDTH, signHeight]} />
       <meshStandardMaterial
         map={texture}
         polygonOffset
@@ -705,6 +827,7 @@ const WelcomeWallText = ({
 
 const LABEL_W = 1.6;
 const LABEL_H = 0.4;
+const LABEL_TEXT_INSET = 8;
 
 const createLabelTexture = (palette: GalleryPalette, title: string) => {
   const canvas = document.createElement('canvas');
@@ -718,10 +841,14 @@ const createLabelTexture = (palette: GalleryPalette, title: string) => {
 
   ctx.fillStyle = palette.ink;
   ctx.globalAlpha = 0.7;
-  ctx.font = "16px 'Geist Pixel Circle'";
+  ctx.font = `16px ${PIXEL_FONT}`;
   ctx.textAlign = 'left';
   ctx.textBaseline = 'middle';
-  ctx.fillText(title, 8, 32);
+  ctx.fillText(
+    ellipsize(ctx, title, canvas.width - LABEL_TEXT_INSET * 2),
+    LABEL_TEXT_INSET,
+    32,
+  );
   ctx.globalAlpha = 1;
 
   const texture = new THREE.CanvasTexture(canvas);
@@ -822,7 +949,7 @@ const ArtLabel = memo(
     useEffect(() => {
       let cancelled = false;
       let created: THREE.Texture | null = null;
-      document.fonts.ready.then(() => {
+      void whenPixelFontLoaded().then(() => {
         if (cancelled) return;
         created = createLabelTexture(palette, title);
         setLabelTex(created);
@@ -1100,6 +1227,7 @@ const Room = ({
         mobile={mobile}
         fragmentTitle={fragmentTitle}
         fragmentDescription={fragmentDescription}
+        roomHeight={roomHeight}
         palette={palette}
       />
     </group>
@@ -1282,7 +1410,7 @@ const GalleryScreen = ({ fragmentId }: { fragmentId?: string }) => {
 
   const onLock = useCallback(() => {
     setLocked(true);
-    setHintPhase('mouse');
+    setHintPhase(phase => (phase === 'done' ? phase : 'mouse'));
   }, []);
   const onUnlock = useCallback(() => setLocked(false), []);
   const onCreated = useCallback(() => {
@@ -1303,10 +1431,10 @@ const GalleryScreen = ({ fragmentId }: { fragmentId?: string }) => {
   }, [isMobile, hintPhase]);
 
   useEffect(() => {
-    if (isMobile || hintPhase !== 'mouse') return;
+    if (hintPhase !== 'mouse') return;
     const timer = setTimeout(() => setHintPhase('done'), 3000);
     return () => clearTimeout(timer);
-  }, [isMobile, hintPhase]);
+  }, [hintPhase]);
 
   const onMobileMove = useCallback(() => {
     if (hintPhase === 'step-back') setHintPhase('mouse');
@@ -1315,12 +1443,6 @@ const GalleryScreen = ({ fragmentId }: { fragmentId?: string }) => {
   const onMobileLook = useCallback(() => {
     if (hintPhase === 'mouse') setHintPhase('done');
   }, [hintPhase]);
-
-  useEffect(() => {
-    if (!isMobile || hintPhase !== 'mouse') return;
-    const timer = setTimeout(() => setHintPhase('done'), 3000);
-    return () => clearTimeout(timer);
-  }, [isMobile, hintPhase]);
 
   const hintBase =
     'font-pixel text-[color:var(--color-ink-faint)] text-sm tracking-[0.2em] select-none';
