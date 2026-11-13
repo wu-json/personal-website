@@ -21,6 +21,19 @@ const GalleryScreen = lazy(() =>
 
 type Mode = 'cover' | '2d' | '3d';
 
+type KeyboardLock = {
+  lock: (keys: string[]) => Promise<void>;
+  unlock: () => void;
+};
+
+const escapeLock =
+  typeof navigator === 'undefined'
+    ? undefined
+    : (navigator as Navigator & { keyboard?: Partial<KeyboardLock> }).keyboard
+          ?.lock
+      ? (navigator as Navigator & { keyboard: KeyboardLock }).keyboard
+      : undefined;
+
 const IDLE_BEFORE_ATTRACT_MS = 20000;
 const ATTRACT_INTERVAL_MS = 7000;
 
@@ -90,11 +103,30 @@ const ExhibitionScreen = ({ id, sub }: { id?: string; sub?: string }) => {
     typeof document !== 'undefined' && document.fullscreenEnabled;
 
   useEffect(() => {
-    const sync = () => setIsFullscreen(document.fullscreenElement !== null);
+    const sync = () => {
+      const active = document.fullscreenElement !== null;
+      setIsFullscreen(active);
+      if (active) escapeLock?.lock(['Escape']).catch(() => {});
+      else escapeLock?.unlock();
+    };
     sync();
     document.addEventListener('fullscreenchange', sync);
-    return () => document.removeEventListener('fullscreenchange', sync);
+    return () => {
+      document.removeEventListener('fullscreenchange', sync);
+      escapeLock?.unlock();
+    };
   }, []);
+
+  useEffect(() => {
+    if (!isFullscreen || !escapeLock) return;
+    const onEscape = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      if (document.pointerLockElement) document.exitPointerLock();
+      else setQrOpen(false);
+    };
+    window.addEventListener('keydown', onEscape);
+    return () => window.removeEventListener('keydown', onEscape);
+  }, [isFullscreen]);
   const browsingRef = useRef(false);
   browsingRef.current = mode === 'cover' && !qrOpen;
 
