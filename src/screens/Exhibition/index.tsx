@@ -13,6 +13,8 @@ import { FragmentDetail } from 'src/screens/Memories/FragmentDetail';
 import type { Fragment } from 'src/screens/Memories/types';
 import { Link, useLocation } from 'wouter';
 
+import { X_HANDLE, XLogo, XQrDialog } from './XQrDialog';
+
 const GalleryScreen = lazy(() =>
   import('src/screens/Gallery').then(m => ({ default: m.GalleryScreen })),
 );
@@ -82,8 +84,9 @@ const ExhibitionScreen = ({ id, sub }: { id?: string; sub?: string }) => {
   const [previewId, setPreviewId] = useState(fragments[0].id);
   const activeId = routed?.id ?? previewId;
   const setActiveId = setPreviewId;
-  const modeRef = useRef(mode);
-  modeRef.current = mode;
+  const [qrOpen, setQrOpen] = useState(false);
+  const browsingRef = useRef(false);
+  browsingRef.current = mode === 'cover' && !qrOpen;
 
   useEffect(() => {
     if (routed) setPreviewId(routed.id);
@@ -98,7 +101,7 @@ const ExhibitionScreen = ({ id, sub }: { id?: string; sub?: string }) => {
   const active = fragments[activeIndex];
 
   const step = useCallback((delta: number, reveal: boolean) => {
-    if (modeRef.current !== 'cover') return;
+    if (!browsingRef.current) return;
     setPreviewId(current => {
       const i = fragments.findIndex(f => f.id === current);
       const next =
@@ -129,7 +132,7 @@ const ExhibitionScreen = ({ id, sub }: { id?: string; sub?: string }) => {
     };
     const onKey = (e: KeyboardEvent) => {
       touch();
-      if (modeRef.current !== 'cover') return;
+      if (!browsingRef.current) return;
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
         e.preventDefault();
@@ -184,31 +187,25 @@ const ExhibitionScreen = ({ id, sub }: { id?: string; sub?: string }) => {
             href='https://linear.app'
             target='_blank'
             rel='noopener noreferrer'
-            className='contents transition-colors duration-300 hover:text-[var(--color-ink)]'
+            className='col-span-2 grid grid-cols-subgrid items-center transition-colors duration-300 hover:text-[var(--color-ink)]'
           >
             <LinearLogo className='mr-2 h-[0.8em] w-[0.8em]' />
             <span>Linear</span>
           </a>
           <p className='pr-4'>Member of Technical Staff</p>
-          <a
-            href='https://x.com/jasonwuink'
-            target='_blank'
-            rel='noopener noreferrer'
-            className='contents transition-colors duration-300 hover:text-[var(--color-ink)]'
+          <button
+            type='button'
+            onClick={() => setQrOpen(true)}
+            aria-haspopup='dialog'
+            className='col-span-2 grid cursor-pointer grid-cols-subgrid items-center text-left transition-colors duration-300 hover:text-[var(--color-ink)]'
           >
-            <svg
-              viewBox='0 0 24 24'
-              fill='currentColor'
-              role='img'
-              aria-label='X'
-              className='mr-2 h-[0.8em] w-[0.8em]'
-            >
-              <path d='M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z' />
-            </svg>
-            <span>@jasonwuink</span>
-          </a>
+            <XLogo className='mr-2 h-[0.8em] w-[0.8em]' />
+            <span>{X_HANDLE}</span>
+          </button>
         </div>
       </header>
+
+      <XQrDialog open={qrOpen} onClose={() => setQrOpen(false)} />
 
       <section
         aria-label={active.title}

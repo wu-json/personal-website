@@ -1418,6 +1418,24 @@ html {
   color: #fff;
 }
 
+.exhibition-dialog {
+  margin: auto;
+  padding: 0;
+  border: 1px solid var(--color-ink-trace);
+  background-color: var(--color-surface);
+  color: var(--color-ink);
+}
+
+.exhibition-dialog[open] {
+  animation: exhibition-caption-in 300ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.exhibition-dialog::backdrop {
+  background-color: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
 .exhibition-toggle {
   overflow: hidden;
   border: 1px solid var(--color-ink-trace);
