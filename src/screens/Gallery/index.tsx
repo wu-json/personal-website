@@ -166,6 +166,8 @@ const MAX_FRAME_DELTA = 0.1;
 const MAX_STEP = BOUNDARY_PADDING / 2;
 const MOVE_DEADZONE = 0.1;
 const MAX_ANISOTROPY = 8;
+const DESKTOP_DPR: [number, number] = [1, 2];
+const MOBILE_DPR: [number, number] = [1, 1.5];
 
 const useAnisotropy = () => {
   const gl = useThree(state => state.gl);
@@ -573,40 +575,18 @@ const Floor = ({
   );
 };
 
-const PartitionWall = ({
-  position,
-  size,
-  palette,
-}: {
-  position: [number, number, number];
-  size: [number, number, number];
-  palette: GalleryPalette;
-}) => {
-  const wallTex = useMemo(() => createWallTexture(palette), [palette]);
-  useEffect(() => () => wallTex.dispose(), [wallTex]);
-  return (
-    <mesh position={position}>
-      <boxGeometry args={size} />
-      <meshStandardMaterial map={wallTex} roughness={0.92} />
-    </mesh>
-  );
-};
-
 const Partitions = ({
   partitions,
-  palette,
+  material,
 }: {
   partitions: Partition[];
-  palette: GalleryPalette;
+  material: THREE.Material;
 }) => (
   <group>
     {partitions.map((p, i) => (
-      <PartitionWall
-        key={i}
-        position={p.position}
-        size={p.size}
-        palette={palette}
-      />
+      <mesh key={i} position={p.position} material={material}>
+        <boxGeometry args={p.size} />
+      </mesh>
     ))}
   </group>
 );
@@ -931,59 +911,9 @@ const Artworks = ({
   </group>
 );
 
-const MAX_SPOTLIGHTS = 16;
-
-const ArtSpotlight = ({
-  artPosition,
-  artRotation,
-  roomHeight,
-  palette,
-}: {
-  artPosition: [number, number, number];
-  artRotation: [number, number, number];
-  roomHeight: number;
-  palette: GalleryPalette;
-}) => {
-  const lightRef = useRef<THREE.SpotLight>(null);
-  const targetRef = useRef<THREE.Object3D>(null);
-  const connectedRef = useRef(false);
-
-  const ceilingY = roomHeight / 2 - 0.1;
-  const offset = 2.5;
-
-  const yRot = artRotation[1];
-  const lightPos: [number, number, number] = [
-    artPosition[0] + Math.sin(yRot) * offset,
-    ceilingY,
-    artPosition[2] + Math.cos(yRot) * offset,
-  ];
-
-  useFrame(() => {
-    if (connectedRef.current) return;
-    const l = lightRef.current;
-    const t = targetRef.current;
-    if (l && t) {
-      l.target = t;
-      connectedRef.current = true;
-    }
-  });
-
-  return (
-    <group>
-      <spotLight
-        ref={lightRef}
-        position={lightPos}
-        angle={0.5}
-        penumbra={0.7}
-        intensity={palette.spotIntensity}
-        distance={35}
-        decay={1}
-        color={palette.spotColor}
-      />
-      <object3D ref={targetRef} position={artPosition} />
-    </group>
-  );
-};
+const SPOTLIGHT_POOL_SIZE = 6;
+const SPOTLIGHT_FADE_DISTANCE = 4;
+const SPOTLIGHT_WALL_OFFSET = 2.5;
 
 const ArtLighting = ({
   pieces,
@@ -994,24 +924,69 @@ const ArtLighting = ({
   roomHeight: number;
   palette: GalleryPalette;
 }) => {
-  const selected = useMemo(() => {
-    if (pieces.length <= MAX_SPOTLIGHTS) return pieces;
-    const step = pieces.length / MAX_SPOTLIGHTS;
-    return Array.from(
-      { length: MAX_SPOTLIGHTS },
-      (_, i) => pieces[Math.floor(i * step)]!,
-    );
+  const camera = useThree(state => state.camera);
+  const lightRefs = useRef<Array<THREE.SpotLight | null>>([]);
+  const poolSize = Math.min(SPOTLIGHT_POOL_SIZE, pieces.length);
+  const ceilingY = roomHeight / 2 - 0.1;
+
+  const nearestFirst = useMemo(() => {
+    const distances = new Float32Array(pieces.length);
+    const order = pieces.map((_, i) => i);
+    const byDistance = (a: number, b: number) => distances[a]! - distances[b]!;
+    return { distances, order, byDistance };
   }, [pieces]);
+
+  useFrame(() => {
+    const { distances, order, byDistance } = nearestFirst;
+    for (let i = 0; i < pieces.length; i++) {
+      const [x, , z] = pieces[i]!.position;
+      distances[i] = Math.hypot(x - camera.position.x, z - camera.position.z);
+    }
+    order.sort(byDistance);
+
+    const nextOutside = order[poolSize];
+    const cutoff =
+      nextOutside === undefined ? Infinity : distances[nextOutside]!;
+
+    for (let slot = 0; slot < poolSize; slot++) {
+      const light = lightRefs.current[slot];
+      const pieceIndex = order[slot];
+      if (!light || pieceIndex === undefined) continue;
+
+      const piece = pieces[pieceIndex]!;
+      const [x, y, z] = piece.position;
+      const yRot = piece.rotation[1];
+      const fade = THREE.MathUtils.clamp(
+        (cutoff - distances[pieceIndex]!) / SPOTLIGHT_FADE_DISTANCE,
+        0,
+        1,
+      );
+
+      light.position.set(
+        x + Math.sin(yRot) * SPOTLIGHT_WALL_OFFSET,
+        ceilingY,
+        z + Math.cos(yRot) * SPOTLIGHT_WALL_OFFSET,
+      );
+      light.target.position.set(x, y, z);
+      light.target.updateMatrixWorld();
+      light.intensity = palette.spotIntensity * fade;
+    }
+  });
 
   return (
     <group>
-      {selected.map((piece, i) => (
-        <ArtSpotlight
-          key={i}
-          artPosition={piece.position}
-          artRotation={piece.rotation}
-          roomHeight={roomHeight}
-          palette={palette}
+      {Array.from({ length: poolSize }, (_, slot) => (
+        <spotLight
+          key={slot}
+          ref={light => {
+            lightRefs.current[slot] = light;
+          }}
+          angle={0.5}
+          penumbra={0.7}
+          intensity={0}
+          distance={35}
+          decay={1}
+          color={palette.spotColor}
         />
       ))}
     </group>
@@ -1047,7 +1022,12 @@ const Room = ({
   const halfD = roomDepth / 2;
   const wallTex = useMemo(() => createWallTexture(palette), [palette]);
   const ceilingTex = useMemo(() => createCeilingTexture(palette), [palette]);
+  const wallMaterial = useMemo(
+    () => new THREE.MeshStandardMaterial({ map: wallTex, roughness: 0.92 }),
+    [wallTex],
+  );
   useEffect(() => () => wallTex.dispose(), [wallTex]);
+  useEffect(() => () => wallMaterial.dispose(), [wallMaterial]);
   useEffect(() => () => ceilingTex.dispose(), [ceilingTex]);
 
   return (
@@ -1062,21 +1042,29 @@ const Room = ({
         <planeGeometry args={[roomWidth, roomDepth]} />
         <meshStandardMaterial map={ceilingTex} roughness={0.95} />
       </mesh>
-      <mesh position={[0, 0, -halfD]}>
+      <mesh position={[0, 0, -halfD]} material={wallMaterial}>
         <planeGeometry args={[roomWidth, roomHeight]} />
-        <meshStandardMaterial map={wallTex} roughness={0.92} />
       </mesh>
-      <mesh rotation={[0, Math.PI, 0]} position={[0, 0, halfD]}>
+      <mesh
+        rotation={[0, Math.PI, 0]}
+        position={[0, 0, halfD]}
+        material={wallMaterial}
+      >
         <planeGeometry args={[roomWidth, roomHeight]} />
-        <meshStandardMaterial map={wallTex} roughness={0.92} />
       </mesh>
-      <mesh rotation={[0, Math.PI / 2, 0]} position={[-halfW, 0, 0]}>
+      <mesh
+        rotation={[0, Math.PI / 2, 0]}
+        position={[-halfW, 0, 0]}
+        material={wallMaterial}
+      >
         <planeGeometry args={[roomDepth, roomHeight]} />
-        <meshStandardMaterial map={wallTex} roughness={0.92} />
       </mesh>
-      <mesh rotation={[0, -Math.PI / 2, 0]} position={[halfW, 0, 0]}>
+      <mesh
+        rotation={[0, -Math.PI / 2, 0]}
+        position={[halfW, 0, 0]}
+        material={wallMaterial}
+      >
         <planeGeometry args={[roomDepth, roomHeight]} />
-        <meshStandardMaterial map={wallTex} roughness={0.92} />
       </mesh>
       <ambientLight intensity={palette.ambientIntensity} />
       <hemisphereLight
@@ -1096,7 +1084,7 @@ const Room = ({
           color={palette.fillColor}
         />
       ))}
-      <Partitions partitions={partitions} palette={palette} />
+      <Partitions partitions={partitions} material={wallMaterial} />
       <Artworks pieces={artPieces} palette={palette} />
       <ArtLighting
         pieces={artPieces}
@@ -1117,6 +1105,11 @@ const Room = ({
     </group>
   );
 };
+
+const WORLD_UP = new THREE.Vector3(0, 1, 0);
+const moveDirection = new THREE.Vector3();
+const moveForward = new THREE.Vector3();
+const moveRight = new THREE.Vector3();
 
 const Movement = ({
   roomWidth,
@@ -1178,14 +1171,14 @@ const Movement = ({
       }
     }
 
-    const direction = new THREE.Vector3();
-    const forward = new THREE.Vector3();
-    const right = new THREE.Vector3();
+    const direction = moveDirection.set(0, 0, 0);
+    const forward = moveForward;
+    const right = moveRight;
 
     camera.getWorldDirection(forward);
     forward.y = 0;
     forward.normalize();
-    right.crossVectors(forward, new THREE.Vector3(0, 1, 0)).normalize();
+    right.crossVectors(forward, WORLD_UP).normalize();
 
     const pressed = keys.current;
     if (pressed.has('KeyW') || pressed.has('ArrowUp')) direction.add(forward);
@@ -1345,6 +1338,7 @@ const GalleryScreen = ({ fragmentId }: { fragmentId?: string }) => {
       >
         <Canvas
           camera={{ position: layout.spawnPosition, fov: 75 }}
+          dpr={isMobile ? MOBILE_DPR : DESKTOP_DPR}
           onCreated={onCreated}
         >
           <Room
