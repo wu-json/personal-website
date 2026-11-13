@@ -24,6 +24,26 @@ const groupedImages = (count: number): ImageSpec[] =>
     groupLayout: i % 10 < 5 ? 'row' : 'column',
   }));
 
+const wideRowGroup = (members: number): ImageSpec[] =>
+  Array.from({ length: members }, (_, i) => ({
+    id: `img-2-${i}`,
+    orientation: 'landscape',
+    aspectRatio: 1.5,
+    groupId: 'group-2',
+    groupLayout: 'row',
+  }));
+
+const spawnIsBlocked = (layout: GalleryLayout) => {
+  const [x, , z] = layout.spawnPosition;
+  return layout.colliders.some(
+    box =>
+      x + PLAYER_RADIUS > box.minX &&
+      x - PLAYER_RADIUS < box.maxX &&
+      z + PLAYER_RADIUS > box.minZ &&
+      z - PLAYER_RADIUS < box.maxZ,
+  );
+};
+
 const placementCount = (images: ImageSpec[]) =>
   images.filter(image => !image.groupId).length +
   new Set(images.flatMap(image => image.groupId ?? [])).size;
@@ -109,20 +129,29 @@ describe('generateGalleryLayout', () => {
       const layout = generateGalleryLayout(soloImages(count));
       expect([count, unreachablePieces(layout).length]).toEqual([count, 0]);
     }
+    for (let count = 1; count <= 80; count++) {
+      const layout = generateGalleryLayout(groupedImages(count));
+      expect([count, unreachablePieces(layout).length]).toEqual([count, 0]);
+    }
   });
 
   it('never spawns the player inside a collider', () => {
     for (let count = 1; count <= 150; count++) {
       const layout = generateGalleryLayout(soloImages(count));
-      const [x, , z] = layout.spawnPosition;
-      const blocked = layout.colliders.some(
-        box =>
-          x + PLAYER_RADIUS > box.minX &&
-          x - PLAYER_RADIUS < box.maxX &&
-          z + PLAYER_RADIUS > box.minZ &&
-          z - PLAYER_RADIUS < box.maxZ,
-      );
-      expect([count, blocked]).toEqual([count, false]);
+      expect([count, spawnIsBlocked(layout)]).toEqual([count, false]);
+    }
+    for (let count = 1; count <= 80; count++) {
+      const layout = generateGalleryLayout(groupedImages(count));
+      expect([count, spawnIsBlocked(layout)]).toEqual([count, false]);
+    }
+  });
+
+  it('fits a group wider than the initial room without blocking spawn', () => {
+    for (let members = 2; members <= 6; members++) {
+      const layout = generateGalleryLayout(wideRowGroup(members));
+      expect([members, layout.artPieces.length]).toEqual([members, 1]);
+      expect([members, spawnIsBlocked(layout)]).toEqual([members, false]);
+      expect([members, unreachablePieces(layout).length]).toEqual([members, 0]);
     }
   });
 });

@@ -87,6 +87,7 @@ const BENCH_MIN_ROOM_SIZE = 50;
 const BENCH_HALF_WIDTH = 3;
 const BENCH_HALF_DEPTH = 0.9;
 const BENCH_CLEARANCE = 3;
+const SPAWN_CLEARANCE = 1.5;
 
 const computeRoomHeight = (roomSize: number): number => {
   const h = Math.max(10, Math.min(16, 10 + ((roomSize - 20) * 6) / 40));
@@ -145,27 +146,24 @@ const computeArtSize = (spec: ImageSpec): { width: number; height: number } => {
   return { width: height * aspect, height };
 };
 
-const computeRoomSize = (
-  images: ImageSpec[],
-): { roomSize: number; partitionCount: number } => {
-  const artSizes = images.map(computeArtSize);
-  const totalDemand = artSizes.reduce(
-    (sum, a) => sum + a.width + ART_PADDING,
-    0,
-  );
-  const targetSupply = totalDemand * 1.1;
+const computeWallDemand = (images: ImageSpec[]): number =>
+  images.map(computeArtSize).reduce((sum, a) => sum + a.width + ART_PADDING, 0);
 
-  let roomSize = Math.max(20, Math.ceil(Math.sqrt(totalDemand * 12)));
+const computeInitialRoomSize = (wallDemand: number): number => {
+  let roomSize = Math.max(20, Math.ceil(Math.sqrt(wallDemand * 12)));
   if (roomSize % 2 !== 0) roomSize++;
-  roomSize = Math.min(INITIAL_MAX_ROOM_SIZE, roomSize);
+  return Math.min(INITIAL_MAX_ROOM_SIZE, roomSize);
+};
 
+const computePartitionCount = (
+  roomSize: number,
+  wallDemand: number,
+): number => {
+  const targetSupply = wallDemand * 1.1;
   const perimeterSupply = 2 * roomSize + roomSize - 3 * CORNER_MARGIN * 2;
   const deficit = targetSupply - perimeterSupply;
   const surfacePerPartition = roomSize * 0.4;
-  const partitionCount =
-    deficit > 0 ? Math.ceil(deficit / surfacePerPartition) : 0;
-
-  return { roomSize, partitionCount };
+  return deficit > 0 ? Math.ceil(deficit / surfacePerPartition) : 0;
 };
 
 const generatePartitions = (
@@ -947,11 +945,20 @@ const countPlacementItems = (images: ImageSpec[]): number => {
   return solos + groupIds.size;
 };
 
+type Arrangement = {
+  roomSize: number;
+  roomHeight: number;
+  partitions: Partition[];
+  artPieces: ArtPiece[];
+  spawnZ: number;
+  spawnIsClear: boolean;
+};
+
 const arrangeRoom = (
   images: ImageSpec[],
   roomSize: number,
   partitionCount: number,
-): { roomHeight: number; partitions: Partition[]; artPieces: ArtPiece[] } => {
+): Arrangement => {
   const roomHeight = computeRoomHeight(roomSize);
   const partitions = generatePartitions(
     partitionCount,
@@ -963,22 +970,60 @@ const arrangeRoom = (
     ...buildPerimeterSegments(roomSize, roomSize, partitions),
     ...buildPartitionSegments(partitions),
   ];
-  return { roomHeight, partitions, artPieces: distributeArt(images, segments) };
+  const halfD = roomSize / 2;
+  const spawnZ = halfD - Math.min(10, halfD * 0.65);
+  const spawnIsClear = !partitionColliders(partitions).some(
+    box =>
+      WELCOME_CENTER_X + SPAWN_CLEARANCE > box.minX &&
+      WELCOME_CENTER_X - SPAWN_CLEARANCE < box.maxX &&
+      spawnZ + SPAWN_CLEARANCE > box.minZ &&
+      spawnZ - SPAWN_CLEARANCE < box.maxZ,
+  );
+  return {
+    roomSize,
+    roomHeight,
+    partitions,
+    artPieces: distributeArt(images, segments),
+    spawnZ,
+    spawnIsClear,
+  };
+};
+
+const isBetterArrangement = (candidate: Arrangement, best: Arrangement) => {
+  if (candidate.spawnIsClear !== best.spawnIsClear) {
+    return candidate.spawnIsClear;
+  }
+  return candidate.artPieces.length > best.artPieces.length;
+};
+
+const findArrangement = (images: ImageSpec[]): Arrangement => {
+  const itemCount = countPlacementItems(images);
+  const wallDemand = computeWallDemand(images);
+  const initialRoomSize = computeInitialRoomSize(wallDemand);
+  let best: Arrangement | null = null;
+
+  for (
+    let roomSize = initialRoomSize;
+    roomSize <= Math.max(initialRoomSize, MAX_ROOM_SIZE);
+    roomSize += ROOM_GROWTH_STEP
+  ) {
+    const minPartitions = computePartitionCount(roomSize, wallDemand);
+    const maxPartitions = Math.max(minPartitions, MAX_PARTITION_COUNT);
+    for (let count = minPartitions; count <= maxPartitions; count++) {
+      const candidate = arrangeRoom(images, roomSize, count);
+      if (candidate.spawnIsClear && candidate.artPieces.length === itemCount) {
+        return candidate;
+      }
+      if (!best || isBetterArrangement(candidate, best)) best = candidate;
+    }
+  }
+
+  return best!;
 };
 
 export const generateGalleryLayout = (images: ImageSpec[]): GalleryLayout => {
-  const itemCount = countPlacementItems(images);
-  let { roomSize, partitionCount } = computeRoomSize(images);
-  let arrangement = arrangeRoom(images, roomSize, partitionCount);
-
-  while (arrangement.artPieces.length < itemCount) {
-    if (partitionCount < MAX_PARTITION_COUNT) partitionCount++;
-    else if (roomSize < MAX_ROOM_SIZE) roomSize += ROOM_GROWTH_STEP;
-    else break;
-    arrangement = arrangeRoom(images, roomSize, partitionCount);
-  }
-
-  const { roomHeight, partitions, artPieces } = arrangement;
+  const { roomSize, roomHeight, partitions, artPieces, spawnZ } =
+    findArrangement(images);
   const roomWidth = roomSize;
   const roomDepth = roomSize;
   const halfW = roomWidth / 2;
@@ -986,8 +1031,6 @@ export const generateGalleryLayout = (images: ImageSpec[]): GalleryLayout => {
   const halfH = roomHeight / 2;
 
   const colliders = partitionColliders(partitions);
-
-  const spawnZ = halfD - Math.min(10, halfD * 0.65);
 
   const benchPositions: Array<[number, number, number]> = [];
   const benchSpot =
