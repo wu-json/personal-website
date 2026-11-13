@@ -6,8 +6,10 @@ import { Link } from 'wouter';
 
 import { X_HANDLE, XLogo, XQrDialog } from './XQrDialog';
 
+const loadGallery = () => import('src/screens/Gallery');
+
 const GalleryScreen = lazy(() =>
-  import('src/screens/Gallery').then(m => ({ default: m.GalleryScreen })),
+  loadGallery().then(m => ({ default: m.GalleryScreen })),
 );
 
 type Mode = '2d' | '3d';
@@ -55,6 +57,18 @@ const ExhibitionScreen = ({ id, sub }: { id?: string; sub?: string }) => {
   useEffect(() => {
     if (mode === '3d') setGalleryId(active.id);
   }, [mode, active.id]);
+
+  useEffect(() => {
+    const warm = () => {
+      loadGallery().catch(() => {});
+    };
+    if (typeof window.requestIdleCallback !== 'function') {
+      const timer = window.setTimeout(warm, 1500);
+      return () => window.clearTimeout(timer);
+    }
+    const handle = window.requestIdleCallback(warm, { timeout: 4000 });
+    return () => window.cancelIdleCallback(handle);
+  }, []);
 
   useEffect(() => {
     const previous = document.title;
@@ -187,7 +201,10 @@ const ExhibitionScreen = ({ id, sub }: { id?: string; sub?: string }) => {
         {!photo && (
           <div className='pointer-events-none absolute inset-x-0 top-0 z-20 px-6 pt-8 sm:px-8 lg:pt-10'>
             <div className='flex h-9 items-center justify-between gap-3 sm:h-12'>
-              <div className='exhibition-toggle pointer-events-auto flex font-pixel text-xs uppercase tracking-[0.2em]'>
+              <div
+                data-mode={mode}
+                className='exhibition-switch pointer-events-auto font-pixel text-xs uppercase tracking-[0.2em]'
+              >
                 <Link
                   to={albumPath(active.id)}
                   data-active={mode === '2d'}

@@ -1,4 +1,4 @@
-import { PointerLockControls } from '@react-three/drei';
+import { PointerLockControls } from '@react-three/drei/core/PointerLockControls';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import {
   type RefObject,
@@ -168,6 +168,7 @@ const MOVE_DEADZONE = 0.1;
 const MAX_ANISOTROPY = 8;
 const DESKTOP_DPR: [number, number] = [1, 2];
 const MOBILE_DPR: [number, number] = [1, 1.5];
+const EMBEDDED_DPR: [number, number] = [1, 1.5];
 
 const WOOD_PLANK_HEIGHT = 80;
 const WOOD_PLANK_ROWS = 13;
@@ -1453,9 +1454,9 @@ const GalleryScreen = ({
   }, [hintPhase]);
 
   const hintBase =
-    'font-pixel text-[color:var(--color-ink-faint)] text-sm tracking-[0.2em] select-none';
+    'flex items-center justify-center font-pixel text-[color:var(--color-ink)] text-sm sm:text-xl tracking-[0.2em] text-center select-none';
   const hintSub =
-    'font-pixel text-[color:var(--color-ink-ghost)] text-xs sm:text-[10px] tracking-[0.15em] select-none mt-2';
+    'font-pixel text-[color:var(--color-ink-muted)] text-xs tracking-[0.15em] select-none mt-3';
 
   return (
     <div
@@ -1468,7 +1469,7 @@ const GalleryScreen = ({
       >
         <Canvas
           camera={{ position: layout.spawnPosition, fov: 75 }}
-          dpr={isMobile ? MOBILE_DPR : DESKTOP_DPR}
+          dpr={isMobile ? MOBILE_DPR : embedded ? EMBEDDED_DPR : DESKTOP_DPR}
           onCreated={onCreated}
           frameloop={active ? 'always' : 'never'}
         >
@@ -1509,41 +1510,54 @@ const GalleryScreen = ({
       {!isMobile && ready && hintPhase !== 'done' && (
         <div
           key={hintPhase}
-          className='absolute inset-x-0 bottom-10 z-[5] flex flex-col items-center pointer-events-none animate-[gallery-hint-in_0.5s_ease-out_both]'
+          className='absolute inset-x-0 bottom-12 z-[5] flex justify-center px-4 pointer-events-none animate-[gallery-hint-in_0.5s_ease-out_both]'
         >
-          {hintPhase === 'step-back' && (
-            <>
-              <p className={hintBase}>PRESS "S" — TAKE A STEP BACK</p>
-              <p className={hintSub}>WASD — MOVE</p>
-            </>
-          )}
-          {hintPhase === 'click' && (
-            <>
-              <p className={hintBase}>CLICK — EXPLORE</p>
-              <p className={hintSub}>MOUSE LOOK · ESC EXIT</p>
-            </>
-          )}
-          {hintPhase === 'mouse' && (
-            <p className={hintBase}>MOVE MOUSE — TURN AROUND</p>
-          )}
+          <div className='gallery-hint'>
+            {hintPhase === 'step-back' && (
+              <>
+                <p className={hintBase}>
+                  <kbd className='gallery-key'>S</kbd>
+                  TAKE A STEP BACK
+                </p>
+                <p className={hintSub}>WASD — MOVE</p>
+              </>
+            )}
+            {hintPhase === 'click' && (
+              <>
+                <p className={hintBase}>
+                  <kbd className='gallery-key'>CLICK</kbd>
+                  EXPLORE
+                </p>
+                <p className={hintSub}>MOUSE LOOK · ESC EXIT</p>
+              </>
+            )}
+            {hintPhase === 'mouse' && (
+              <p className={hintBase}>
+                <kbd className='gallery-key'>MOVE MOUSE</kbd>
+                TURN AROUND
+              </p>
+            )}
+          </div>
         </div>
       )}
       {isMobile && ready && hintPhase !== 'done' && hintPhase !== 'click' && (
         <div
           key={hintPhase}
-          className='absolute inset-x-0 bottom-36 z-[5] flex flex-col items-center pointer-events-none animate-[gallery-hint-in_0.5s_ease-out_both]'
+          className='absolute inset-x-0 bottom-36 z-[5] flex justify-center px-4 pointer-events-none animate-[gallery-hint-in_0.5s_ease-out_both]'
         >
-          {hintPhase === 'step-back' && (
-            <p className={hintBase}>PULL JOYSTICK DOWN — STEP BACK</p>
-          )}
-          {hintPhase === 'mouse' && (
-            <div className='flex flex-col items-center gap-3'>
-              <p className={hintBase}>SWIPE RIGHT SIDE — TURN AROUND</p>
-              <span className='text-[color:var(--color-ink-faint)] text-2xl animate-[gallery-swipe_1.2s_ease-in-out_infinite] select-none'>
-                →
-              </span>
-            </div>
-          )}
+          <div className='gallery-hint'>
+            {hintPhase === 'step-back' && (
+              <p className={hintBase}>PULL JOYSTICK DOWN — STEP BACK</p>
+            )}
+            {hintPhase === 'mouse' && (
+              <div className='flex flex-col items-center gap-3'>
+                <p className={hintBase}>SWIPE RIGHT SIDE — TURN AROUND</p>
+                <span className='text-[color:var(--color-ink)] text-2xl animate-[gallery-swipe_1.2s_ease-in-out_infinite] select-none'>
+                  →
+                </span>
+              </div>
+            )}
+          </div>
         </div>
       )}
       {isMobile && (

@@ -23,10 +23,24 @@ export default defineConfig({
     rssPlugin(),
     ogPlugin(),
   ],
+  optimizeDeps: {
+    include: [
+      'three',
+      '@react-three/fiber',
+      '@react-three/drei/core/PointerLockControls',
+    ],
+  },
   server: {
     open: true,
     port: 3000,
     allowedHosts: ['.trycloudflare.com'],
+    warmup: {
+      clientFiles: [
+        './src/index.tsx',
+        './src/screens/Exhibition/index.tsx',
+        './src/screens/Gallery/index.tsx',
+      ],
+    },
   },
   resolve: { alias: { src: path.resolve(import.meta.dirname, './src') } },
 });
