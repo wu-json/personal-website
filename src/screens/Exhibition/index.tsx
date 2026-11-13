@@ -204,38 +204,9 @@ const ExhibitionScreen = ({ id, sub }: { id?: string; sub?: string }) => {
   return (
     <div className='exhibition fixed inset-0 z-50 overflow-y-auto lg:overflow-hidden lg:grid lg:grid-cols-[minmax(20rem,26rem)_1fr] lg:grid-rows-[auto_minmax(0,1fr)]'>
       <header className='px-6 pt-8 pb-6 sm:px-8 lg:col-start-1 lg:row-start-1 lg:pt-10'>
-        <div className='flex items-start justify-between gap-4'>
-          <h1 className='bio-glitch font-pixel text-4xl uppercase leading-none tracking-wide text-[var(--color-ink)] sm:text-5xl'>
-            Memories
-          </h1>
-          {canFullscreen && (
-            <button
-              type='button'
-              onClick={toggleFullscreen}
-              aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
-              aria-pressed={isFullscreen}
-              title={isFullscreen ? 'Exit fullscreen (F)' : 'Fullscreen (F)'}
-              className='bio-glitch -mr-1.5 -mt-1 flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center text-[var(--color-ink-ghost)] outline-none transition-colors duration-300 hover:text-[var(--color-ink)] focus-visible:text-[var(--color-ink)]'
-            >
-              <svg
-                viewBox='0 0 14 14'
-                fill='none'
-                stroke='currentColor'
-                strokeWidth='1.25'
-                aria-hidden='true'
-                className='h-3.5 w-3.5'
-              >
-                <path
-                  d={
-                    isFullscreen
-                      ? 'M5 1v4H1M9 1v4h4M5 13V9H1M9 13V9h4'
-                      : 'M1 5V1h4M13 5V1H9M1 9v4h4M13 9v4H9'
-                  }
-                />
-              </svg>
-            </button>
-          )}
-        </div>
+        <h1 className='bio-glitch font-pixel text-4xl uppercase leading-none tracking-wide text-[var(--color-ink)] sm:text-5xl'>
+          Memories
+        </h1>
         <div className='bio-glitch mt-7 grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-y-2 border-t border-[var(--color-ink-trace)] pt-5 font-pixel text-sm tracking-wide text-[var(--color-ink-muted)]'>
           <p className='pr-4 text-lg leading-none text-[var(--color-ink)]'>
             Jason Wu
@@ -337,6 +308,33 @@ const ExhibitionScreen = ({ id, sub }: { id?: string; sub?: string }) => {
               <span>Close ×</span>
             </Link>
           </div>
+        )}
+        {canFullscreen && !photo && (
+          <button
+            type='button'
+            onClick={toggleFullscreen}
+            aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+            aria-pressed={isFullscreen}
+            title={isFullscreen ? 'Exit fullscreen (F)' : 'Fullscreen (F)'}
+            className='exhibition-toggle absolute right-4 bottom-4 z-20 flex h-9 w-9 cursor-pointer items-center justify-center outline-none transition-colors duration-300 hover:text-[var(--color-ink)] focus-visible:text-[var(--color-ink)] sm:right-5 sm:bottom-5'
+          >
+            <svg
+              viewBox='0 0 14 14'
+              fill='none'
+              stroke='currentColor'
+              strokeWidth='1.25'
+              aria-hidden='true'
+              className='h-3.5 w-3.5'
+            >
+              <path
+                d={
+                  isFullscreen
+                    ? 'M5 1v4H1M9 1v4h4M5 13V9H1M9 13V9h4'
+                    : 'M1 5V1h4M13 5V1H9M1 9v4h4M13 9v4H9'
+                }
+              />
+            </svg>
+          </button>
         )}
       </section>
 
