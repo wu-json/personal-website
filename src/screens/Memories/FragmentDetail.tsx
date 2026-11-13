@@ -349,7 +349,9 @@ const FragmentDetail = ({
 
   return (
     <div className={`w-full min-h-screen bg-black ${inset}`}>
-      <div className='max-w-4xl mx-auto px-6 py-16 pb-32'>
+      <div
+        className={`py-16 pb-32 ${exhibition ? 'px-4 sm:px-5' : 'max-w-4xl mx-auto px-6'}`}
+      >
         {!exhibition && (
           <Link
             to={backTo}
