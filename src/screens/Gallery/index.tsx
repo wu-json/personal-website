@@ -162,6 +162,42 @@ const STAND_HEIGHT = 0;
 const CROUCH_HEIGHT = -2.5;
 const CROUCH_LERP = 8;
 const BOUNDARY_PADDING = 0.5;
+const MAX_FRAME_DELTA = 0.1;
+const MAX_STEP = BOUNDARY_PADDING / 2;
+
+const overlapsBox = (x: number, z: number, box: AABB, r: number) =>
+  x + r > box.minX && x - r < box.maxX && z + r > box.minZ && z - r < box.maxZ;
+
+const moveWithCollisions = (
+  pos: THREE.Vector3,
+  dx: number,
+  dz: number,
+  colliders: AABB[],
+) => {
+  const r = BOUNDARY_PADDING;
+  const steps = Math.max(1, Math.ceil(Math.hypot(dx, dz) / MAX_STEP));
+  const sx = dx / steps;
+  const sz = dz / steps;
+
+  for (let i = 0; i < steps; i++) {
+    if (sx !== 0) {
+      pos.x += sx;
+      for (const box of colliders) {
+        if (overlapsBox(pos.x, pos.z, box, r)) {
+          pos.x = sx > 0 ? box.minX - r : box.maxX + r;
+        }
+      }
+    }
+    if (sz !== 0) {
+      pos.z += sz;
+      for (const box of colliders) {
+        if (overlapsBox(pos.x, pos.z, box, r)) {
+          pos.z = sz > 0 ? box.minZ - r : box.maxZ + r;
+        }
+      }
+    }
+  }
+};
 
 const createWoodTexture = (palette: GalleryPalette) => {
   const canvas = document.createElement('canvas');
@@ -1130,6 +1166,8 @@ const Movement = ({
 
     const crouching = pressed.has('ControlLeft') || pressed.has('ControlRight');
 
+    const dt = Math.min(delta, MAX_FRAME_DELTA);
+
     if (direction.lengthSq() > 0) {
       direction.normalize();
       const speed = crouching
@@ -1137,7 +1175,12 @@ const Movement = ({
         : pressed.has('ShiftLeft') || pressed.has('ShiftRight')
           ? RUN_SPEED
           : MOVE_SPEED;
-      camera.position.addScaledVector(direction, speed * delta);
+      moveWithCollisions(
+        camera.position,
+        direction.x * speed * dt,
+        direction.z * speed * dt,
+        colliders,
+      );
     }
 
     const targetY =
@@ -1145,37 +1188,14 @@ const Movement = ({
     const baseY = THREE.MathUtils.lerp(
       camera.position.y > 0.01 ? STAND_HEIGHT : camera.position.y,
       targetY,
-      1 - Math.exp(-CROUCH_LERP * delta),
+      1 - Math.exp(-CROUCH_LERP * dt),
     );
 
-    velocityY.current -= GRAVITY * delta;
-    camera.position.y += velocityY.current * delta;
+    velocityY.current -= GRAVITY * dt;
+    camera.position.y += velocityY.current * dt;
     if (camera.position.y <= baseY) {
       camera.position.y = baseY;
       velocityY.current = 0;
-    }
-
-    const r = BOUNDARY_PADDING;
-    for (const box of colliders) {
-      const overlapX = Math.min(
-        camera.position.x + r - box.minX,
-        box.maxX - (camera.position.x - r),
-      );
-      const overlapZ = Math.min(
-        camera.position.z + r - box.minZ,
-        box.maxZ - (camera.position.z - r),
-      );
-      if (overlapX > 0 && overlapZ > 0) {
-        if (overlapX < overlapZ) {
-          const centerX = (box.minX + box.maxX) / 2;
-          camera.position.x +=
-            camera.position.x < centerX ? -overlapX : overlapX;
-        } else {
-          const centerZ = (box.minZ + box.maxZ) / 2;
-          camera.position.z +=
-            camera.position.z < centerZ ? -overlapZ : overlapZ;
-        }
-      }
     }
 
     const halfW = roomWidth / 2 - BOUNDARY_PADDING;
