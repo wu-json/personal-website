@@ -1367,7 +1367,15 @@ const Movement = ({
 
 type HintPhase = 'step-back' | 'click' | 'mouse' | 'done';
 
-const GalleryScreen = ({ fragmentId }: { fragmentId?: string }) => {
+const GalleryScreen = ({
+  fragmentId,
+  exitHref,
+  exitLabel = 'EXIT GALLERY',
+}: {
+  fragmentId?: string;
+  exitHref?: string;
+  exitLabel?: string;
+}) => {
   const { theme } = useTheme();
   const palette = useMemo(() => getPalette(theme), [theme]);
   const [locked, setLocked] = useState(false);
@@ -1487,10 +1495,10 @@ const GalleryScreen = ({ fragmentId }: { fragmentId?: string }) => {
       </div>
       {!locked && (
         <a
-          href={fragment ? `/memories/${fragment.id}` : '/'}
+          href={exitHref ?? (fragment ? `/memories/${fragment.id}` : '/')}
           className='absolute top-6 left-6 z-10 font-pixel text-[color:var(--color-ink-ghost)] text-xs tracking-[0.2em] pointer-events-auto hover:text-[color:var(--color-ink-muted)] transition-colors'
         >
-          ← EXIT GALLERY
+          ← {exitLabel}
         </a>
       )}
       {!isMobile && ready && hintPhase !== 'done' && (

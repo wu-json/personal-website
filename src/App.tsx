@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react';
 import { RootLayout } from 'src/layouts/RootLayout';
 import { ConstructsScreen } from 'src/screens/Constructs';
 import { ConstructDetail } from 'src/screens/Constructs/ConstructDetail';
+import { ExhibitionScreen } from 'src/screens/Exhibition';
 import { HeroesScreen } from 'src/screens/Heroes';
 import { HeroDetail } from 'src/screens/Heroes/HeroDetail';
 import { HomeScreen } from 'src/screens/Home';
@@ -23,6 +24,25 @@ const App = () => (
         <Suspense fallback={null}>
           <GalleryScreen fragmentId={params.fragmentId} />
         </Suspense>
+      )}
+    </Route>
+    <Route path='/exhibition' component={ExhibitionScreen} />
+    <Route path='/exhibition/:id/3d'>
+      {params => (
+        <Suspense fallback={null}>
+          <GalleryScreen
+            fragmentId={params.id}
+            exitHref={`/exhibition?room=${params.id}`}
+            exitLabel='EXHIBITION'
+          />
+        </Suspense>
+      )}
+    </Route>
+    <Route path='/exhibition/:id/:photo?'>
+      {params => (
+        <div className='h-full w-full overflow-y-auto'>
+          <FragmentDetail id={params.id} photo={params.photo} exhibition />
+        </div>
       )}
     </Route>
     {import.meta.env.DEV && (

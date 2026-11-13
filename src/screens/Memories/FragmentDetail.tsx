@@ -79,8 +79,23 @@ function filesFromGridItem(item: GridItem): string[] {
     : item.photos.map(p => p.file);
 }
 
-const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
+const FragmentDetail = ({
+  id,
+  photo,
+  exhibition = false,
+}: {
+  id: string;
+  photo?: string;
+  exhibition?: boolean;
+}) => {
   const [, navigate] = useLocation();
+  const root = exhibition ? '/exhibition' : '/memories';
+  const backTo = exhibition ? `/exhibition?room=${id}` : '/memories';
+  const backLabel = exhibition
+    ? '< return to exhibition'
+    : '< return to memories';
+  const galleryTo = exhibition ? `/exhibition/${id}/3d` : `/gallery/${id}`;
+  const inset = exhibition ? '' : 'md:pr-40';
   const jitter = useJitter();
   const fragment = fragments.find(f => f.id === id);
 
@@ -136,15 +151,17 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
   const navigateToGridItem = (gi: number) => {
     const item = gridItems[gi];
     if (item.kind === 'group') {
-      navigate(`/memories/${id}/${item.groupId}`, { replace: true });
+      navigate(`${root}/${id}/${item.groupId}`, { replace: true });
     } else {
-      navigate(`/memories/${id}/${item.photo.file}`, { replace: true });
+      navigate(`${root}/${id}/${item.photo.file}`, { replace: true });
     }
   };
 
   if (!fragment) {
     return (
-      <div className='w-full min-h-screen bg-black flex items-center justify-center md:pr-40'>
+      <div
+        className={`w-full min-h-screen bg-black flex items-center justify-center ${inset}`}
+      >
         <div className='flex flex-col items-center gap-3'>
           <h1 className='bio-glitch text-white text-2xl font-pixel'>
             FRAGMENT LOST
@@ -153,10 +170,10 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
             {'// memory not found in archive'}
           </p>
           <Link
-            to='/memories'
+            to={backTo}
             className='mt-4 text-white/30 text-xs sm:text-[10px] font-mono uppercase tracking-widest hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)] transition-all duration-300'
           >
-            {'< return to memories'}
+            {backLabel}
           </Link>
         </div>
       </div>
@@ -192,8 +209,7 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
       layout: item.layout,
       caption: item.caption,
       counter,
-      onPhotoClick: p =>
-        navigate(`/memories/${id}/${p.file}`, { replace: true }),
+      onPhotoClick: p => navigate(`${root}/${id}/${p.file}`, { replace: true }),
     };
   };
 
@@ -224,7 +240,7 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
           prev={prev}
           current={current}
           next={next}
-          onClose={() => navigate(`/memories/${id}`, { replace: true })}
+          onClose={() => navigate(`${root}/${id}`, { replace: true })}
           onPrev={
             wraps ? () => navigateToGridItem((gridIndex - 1 + N) % N) : null
           }
@@ -280,16 +296,16 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
           current={current}
           next={next}
           onClose={() =>
-            navigate(`/memories/${id}/${fromGroup}`, { replace: true })
+            navigate(`${root}/${id}/${fromGroup}`, { replace: true })
           }
           onPrev={
             prevFile
-              ? () => navigate(`/memories/${id}/${prevFile}`, { replace: true })
+              ? () => navigate(`${root}/${id}/${prevFile}`, { replace: true })
               : null
           }
           onNext={
             nextFile
-              ? () => navigate(`/memories/${id}/${nextFile}`, { replace: true })
+              ? () => navigate(`${root}/${id}/${nextFile}`, { replace: true })
               : null
           }
           preloadFiles={[...preload, ...gridPreloadFiles]}
@@ -321,7 +337,7 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
           prev={prev}
           current={current}
           next={next}
-          onClose={() => navigate(`/memories/${id}`, { replace: true })}
+          onClose={() => navigate(`${root}/${id}`, { replace: true })}
           onPrev={
             wraps ? () => navigateToGridItem((gridIndex - 1 + N) % N) : null
           }
@@ -333,14 +349,14 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
   }
 
   return (
-    <div className='w-full min-h-screen bg-black md:pr-40'>
+    <div className={`w-full min-h-screen bg-black ${inset}`}>
       <div className='max-w-4xl mx-auto px-6 py-16 pb-32'>
         <Link
-          to='/memories'
+          to={backTo}
           className='bio-glitch inline-block mb-8 text-white/30 text-xs sm:text-[10px] font-mono uppercase tracking-widest hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)] transition-all duration-300'
           style={jitter()}
         >
-          {'< return to memories'}
+          {backLabel}
         </Link>
 
         <header className='mb-8 border-b border-white/5 pb-6'>
@@ -365,11 +381,13 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
             </span>
           </div>
           <Link
-            to={`/gallery/${fragment.id}`}
+            to={galleryTo}
             className='bio-glitch text-white/30 text-xs sm:text-[10px] font-mono uppercase tracking-widest hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)] transition-all duration-300 mt-3 inline-block'
             style={jitter()}
           >
-            {'> view in interactive gallery'}
+            {exhibition
+              ? '> enter the 3d gallery'
+              : '> view in interactive gallery'}
           </Link>
         </header>
 
@@ -410,7 +428,7 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
                     fetchPriority={i < 2 ? 'high' : undefined}
                     className='rounded-sm'
                     onClick={() =>
-                      navigate(`/memories/${id}/${p.file}`, { replace: true })
+                      navigate(`${root}/${id}/${p.file}`, { replace: true })
                     }
                   />
                 </div>
@@ -430,7 +448,7 @@ const FragmentDetail = ({ id, photo }: { id: string; photo?: string }) => {
               : base.wrapper;
             const itemCls = shouldStack ? 'sm:flex-1 sm:min-w-0' : base.item;
             const openGroup = () =>
-              navigate(`/memories/${id}/${item.groupId}`, {
+              navigate(`${root}/${id}/${item.groupId}`, {
                 replace: true,
               });
             return (
