@@ -163,37 +163,53 @@ const ExhibitionScreen = ({ id, sub }: { id?: string; sub?: string }) => {
         )}
 
         {mode === '2d' && (
-          <div className='absolute inset-0 [transform:translateZ(0)]'>
-            <div key={active.id} className='h-full overflow-y-auto pt-10'>
+          <div className='absolute inset-0 flex flex-col [transform:translateZ(0)]'>
+            <header className='shrink-0 px-6 pt-8 pb-6 sm:px-8 lg:pt-10'>
+              <div className='h-9 sm:h-12' />
+              <div
+                key={active.id}
+                className='bio-glitch mt-7 grid gap-y-2 border-t border-[var(--color-ink-trace)] pt-5 font-pixel text-sm tracking-wide text-[var(--color-ink-muted)]'
+              >
+                <h2 className='flex h-5 items-center truncate text-lg leading-none uppercase text-[var(--color-ink)]'>
+                  {active.title}
+                </h2>
+                <p className='truncate'>
+                  {active.date} — {active.location}
+                </p>
+              </div>
+            </header>
+            <div key={active.id} className='min-h-0 flex-1 overflow-y-auto'>
               <FragmentDetail id={active.id} photo={photo} exhibition />
             </div>
           </div>
         )}
 
         {!photo && (
-          <div className='pointer-events-none absolute inset-x-0 top-0 z-20 flex items-center justify-between gap-3 p-4 sm:p-5'>
-            <div className='exhibition-toggle pointer-events-auto flex font-pixel text-xs uppercase tracking-[0.2em]'>
+          <div className='pointer-events-none absolute inset-x-0 top-0 z-20 px-6 pt-8 sm:px-8 lg:pt-10'>
+            <div className='flex h-9 items-center justify-between gap-3 sm:h-12'>
+              <div className='exhibition-toggle pointer-events-auto flex font-pixel text-xs uppercase tracking-[0.2em]'>
+                <Link
+                  to={albumPath(active.id)}
+                  data-active={mode === '2d'}
+                  aria-current={mode === '2d' ? 'page' : undefined}
+                >
+                  2D
+                </Link>
+                <Link
+                  to={galleryPath(active.id)}
+                  data-active={mode === '3d'}
+                  aria-current={mode === '3d' ? 'page' : undefined}
+                >
+                  3D
+                </Link>
+              </div>
               <Link
-                to={albumPath(active.id)}
-                data-active={mode === '2d'}
-                aria-current={mode === '2d' ? 'page' : undefined}
+                to='/exhibition'
+                className='exhibition-toggle pointer-events-auto font-pixel text-xs uppercase tracking-[0.2em] lg:hidden'
               >
-                2D
-              </Link>
-              <Link
-                to={galleryPath(active.id)}
-                data-active={mode === '3d'}
-                aria-current={mode === '3d' ? 'page' : undefined}
-              >
-                3D
+                <span>← Index</span>
               </Link>
             </div>
-            <Link
-              to='/exhibition'
-              className='exhibition-toggle pointer-events-auto font-pixel text-xs uppercase tracking-[0.2em] lg:hidden'
-            >
-              <span>← Index</span>
-            </Link>
           </div>
         )}
         {canFullscreen && !photo && (
@@ -203,7 +219,7 @@ const ExhibitionScreen = ({ id, sub }: { id?: string; sub?: string }) => {
             aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
             aria-pressed={isFullscreen}
             title={isFullscreen ? 'Exit fullscreen (F)' : 'Fullscreen (F)'}
-            className='exhibition-toggle absolute right-4 bottom-4 z-20 flex h-9 w-9 cursor-pointer items-center justify-center outline-none transition-colors duration-300 hover:text-[var(--color-ink)] focus-visible:text-[var(--color-ink)] sm:right-5 sm:bottom-5'
+            className='exhibition-toggle absolute right-6 bottom-6 z-20 flex h-9 w-9 cursor-pointer items-center justify-center outline-none transition-colors duration-300 hover:text-[var(--color-ink)] focus-visible:text-[var(--color-ink)] sm:right-8 sm:bottom-8'
           >
             <svg
               viewBox='0 0 14 14'

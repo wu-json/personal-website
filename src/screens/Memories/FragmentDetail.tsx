@@ -350,7 +350,11 @@ const FragmentDetail = ({
   return (
     <div className={`w-full min-h-screen bg-black ${inset}`}>
       <div
-        className={`py-16 pb-32 ${exhibition ? 'px-4 sm:px-5' : 'max-w-4xl mx-auto px-6'}`}
+        className={
+          exhibition
+            ? 'px-6 pb-32 sm:px-8'
+            : 'max-w-4xl mx-auto px-6 py-16 pb-32'
+        }
       >
         {!exhibition && (
           <Link
@@ -362,37 +366,39 @@ const FragmentDetail = ({
           </Link>
         )}
 
-        <header className='mb-8 border-b border-white/5 pb-6'>
-          <h1
-            className='bio-glitch text-white text-xl sm:text-3xl font-pixel uppercase tracking-wide mb-3'
-            style={jitter()}
-          >
-            {fragment.title}
-          </h1>
-          <div className='flex items-baseline gap-3 flex-wrap'>
-            <span
-              className='bio-glitch text-white/30 text-xs sm:text-[10px] font-mono'
+        {!exhibition && (
+          <header className='mb-8 border-b border-white/5 pb-6'>
+            <h1
+              className='bio-glitch text-white text-xl sm:text-3xl font-pixel uppercase tracking-wide mb-3'
               style={jitter()}
             >
-              {fragment.date}
-            </span>
-            <span
-              className='bio-glitch text-white/20 text-xs sm:text-[10px] font-mono'
-              style={jitter()}
-            >
-              — {fragment.location}
-            </span>
-          </div>
-          {!exhibition && (
-            <Link
-              to={`/gallery/${fragment.id}`}
-              className='bio-glitch text-white/30 text-xs sm:text-[10px] font-mono uppercase tracking-widest hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)] transition-all duration-300 mt-3 inline-block'
-              style={jitter()}
-            >
-              {'> view in interactive gallery'}
-            </Link>
-          )}
-        </header>
+              {fragment.title}
+            </h1>
+            <div className='flex items-baseline gap-3 flex-wrap'>
+              <span
+                className='bio-glitch text-white/30 text-xs sm:text-[10px] font-mono'
+                style={jitter()}
+              >
+                {fragment.date}
+              </span>
+              <span
+                className='bio-glitch text-white/20 text-xs sm:text-[10px] font-mono'
+                style={jitter()}
+              >
+                — {fragment.location}
+              </span>
+            </div>
+            {!exhibition && (
+              <Link
+                to={`/gallery/${fragment.id}`}
+                className='bio-glitch text-white/30 text-xs sm:text-[10px] font-mono uppercase tracking-widest hover:text-white hover:[text-shadow:0_0_6px_rgba(255,255,255,0.3)] transition-all duration-300 mt-3 inline-block'
+                style={jitter()}
+              >
+                {'> view in interactive gallery'}
+              </Link>
+            )}
+          </header>
+        )}
 
         {fragment.description && (
           <div
