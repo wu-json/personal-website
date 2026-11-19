@@ -1367,6 +1367,26 @@ const Movement = ({
   return null;
 };
 
+const PREWARM_FRAMES = 10;
+const PREWARM_INTERVAL_MS = 400;
+
+const Prewarm = ({ active }: { active: boolean }) => {
+  const advance = useThree(state => state.advance);
+
+  useEffect(() => {
+    if (active) return;
+    let frames = 0;
+    const timer = window.setInterval(() => {
+      advance(performance.now());
+      frames += 1;
+      if (frames >= PREWARM_FRAMES) window.clearInterval(timer);
+    }, PREWARM_INTERVAL_MS);
+    return () => window.clearInterval(timer);
+  }, [active, advance]);
+
+  return null;
+};
+
 type HintPhase = 'move' | 'click' | 'mouse' | 'done';
 
 const WALK_KEYS = new Set([
@@ -1492,6 +1512,7 @@ const GalleryScreen = ({
             fragmentDescription={fragment?.description}
             palette={palette}
           />
+          <Prewarm active={active} />
           <SpawnPoint
             position={spawn.spawnPosition}
             lookAt={spawn.spawnLookAt}

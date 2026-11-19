@@ -1502,6 +1502,56 @@ html {
   letter-spacing: 0.1em;
 }
 
+.exhibition-switch[data-mode='2d'] {
+  animation: exhibition-switch-glow 3.6s ease-in-out infinite;
+}
+
+.exhibition-switch[data-mode='2d']::before {
+  animation: exhibition-switch-nudge 3.6s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+
+.exhibition-switch[data-mode='2d'] > a:not([data-active='true']) {
+  animation: exhibition-switch-beckon 3.6s ease-in-out infinite;
+}
+
+@keyframes exhibition-switch-nudge {
+  0%,
+  62%,
+  100% {
+    transform: translateX(0);
+  }
+  74% {
+    transform: translateX(9px);
+  }
+  86% {
+    transform: translateX(-2px);
+  }
+}
+
+@keyframes exhibition-switch-beckon {
+  0%,
+  58%,
+  100% {
+    color: var(--color-ink-soft);
+    text-shadow: none;
+  }
+  76% {
+    color: var(--color-ink);
+    text-shadow: 0 0 12px var(--color-glow-strong);
+  }
+}
+
+@keyframes exhibition-switch-glow {
+  0%,
+  58%,
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+  76% {
+    box-shadow: 0 0 22px var(--color-glow-soft);
+  }
+}
+
 @keyframes gallery-hint-pulse {
   0%,
   100% {
@@ -1521,6 +1571,12 @@ html {
 
   .exhibition-switch::before {
     transition: none;
+  }
+
+  .exhibition-switch[data-mode='2d'],
+  .exhibition-switch[data-mode='2d']::before,
+  .exhibition-switch[data-mode='2d'] > a:not([data-active='true']) {
+    animation: none;
   }
 }
 

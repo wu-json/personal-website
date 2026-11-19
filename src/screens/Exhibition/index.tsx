@@ -1,8 +1,15 @@
-import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
+import {
+  lazy,
+  Suspense,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { LINEAR_SEGMENTS } from 'src/screens/Home/sections/MainBanner/LinearMark';
 import { fragments } from 'src/screens/Memories/data';
 import { FragmentDetail } from 'src/screens/Memories/FragmentDetail';
-import { Link } from 'wouter';
+import { Link, useLocation } from 'wouter';
 
 import { X_HANDLE, XLogo, XQrDialog } from './XQrDialog';
 
@@ -13,6 +20,17 @@ const GalleryScreen = lazy(() =>
 );
 
 type Mode = '2d' | '3d';
+
+const PREWARM_DELAY_MS = 700;
+const IDLE_RESET_MS = 2 * 60 * 1000;
+const IDLE_CHECK_MS = 5000;
+const ACTIVITY_EVENTS = [
+  'pointermove',
+  'pointerdown',
+  'keydown',
+  'wheel',
+  'touchstart',
+] as const;
 
 type KeyboardLock = {
   lock: (keys: string[]) => Promise<void>;
@@ -54,17 +72,60 @@ const ExhibitionScreen = ({ id, sub }: { id?: string; sub?: string }) => {
   const pathFor = mode === '3d' ? galleryPath : albumPath;
   const [qrOpen, setQrOpen] = useState(false);
   const [galleryId, setGalleryId] = useState<string | null>(null);
-  const showGallery = mode === '3d' || (routed && galleryId === routed.id);
+  const showGallery = mode === '3d' || galleryId === active.id;
   const [albumId, setAlbumId] = useState<string | null>(null);
+  const [, navigate] = useLocation();
+  const [session, setSession] = useState(0);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const indexRef = useRef<HTMLElement>(null);
+  const lastActivityAt = useRef(0);
+  const touchedSinceReset = useRef(false);
+
+  useEffect(() => {
+    lastActivityAt.current = Date.now();
+    const onActivity = () => {
+      lastActivityAt.current = Date.now();
+      touchedSinceReset.current = true;
+    };
+    for (const name of ACTIVITY_EVENTS) {
+      window.addEventListener(name, onActivity, { passive: true });
+    }
+    const timer = window.setInterval(() => {
+      if (!touchedSinceReset.current) return;
+      if (Date.now() - lastActivityAt.current < IDLE_RESET_MS) return;
+      touchedSinceReset.current = false;
+      if (document.pointerLockElement) document.exitPointerLock();
+      setQrOpen(false);
+      setGalleryId(null);
+      setSession(n => n + 1);
+      rootRef.current?.scrollTo(0, 0);
+      indexRef.current?.scrollTo(0, 0);
+      navigate('/exhibition', { replace: true });
+    }, IDLE_CHECK_MS);
+    return () => {
+      for (const name of ACTIVITY_EVENTS) {
+        window.removeEventListener(name, onActivity);
+      }
+      window.clearInterval(timer);
+    };
+  }, [navigate]);
   const keep2d = albumId === active.id;
   const [isFullscreen, setIsFullscreen] = useState(false);
   const canFullscreen =
     typeof document !== 'undefined' && document.fullscreenEnabled;
 
   useEffect(() => {
-    if (mode === '3d') setGalleryId(active.id);
-    else setAlbumId(active.id);
-  }, [mode, active.id]);
+    if (mode === '3d') {
+      setGalleryId(active.id);
+      return;
+    }
+    setAlbumId(active.id);
+    const timer = window.setTimeout(
+      () => setGalleryId(active.id),
+      PREWARM_DELAY_MS,
+    );
+    return () => window.clearTimeout(timer);
+  }, [mode, active.id, session]);
 
   useEffect(() => {
     const warm = () => {
@@ -128,7 +189,10 @@ const ExhibitionScreen = ({ id, sub }: { id?: string; sub?: string }) => {
   }, [enterFullscreen]);
 
   return (
-    <div className='exhibition fixed inset-0 z-50 overflow-y-auto lg:overflow-hidden lg:grid lg:grid-cols-[minmax(20rem,26rem)_1fr] lg:grid-rows-[auto_minmax(0,1fr)]'>
+    <div
+      ref={rootRef}
+      className='exhibition fixed inset-0 z-50 overflow-y-auto lg:overflow-hidden lg:grid lg:grid-cols-[minmax(20rem,26rem)_1fr] lg:grid-rows-[auto_minmax(0,1fr)]'
+    >
       <header className='px-6 pt-8 pb-6 sm:px-8 lg:col-start-1 lg:row-start-1 lg:pt-10'>
         <h1 className='bio-glitch font-pixel text-4xl uppercase leading-none tracking-wide text-[var(--color-ink)] sm:text-5xl'>
           Memories
@@ -172,7 +236,7 @@ const ExhibitionScreen = ({ id, sub }: { id?: string; sub?: string }) => {
           >
             <Suspense fallback={null}>
               <GalleryScreen
-                key={active.id}
+                key={`${active.id}:${session}`}
                 fragmentId={active.id}
                 embedded
                 active={mode === '3d'}
@@ -200,7 +264,10 @@ const ExhibitionScreen = ({ id, sub }: { id?: string; sub?: string }) => {
                 </p>
               </div>
             </header>
-            <div key={active.id} className='min-h-0 flex-1 overflow-y-auto'>
+            <div
+              key={`${active.id}:${session}`}
+              className='min-h-0 flex-1 overflow-y-auto'
+            >
               <FragmentDetail id={active.id} photo={photo} exhibition />
             </div>
           </div>
@@ -274,6 +341,7 @@ const ExhibitionScreen = ({ id, sub }: { id?: string; sub?: string }) => {
       </section>
 
       <nav
+        ref={indexRef}
         aria-label='Albums'
         className='min-h-0 pb-6 pt-4 lg:col-start-1 lg:pt-0 lg:row-start-2 lg:overflow-y-auto'
       >
