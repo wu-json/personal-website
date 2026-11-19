@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { memo, useMemo } from 'react';
 import { Markdown } from 'src/components/Markdown';
 import { ProgressiveImage } from 'src/components/ProgressiveImage';
 import { useJitter } from 'src/hooks/useJitter';
@@ -508,4 +508,6 @@ const FragmentDetail = ({
   );
 };
 
-export { FragmentDetail };
+const MemoFragmentDetail = memo(FragmentDetail);
+
+export { MemoFragmentDetail as FragmentDetail };

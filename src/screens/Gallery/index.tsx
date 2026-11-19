@@ -860,6 +860,36 @@ const createLabelTexture = (palette: GalleryPalette, title: string) => {
   return texture;
 };
 
+const loadPhotoTexture = (
+  url: string,
+  onLoad: (texture: THREE.Texture) => void,
+) => {
+  if (typeof createImageBitmap !== 'function') {
+    new THREE.TextureLoader().load(url, onLoad, undefined, () => {});
+    return;
+  }
+  const loader = new THREE.ImageBitmapLoader();
+  loader.setOptions({ imageOrientation: 'flipY' });
+  loader.load(
+    url,
+    bitmap => {
+      const texture = new THREE.Texture(bitmap);
+      texture.needsUpdate = true;
+      onLoad(texture);
+    },
+    undefined,
+    () => {},
+  );
+};
+
+const disposePhotoTexture = (texture: THREE.Texture) => {
+  const image: unknown = texture.image;
+  texture.dispose();
+  if (typeof ImageBitmap !== 'undefined' && image instanceof ImageBitmap) {
+    image.close();
+  }
+};
+
 const ArtFrame = memo(
   ({
     position,
@@ -891,27 +921,21 @@ const ArtFrame = memo(
       if (!imageUrl || !matRef.current) return;
       const mat = matRef.current;
       let cancelled = false;
-      const loader = new THREE.TextureLoader();
-      loader.load(
-        imageUrl,
-        tex => {
-          if (cancelled) {
-            tex.dispose();
-            return;
-          }
-          tex.colorSpace = THREE.SRGBColorSpace;
-          tex.anisotropy = anisotropy;
-          mat.map = tex;
-          mat.color.set('#ffffff');
-          mat.needsUpdate = true;
-        },
-        undefined,
-        () => {},
-      );
+      loadPhotoTexture(imageUrl, tex => {
+        if (cancelled) {
+          disposePhotoTexture(tex);
+          return;
+        }
+        tex.colorSpace = THREE.SRGBColorSpace;
+        tex.anisotropy = anisotropy;
+        mat.map = tex;
+        mat.color.set('#ffffff');
+        mat.needsUpdate = true;
+      });
       return () => {
         cancelled = true;
         if (mat.map) {
-          mat.map.dispose();
+          disposePhotoTexture(mat.map);
           mat.map = null;
           mat.needsUpdate = true;
         }
@@ -1604,4 +1628,6 @@ const GalleryScreen = ({
   );
 };
 
-export { GalleryScreen };
+const MemoGalleryScreen = memo(GalleryScreen);
+
+export { MemoGalleryScreen as GalleryScreen };
