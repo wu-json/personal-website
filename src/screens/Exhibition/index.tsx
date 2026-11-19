@@ -280,7 +280,7 @@ const ExhibitionScreen = ({ id, sub }: { id?: string; sub?: string }) => {
             <div className='flex h-9 items-center gap-6 sm:h-12'>
               <div
                 data-mode={mode}
-                className='exhibition-switch pointer-events-auto font-pixel text-xs uppercase tracking-[0.2em]'
+                className='exhibition-switch pointer-events-auto font-pixel text-sm uppercase tracking-[0.2em]'
               >
                 <Link
                   to={albumPath(active.id)}
@@ -295,6 +295,9 @@ const ExhibitionScreen = ({ id, sub }: { id?: string; sub?: string }) => {
                   aria-current={mode === '3d' ? 'page' : undefined}
                 >
                   3D
+                  {mode === '2d' && (
+                    <span aria-hidden className='exhibition-switch-dot' />
+                  )}
                 </Link>
               </div>
               <div className='hidden min-w-0 flex-1 font-mono text-[13px] leading-snug lg:block'>
