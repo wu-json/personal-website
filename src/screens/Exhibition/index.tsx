@@ -29,7 +29,7 @@ const escapeLock =
 
 const ABOUT_HOW_TO: Record<Mode, string> = {
   '2d': 'Choose an album, then step inside in 3D.',
-  '3d': 'Click to look, WASD to walk, Esc to let go.',
+  '3d': 'Click to look, WASD to walk.',
 };
 
 const galleryPath = (id: string) => `/exhibition/${id}/3d`;
