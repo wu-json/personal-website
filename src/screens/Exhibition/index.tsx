@@ -21,6 +21,16 @@ const GalleryScreen = lazy(() =>
 
 type Mode = '2d' | '3d';
 
+const HIDDEN_ALBUMS = new Set([
+  'love-and-haight',
+  'peperoaming',
+  'january-shadows',
+  'chinese-new-year',
+  'falling',
+]);
+
+const albums = fragments.filter(f => !HIDDEN_ALBUMS.has(f.id));
+
 const PREWARM_DELAY_MS = 700;
 const IDLE_RESET_MS = 2 * 60 * 1000;
 const IDLE_CHECK_MS = 5000;
@@ -65,8 +75,8 @@ const LinearLogo = ({ className }: { className?: string }) => (
 );
 
 const ExhibitionScreen = ({ id, sub }: { id?: string; sub?: string }) => {
-  const routed = fragments.find(f => f.id === id);
-  const active = routed ?? fragments[0];
+  const routed = albums.find(f => f.id === id);
+  const active = routed ?? albums[0];
   const mode: Mode = routed && sub === '3d' ? '3d' : '2d';
   const photo = routed && mode === '2d' ? sub : undefined;
   const pathFor = mode === '3d' ? galleryPath : albumPath;
@@ -349,7 +359,7 @@ const ExhibitionScreen = ({ id, sub }: { id?: string; sub?: string }) => {
         className='min-h-0 pb-6 pt-4 lg:col-start-1 lg:pt-0 lg:row-start-2 lg:overflow-y-auto'
       >
         <ol>
-          {fragments.map(f => {
+          {albums.map(f => {
             const isActive = f.id === active.id;
             return (
               <li key={f.id}>
