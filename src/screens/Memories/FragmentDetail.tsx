@@ -400,7 +400,7 @@ const FragmentDetail = ({
           </header>
         )}
 
-        {fragment.description && (
+        {fragment.description && !exhibition && (
           <div
             className='bio-glitch signal-prose text-white/70 text-sm font-mono leading-loose mb-12'
             style={jitter()}

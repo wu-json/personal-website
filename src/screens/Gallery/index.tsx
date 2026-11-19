@@ -1509,7 +1509,7 @@ const GalleryScreen = ({
             layout={layout}
             mobile={isMobile}
             fragmentTitle={fragment?.title}
-            fragmentDescription={fragment?.description}
+            fragmentDescription={embedded ? undefined : fragment?.description}
             palette={palette}
           />
           <Prewarm active={active} />
