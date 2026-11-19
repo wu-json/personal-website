@@ -233,7 +233,8 @@ const ExhibitionScreen = ({ id, sub }: { id?: string; sub?: string }) => {
               </div>
               <div className='hidden min-w-0 flex-1 font-mono text-[13px] leading-snug lg:block'>
                 <p className='truncate text-[var(--color-ink-soft)]'>
-                  My photo albums, as a gallery you can walk through.
+                  Photos taken by a human, presented in procedurally-generated
+                  3D art galleries made by computers.
                 </p>
                 <p className='truncate text-[var(--color-ink-muted)]'>
                   {ABOUT_HOW_TO[mode]}
