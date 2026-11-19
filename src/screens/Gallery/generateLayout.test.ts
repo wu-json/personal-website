@@ -4,6 +4,7 @@ import {
   type GalleryLayout,
   type ImageSpec,
   generateGalleryLayout,
+  pickRandomSpawn,
 } from './generateLayout';
 
 const PLAYER_RADIUS = 0.5;
@@ -152,6 +153,27 @@ describe('generateGalleryLayout', () => {
       expect([members, layout.artPieces.length]).toEqual([members, 1]);
       expect([members, spawnIsBlocked(layout)]).toEqual([members, false]);
       expect([members, unreachablePieces(layout).length]).toEqual([members, 0]);
+    }
+  });
+
+  it('picks random spawns clear of colliders and facing open space', () => {
+    let seed = 1;
+    const random = () => {
+      seed = (seed * 1664525 + 1013904223) % 4294967296;
+      return seed / 4294967296;
+    };
+    for (let count = 1; count <= 150; count += 7) {
+      const layout = generateGalleryLayout(soloImages(count));
+      for (let run = 0; run < 20; run++) {
+        const spawn = { ...layout, ...pickRandomSpawn(layout, random) };
+        const [x, , z] = spawn.spawnPosition;
+        const [lx, , lz] = spawn.spawnLookAt;
+        expect([count, spawnIsBlocked(spawn)]).toEqual([count, false]);
+        expect(Math.abs(x)).toBeLessThan(layout.roomWidth / 2);
+        expect(Math.abs(z)).toBeLessThan(layout.roomDepth / 2);
+        expect(Math.hypot(lx - x, lz - z)).toBeCloseTo(1);
+        expect([count, unreachablePieces(spawn).length]).toEqual([count, 0]);
+      }
     }
   });
 });

@@ -1083,3 +1083,81 @@ export const generateGalleryLayout = (images: ImageSpec[]): GalleryLayout => {
     fillLights,
   };
 };
+
+const SPAWN_ATTEMPTS = 80;
+const SPAWN_VIEW_DIRECTIONS = 24;
+
+const isClearOf = (colliders: AABB[], x: number, z: number, margin: number) =>
+  !colliders.some(
+    box =>
+      x + margin > box.minX &&
+      x - margin < box.maxX &&
+      z + margin > box.minZ &&
+      z - margin < box.maxZ,
+  );
+
+const distanceAlongAxis = (
+  origin: number,
+  direction: number,
+  min: number,
+  max: number,
+): [number, number] => {
+  if (direction === 0) {
+    return origin > min && origin < max ? [-Infinity, Infinity] : [1, 0];
+  }
+  const a = (min - origin) / direction;
+  const b = (max - origin) / direction;
+  return a < b ? [a, b] : [b, a];
+};
+
+const sightDistance = (
+  layout: Pick<GalleryLayout, 'roomWidth' | 'roomDepth' | 'colliders'>,
+  x: number,
+  z: number,
+  dx: number,
+  dz: number,
+): number => {
+  const halfW = layout.roomWidth / 2;
+  const halfD = layout.roomDepth / 2;
+  const [, exitX] = distanceAlongAxis(x, dx, -halfW, halfW);
+  const [, exitZ] = distanceAlongAxis(z, dz, -halfD, halfD);
+  let nearest = Math.min(exitX, exitZ);
+  for (const box of layout.colliders) {
+    const [enterX, leaveX] = distanceAlongAxis(x, dx, box.minX, box.maxX);
+    const [enterZ, leaveZ] = distanceAlongAxis(z, dz, box.minZ, box.maxZ);
+    const enter = Math.max(enterX, enterZ);
+    const leave = Math.min(leaveX, leaveZ);
+    if (enter <= leave && enter > 0 && enter < nearest) nearest = enter;
+  }
+  return nearest;
+};
+
+export const pickRandomSpawn = (
+  layout: GalleryLayout,
+  random: () => number = Math.random,
+): Pick<GalleryLayout, 'spawnPosition' | 'spawnLookAt'> => {
+  const reachX = layout.roomWidth / 2 - SPAWN_CLEARANCE;
+  const reachZ = layout.roomDepth / 2 - SPAWN_CLEARANCE;
+  if (reachX <= 0 || reachZ <= 0) return layout;
+
+  for (let attempt = 0; attempt < SPAWN_ATTEMPTS; attempt++) {
+    const x = (random() * 2 - 1) * reachX;
+    const z = (random() * 2 - 1) * reachZ;
+    if (!isClearOf(layout.colliders, x, z, SPAWN_CLEARANCE)) continue;
+
+    let best = { distance: -1, dx: 0, dz: 1 };
+    const offset = random() * Math.PI * 2;
+    for (let i = 0; i < SPAWN_VIEW_DIRECTIONS; i++) {
+      const angle = offset + (i / SPAWN_VIEW_DIRECTIONS) * Math.PI * 2;
+      const dx = Math.sin(angle);
+      const dz = Math.cos(angle);
+      const distance = sightDistance(layout, x, z, dx, dz);
+      if (distance > best.distance) best = { distance, dx, dz };
+    }
+    return {
+      spawnPosition: [x, 0, z],
+      spawnLookAt: [x + best.dx, 0, z + best.dz],
+    };
+  }
+  return layout;
+};

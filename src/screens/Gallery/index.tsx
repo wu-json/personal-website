@@ -19,6 +19,7 @@ import {
   type ImageSpec,
   type Partition,
   generateGalleryLayout,
+  pickRandomSpawn,
 } from './generateLayout';
 import { MobileControls } from './MobileControls';
 
@@ -1366,7 +1367,18 @@ const Movement = ({
   return null;
 };
 
-type HintPhase = 'step-back' | 'click' | 'mouse' | 'done';
+type HintPhase = 'move' | 'click' | 'mouse' | 'done';
+
+const WALK_KEYS = new Set([
+  'KeyW',
+  'KeyA',
+  'KeyS',
+  'KeyD',
+  'ArrowUp',
+  'ArrowDown',
+  'ArrowLeft',
+  'ArrowRight',
+]);
 
 const GalleryScreen = ({
   fragmentId,
@@ -1381,7 +1393,7 @@ const GalleryScreen = ({
   const palette = useMemo(() => getPalette(theme), [theme]);
   const [locked, setLocked] = useState(false);
   const [ready, setReady] = useState(false);
-  const [hintPhase, setHintPhase] = useState<HintPhase>('step-back');
+  const [hintPhase, setHintPhase] = useState<HintPhase>('move');
   const isMobile = useMemo(
     () => window.matchMedia('(pointer: coarse)').matches,
     [],
@@ -1417,6 +1429,8 @@ const GalleryScreen = ({
     return generateGalleryLayout(makeImages(count));
   }, [fragment]);
 
+  const spawn = useMemo(() => pickRandomSpawn(layout), [layout]);
+
   const onLock = useCallback(() => {
     setLocked(true);
     setHintPhase(phase => (phase === 'done' ? phase : 'mouse'));
@@ -1427,11 +1441,9 @@ const GalleryScreen = ({
   }, []);
 
   useEffect(() => {
-    if (!active || isMobile || hintPhase !== 'step-back') return;
+    if (!active || isMobile || hintPhase !== 'move') return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.code === 'KeyS' || e.code === 'ArrowDown') {
-        setHintPhase('click');
-      }
+      if (WALK_KEYS.has(e.code)) setHintPhase('click');
     };
     window.addEventListener('keydown', onKey);
     return () => {
@@ -1446,7 +1458,7 @@ const GalleryScreen = ({
   }, [hintPhase]);
 
   const onMobileMove = useCallback(() => {
-    if (hintPhase === 'step-back') setHintPhase('mouse');
+    if (hintPhase === 'move') setHintPhase('mouse');
   }, [hintPhase]);
 
   const onMobileLook = useCallback(() => {
@@ -1468,7 +1480,7 @@ const GalleryScreen = ({
         style={{ opacity: ready ? 1 : 0 }}
       >
         <Canvas
-          camera={{ position: layout.spawnPosition, fov: 75 }}
+          camera={{ position: spawn.spawnPosition, fov: 75 }}
           dpr={isMobile ? MOBILE_DPR : embedded ? EMBEDDED_DPR : DESKTOP_DPR}
           onCreated={onCreated}
           frameloop={active ? 'always' : 'never'}
@@ -1481,8 +1493,8 @@ const GalleryScreen = ({
             palette={palette}
           />
           <SpawnPoint
-            position={layout.spawnPosition}
-            lookAt={layout.spawnLookAt}
+            position={spawn.spawnPosition}
+            lookAt={spawn.spawnLookAt}
           />
           <Movement
             roomWidth={layout.roomWidth}
@@ -1513,22 +1525,22 @@ const GalleryScreen = ({
           className='absolute inset-x-0 bottom-12 z-[5] flex justify-center px-4 pointer-events-none animate-[gallery-hint-in_0.5s_ease-out_both]'
         >
           <div className='gallery-hint'>
-            {hintPhase === 'step-back' && (
+            {hintPhase === 'move' && (
               <>
                 <p className={hintBase}>
-                  <kbd className='gallery-key'>S</kbd>
-                  TAKE A STEP BACK
+                  <kbd className='gallery-key'>WASD</kbd>
+                  WALK AROUND
                 </p>
-                <p className={hintSub}>WASD — MOVE</p>
+                <p className={hintSub}>OR USE THE ARROW KEYS</p>
               </>
             )}
             {hintPhase === 'click' && (
               <>
                 <p className={hintBase}>
                   <kbd className='gallery-key'>CLICK</kbd>
-                  EXPLORE
+                  LOOK AROUND
                 </p>
-                <p className={hintSub}>MOUSE LOOK · ESC EXIT</p>
+                <p className={hintSub}>MOUSE TO LOOK · ESC TO RELEASE</p>
               </>
             )}
             {hintPhase === 'mouse' && (
@@ -1546,8 +1558,8 @@ const GalleryScreen = ({
           className='absolute inset-x-0 bottom-36 z-[5] flex justify-center px-4 pointer-events-none animate-[gallery-hint-in_0.5s_ease-out_both]'
         >
           <div className='gallery-hint'>
-            {hintPhase === 'step-back' && (
-              <p className={hintBase}>PULL JOYSTICK DOWN — STEP BACK</p>
+            {hintPhase === 'move' && (
+              <p className={hintBase}>PUSH JOYSTICK — WALK</p>
             )}
             {hintPhase === 'mouse' && (
               <div className='flex flex-col items-center gap-3'>
