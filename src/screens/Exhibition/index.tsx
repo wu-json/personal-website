@@ -171,7 +171,7 @@ const ExhibitionScreen = ({ id, sub }: { id?: string; sub?: string }) => {
         {showGallery && (
           <div
             aria-hidden={mode !== '3d'}
-            className={`absolute inset-0 ${mode === '3d' ? '' : 'pointer-events-none invisible'}`}
+            className={`absolute inset-x-0 top-[97px] bottom-0 sm:top-[109px] lg:top-[117px] ${mode === '3d' ? '' : 'pointer-events-none invisible'}`}
           >
             <Suspense fallback={null}>
               <GalleryScreen
@@ -210,7 +210,9 @@ const ExhibitionScreen = ({ id, sub }: { id?: string; sub?: string }) => {
         )}
 
         {!photo && (
-          <div className='pointer-events-none absolute inset-x-0 top-0 z-20 px-6 pt-8 sm:px-8 lg:pt-10'>
+          <div
+            className={`pointer-events-none absolute inset-x-0 top-0 z-20 px-6 pt-8 sm:px-8 lg:pt-10 ${mode === '3d' ? 'bg-[var(--color-surface)]' : ''}`}
+          >
             <div className='flex h-9 items-center gap-6 sm:h-12'>
               <div
                 data-mode={mode}
@@ -247,6 +249,9 @@ const ExhibitionScreen = ({ id, sub }: { id?: string; sub?: string }) => {
                 <span>← Index</span>
               </Link>
             </div>
+            {mode === '3d' && (
+              <div className='mt-7 border-t border-[var(--color-ink-trace)]' />
+            )}
           </div>
         )}
         {canFullscreen && !photo && (
