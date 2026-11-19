@@ -112,23 +112,20 @@ const ExhibitionScreen = ({ id, sub }: { id?: string; sub?: string }) => {
     return () => window.removeEventListener('keydown', onEscape);
   }, [isFullscreen]);
 
-  const toggleFullscreen = useCallback(() => {
-    if (!document.fullscreenEnabled) return;
-    const change = document.fullscreenElement
-      ? document.exitFullscreen()
-      : document.documentElement.requestFullscreen();
-    change.catch(() => {});
+  const enterFullscreen = useCallback(() => {
+    if (!document.fullscreenEnabled || document.fullscreenElement) return;
+    document.documentElement.requestFullscreen().catch(() => {});
   }, []);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.code !== 'KeyF' || e.repeat) return;
       if (e.metaKey || e.ctrlKey || e.altKey) return;
-      toggleFullscreen();
+      enterFullscreen();
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [toggleFullscreen]);
+  }, [enterFullscreen]);
 
   return (
     <div className='exhibition fixed inset-0 z-50 overflow-y-auto lg:overflow-hidden lg:grid lg:grid-cols-[minmax(20rem,26rem)_1fr] lg:grid-rows-[auto_minmax(0,1fr)]'>
@@ -254,13 +251,12 @@ const ExhibitionScreen = ({ id, sub }: { id?: string; sub?: string }) => {
             )}
           </div>
         )}
-        {canFullscreen && !photo && (
+        {canFullscreen && !isFullscreen && !photo && (
           <button
             type='button'
-            onClick={toggleFullscreen}
-            aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
-            aria-pressed={isFullscreen}
-            title={isFullscreen ? 'Exit fullscreen (F)' : 'Fullscreen (F)'}
+            onClick={enterFullscreen}
+            aria-label='Enter fullscreen'
+            title='Fullscreen (F)'
             className='exhibition-toggle absolute right-6 bottom-6 z-20 flex h-9 w-9 cursor-pointer items-center justify-center outline-none transition-colors duration-300 hover:text-[var(--color-ink)] focus-visible:text-[var(--color-ink)] sm:right-8 sm:bottom-8'
           >
             <svg
@@ -271,13 +267,7 @@ const ExhibitionScreen = ({ id, sub }: { id?: string; sub?: string }) => {
               aria-hidden='true'
               className='h-3.5 w-3.5'
             >
-              <path
-                d={
-                  isFullscreen
-                    ? 'M5 1v4H1M9 1v4h4M5 13V9H1M9 13V9h4'
-                    : 'M1 5V1h4M13 5V1H9M1 9v4h4M13 9v4H9'
-                }
-              />
+              <path d='M1 5V1h4M13 5V1H9M1 9v4h4M13 9v4H9' />
             </svg>
           </button>
         )}
