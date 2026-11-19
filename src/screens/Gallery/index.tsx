@@ -1,4 +1,4 @@
-import { PointerLockControls } from '@react-three/drei';
+import { PointerLockControls } from '@react-three/drei/core/PointerLockControls';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import {
   type RefObject,
@@ -19,6 +19,7 @@ import {
   type ImageSpec,
   type Partition,
   generateGalleryLayout,
+  pickRandomSpawn,
 } from './generateLayout';
 import { MobileControls } from './MobileControls';
 
@@ -168,6 +169,7 @@ const MOVE_DEADZONE = 0.1;
 const MAX_ANISOTROPY = 8;
 const DESKTOP_DPR: [number, number] = [1, 2];
 const MOBILE_DPR: [number, number] = [1, 1.5];
+const EMBEDDED_DPR: [number, number] = [1, 1.5];
 
 const WOOD_PLANK_HEIGHT = 80;
 const WOOD_PLANK_ROWS = 13;
@@ -858,6 +860,36 @@ const createLabelTexture = (palette: GalleryPalette, title: string) => {
   return texture;
 };
 
+const loadPhotoTexture = (
+  url: string,
+  onLoad: (texture: THREE.Texture) => void,
+) => {
+  if (typeof createImageBitmap !== 'function') {
+    new THREE.TextureLoader().load(url, onLoad, undefined, () => {});
+    return;
+  }
+  const loader = new THREE.ImageBitmapLoader();
+  loader.setOptions({ imageOrientation: 'flipY' });
+  loader.load(
+    url,
+    bitmap => {
+      const texture = new THREE.Texture(bitmap);
+      texture.needsUpdate = true;
+      onLoad(texture);
+    },
+    undefined,
+    () => {},
+  );
+};
+
+const disposePhotoTexture = (texture: THREE.Texture) => {
+  const image: unknown = texture.image;
+  texture.dispose();
+  if (typeof ImageBitmap !== 'undefined' && image instanceof ImageBitmap) {
+    image.close();
+  }
+};
+
 const ArtFrame = memo(
   ({
     position,
@@ -889,27 +921,21 @@ const ArtFrame = memo(
       if (!imageUrl || !matRef.current) return;
       const mat = matRef.current;
       let cancelled = false;
-      const loader = new THREE.TextureLoader();
-      loader.load(
-        imageUrl,
-        tex => {
-          if (cancelled) {
-            tex.dispose();
-            return;
-          }
-          tex.colorSpace = THREE.SRGBColorSpace;
-          tex.anisotropy = anisotropy;
-          mat.map = tex;
-          mat.color.set('#ffffff');
-          mat.needsUpdate = true;
-        },
-        undefined,
-        () => {},
-      );
+      loadPhotoTexture(imageUrl, tex => {
+        if (cancelled) {
+          disposePhotoTexture(tex);
+          return;
+        }
+        tex.colorSpace = THREE.SRGBColorSpace;
+        tex.anisotropy = anisotropy;
+        mat.map = tex;
+        mat.color.set('#ffffff');
+        mat.needsUpdate = true;
+      });
       return () => {
         cancelled = true;
         if (mat.map) {
-          mat.map.dispose();
+          disposePhotoTexture(mat.map);
           mat.map = null;
           mat.needsUpdate = true;
         }
@@ -1365,14 +1391,53 @@ const Movement = ({
   return null;
 };
 
-type HintPhase = 'step-back' | 'click' | 'mouse' | 'done';
+const PREWARM_FRAMES = 10;
+const PREWARM_INTERVAL_MS = 400;
 
-const GalleryScreen = ({ fragmentId }: { fragmentId?: string }) => {
+const Prewarm = ({ active }: { active: boolean }) => {
+  const advance = useThree(state => state.advance);
+
+  useEffect(() => {
+    if (active) return;
+    let frames = 0;
+    const timer = window.setInterval(() => {
+      advance(performance.now());
+      frames += 1;
+      if (frames >= PREWARM_FRAMES) window.clearInterval(timer);
+    }, PREWARM_INTERVAL_MS);
+    return () => window.clearInterval(timer);
+  }, [active, advance]);
+
+  return null;
+};
+
+type HintPhase = 'move' | 'click' | 'mouse' | 'done';
+
+const WALK_KEYS = new Set([
+  'KeyW',
+  'KeyA',
+  'KeyS',
+  'KeyD',
+  'ArrowUp',
+  'ArrowDown',
+  'ArrowLeft',
+  'ArrowRight',
+]);
+
+const GalleryScreen = ({
+  fragmentId,
+  embedded = false,
+  active = true,
+}: {
+  fragmentId?: string;
+  embedded?: boolean;
+  active?: boolean;
+}) => {
   const { theme } = useTheme();
   const palette = useMemo(() => getPalette(theme), [theme]);
   const [locked, setLocked] = useState(false);
   const [ready, setReady] = useState(false);
-  const [hintPhase, setHintPhase] = useState<HintPhase>('step-back');
+  const [hintPhase, setHintPhase] = useState<HintPhase>('move');
   const isMobile = useMemo(
     () => window.matchMedia('(pointer: coarse)').matches,
     [],
@@ -1408,6 +1473,8 @@ const GalleryScreen = ({ fragmentId }: { fragmentId?: string }) => {
     return generateGalleryLayout(makeImages(count));
   }, [fragment]);
 
+  const spawn = useMemo(() => pickRandomSpawn(layout), [layout]);
+
   const onLock = useCallback(() => {
     setLocked(true);
     setHintPhase(phase => (phase === 'done' ? phase : 'mouse'));
@@ -1418,17 +1485,15 @@ const GalleryScreen = ({ fragmentId }: { fragmentId?: string }) => {
   }, []);
 
   useEffect(() => {
-    if (isMobile || hintPhase !== 'step-back') return;
+    if (!active || isMobile || hintPhase !== 'move') return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.code === 'KeyS' || e.code === 'ArrowDown') {
-        setHintPhase('click');
-      }
+      if (WALK_KEYS.has(e.code)) setHintPhase('click');
     };
     window.addEventListener('keydown', onKey);
     return () => {
       window.removeEventListener('keydown', onKey);
     };
-  }, [isMobile, hintPhase]);
+  }, [active, isMobile, hintPhase]);
 
   useEffect(() => {
     if (hintPhase !== 'mouse') return;
@@ -1437,7 +1502,7 @@ const GalleryScreen = ({ fragmentId }: { fragmentId?: string }) => {
   }, [hintPhase]);
 
   const onMobileMove = useCallback(() => {
-    if (hintPhase === 'step-back') setHintPhase('mouse');
+    if (hintPhase === 'move') setHintPhase('mouse');
   }, [hintPhase]);
 
   const onMobileLook = useCallback(() => {
@@ -1445,34 +1510,36 @@ const GalleryScreen = ({ fragmentId }: { fragmentId?: string }) => {
   }, [hintPhase]);
 
   const hintBase =
-    'font-pixel text-[color:var(--color-ink-faint)] text-sm tracking-[0.2em] select-none';
+    'flex items-center justify-center font-pixel text-[color:var(--color-ink)] text-sm sm:text-xl tracking-[0.2em] text-center select-none';
   const hintSub =
-    'font-pixel text-[color:var(--color-ink-ghost)] text-xs sm:text-[10px] tracking-[0.15em] select-none mt-2';
+    'font-pixel text-[color:var(--color-ink-muted)] text-xs tracking-[0.15em] select-none mt-3';
 
   return (
     <div
-      className={`fixed inset-0 z-50${!isMobile && !locked ? ' cursor-pointer' : ''}`}
+      className={`${embedded ? 'absolute inset-0' : 'fixed inset-0 z-50'}${!isMobile && !locked ? ' cursor-pointer' : ''}`}
       style={{ backgroundColor: 'var(--color-surface)' }}
     >
       <div
-        className='absolute inset-0 transition-opacity duration-500'
+        className='gallery-viewport absolute inset-0 transition-opacity duration-500'
         style={{ opacity: ready ? 1 : 0 }}
       >
         <Canvas
-          camera={{ position: layout.spawnPosition, fov: 75 }}
-          dpr={isMobile ? MOBILE_DPR : DESKTOP_DPR}
+          camera={{ position: spawn.spawnPosition, fov: 75 }}
+          dpr={isMobile ? MOBILE_DPR : embedded ? EMBEDDED_DPR : DESKTOP_DPR}
           onCreated={onCreated}
+          frameloop={active ? 'always' : 'never'}
         >
           <Room
             layout={layout}
             mobile={isMobile}
             fragmentTitle={fragment?.title}
-            fragmentDescription={fragment?.description}
+            fragmentDescription={embedded ? undefined : fragment?.description}
             palette={palette}
           />
+          <Prewarm active={active} />
           <SpawnPoint
-            position={layout.spawnPosition}
-            lookAt={layout.spawnLookAt}
+            position={spawn.spawnPosition}
+            lookAt={spawn.spawnLookAt}
           />
           <Movement
             roomWidth={layout.roomWidth}
@@ -1481,11 +1548,15 @@ const GalleryScreen = ({ fragmentId }: { fragmentId?: string }) => {
             mobileInput={mobileInputRef}
           />
           {!isMobile && (
-            <PointerLockControls onLock={onLock} onUnlock={onUnlock} />
+            <PointerLockControls
+              selector='.gallery-viewport'
+              onLock={onLock}
+              onUnlock={onUnlock}
+            />
           )}
         </Canvas>
       </div>
-      {!locked && (
+      {!locked && !embedded && (
         <a
           href={fragment ? `/memories/${fragment.id}` : '/'}
           className='absolute top-6 left-6 z-10 font-pixel text-[color:var(--color-ink-ghost)] text-xs tracking-[0.2em] pointer-events-auto hover:text-[color:var(--color-ink-muted)] transition-colors'
@@ -1496,41 +1567,54 @@ const GalleryScreen = ({ fragmentId }: { fragmentId?: string }) => {
       {!isMobile && ready && hintPhase !== 'done' && (
         <div
           key={hintPhase}
-          className='absolute inset-x-0 bottom-10 z-[5] flex flex-col items-center pointer-events-none animate-[gallery-hint-in_0.5s_ease-out_both]'
+          className='absolute inset-x-0 bottom-12 z-[5] flex justify-center px-4 pointer-events-none animate-[gallery-hint-in_0.5s_ease-out_both]'
         >
-          {hintPhase === 'step-back' && (
-            <>
-              <p className={hintBase}>PRESS "S" — TAKE A STEP BACK</p>
-              <p className={hintSub}>WASD — MOVE</p>
-            </>
-          )}
-          {hintPhase === 'click' && (
-            <>
-              <p className={hintBase}>CLICK — EXPLORE</p>
-              <p className={hintSub}>MOUSE LOOK · ESC EXIT</p>
-            </>
-          )}
-          {hintPhase === 'mouse' && (
-            <p className={hintBase}>MOVE MOUSE — TURN AROUND</p>
-          )}
+          <div className='gallery-hint'>
+            {hintPhase === 'move' && (
+              <>
+                <p className={hintBase}>
+                  <kbd className='gallery-key'>WASD</kbd>
+                  WALK AROUND
+                </p>
+                <p className={hintSub}>OR USE THE ARROW KEYS</p>
+              </>
+            )}
+            {hintPhase === 'click' && (
+              <>
+                <p className={hintBase}>
+                  <kbd className='gallery-key'>CLICK</kbd>
+                  LOOK AROUND
+                </p>
+                <p className={hintSub}>MOUSE TO LOOK · ESC TO RELEASE</p>
+              </>
+            )}
+            {hintPhase === 'mouse' && (
+              <p className={hintBase}>
+                <kbd className='gallery-key'>MOVE MOUSE</kbd>
+                TURN AROUND
+              </p>
+            )}
+          </div>
         </div>
       )}
       {isMobile && ready && hintPhase !== 'done' && hintPhase !== 'click' && (
         <div
           key={hintPhase}
-          className='absolute inset-x-0 bottom-36 z-[5] flex flex-col items-center pointer-events-none animate-[gallery-hint-in_0.5s_ease-out_both]'
+          className='absolute inset-x-0 bottom-36 z-[5] flex justify-center px-4 pointer-events-none animate-[gallery-hint-in_0.5s_ease-out_both]'
         >
-          {hintPhase === 'step-back' && (
-            <p className={hintBase}>PULL JOYSTICK DOWN — STEP BACK</p>
-          )}
-          {hintPhase === 'mouse' && (
-            <div className='flex flex-col items-center gap-3'>
-              <p className={hintBase}>SWIPE RIGHT SIDE — TURN AROUND</p>
-              <span className='text-[color:var(--color-ink-faint)] text-2xl animate-[gallery-swipe_1.2s_ease-in-out_infinite] select-none'>
-                →
-              </span>
-            </div>
-          )}
+          <div className='gallery-hint'>
+            {hintPhase === 'move' && (
+              <p className={hintBase}>PUSH JOYSTICK — WALK</p>
+            )}
+            {hintPhase === 'mouse' && (
+              <div className='flex flex-col items-center gap-3'>
+                <p className={hintBase}>SWIPE RIGHT SIDE — TURN AROUND</p>
+                <span className='text-[color:var(--color-ink)] text-2xl animate-[gallery-swipe_1.2s_ease-in-out_infinite] select-none'>
+                  →
+                </span>
+              </div>
+            )}
+          </div>
         </div>
       )}
       {isMobile && (
@@ -1544,4 +1628,6 @@ const GalleryScreen = ({ fragmentId }: { fragmentId?: string }) => {
   );
 };
 
-export { GalleryScreen };
+const MemoGalleryScreen = memo(GalleryScreen);
+
+export { MemoGalleryScreen as GalleryScreen };

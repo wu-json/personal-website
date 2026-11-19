@@ -43,8 +43,8 @@ const PhotoSlide = ({
         className='relative overflow-hidden'
         style={{
           aspectRatio: `${photo.width} / ${photo.height}`,
-          maxHeight: 'calc(100vh - 8rem)',
-          width: `min(calc(100vw - 4rem), calc((100vh - 8rem) * ${photo.width / photo.height}))`,
+          maxHeight: 'calc(100cqh - 8rem)',
+          width: `min(calc(100cqw - 4rem), calc((100cqh - 8rem) * ${photo.width / photo.height}))`,
         }}
       >
         <img

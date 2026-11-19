@@ -128,7 +128,7 @@ const LightboxShell = ({
             {slots.map((view, slotIdx) => (
               <div
                 key={slotIdx}
-                className='shrink-0 h-full'
+                className='shrink-0 h-full [container-type:size]'
                 style={{ width: '33.3333%' }}
                 aria-hidden={slotIdx !== 1 || undefined}
               >
