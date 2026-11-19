@@ -27,6 +27,11 @@ const escapeLock =
       ? (navigator as Navigator & { keyboard: KeyboardLock }).keyboard
       : undefined;
 
+const ABOUT_HOW_TO: Record<Mode, string> = {
+  '2d': 'Pick an album · click a photo to enlarge · switch to 3D to walk the room',
+  '3d': 'Click the room to look around · WASD to move · Esc to release the mouse',
+};
+
 const galleryPath = (id: string) => `/exhibition/${id}/3d`;
 const albumPath = (id: string) => `/exhibition/${id}`;
 
@@ -206,7 +211,7 @@ const ExhibitionScreen = ({ id, sub }: { id?: string; sub?: string }) => {
 
         {!photo && (
           <div className='pointer-events-none absolute inset-x-0 top-0 z-20 px-6 pt-8 sm:px-8 lg:pt-10'>
-            <div className='flex h-9 items-center justify-between gap-3 sm:h-12'>
+            <div className='flex h-9 items-center gap-6 sm:h-12'>
               <div
                 data-mode={mode}
                 className='exhibition-switch pointer-events-auto font-pixel text-xs uppercase tracking-[0.2em]'
@@ -226,9 +231,17 @@ const ExhibitionScreen = ({ id, sub }: { id?: string; sub?: string }) => {
                   3D
                 </Link>
               </div>
+              <div className='hidden min-w-0 flex-1 font-mono text-[13px] leading-snug lg:block'>
+                <p className='truncate text-[var(--color-ink-soft)]'>
+                  My photo albums, as a gallery you can walk through.
+                </p>
+                <p className='truncate text-[var(--color-ink-muted)]'>
+                  {ABOUT_HOW_TO[mode]}
+                </p>
+              </div>
               <Link
                 to='/exhibition'
-                className='exhibition-toggle pointer-events-auto font-pixel text-xs uppercase tracking-[0.2em] lg:hidden'
+                className='exhibition-toggle pointer-events-auto ml-auto font-pixel text-xs uppercase tracking-[0.2em] lg:hidden'
               >
                 <span>← Index</span>
               </Link>
