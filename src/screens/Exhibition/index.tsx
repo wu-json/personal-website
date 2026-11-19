@@ -28,6 +28,7 @@ const HIDDEN_ALBUMS = new Set([
   'chinese-new-year',
   'falling',
   'golden-stars',
+  'poetic-cabo',
 ]);
 
 const albums = fragments.filter(f => !HIDDEN_ALBUMS.has(f.id));
