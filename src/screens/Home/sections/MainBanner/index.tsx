@@ -126,7 +126,7 @@ const MainBanner = () => {
               </a>
             </p>
             <p className={bioClass} style={jitter()}>
-              Yale 2022. Based in SF & SEA.
+              Yale 2022. Based in SF.
             </p>
             <p className={bioClass} style={jitter()}>
               I also dance and capture humans + landscapes in time.
